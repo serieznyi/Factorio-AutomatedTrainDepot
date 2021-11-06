@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+readonly ROOT_DIR=$( cd $(dirname $0)/../.. ; pwd -P )
+
+function readJson {
+  UNAMESTR=`uname`
+  if [[ "$UNAMESTR" == 'Linux' ]]; then
+    SED_EXTENDED='-r'
+  elif [[ "$UNAMESTR" == 'Darwin' ]]; then
+    SED_EXTENDED='-E'
+  fi;
+
+  VALUE=`grep -m 1 "\"${2}\"" ${1} | sed ${SED_EXTENDED} 's/^ *//;s/.*: *"//;s/",?//'`
+
+  if [ ! "$VALUE" ]; then
+    echo "Error: Cannot find \"${2}\" in ${1}" >&2;
+    exit 1;
+  else
+    echo $VALUE ;
+  fi;
+}
+
+VERSION=$(readJson "$ROOT_DIR/info.json" version)
+NAME=$(readJson "$ROOT_DIR/info.json" name)
+
+mkdir -p "$ROOT_DIR/dist/"
+
+NEW_BUILD_DIR_NAME="${NAME}_${VERSION}"
+NEW_BUILD_DIR_PATH="${ROOT_DIR}/dist/${NEW_BUILD_DIR_NAME}"
+
+rm -Rf "$NEW_BUILD_DIR_PATH"
+
+mkdir "$NEW_BUILD_DIR_PATH"
+
+cp -r info.json \
+      prototypes \
+      graphics \
+      locale \
+      migrations \
+      screenshots \
+      scripts \
+      tutorials \
+      LICENSE.md  \
+      README.md  \
+      changelog.txt  \
+      thumbnail.png \
+      *.lua \
+      "$NEW_BUILD_DIR_PATH"
+
+RESULT_ARCHIVE_PATH="$NEW_BUILD_DIR_PATH.zip"
+
+rm -f "$RESULT_ARCHIVE_PATH"
+
+cd "${ROOT_DIR}/dist/" || exit
+
+zip -r "$RESULT_ARCHIVE_PATH" "$NEW_BUILD_DIR_NAME"
+
+rm -Rf "$NEW_BUILD_DIR_PATH"
+
+printf '\nResult archive: %s\n' "${ROOT_DIR}/${RESULT_ARCHIVE_PATH}"
