@@ -7,5 +7,5 @@
   "homepage": "",
   "description": "Add train depo what support automatically deploy new trains in train system",
   "factorio_version": "1.1",
-  "dependencies": ["base >= 1.1.9", "flib >= 0.6.0"]
+  "dependencies": ["base >= 1.1.46", "flib >= 0.8.4"]
 }
