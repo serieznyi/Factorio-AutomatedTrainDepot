@@ -1,0 +1,11 @@
+{
+  "name": "TrainDepo",
+  "version": "0.0.1",
+  "title": "Train Depo for deploy yours trains",
+  "author": "Maxim Mironyuk (serieznyi)",
+  "contact": "",
+  "homepage": "",
+  "description": "Add train depo what support automatically deploy new trains in train system",
+  "factorio_version": "1.1",
+  "dependencies": ["base >= 1.1.9", "flib >= 0.6.0"]
+}
