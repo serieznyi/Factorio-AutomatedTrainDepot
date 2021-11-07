@@ -1,6 +1,6 @@
-# Train Depo for deploy yours trains
+# ATD - Automated Train Depot
 
-Add train depo what support automatically deploy new trains in train system
+Add train depot what support automatically deploy new trains in train system
 
 Forum: https://forums.factorio.com/viewforum.php?f=<SOME_IDENTIFIER>
-Download: https://mods.factorio.com/mods/serieznyi/TrainDepo
+Download: https://mods.factorio.com/mods/serieznyi/AutomatedTrainDepo

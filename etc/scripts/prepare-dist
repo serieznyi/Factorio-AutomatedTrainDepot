@@ -45,6 +45,10 @@ done
 
 readonly ROOT_DIR=$( cd $(dirname $0)/../.. ; pwd -P )
 
+readonly SRC_DIR=$( cd "${ROOT_DIR}/src" ; pwd -P )
+
+readonly RUNTIME_DIR="${ROOT_DIR}/tmp"
+
 function readJson {
   UNAMESTR=`uname`
   if [[ "$UNAMESTR" == 'Linux' ]]; then
@@ -63,17 +67,19 @@ function readJson {
   fi;
 }
 
-VERSION=$(readJson "$ROOT_DIR/info.json" version)
-NAME=$(readJson "$ROOT_DIR/info.json" name)
+VERSION=$(readJson "$SRC_DIR/info.json" version)
+NAME=$(readJson "$SRC_DIR/info.json" name)
 
-mkdir -p "$ROOT_DIR/dist/"
+mkdir -p "$RUNTIME_DIR"
 
 NEW_BUILD_DIR_NAME="${NAME}_${VERSION}"
-NEW_BUILD_DIR_PATH="${ROOT_DIR}/dist/${NEW_BUILD_DIR_NAME}"
+NEW_BUILD_DIR_PATH="${RUNTIME_DIR}/${NEW_BUILD_DIR_NAME}"
 
 rm -Rf "$NEW_BUILD_DIR_PATH"
 
 mkdir "$NEW_BUILD_DIR_PATH"
+
+cd "$SRC_DIR" || exit 1
 
 cp -r info.json \
       prototypes \
@@ -90,11 +96,13 @@ cp -r info.json \
       *.lua \
       "$NEW_BUILD_DIR_PATH"
 
+cd - || exit 1
+
 RESULT_ARCHIVE_PATH="$NEW_BUILD_DIR_PATH.zip"
 
 rm -f "$RESULT_ARCHIVE_PATH"
 
-cd "${ROOT_DIR}/dist/" || exit
+cd "${RUNTIME_DIR}" || exit
 
 zip -r "$RESULT_ARCHIVE_PATH" "$NEW_BUILD_DIR_NAME"
 
