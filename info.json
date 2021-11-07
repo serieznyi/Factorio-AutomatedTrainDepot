@@ -1,11 +1,11 @@
 {
-  "name": "TrainDepo",
+  "name": "AutomatedTrainDepot",
   "version": "0.0.1",
-  "title": "Train Depo for deploy yours trains",
+  "title": "ATD - Automated Train Depot",
   "author": "Maxim Mironyuk (serieznyi)",
   "contact": "",
   "homepage": "",
-  "description": "Add train depo what support automatically deploy new trains in train system",
+  "description": "Add train depot what support automatically deploy new trains in train system",
   "factorio_version": "1.1",
   "dependencies": ["base >= 1.1.46", "flib >= 0.8.4"]
 }
