@@ -1,9 +1,13 @@
-require ("prototypes.technology")
-require ("prototypes.recipe")
+automated_train_depot = {}
+
+---------------------------------------------------------------------------
+-- -- -- Register prototypes
+---------------------------------------------------------------------------
+
 require ("prototypes.item")
 require ("prototypes.entity")
-
-automated_train_depot = {}
+require ("prototypes.recipe")
+require ("prototypes.technology")
 
 ---------------------------------------------------------------------------
 -- -- -- Compatibility initialization
