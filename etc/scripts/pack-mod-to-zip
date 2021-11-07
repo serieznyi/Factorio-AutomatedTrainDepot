@@ -83,7 +83,7 @@ cd "$SRC_DIR" || exit 1
 
 cp -r info.json \
       prototypes \
-      graphics \
+      media \
       locale \
       migrations \
       screenshots \

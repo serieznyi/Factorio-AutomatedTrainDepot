@@ -1,7 +1,7 @@
 local automated_train_depot = {
     type = "technology",
     name = "automated-train-depot",
-    icon = "__AutomatedTrainDepot__/graphics/technology/automated-train-depot.png",
+    icon = "__AutomatedTrainDepot__/media/graphics/technology/automated-train-depot.png",
     icon_size = 256,
     --icon_mipmaps = 4, todo use mipmaps
     effects = {
