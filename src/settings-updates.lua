@@ -2,4 +2,4 @@
 -- -- -- Compatibility initialization
 ---------------------------------------------------------------------------
 
-require('compatibility.0-settings-updates.index')
+require('compatibility.apply.0-settings-updates.index')

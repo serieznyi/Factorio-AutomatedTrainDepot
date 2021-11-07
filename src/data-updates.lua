@@ -2,4 +2,4 @@
 -- -- -- Compatibility initialization
 ---------------------------------------------------------------------------
 
-require('compatibility.2-data-updates.index')
+require('compatibility.apply.2-data-updates.index')
