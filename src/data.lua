@@ -3,7 +3,7 @@ automated_train_depot = {}
 automated_train_depot.name = "AutomatedTrainDepot"
 
 ---------------------------------------------------------------------------
--- -- -- Register prototypes
+-- -- -- Content initialization
 ---------------------------------------------------------------------------
 
 require ("prototypes.index")
