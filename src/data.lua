@@ -6,10 +6,7 @@ automated_train_depot.name = "AutomatedTrainDepot"
 -- -- -- Register prototypes
 ---------------------------------------------------------------------------
 
-require ("prototypes.item")
-require ("prototypes.entity")
-require ("prototypes.recipe")
-require ("prototypes.technology")
+require ("prototypes.index")
 
 ---------------------------------------------------------------------------
 -- -- -- Compatibility initialization
