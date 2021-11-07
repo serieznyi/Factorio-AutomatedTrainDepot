@@ -1,0 +1,6 @@
+--local train_depot_building = {
+--    type = "entity",
+--    name = "automated-train-depot-building",
+--}
+--
+--data:extend({ train_depot_building })
