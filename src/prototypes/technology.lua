@@ -12,7 +12,9 @@ local automated_train_depot = {
     },
     prerequisites = { -- todo need balance
         "rail-signals",
-        "construction-robotics",
+        "fast-inserter",
+        "gate",
+        "concrete",
     },
     unit = {
         count = 1000, -- todo need balance
