@@ -11,7 +11,7 @@ end
 ---@param entity LuaEntity
 ---@return void
 function depot:build(entity)
-    log(entity.name .. " was builded")
+    modificationState.logger:debug(entity.name .. " was builded")
 
     ---@type LuaEntity building_input
     local depot_input = entity.surface.create_entity({
@@ -45,8 +45,6 @@ function depot:build(entity)
     depot_station_output.rotate({ reverse = true})
     --depot_station_output.direction = defines.direction.south
     --depot_station_output.orientation = 0.5 -- South
-
-    game.print(tostring(res))
 
     modificationState.registered_depots[entity.unit_number] = {
         depot_entity = entity,
