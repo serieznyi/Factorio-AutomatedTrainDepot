@@ -1,17 +1,13 @@
-automated_train_depot = {}
-
-automated_train_depot.name = "AutomatedTrainDepot"
-
 ---------------------------------------------------------------------------
 -- -- -- Content initialization
 ---------------------------------------------------------------------------
 
-require ("prototypes.index")
+require ("extra.prototypes.index")
 
 ---------------------------------------------------------------------------
 -- -- -- Compatibility initialization
 ---------------------------------------------------------------------------
 
-require('compatibility.warn.0-data.index')
+require('extra.compatibility.warn.0-data.index')
 
-require('compatibility.apply.1-data.index')
+require('extra.compatibility.apply.1-data.index')
