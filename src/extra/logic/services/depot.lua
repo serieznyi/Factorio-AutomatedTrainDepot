@@ -1,11 +1,12 @@
 local depot = {}
 
+local FORCE_DEFAULT = "player"
 local DEPOT_RAILS_COUNT = 7
 local RAIL_ENTITY_LENGTH = 2
 
 ---@param entity LuaEntity
 local function shadow_entity(entity)
-    entity.force = entity.force
+    entity.force = FORCE_DEFAULT
     entity.operable = false
     entity.minable = false
     entity.destructible = false
@@ -80,7 +81,7 @@ function depot:build(entity)
     for _,v in ipairs(input_rails) do table.insert(dependent_entities, v) end
     local last_input_rail = input_rails[#input_rails]
 
-    local input_rail_signal = build_rail_signal(last_input_rail, depot_station_output.direction)
+    local input_rail_signal = build_rail_signal(last_input_rail, depot_station_input.direction)
     table.insert(dependent_entities, input_rail_signal)
 
     ---- Output station, rails and signals
