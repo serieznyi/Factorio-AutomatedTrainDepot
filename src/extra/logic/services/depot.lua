@@ -1,7 +1,9 @@
+local flib_direction = require('__flib__.direction')
+
 local depot = {}
 
 local FORCE_DEFAULT = "player"
-local DEPOT_RAILS_COUNT = 7
+local DEPOT_RAILS_COUNT = 3
 local RAIL_ENTITY_LENGTH = 2
 
 ---@param entity LuaEntity
@@ -15,15 +17,16 @@ end
 
 ---@param rail_entity LuaEntity
 ---@param direction int
-local function build_rail_signal(rail_entity, direction)
+local function build_rail_signal(rail_entity, station_direction)
     local offset
-    if direction == defines.direction.south then offset = -1.5 else offset = 1.5 end
+    if station_direction == defines.direction.south then offset = -1.5 else offset = 1.5 end
     local rail_signal = rail_entity.surface.create_entity({
         name = "rail-signal",
         position = { rail_entity.position.x + offset, rail_entity.position.y },
+        direction = flib_direction.opposite(station_direction)
     })
     shadow_entity(rail_signal)
-
+    rail_signal.operable = true
     return rail_signal
 end
 
