@@ -12,24 +12,37 @@ local function shadow_entity(entity)
     entity.rotatable = false
 end
 
----@param entity LuaEntity
----@param length int
+---@param rail_entity LuaEntity
+---@param direction int
+local function build_rail_signal(rail_entity, direction)
+    local offset
+    if direction == defines.direction.south then offset = -1.5 else offset = 1.5 end
+    local rail_signal = rail_entity.surface.create_entity({
+        name = "rail-signal",
+        position = { rail_entity.position.x + offset, rail_entity.position.y },
+    })
+    shadow_entity(rail_signal)
+
+    return rail_signal
+end
+
+---@param station_entity LuaEntity
+---@param railsCount int
 ---@return table list of build rails
-local function build_straight_rails_from_station(station_entity, railsCount)
+local function build_straight_rails_for_station(station_entity, railsCount)
+    local offset
+    if station_entity.direction == defines.direction.south then offset = -1.5 else offset = 1.5 end
+    local railX = station_entity.position.x - offset
+    local rails = {}
     local rail
-    local railX = station_entity.position.x - 1.5
-    local build_rails = {}
     for y = station_entity.position.y, (station_entity.position.y + (RAIL_ENTITY_LENGTH * railsCount)), RAIL_ENTITY_LENGTH do
         rail = nil
-        rail = surface.create_entity({
-            name = "straight-rail",
-            position = { railX, y},
-        })
+        rail = station_entity.surface.create_entity({ name = "straight-rail",  position = { railX, y}})
         shadow_entity(rail)
-        table.insert(build_rails, lastRail)
+        table.insert(rails, rail)
     end
 
-    return build_rails
+    return rails
 end
 
 ---@param entity LuaEntity
@@ -40,19 +53,19 @@ function depot:build(entity)
 
     -- Input and output for logistic signals
 
-    local depot_input = surface.create_entity({
+    local depot_signals_input = surface.create_entity({
         name = modificationState.constants.entity_names.depot_building_input,
         position = {entity.position.x + 2, entity.position.y + 2}
     })
-    shadow_entity(depot_input)
-    table.insert(dependent_entities, depot_input)
+    shadow_entity(depot_signals_input)
+    table.insert(dependent_entities, depot_signals_input)
 
-    local depot_output = surface.create_entity({
+    local depot_signals_output = surface.create_entity({
         name = modificationState.constants.entity_names.depot_building_output,
         position = {entity.position.x - 1, entity.position.y + 2}
     })
-    shadow_entity(depot_output)
-    table.insert(dependent_entities, depot_output)
+    shadow_entity(depot_signals_output)
+    table.insert(dependent_entities, depot_signals_output)
 
     -- Input station, rails and signals
 
@@ -63,25 +76,12 @@ function depot:build(entity)
     shadow_entity(depot_station_input)
     table.insert(dependent_entities, depot_station_input)
 
-    local railInput
-    local railInputPositionX = depot_station_input.position.x - 1.5
-    for y = depot_station_input.position.y, (depot_station_input.position.y + (RAIL_ENTITY_LENGTH * DEPOT_RAILS_COUNT)), RAIL_ENTITY_LENGTH do
-        railInput = nil
-        railInput = surface.create_entity({
-            name = "straight-rail",
-            position = { railInputPositionX, y},
-        })
-        game.print("rail - " .. railInputPositionX .. " - " .. y)
-        shadow_entity(railInput)
-        table.insert(dependent_entities, railInput)
-    end
+    local input_rails = build_straight_rails_for_station(depot_station_input, DEPOT_RAILS_COUNT)
+    for _,v in ipairs(input_rails) do table.insert(dependent_entities, v) end
+    local last_input_rail = input_rails[#input_rails]
 
-    local inputRailSignal = surface.create_entity({
-        name = "rail-signal",
-        position = { railInput.position.x + 1.5, railInput.position.y },
-    })
-    shadow_entity(inputRailSignal)
-    table.insert(dependent_entities, inputRailSignal)
+    local input_rail_signal = build_rail_signal(last_input_rail, depot_station_output.direction)
+    table.insert(dependent_entities, input_rail_signal)
 
     ---- Output station, rails and signals
 
@@ -94,25 +94,12 @@ function depot:build(entity)
     shadow_entity(depot_station_output)
     table.insert(dependent_entities, depot_station_output)
 
-    local railOutput
-    local railOutputPositionX = depot_station_output.position.x + 1.5
-    for y = depot_station_output.position.y, (depot_station_output.position.y + (RAIL_ENTITY_LENGTH * DEPOT_RAILS_COUNT)), RAIL_ENTITY_LENGTH do
-        railOutput = nil
-        railOutput = surface.create_entity({
-            name = "straight-rail",
-            position = { railOutputPositionX, y},
-        })
-        shadow_entity(railOutput)
-        table.insert(dependent_entities, railOutput)
-    end
+    local output_rails = build_straight_rails_for_station(depot_station_output, DEPOT_RAILS_COUNT)
+    for _,v in ipairs(output_rails) do table.insert(dependent_entities, v) end
+    local lastOutputRail = output_rails[#output_rails]
 
-    local outputRailSignal = surface.create_entity({
-        name = "rail-signal",
-        position = { railOutput.position.x - 1.5, railOutput.position.y },
-        direction = defines.direction.south
-    })
-    shadow_entity(outputRailSignal)
-    table.insert(dependent_entities, outputRailSignal)
+    local output_rail_signal = build_rail_signal(lastOutputRail, depot_station_output.direction)
+    table.insert(dependent_entities, output_rail_signal)
 
     modificationState.registered_depots[entity.unit_number] = {
         depot_entity = entity,
