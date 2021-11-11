@@ -1,4 +1,4 @@
-modificationState = require("extra.logic.init_modification_state")
+modification_state = require("extra.logic.init_modification_state")
 
 -- TODO
 --script.on_nth_tick(, function()
