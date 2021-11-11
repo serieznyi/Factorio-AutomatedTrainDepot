@@ -3,7 +3,7 @@ local flib_direction = require('__flib__.direction')
 local depot = {}
 
 local FORCE_DEFAULT = "player"
-local DEPOT_RAILS_COUNT = 3
+local DEPOT_RAILS_COUNT = 7
 local RAIL_ENTITY_LENGTH = 2
 
 ---@param entity LuaEntity
