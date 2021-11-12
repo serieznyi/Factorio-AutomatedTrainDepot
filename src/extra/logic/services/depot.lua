@@ -57,16 +57,18 @@ function depot:build(entity)
 
     -- Input and output for logistic signals
 
+    local SIGNALS_POS_Y = entity.position.y + 6
+
     local depot_signals_input = surface.create_entity({
         name = modification_state.constants.entity_names.depot_building_input,
-        position = {entity.position.x + 2, entity.position.y + 2}
+        position = {entity.position.x + 2, SIGNALS_POS_Y}
     })
     shadow_entity(depot_signals_input)
     table.insert(dependent_entities, depot_signals_input)
 
     local depot_signals_output = surface.create_entity({
         name = modification_state.constants.entity_names.depot_building_output,
-        position = {entity.position.x - 1, entity.position.y + 2}
+        position = {entity.position.x - 1, SIGNALS_POS_Y}
     })
     shadow_entity(depot_signals_output)
     table.insert(dependent_entities, depot_signals_output)

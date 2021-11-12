@@ -2,8 +2,8 @@ local constants = require("extra.constants")
 
 local automated_train_depot_building = table.deepcopy(data.raw["container"]["steel-chest"])
 automated_train_depot_building.name = constants.entity_names.depot_building
---automated_train_depot_building.selection_box = {{-9, -4.5}, {10, -4.5}}
---automated_train_depot_building.hit_visualization_box = {{-9, -4.5}, {10, -4.5}}
+automated_train_depot_building.selection_box = {{-8, -7}, {9, 6}}
+automated_train_depot_building.collision_box = {{-7.9, -6.9}, {8.9, 5.9}}
 
 local automated_train_depot_building_input = table.deepcopy(data.raw["lamp"]["small-lamp"])
 automated_train_depot_building_input.name = constants.entity_names.depot_building_input

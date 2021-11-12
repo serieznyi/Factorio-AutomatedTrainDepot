@@ -7,7 +7,9 @@ modification_state.constants = require("extra.constants")
 
 modification_state.settings = Configuration()
 
-modification_state.registered_depots = {}
+modification_state.registered_depots = {
+    depot_frame = nil
+}
 
 modification_state.logger = Logger()
 
