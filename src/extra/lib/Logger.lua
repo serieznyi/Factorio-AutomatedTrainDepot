@@ -1,6 +1,5 @@
 local misc = require("__flib__.misc")
 
----@type
 local LEVEL = {
     DEBUG = "DEBUG",
     INFO = "INFO",
@@ -8,16 +7,15 @@ local LEVEL = {
     ERROR = "ERROR",
 }
 
--- @module extra.lib.Logger
 ---------------------------------------------------
 --  Pattern parts:
 --   - %date
 --   - %level
 --   - %message
 ---------------------------------------------------
-
 local DEFAULT_PATTERN = "[%date][%level] %message"
 
+-- @module extra.lib.Logger
 local Logger = {
     message_pattern = DEFAULT_PATTERN
 }
@@ -54,18 +52,16 @@ function Logger:debug(text)
     write_message(LEVEL.DEBUG, text)
 end
 
-local metatable = {
-    __call = function(message_pattern)
-        local self = {}
-        setmetatable(self, { __index = Logger })
-
-        if message_pattern ~= nil then
+setmetatable(Logger, {
+    --- @param self table
+    --- @param message_pattern string
+    __call = function(self, message_pattern)
+        if message_pattern ~= nil and message_pattern ~= "" then
             self.message_pattern = message_pattern
         end
 
         return self
     end
-}
-setmetatable(Logger, metatable)
+})
 
 return Logger

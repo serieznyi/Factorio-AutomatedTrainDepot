@@ -7,13 +7,11 @@ function Configuration:refresh()
     self.chat_logging_level = tonumber(settings.global["automated-train-depot-console-level"].value)
 end
 
-local metatable = {
-    __call = function()
-        local self = {}
-        setmetatable(self, { __index = Configuration })
+setmetatable(Configuration, {
+    ---@param self table
+    __call = function(self)
         return self
     end
-}
-setmetatable(Configuration, metatable)
+})
 
 return Configuration
