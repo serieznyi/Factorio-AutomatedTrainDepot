@@ -36,17 +36,20 @@ end
 
 ---@param eventData EventData
 function default_controller:on_gui_opened(eventData)
-    if eventData.gui_type == defines.gui_type.entity and eventData.entity.name == automated_train_depot.constants.entity_names.depot_building then
+    if
+        eventData.gui_type == defines.gui_type.entity
+        and eventData.entity.name == automated_train_depot.constants.entity_names.depot_building
+    then
         ---@type LuaPlayer
         local player = game.get_player(eventData.player_index)
         ---@type LuaEntity
         local entity = eventData.entity
 
+        --- @type DepotFrame
         local depot_frame = automated_train_depot.registered_depots[entity.unit_number].gui_frame
 
         if depot_frame == nil then
             automated_train_depot.registered_depots[entity.unit_number].gui_frame = DepotFrame(entity, player)
-            --- @type DepotFrame
             depot_frame = automated_train_depot.registered_depots[entity.unit_number].gui_frame
         end
 

@@ -16,7 +16,7 @@ local function shadow_entity(entity)
 end
 
 ---@param rail_entity LuaEntity
----@param direction int
+---@param station_direction int
 local function build_rail_signal(rail_entity, station_direction)
     local offset
     if station_direction == defines.direction.south then offset = -1.5 else offset = 1.5 end

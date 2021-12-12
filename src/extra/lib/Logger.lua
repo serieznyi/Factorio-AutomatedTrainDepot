@@ -53,9 +53,12 @@ function Logger:debug(text)
 end
 
 setmetatable(Logger, {
-    --- @param self table
+    --- @param _ table
     --- @param message_pattern string
-    __call = function(self, message_pattern)
+    __call = function(_, message_pattern)
+        local self = {}
+        setmetatable(self, { __index = Logger })
+
         if message_pattern ~= nil and message_pattern ~= "" then
             self.message_pattern = message_pattern
         end

@@ -1,5 +1,6 @@
 -- @module lib.Configuration
 local Configuration = {
+    ---@type int chat_logging_level
     chat_logging_level = nil,
 }
 
@@ -8,8 +9,11 @@ function Configuration:refresh()
 end
 
 setmetatable(Configuration, {
-    ---@param self table
-    __call = function(self)
+    ---@param _ table
+    __call = function(_)
+        local self = {}
+        setmetatable(self, { __index = Configuration })
+
         return self
     end
 })
