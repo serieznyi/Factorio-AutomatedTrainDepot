@@ -1,4 +1,5 @@
 data:extend({
+    -- Console logging level
     {
         type = "string-setting",
         name = "automated-train-depot-console-level",

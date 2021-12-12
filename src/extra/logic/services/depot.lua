@@ -60,14 +60,14 @@ function depot:build(entity)
     local SIGNALS_POS_Y = entity.position.y + 6
 
     local depot_signals_input = surface.create_entity({
-        name = modification_state.constants.entity_names.depot_building_input,
+        name = automated_train_depot.constants.entity_names.depot_building_input,
         position = {entity.position.x + 2, SIGNALS_POS_Y}
     })
     shadow_entity(depot_signals_input)
     table.insert(dependent_entities, depot_signals_input)
 
     local depot_signals_output = surface.create_entity({
-        name = modification_state.constants.entity_names.depot_building_output,
+        name = automated_train_depot.constants.entity_names.depot_building_output,
         position = {entity.position.x - 1, SIGNALS_POS_Y}
     })
     shadow_entity(depot_signals_output)
@@ -76,7 +76,7 @@ function depot:build(entity)
     -- Input station, rails and signals
 
     local depot_station_input = surface.create_entity({
-        name = modification_state.constants.entity_names.depot_building_train_stop_input,
+        name = automated_train_depot.constants.entity_names.depot_building_train_stop_input,
         position = {entity.position.x + 6.5, entity.position.y - 3.5}
     })
     shadow_entity(depot_station_input)
@@ -92,7 +92,7 @@ function depot:build(entity)
     ---- Output station, rails and signals
 
     local depot_station_output = surface.create_entity({
-        name = modification_state.constants.entity_names.depot_building_train_stop_output,
+        name = automated_train_depot.constants.entity_names.depot_building_train_stop_output,
         position = {entity.position.x - 5.5, entity.position.y - 3.5},
         direction = defines.direction.south
     })
@@ -107,20 +107,20 @@ function depot:build(entity)
     local output_rail_signal = build_rail_signal(lastOutputRail, depot_station_output.direction)
     table.insert(dependent_entities, output_rail_signal)
 
-    modification_state.registered_depots[entity.unit_number] = {
+    automated_train_depot.registered_depots[entity.unit_number] = {
         depot_entity = entity,
         dependent_entities = dependent_entities
     }
 
-    modification_state.logger:debug(entity.name .. " was builded")
+    automated_train_depot.logger:debug(entity.name .. " was builded")
 end
 
 ---@param entity LuaEntity
 ---@return void
 function depot:destroy(entity)
-    local registered_depot = modification_state.registered_depots[entity.unit_number]
+    local registered_depot = automated_train_depot.registered_depots[entity.unit_number]
 
-    modification_state.registered_depots[entity.unit_number] = nil
+    automated_train_depot.registered_depots[entity.unit_number] = nil
 
     for _,e in pairs(registered_depot.dependent_entities) do
         e.destroy()

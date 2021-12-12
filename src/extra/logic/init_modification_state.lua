@@ -1,16 +1,16 @@
 local Configuration = require("extra.lib.Configuration")
 local Logger = require("extra.lib.Logger")
 
-local modification_state = {}
+local automated_train_depot = {}
 
-modification_state.constants = require("extra.constants")
+automated_train_depot.constants = require("extra.constants")
 
-modification_state.settings = Configuration()
+automated_train_depot.settings = Configuration()
 
-modification_state.registered_depots = {
+automated_train_depot.registered_depots = {
     depot_frame = nil
 }
 
-modification_state.logger = Logger()
+automated_train_depot.logger = Logger()
 
-return modification_state
+return automated_train_depot

@@ -1,4 +1,4 @@
-modification_state = require("extra.logic.init_modification_state")
+automated_train_depot = require("extra.logic.init_modification_state")
 
 -- TODO
 --script.on_nth_tick(, function()
@@ -16,14 +16,14 @@ script.on_configuration_changed(function()
 end)
 
 -- Save file created
--- Loaded save file what don`t contain us
+-- Loaded save file what don`t contain mod
 -- Can write in `global` and read `game`
 script.on_init(function()
     -- Init local vars
     -- TODO
 end)
 
--- Loaded save file what contains us
+-- Loaded save file what contains mod
 -- Cant write in global
 script.on_load(function()
     -- Restore local vars from `global`
