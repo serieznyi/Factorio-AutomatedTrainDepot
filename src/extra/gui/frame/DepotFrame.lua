@@ -34,11 +34,13 @@ local function build_tabbed_pane()
 end
 
 function DepotFrame:__initialization()
+    local frame_name = "automated-train-depot-main-frame-" .. tostring(self.entity_depot.unit_number)
+
     self.gui = gui.build(self.player.gui.screen, {
         {
             type = "frame",
             direction = "vertical",
-            name = "automated-train-depot-main-frame",
+            name = frame_name,
             caption={"gui-name.automated-train-depot-main-frame"},
             auto_center = true,
             visible = true,
@@ -137,6 +139,8 @@ function DepotFrame:__initialization()
             --},
         },
     })
+
+    automated_train_depot.logger:debug("Frame " .. frame_name .. " was build")
 
     self.frame = self.gui.frame
 end

@@ -25,12 +25,13 @@ end
 ---@param eventData EventData
 function default_controller:on_deconstruct_entity(eventData)
     local entity = eventData.entity
+
     if not entity or not entity.valid then
         return
     end
 
     if entity.name == automated_train_depot.constants.entity_names.depot_building then
-        depot:destroy(entity)
+        depot:destroy(entity.unit_number)
     end
 end
 

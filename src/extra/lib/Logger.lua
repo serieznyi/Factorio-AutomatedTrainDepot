@@ -12,8 +12,9 @@ local LEVEL = {
 --   - %date
 --   - %level
 --   - %message
+--   - %category
 ---------------------------------------------------
-local DEFAULT_PATTERN = "[%date][%level] %message"
+local DEFAULT_PATTERN = "[%date][%level][%category] %message"
 
 -- @module extra.lib.Logger
 local Logger = {
@@ -22,34 +23,39 @@ local Logger = {
 
 ---@param level string
 ---@param text string
-local function write_message(level, text)
+local function write_message(level, category, text)
     local message = Logger.message_pattern
 
     message = string.gsub(message,"%%date", misc.ticks_to_timestring(game.ticks_played))
     message = string.gsub(message,"%%level", tostring(level))
     message = string.gsub(message,"%%message", tostring(text))
+    message = string.gsub(message,"%%category", tostring(category or 'default'))
 
     log(message)
 end
 
 ---@param text string
-function Logger:error(text)
-    write_message(LEVEL.ERROR, text)
+---@param[opt=default] category Message category
+function Logger:error(text, category)
+    write_message(LEVEL.ERROR, category, text)
 end
 
 ---@param text string
-function Logger:warning(text)
-    write_message(LEVEL.WARNING, text)
+---@param[opt=default] category Message category
+function Logger:warning(text, category)
+    write_message(LEVEL.WARNING, category, text)
 end
 
 ---@param text string
-function Logger:info(text)
-    write_message(LEVEL.INFO, text)
+---@param[opt=default] category Message category
+function Logger:info(text, category)
+    write_message(LEVEL.INFO, category, text)
 end
 
 ---@param text string
-function Logger:debug(text)
-    write_message(LEVEL.DEBUG, text)
+---@param[opt=default] category Message category
+function Logger:debug(text, category)
+    write_message(LEVEL.DEBUG, category, text)
 end
 
 setmetatable(Logger, {

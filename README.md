@@ -6,6 +6,10 @@ Forum: https://forums.factorio.com/viewforum.php?f=<SOME_IDENTIFIER>
 
 Download: https://mods.factorio.com/mods/serieznyi/AutomatedTrainDepo
 
+## Required
+
+ - Lua ^5.2.1
+
 ## Other
 - [Lua Code Style](https://github.com/luarocks/lua-style-guide)
 - [Structure of project](docs/project-structure.md)

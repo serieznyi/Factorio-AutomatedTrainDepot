@@ -112,19 +112,24 @@ function depot:build(entity)
         dependent_entities = dependent_entities
     }
 
-    automated_train_depot.logger:debug(entity.name .. " was builded")
+    automated_train_depot.logger:debug('Entity ' .. entity.name .. '['.. entity.unit_number .. '] was build')
 end
 
----@param entity LuaEntity
+---@param depot_id int
 ---@return void
-function depot:destroy(entity)
-    local registered_depot = automated_train_depot.registered_depots[entity.unit_number]
+function depot:destroy(depot_id)
+    local depot_for_destroy = automated_train_depot.registered_depots[depot_id]
+    local entity_name = depot_for_destroy.depot_entity.name;
 
-    automated_train_depot.registered_depots[entity.unit_number] = nil
-
-    for _,e in pairs(registered_depot.dependent_entities) do
+    for _,e in pairs(depot_for_destroy.dependent_entities) do
         e.destroy()
     end
+
+    depot_for_destroy.depot_entity.destroy()
+
+    automated_train_depot.registered_depots[depot_id] = nil
+
+    automated_train_depot.logger:debug('Entity ' .. entity_name .. '['.. depot_id .. '] was destroy')
 end
 
 return depot
