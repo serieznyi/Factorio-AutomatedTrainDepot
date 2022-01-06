@@ -1,6 +1,5 @@
 local event = require("__flib__.event")
 local dictionary = require("__flib__.dictionary")
-local gui = require("__flib__.gui")
 local on_tick_n = require("__flib__.on-tick-n")
 
 automated_train_depot = require("extra.logic.init_modification_state")
@@ -73,5 +72,9 @@ event.register(defines.events.on_runtime_mod_setting_changed, function(e)
 end)
 
 event.register(defines.events.on_gui_opened, function(e)
-    default_controller:on_gui_opened(e)
+    default_controller:open_depot_window(e)
+end)
+
+event.register(defines.events.on_gui_click, function(e)
+    default_controller:handle_gui_event(e)
 end)

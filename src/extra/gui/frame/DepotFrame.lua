@@ -39,110 +39,58 @@ function DepotFrame:__initialization()
     self.gui = gui.build(self.player.gui.screen, {
         {
             type = "frame",
+            name = "depot_main_frame",
             direction = "vertical",
-            name = frame_name,
-            caption={"gui-name.automated-train-depot-main-frame"},
-            auto_center = true,
-            visible = true,
+            ref  =  {"window"},
             style_mods = {
-                size = { 385, 165 }
+                natural_width = 1200,
+                natural_height = 400,
             },
-            ref = { "frame" },
-            --actions = {
-            --    on_closed = { gui = "main", action = "close" },
-            --},
-            {
-                type = "flow",
-                --ref = { "titlebar", "flow" },
-                --actions = {
-                --    on_click = { gui = "main", transform = "handle_titlebar_click" },
-                --},
+            actions = {
+                --on_closed = {gui = "demo", action = "close"} -- TODO
+            },
+            children = {
+                -- Titlebar
+                {
+                    type = "flow",
+                    ref = {"titlebar", "flow"},
+                    children = {
+                        {
+                            type = "label",
+                            style = "frame_title",
+                            caption = {"gui-name.automated-train-depot-main-frame"},
+                            ignored_by_interaction = true
+                        },
+                        {
+                            type = "empty-widget",
+                            style = "flib_titlebar_drag_handle",
+                        },
+                        {
+                            type = "sprite-button",
+                            style = "frame_action_button",
+                            sprite = "utility/close_white",
+                            hovered_sprite = "utility/close_black",
+                            clicked_sprite = "utility/close_black",
+                            ref = {"titlebar", "close_button"},
+                            actions = {
+                                on_click = {target = "depot_main_frame", action = "close"}
+                            }
+                        }
+                    }
+                },
+                -- Content
+                {
+                    type = "frame",
+                    style = "inside_deep_frame_for_tabs",
+                }
             }
-
-            --{
-            --    type = "flow",
-            --    style = "flib_titlebar_flow",
-            --    ref = { "titlebar", "flow" },
-            --    --actions = {
-            --    --    on_click = { gui = "main", transform = "handle_titlebar_click" },
-            --    --},
-            --    { type = "label", style = "frame_title", caption = { "mod-name.LtnManager" }, ignored_by_interaction = true },
-            --    { type = "empty-widget", style = "flib_titlebar_drag_handle", ignored_by_interaction = true },
-            --    templates.frame_action_button(
-            --            "ltnm_pin",
-            --            { "gui.ltnm-keep-open" },
-            --            { "titlebar", "pin_button" },
-            --            { gui = "main", action = "toggle_pinned" }
-            --    ),
-            --    templates.frame_action_button(
-            --            "ltnm_refresh",
-            --            { "gui.ltnm-refresh-tooltip" },
-            --            { "titlebar", "refresh_button" },
-            --            { gui = "main", transform = "handle_refresh_click" }
-            --    ),
-            --    templates.frame_action_button(
-            --            "utility/close",
-            --            { "gui.close-instruction" },
-            --            nil,
-            --            { gui = "main", action = "close" }
-            --    ),
-            --},
-            --{
-            --    type = "frame",
-            --    style = "inside_deep_frame",
-            --    direction = "vertical",
-            --    {
-            --        type = "frame",
-            --        style = "ltnm_main_toolbar_frame",
-            --        { type = "label", style = "subheader_caption_label", caption = { "gui.ltnm-search-label" } },
-            --        {
-            --            type = "textfield",
-            --            clear_and_focus_on_right_click = true,
-            --            ref = { "toolbar", "text_search_field" },
-            --            actions = {
-            --                on_text_changed = { gui = "main", action = "update_text_search_query" },
-            --            },
-            --        },
-            --        { type = "empty-widget", style = "flib_horizontal_pusher" },
-            --        { type = "label", style = "caption_label", caption = { "gui.ltnm-network-id-label" } },
-            --        {
-            --            type = "textfield",
-            --            style_mods = { width = 120 },
-            --            numeric = true,
-            --            allow_negative = true,
-            --            clear_and_focus_on_right_click = true,
-            --            text = "-1",
-            --            ref = { "toolbar", "network_id_field" },
-            --            actions = {
-            --                on_text_changed = { gui = "main", action = "update_network_id_query" },
-            --            },
-            --        },
-            --        { type = "label", style = "caption_label", caption = { "gui.ltnm-surface-label" } },
-            --        {
-            --            type = "drop-down",
-            --            ref = { "toolbar", "surface_dropdown" },
-            --            actions = {
-            --                on_selection_state_changed = { gui = "main", action = "change_surface" },
-            --            },
-            --        },
-            --    },
-            --    {
-            --        type = "tabbed-pane",
-            --        style = "ltnm_tabbed_pane",
-            --        trains_tab.build(widths),
-            --        depots_tab.build(widths),
-            --        stations_tab.build(widths),
-            --        inventory_tab.build(),
-            --        history_tab.build(widths),
-            --        alerts_tab.build(widths),
-            --    },
-            --},
-        },
+        }
     })
 
     automated_train_depot.logger:debug("Frame " .. frame_name .. " was build")
 
-    self.frame = self.gui.frame
+    self.frame = self.gui.window
+    self.frame.force_auto_center()
 end
 
 setmetatable(DepotFrame, {

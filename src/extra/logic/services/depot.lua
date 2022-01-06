@@ -3,7 +3,7 @@ local flib_direction = require('__flib__.direction')
 local depot = {}
 
 local FORCE_DEFAULT = "player"
-local DEPOT_RAILS_COUNT = 6
+local DEPOT_RAILS_COUNT = 4
 local RAIL_ENTITY_LENGTH = 2
 
 ---@param entity LuaEntity
@@ -53,11 +53,12 @@ end
 ---@return void
 function depot:build(entity)
     local dependent_entities = {}
+    ---@type LuaSurface
     local surface = entity.surface
 
     -- Input and output for logistic signals
 
-    local SIGNALS_POS_Y = entity.position.y + 6
+    local SIGNALS_POS_Y = entity.position.y + 5
 
     local depot_signals_input = surface.create_entity({
         name = automated_train_depot.constants.entity_names.depot_building_input,
@@ -77,7 +78,7 @@ function depot:build(entity)
 
     local depot_station_input = surface.create_entity({
         name = automated_train_depot.constants.entity_names.depot_building_train_stop_input,
-        position = {entity.position.x + 6.5, entity.position.y - 3.5}
+        position = {entity.position.x + 6.5, entity.position.y - 4.5}
     })
     shadow_entity(depot_station_input)
     table.insert(dependent_entities, depot_station_input)
@@ -93,7 +94,7 @@ function depot:build(entity)
 
     local depot_station_output = surface.create_entity({
         name = automated_train_depot.constants.entity_names.depot_building_train_stop_output,
-        position = {entity.position.x - 5.5, entity.position.y - 3.5},
+        position = {entity.position.x - 5.5, entity.position.y - 4.5},
         direction = defines.direction.south
     })
     depot_station_output.rotatable = true
@@ -107,18 +108,21 @@ function depot:build(entity)
     local output_rail_signal = build_rail_signal(lastOutputRail, depot_station_output.direction)
     table.insert(dependent_entities, output_rail_signal)
 
-    automated_train_depot.registered_depots[entity.unit_number] = {
+    automated_train_depot.depots[surface.name] = {
         depot_entity = entity,
+        surface_name = surface.name,
         dependent_entities = dependent_entities
     }
 
     automated_train_depot.logger:debug('Entity ' .. entity.name .. '['.. entity.unit_number .. '] was build')
 end
 
----@param depot_id int
+---@param depot_entity LuaEntity
 ---@return void
-function depot:destroy(depot_id)
-    local depot_for_destroy = automated_train_depot.registered_depots[depot_id]
+function depot:destroy(depot_entity)
+    local surface = depot_entity.surface
+    local depot_entity_id = depot_entity.unit_number
+    local depot_for_destroy = automated_train_depot.depots[surface.name]
     local entity_name = depot_for_destroy.depot_entity.name;
 
     for _,e in pairs(depot_for_destroy.dependent_entities) do
@@ -127,9 +131,9 @@ function depot:destroy(depot_id)
 
     depot_for_destroy.depot_entity.destroy()
 
-    automated_train_depot.registered_depots[depot_id] = nil
+    automated_train_depot.depots[surface.name] = nil
 
-    automated_train_depot.logger:debug('Entity ' .. entity_name .. '['.. depot_id .. '] was destroy')
+    automated_train_depot.logger:debug('Entity ' .. entity_name .. '['.. depot_entity_id .. '] was destroy')
 end
 
 return depot
