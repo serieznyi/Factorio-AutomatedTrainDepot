@@ -1,5 +1,7 @@
 local flib_direction = require('__flib__.direction')
 
+local DepotFrame = require("extra.gui.frame.DepotFrame")
+
 local depot = {}
 
 local FORCE_DEFAULT = "player"
@@ -51,7 +53,7 @@ end
 
 ---@param entity LuaEntity
 ---@return void
-function depot:build(entity)
+function depot.build(entity)
     local dependent_entities = {}
     ---@type LuaSurface
     local surface = entity.surface
@@ -119,7 +121,7 @@ end
 
 ---@param depot_entity LuaEntity
 ---@return void
-function depot:destroy(depot_entity)
+function depot.destroy(depot_entity)
     local surface = depot_entity.surface
     local depot_entity_id = depot_entity.unit_number
     local depot_for_destroy = automated_train_depot.depots[surface.name]
@@ -134,6 +136,28 @@ function depot:destroy(depot_entity)
     automated_train_depot.depots[surface.name] = nil
 
     automated_train_depot.logger:debug('Entity ' .. entity_name .. '['.. depot_entity_id .. '] was destroy')
+end
+
+---@param player LuaPlayer
+---@param entity LuaEntity
+function depot.create_gui(player, entity)
+    local surface_name = entity.surface.name
+    --- @type DepotFrame
+    local depot_frame = automated_train_depot.depots[surface_name].gui
+
+    if depot_frame == nil then
+        depot_frame = DepotFrame(entity, player)
+        automated_train_depot.depots[surface_name].gui = depot_frame
+    end
+
+    player.opened = nil
+    player.opened = depot_frame.frame
+end
+
+---@param action table
+---@param event EventData
+function depot.handle_gui_action(action, event)
+
 end
 
 return depot

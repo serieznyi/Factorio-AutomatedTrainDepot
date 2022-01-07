@@ -1,10 +1,11 @@
 local event = require("__flib__.event")
 local dictionary = require("__flib__.dictionary")
 local on_tick_n = require("__flib__.on-tick-n")
+local gui = require("__flib__.gui")
 
 automated_train_depot = require("extra.logic.init_modification_state")
 
-local default_controller = require("extra.logic.controllers.default_controller")
+local event_handler = require("extra.event_handler")
 
 ---------------------------------------------------------------------------
 -- -- -- Main events
@@ -24,10 +25,12 @@ end)
 -- Loaded save file what don`t contain mod
 -- Can write in `global` and read `game`
 event.on_init(function()
+    -- Initialize libraries
     dictionary.init()
     on_tick_n.init()
 
-    -- Init local vars
+    -- Initialize `global` table
+    -- TODO
 end)
 
 -- Loaded save file what contains mod
@@ -43,6 +46,8 @@ end)
 -- -- -- Mod events
 ---------------------------------------------------------------------------
 
+gui.hook_events(event_handler.handle_gui_event)
+
 event.register(
         {
             defines.events.on_built_entity,
@@ -52,7 +57,7 @@ event.register(
             defines.events.script_raised_revive,
             defines.events.on_entity_cloned
         },
-        function(e) default_controller:on_build_entity(e) end,
+        function(e) event_handler.build_depot_entity(e) end,
         {{ filter="name", name= automated_train_depot.constants.entity_names.depot_building }}
 )
 
@@ -63,18 +68,12 @@ event.register(
             defines.events.on_entity_died,
             defines.events.script_raised_destroy,
         },
-        function(e) default_controller:on_deconstruct_entity(e)end,
+        function(e) event_handler.destroy_depot_entity(e) end,
         {{ filter="name", name= automated_train_depot.constants.entity_names.depot_building }}
 )
 
 event.register(defines.events.on_runtime_mod_setting_changed, function(e)
-    default_controller:on_runtime_mod_setting_changed(e)
+    event_handler.reload_settings(e)
 end)
 
-event.register(defines.events.on_gui_opened, function(e)
-    default_controller:open_depot_window(e)
-end)
-
-event.register(defines.events.on_gui_click, function(e)
-    default_controller:handle_gui_event(e)
-end)
+event.register(defines.events.on_gui_opened, event_handler.open_gui)
