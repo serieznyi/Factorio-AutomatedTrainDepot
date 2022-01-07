@@ -1,7 +1,6 @@
 local gui = require("__flib__.gui")
 
-local depot = require("extra.logic.services.depot")
---local DepotFrame = require("extra.gui.frame.DepotFrame")
+local depot = require("scripts.depot")
 
 local event_handler = {}
 

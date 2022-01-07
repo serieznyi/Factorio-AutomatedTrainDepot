@@ -3,9 +3,9 @@ local dictionary = require("__flib__.dictionary")
 local on_tick_n = require("__flib__.on-tick-n")
 local gui = require("__flib__.gui")
 
-automated_train_depot = require("extra.logic.init_modification_state")
+automated_train_depot = require("scripts.init_modification_state")
 
-local event_handler = require("extra.event_handler")
+local event_handler = require("scripts.event_handler")
 
 ---------------------------------------------------------------------------
 -- -- -- Main events

@@ -4,7 +4,7 @@ local Console = require("extra.lib.Console")
 
 local automated_train_depot = {}
 
-automated_train_depot.constants = require("extra.constants")
+automated_train_depot.constants = require("scripts.constants")
 
 automated_train_depot.settings = Configuration()
 

@@ -2,4 +2,4 @@
 -- -- -- Compatibility initialization
 ---------------------------------------------------------------------------
 
-require('extra.compatibility.apply.0-settings-updates.index')
+require('scripts.compatibility.apply.0-settings-updates.index')

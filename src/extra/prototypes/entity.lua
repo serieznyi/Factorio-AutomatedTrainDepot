@@ -1,4 +1,4 @@
-local constants = require("extra.constants")
+local constants = require("scripts.constants")
 
 local automated_train_depot_building = table.deepcopy(data.raw["container"]["steel-chest"])
 automated_train_depot_building.name = constants.entity_names.depot_building
