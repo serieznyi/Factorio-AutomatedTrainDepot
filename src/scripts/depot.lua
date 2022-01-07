@@ -187,7 +187,7 @@ function depot.create_gui(player, entity)
                             clicked_sprite = "utility/close_black",
                             ref = {"titlebar", "close_button"},
                             actions = {
-                                on_click = {gui = "depot", action = "close"}
+                                on_click = {gui = "depot_frame", action = "close"}
                             }
                         }
                     }
@@ -195,7 +195,65 @@ function depot.create_gui(player, entity)
                 -- Content
                 {
                     type = "frame",
-                    style = "inside_deep_frame_for_tabs",
+                    style = "inside_shallow_frame_with_padding",
+                    direction = "horizontal",
+                    children = {
+                        {
+                            type = "button",
+                            caption = "add",
+                            actions = {
+                                on_click = { gui = "add_new_group_frame", action = "create" },
+                            },
+                        },
+                        {
+                            type = "frame",
+                            name = "groups_container",
+                            style_mods = {
+                                maximal_width = 400, -- todo use var
+                            },
+                            --style = "inside_shallow_frame_with_padding",
+                            direction = "vertical",
+                            children = {
+                                {
+                                    type = "list-box",
+                                    items = {
+                                        "asd1",
+                                        "asd2",
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            type = "frame",
+                            name = "group_view",
+                            --style = "inside_shallow_frame_with_padding",
+                            direction = "vertical",
+                            children = {
+                                {
+                                    type = "tabbed-pane",
+                                    children = {
+                                        {
+                                            tab = {
+                                                type = "tab",
+                                                caption = { "gui-name.automated-train-depot-group-view" },
+                                                ref = { "atd-concrete-group-view-tab" },
+                                                actions = {
+                                                    --on_click = { gui = "main", action = "change_tab", tab = "trains" },
+                                                },
+                                            },
+                                            content = {
+                                                type = "frame",
+                                                --style = "ltnm_main_content_frame",
+                                                direction = "vertical",
+                                                ref = {"atd-concrete-group-view-content"},
+
+                                            }
+                                        }
+                                    },
+                                }
+                            },
+                        }
+                    }
                 }
             }
         }

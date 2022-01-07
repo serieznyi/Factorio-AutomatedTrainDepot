@@ -49,7 +49,7 @@ function event_handler.handle_gui_event(event)
         "gui event `" .. action.gui .. ":" .. action.action .. "` triggered"
     )
 
-    if action.gui == "depot" then
+    if action.gui == "depot_frame" then
         depot.handle_gui_action(action, event)
     end
 
