@@ -187,7 +187,7 @@ function depot.create_gui(player, entity)
                             clicked_sprite = "utility/close_black",
                             ref = {"titlebar", "close_button"},
                             actions = {
-                                on_click = {target = "depot", action = "close"}
+                                on_click = {gui = "depot", action = "close"}
                             }
                         }
                     }

@@ -45,7 +45,13 @@ function event_handler.handle_gui_event(event)
         return false
     end
 
-    -- TODO process event
+    automated_train_depot.logger:debug(
+        "gui event `" .. action.gui .. ":" .. action.action .. "` triggered"
+    )
+
+    if action.gui == "depot" then
+        depot.handle_gui_action(action, event)
+    end
 
     return true
 end
