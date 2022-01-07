@@ -1,4 +1,5 @@
 local flib_direction = require('__flib__.direction')
+local flib_gui = require("__flib__.gui")
 
 local DepotFrame = require("extra.gui.frame.DepotFrame")
 
@@ -142,16 +143,63 @@ end
 ---@param entity LuaEntity
 function depot.create_gui(player, entity)
     local surface_name = entity.surface.name
-    --- @type DepotFrame
-    local depot_frame = automated_train_depot.depots[surface_name].gui
+    local frame_name = "automated-train-depot-main-frame-" .. tostring(entity.unit_number)
+    local refs = flib_gui.build(player.gui.screen, {
+        {
+            type = "frame",
+            name = "depot_main_frame",
+            direction = "vertical",
+            ref  =  {"window"},
+            style_mods = {
+                natural_width = 1200,
+                natural_height = 400,
+            },
+            actions = {
+                --on_closed = {gui = "demo", action = "close"} -- TODO
+            },
+            children = {
+                -- Titlebar
+                {
+                    type = "flow",
+                    style = "flib_titlebar_flow",
+                    ref = {"titlebar_flow"},
+                    children = {
+                        {
+                            type = "label",
+                            style = "frame_title",
+                            caption = {"gui-name.automated-train-depot-main-frame"},
+                            ignored_by_interaction = true
+                        },
+                        {
+                            type = "empty-widget",
+                            style = "flib_titlebar_drag_handle",
+                            ignored_by_interaction = true
+                        },
+                        {
+                            type = "sprite-button",
+                            style = "frame_action_button",
+                            sprite = "utility/close_white",
+                            hovered_sprite = "utility/close_black",
+                            clicked_sprite = "utility/close_black",
+                            ref = {"titlebar", "close_button"},
+                            actions = {
+                                on_click = {target = "depot_main_frame", action = "close"}
+                            }
+                        }
+                    }
+                },
+                -- Content
+                {
+                    type = "frame",
+                    style = "inside_deep_frame_for_tabs",
+                }
+            }
+        }
+    })
 
-    if depot_frame == nil then
-        depot_frame = DepotFrame(entity, player)
-        automated_train_depot.depots[surface_name].gui = depot_frame
-    end
-
-    player.opened = nil
-    player.opened = depot_frame.frame
+    refs.window.force_auto_center()
+    refs.titlebar_flow.drag_target = refs.window
+    player.opened = refs.window
 end
 
 ---@param action table
