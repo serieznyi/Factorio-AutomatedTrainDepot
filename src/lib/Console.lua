@@ -5,7 +5,7 @@ local LEVEL = {
     DEBUG = 3,
 }
 
--- @module extra.lib.Console
+-- @module lib.Console
 local Console = {
     level = LEVEL.WARNING
 }

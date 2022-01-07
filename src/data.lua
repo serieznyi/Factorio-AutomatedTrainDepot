@@ -2,7 +2,7 @@
 -- -- -- Content initialization
 ---------------------------------------------------------------------------
 
-require ("extra.prototypes.index")
+require ("prototypes.index")
 
 ---------------------------------------------------------------------------
 -- -- -- Compatibility initialization

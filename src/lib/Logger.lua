@@ -17,7 +17,7 @@ local LEVEL = {
 ---------------------------------------------------
 local DEFAULT_PATTERN = "[%date][%level][%category] %message"
 
--- @module extra.lib.Logger
+-- @module lib.Logger
 local Logger = {
     message_pattern = DEFAULT_PATTERN,
     level = LEVEL.DEBUG

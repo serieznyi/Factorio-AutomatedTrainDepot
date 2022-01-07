@@ -1,6 +1,6 @@
-local Configuration = require("extra.lib.Configuration")
-local Logger = require("extra.lib.Logger")
-local Console = require("extra.lib.Console")
+local Configuration = require("lib.Configuration")
+local Logger = require("lib.Logger")
+local Console = require("lib.Console")
 
 local automated_train_depot = {}
 
