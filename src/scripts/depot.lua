@@ -1,13 +1,11 @@
 local flib_direction = require('__flib__.direction')
 local flib_gui = require("__flib__.gui")
 
-local DepotFrame = require("extra.gui.frame.DepotFrame")
-
-local depot = {}
-
 local FORCE_DEFAULT = "player"
 local DEPOT_RAILS_COUNT = 4
 local RAIL_ENTITY_LENGTH = 2
+
+local depot = {}
 
 ---@param entity LuaEntity
 local function shadow_entity(entity)
@@ -50,6 +48,14 @@ local function build_straight_rails_for_station(station_entity, railsCount)
     end
 
     return rails
+end
+
+function depot.init()
+    automated_train_depot.logger:debug("depot was init")
+
+    global.depot = {
+        guis = {},
+    }
 end
 
 ---@param entity LuaEntity
@@ -142,8 +148,6 @@ end
 ---@param player LuaPlayer
 ---@param entity LuaEntity
 function depot.create_gui(player, entity)
-    local surface_name = entity.surface.name
-    local frame_name = "automated-train-depot-main-frame-" .. tostring(entity.unit_number)
     local refs = flib_gui.build(player.gui.screen, {
         {
             type = "frame",
@@ -183,7 +187,7 @@ function depot.create_gui(player, entity)
                             clicked_sprite = "utility/close_black",
                             ref = {"titlebar", "close_button"},
                             actions = {
-                                on_click = {target = "depot_main_frame", action = "close"}
+                                on_click = {target = "depot", action = "close"}
                             }
                         }
                     }
@@ -200,12 +204,37 @@ function depot.create_gui(player, entity)
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
     player.opened = refs.window
+
+    global.depot.guis[player.index] = {
+        refs = refs,
+        state = {
+            entity = entity,
+            previous_stats = "none",
+        },
+    }
+end
+
+function depot.destroy_gui(player)
+    local gui_data = global.depot.guis[player.index]
+
+    if gui_data then
+        global.depot.guis[player.index] = nil
+        gui_data.refs.window.destroy()
+    end
 end
 
 ---@param action table
 ---@param event EventData
 function depot.handle_gui_action(action, event)
+    if action.action == "close" then
+        depot.gui_close(event)
+    end
+end
 
+function depot.gui_close(event)
+    local player = game.get_player(event.player_index)
+
+    depot.destroy_gui(player)
 end
 
 return depot
