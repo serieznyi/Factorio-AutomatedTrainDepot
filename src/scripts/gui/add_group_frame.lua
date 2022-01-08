@@ -77,7 +77,7 @@ end
 
 ---@param action table
 ---@param event EventData
-function frame.handle_action(action, event)
+function frame.dispatch(action, event)
     if action.action == "close" then
         frame.close(event)
     elseif action.action == "create" then

@@ -51,7 +51,7 @@ function event_handler.handle_gui_event(event)
         "gui event `" .. action.gui .. ":" .. action.action .. "` triggered"
     )
 
-    return gui_index.handle_action(action, event)
+    return gui_index.dispatch(action, event)
 end
 
 ---@param event EventData
@@ -70,7 +70,7 @@ function event_handler.open_gui(event)
     local player = game.get_player(event.player_index)
 
     if entity.name == automated_train_depot.constants.entity_names.depot_building then
-        gui_main_frame.create(player, entity)
+        gui_main_frame.open(player, entity)
     end
 end
 

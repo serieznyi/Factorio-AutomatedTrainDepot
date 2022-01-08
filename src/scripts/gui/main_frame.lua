@@ -14,6 +14,29 @@ end
 
 ---@param player LuaPlayer
 ---@param entity LuaEntity
+function frame.update(player, entity)
+    -- TODO
+end
+
+---@param player LuaPlayer
+---@param entity LuaEntity
+function frame.open(player, entity)
+    if global.gui[NAME][player.index] == nil then
+        frame.create(player, entity)
+    else
+        frame.update(player, entity)
+    end
+
+    local gui = global.gui[NAME][player.index]
+
+    gui.refs.window.bring_to_front()
+    gui.refs.window.visible = true
+    gui.state.visible = true
+    player.opened = gui.refs.window
+end
+
+---@param player LuaPlayer
+---@param entity LuaEntity
 function frame.create(player, entity)
     local refs = flib_gui.build(player.gui.screen, {
         {
@@ -21,6 +44,7 @@ function frame.create(player, entity)
             name = "depot_main_frame",
             direction = "vertical",
             ref  =  {"window"},
+            visible = false,
             style_mods = {
                 natural_width = 1200,
                 natural_height = 400,
@@ -125,13 +149,12 @@ function frame.create(player, entity)
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
-    player.opened = refs.window
 
     global.gui[NAME][player.index] = {
         refs = refs,
         state = {
             entity = entity,
-            previous_stats = "none",
+            visible = false
         },
     }
 end
@@ -147,7 +170,7 @@ end
 
 ---@param action table
 ---@param event EventData
-function frame.handle_action(action, event)
+function frame.dispatch(action, event)
     if action.action == "close" then
         frame.close(event)
     end
@@ -155,8 +178,14 @@ end
 
 function frame.close(event)
     local player = game.get_player(event.player_index)
+    local gui = global.gui[NAME][player.index]
 
-    frame.destroy(player)
+    gui.refs.window.visible = false
+    gui.state.visible = false
+
+    if player.opened == gui.refs.window then
+        player.opened = nil
+    end
 end
 
 return frame

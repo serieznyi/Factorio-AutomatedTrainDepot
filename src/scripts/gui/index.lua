@@ -10,11 +10,11 @@ function index.init()
     add_group_frame.init()
 end
 
-function index.handle_action(action, event)
+function index.dispatch(action, event)
     if action.gui == main_frame.get_name() then
-        return main_frame.handle_action(action, event)
+        return main_frame.dispatch(action, event)
     elseif action.gui == add_group_frame.get_name() then
-        return add_group_frame.handle_action(action, event)
+        return add_group_frame.dispatch(action, event)
     end
 
     return false
