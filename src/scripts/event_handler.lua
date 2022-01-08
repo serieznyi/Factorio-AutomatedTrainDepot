@@ -1,6 +1,8 @@
 local gui = require("__flib__.gui")
 
 local depot = require("scripts.depot")
+local gui_main_frame = require("scripts.gui.main_frame")
+local gui_index = require("scripts.gui.index")
 
 local event_handler = {}
 
@@ -49,11 +51,7 @@ function event_handler.handle_gui_event(event)
         "gui event `" .. action.gui .. ":" .. action.action .. "` triggered"
     )
 
-    if action.gui == "depot_frame" then
-        depot.handle_gui_action(action, event)
-    end
-
-    return true
+    return gui_index.handle_action(action, event)
 end
 
 ---@param event EventData
@@ -72,7 +70,7 @@ function event_handler.open_gui(event)
     local player = game.get_player(event.player_index)
 
     if entity.name == automated_train_depot.constants.entity_names.depot_building then
-        depot.create_gui(player, entity)
+        gui_main_frame.create(player, entity)
     end
 end
 

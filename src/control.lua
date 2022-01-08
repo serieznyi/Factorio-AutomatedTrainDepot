@@ -7,6 +7,7 @@ automated_train_depot = require("scripts.init_modification_state")
 
 local event_handler = require("scripts.event_handler")
 local depot = require("scripts.depot")
+local gui_index = require("scripts.gui.index")
 
 ---------------------------------------------------------------------------
 -- -- -- Main events
@@ -32,6 +33,9 @@ event.on_init(function()
     -- Initialize libraries
     dictionary.init()
     on_tick_n.init()
+
+    -- Initialize `global` table for gui
+    gui_index.init()
 
     -- Initialize `global` table
     depot.init()
