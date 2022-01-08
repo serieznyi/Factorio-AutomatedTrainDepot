@@ -1,22 +1,20 @@
 local flib_gui = require("__flib__.gui")
 
-local main_frame = {}
+local frame = {}
 
-function main_frame.get_name()
-    return "main_frame"
+local NAME = "main_frame"
+
+function frame.get_name()
+    return NAME
 end
 
-function main_frame.init()
-    automated_train_depot.logger:debug("main_frame was init")
-
-    global.main_frame = {
-        guis = {},
-    }
+function frame.init()
+    global.gui[NAME] = {}
 end
 
 ---@param player LuaPlayer
 ---@param entity LuaEntity
-function main_frame.create(player, entity)
+function frame.create(player, entity)
     local refs = flib_gui.build(player.gui.screen, {
         {
             type = "frame",
@@ -26,9 +24,6 @@ function main_frame.create(player, entity)
             style_mods = {
                 natural_width = 1200,
                 natural_height = 400,
-            },
-            actions = {
-                --on_closed = {gui = "demo", action = "close"} -- TODO
             },
             children = {
                 -- Titlebar
@@ -71,7 +66,7 @@ function main_frame.create(player, entity)
                             type = "button",
                             caption = "add",
                             actions = {
-                                on_click = { gui = "add_new_group_frame", action = "create" },
+                                on_click = { gui = "add_group_frame", action = "create" },
                             },
                         },
                         {
@@ -132,7 +127,7 @@ function main_frame.create(player, entity)
     refs.titlebar_flow.drag_target = refs.window
     player.opened = refs.window
 
-    global.main_frame.guis[player.index] = {
+    global.gui[NAME][player.index] = {
         refs = refs,
         state = {
             entity = entity,
@@ -141,27 +136,27 @@ function main_frame.create(player, entity)
     }
 end
 
-function main_frame.destroy(player)
-    local gui_data = global.main_frame.guis[player.index]
+function frame.destroy(player)
+    local gui_data = global.gui[NAME][player.index]
 
     if gui_data then
-        global.main_frame.guis[player.index] = nil
+        global.gui[NAME][player.index] = nil
         gui_data.refs.window.destroy()
     end
 end
 
 ---@param action table
 ---@param event EventData
-function main_frame.handle_action(action, event)
+function frame.handle_action(action, event)
     if action.action == "close" then
-        main_frame.close(event)
+        frame.close(event)
     end
 end
 
-function main_frame.close(event)
+function frame.close(event)
     local player = game.get_player(event.player_index)
 
-    main_frame.destroy(player)
+    frame.destroy(player)
 end
 
-return main_frame
+return frame
