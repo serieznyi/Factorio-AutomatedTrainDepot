@@ -208,6 +208,15 @@ end
 
 ---@param action table
 ---@param event EventData
+local function delete_train_part_chooser(action, event)
+    ---@type LuaGuiElement
+    local element = event.element
+
+    element.parent.destroy()
+end
+
+---@param action table
+---@param event EventData
 local function add_new_train_part_chooser(action, event)
     ---@type LuaGuiElement
     local item_chooser = event.element
@@ -287,7 +296,7 @@ function frame.dispatch(action, event)
         { action = ACTION.OPEN, func = function() frame.open(player, event) end},
         { action = ACTION.TRAIN_CHANGED, func = function() add_new_train_part_chooser(action, event) end},
         { action = ACTION.TRAIN_CHANGED, func = function() update_train_part_chooser(action, event) end},
-        { action = ACTION.DELETE_TRAIN_PART_CHOOSER, func = function() print(1) end},
+        { action = ACTION.DELETE_TRAIN_PART_CHOOSER, func = function() delete_train_part_chooser(action, event) end},
     }
 
     for _, handler in pairs(handlers) do
