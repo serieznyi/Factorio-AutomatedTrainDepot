@@ -4,16 +4,77 @@ local NAME = "add_group_frame"
 
 local frame = {}
 
-function frame.get_name()
-    return NAME
+---@param container LuaGuiElement
+---@return bool
+local function is_last_stock_chooser_empty(container)
+    local chooser_container = container.children[#container.children]
+
+    return chooser_container.children[1].elem_value == nil
 end
 
-function frame.init()
-    global.gui[NAME] = {}
+---@return table
+local function gui_get_rolling_stock_item_chooser()
+    return {
+        type = "flow",
+        direction = "vertical",
+        children = {
+            {
+                type = "choose-elem-button",
+                name = "item_chooser",
+                elem_type = "entity",
+                elem_filters = {
+                    {filter="rolling-stock"},
+                },
+                actions = {
+                    on_elem_changed = { gui = "add_group_frame", action = "stock_changed" },
+                }
+            },
+            {
+                type = "sprite-button",
+                name = "delete_button",
+                visible = false,
+                style = "flib_slot_button_red",
+                sprite = "atd_sprite_trash",
+            },
+            {
+                type = "sprite-button",
+                name = "locomotive_configuration_button",
+                visible = false,
+                style = "flib_slot_button_default",
+                sprite = "atd_sprite_gear",
+            },
+        }
+    }
+end
+
+---@param action table
+---@param event EventData
+local function update_stock_chooser(action, event)
+    ---@type LuaGuiElement
+    local element = event.element
+    ---@type LuaGuiElement
+    local container = element.parent.parent
+
+    --local prototype = game.entity_prototypes[element.elem_value]
+    --
+    --prototype.type == "locomotive"
+end
+
+---@param action table
+---@param event EventData
+local function append_new_stock_chooser(action, event)
+    ---@type LuaGuiElement
+    local element = event.element
+    ---@type LuaGuiElement
+    local container = element.parent.parent
+
+    if element.elem_value ~= nil and not is_last_stock_chooser_empty(container) then
+        flib_gui.add(container, gui_get_rolling_stock_item_chooser())
+    end
 end
 
 ---@param player LuaPlayer
-function frame.create(player)
+local function create(player)
     local refs = flib_gui.build(player.gui.screen, {
         {
             type = "frame",
@@ -47,8 +108,64 @@ function frame.create(player)
                 -- Content
                 {
                     type = "frame",
-                    style = "inside_shallow_frame_with_padding",
-                    direction = "horizontal",
+                    style = "inner_frame_in_outer_frame",
+                    direction = "vertical",
+                    children = {
+                        {
+                            type = "flow",
+                            direction = "vertical",
+                            children = {
+                                {
+                                    type = "label",
+                                    caption = "Group name",
+                                },
+                                {
+                                    type = "textfield",
+                                }
+                            }
+                        },
+                        {
+                            type = "flow",
+                            direction = "vertical",
+                            children = {
+                                {
+                                    type = "label",
+                                    caption = "Build train",
+                                },
+                                {
+                                    type = "frame",
+                                    direction = "horizontal",
+                                    ref  =  {"rolling_stock_container"},
+                                    children = {
+                                        gui_get_rolling_stock_item_chooser(),
+                                    }
+                                }
+                            }
+                        },
+                        -- Control buttons
+                        {
+                            type = "flow",
+                            style = "flib_titlebar_flow",
+                            children = {
+                                {
+                                    type = "button",
+                                    caption = "Cancel",
+                                    actions = {
+                                        on_click = { gui = "add_group_frame", action = "close" },
+                                    },
+                                },
+                                {
+                                    type = "empty-widget",
+                                    style = "flib_titlebar_drag_handle",
+                                    ignored_by_interaction = true
+                                },
+                                {
+                                    type = "button",
+                                    caption = "Create",
+                                },
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -56,17 +173,50 @@ function frame.create(player)
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
-    player.opened = refs.window
 
     global.gui[NAME][player.index] = {
         refs = refs,
         state = {
-            previous_stats = "none",
+            visible = false,
         },
     }
 end
 
-function frame.destroy(player)
+---@param player LuaPlayer
+---@param entity LuaEntity
+local function update(player, entity)
+    -- TODO
+end
+
+---@return string
+function frame.get_name()
+    return NAME
+end
+
+function frame.init()
+    global.gui[NAME] = {}
+end
+
+---@param player LuaPlayer
+---@param entity LuaEntity
+function frame.open(player, entity)
+    if global.gui[NAME][player.index] == nil then
+        create(player, entity)
+    else
+        update(player, entity)
+    end
+
+    local gui = global.gui[NAME][player.index]
+
+    gui.refs.window.bring_to_front()
+    gui.refs.window.visible = true
+    gui.state.visible = true
+    player.opened = gui.refs.window
+end
+
+---@param player LuaPlayer
+---@param event EventData
+function frame.destroy(player, event)
     local gui_data = global.gui[NAME][player.index]
 
     if gui_data then
@@ -78,17 +228,16 @@ end
 ---@param action table
 ---@param event EventData
 function frame.dispatch(action, event)
-    if action.action == "close" then
-        frame.close(event)
-    elseif action.action == "create" then
-        frame.create(game.get_player(event.player_index))
-    end
-end
-
-function frame.close(event)
     local player = game.get_player(event.player_index)
 
-    frame.destroy(player)
+    if action.action == "close" then
+        frame.destroy(player, event)
+    elseif action.action == "open" then
+        frame.open(player, event)
+    elseif action.action == "stock_changed" then
+        update_stock_chooser(action, event)
+        append_new_stock_chooser(action, event)
+    end
 end
 
 return frame

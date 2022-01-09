@@ -90,7 +90,7 @@ function frame.create(player, entity)
                             type = "button",
                             caption = "add",
                             actions = {
-                                on_click = { gui = "add_group_frame", action = "create" },
+                                on_click = { gui = "add_group_frame", action = "open" },
                             },
                         },
                         {
