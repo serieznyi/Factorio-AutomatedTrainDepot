@@ -1,42 +1,31 @@
 local flib_gui = require("__flib__.gui")
 
-local NAME = "add_group_frame"
+local FRAME_NAME = "add_group_frame"
+
+local ACTION = {
+    TRAIN_CHANGED = "train_changed",
+    OPEN = "open",
+    CLOSE = "close",
+}
 
 local frame = {}
 
----@param container LuaGuiElement
----@return bool
-local function is_last_stock_chooser_empty(container)
-    local chooser_container = container.children[#container.children]
-
-    return chooser_container.children[1].elem_value == nil
-end
-
----@param choose_elem_button_element LuaGuiElement
----@return LuaGuiElement
-local function is_last_stock_chooser(choose_elem_button_element)
-    local chooser_wrapper = choose_elem_button_element.parent
-    local choosers_container = choose_elem_button_element.parent.parent
-
-    return chooser_wrapper.get_index_in_parent() == #choosers_container.children
-end
-
 ---@return table
-local function gui_build_structure_rolling_stock_item_chooser()
+local function gui_build_structure_train_part_chooser()
     return {
         type = "flow",
         direction = "vertical",
-        tags = {type = "chooser_wrapper"},
+        tags = {type = "train_part_chooser_wrapper"},
         children = {
             {
                 type = "choose-elem-button",
-                name = "item_chooser",
+                name = "part_chooser",
                 elem_type = "entity",
                 elem_filters = {
                     {filter="rolling-stock"},
                 },
                 actions = {
-                    on_elem_changed = { gui = "add_group_frame", action = "stock_changed" },
+                    on_elem_changed = { gui = "add_group_frame", action = ACTION.TRAIN_CHANGED },
                 }
             },
             {
@@ -53,19 +42,149 @@ local function gui_build_structure_rolling_stock_item_chooser()
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_gear",
             },
+            {
+                type = "sprite-button",
+                name = "locomotive_direction_button",
+                visible = false,
+                style = "flib_slot_button_default",
+                sprite = "atd_sprite_gear",
+            },
         }
     }
 end
 
+---@return table
+local function gui_build_structure_frame()
+    return {
+        type = "frame",
+        name = "add_group_frame",
+        direction = "vertical",
+        ref  =  {"window"},
+        style_mods = {
+            natural_width = 400,
+            natural_height = 400,
+        },
+        children = {
+            -- Titlebar
+            {
+                type = "flow",
+                style = "flib_titlebar_flow",
+                ref = {"titlebar_flow"},
+                children = {
+                    {
+                        type = "label",
+                        style = "frame_title",
+                        caption = {"gui-name.automated-train-depot-add-group-frame"},
+                        ignored_by_interaction = true
+                    },
+                    {
+                        type = "empty-widget",
+                        style = "flib_titlebar_drag_handle",
+                        ignored_by_interaction = true
+                    },
+                }
+            },
+            -- Content
+            {
+                type = "frame",
+                style = "inner_frame_in_outer_frame",
+                direction = "vertical",
+                children = {
+                    {
+                        type = "flow",
+                        direction = "vertical",
+                        children = {
+                            {
+                                type = "label",
+                                caption = "Group name",
+                            },
+                            {
+                                type = "textfield",
+                            }
+                        }
+                    },
+                    {
+                        type = "flow",
+                        direction = "vertical",
+                        children = {
+                            {
+                                type = "label",
+                                caption = "Build train",
+                            },
+                            {
+                                type = "frame",
+                                direction = "horizontal",
+                                ref  =  {"train_building_container"},
+                                children = {
+                                    gui_build_structure_train_part_chooser(),
+                                }
+                            }
+                        }
+                    },
+                    -- Control buttons
+                    {
+                        type = "flow",
+                        style = "flib_titlebar_flow",
+                        children = {
+                            {
+                                type = "button",
+                                caption = "Cancel",
+                                actions = {
+                                    on_click = { gui = "add_group_frame", action = "close" },
+                                },
+                            },
+                            {
+                                type = "empty-widget",
+                                style = "flib_titlebar_drag_handle",
+                                ignored_by_interaction = true
+                            },
+                            {
+                                type = "button",
+                                caption = "Create",
+                            },
+                        }
+                    }
+                }
+            }
+        }
+    }
+end
+
+---@param player_index int
+---@return LuaGuiElement
+local function get_train_building_container(player_index)
+    return global.gui[FRAME_NAME][player_index].refs.train_building_container
+end
+
+---@param player_index int
+---@return bool
+local function is_last_train_part_chooser_empty(player_index)
+    ---@type LuaGuiElement
+    local container = get_train_building_container(player_index)
+
+    local chooser_container = container.children[#container.children]
+
+    return chooser_container.children[1].elem_value == nil
+end
+
+---@param choose_elem_button_element LuaGuiElement
+---@return LuaGuiElement
+local function is_last_train_part_chooser(choose_elem_button_element)
+    local chooser_wrapper = choose_elem_button_element.parent
+    local choosers_container = choose_elem_button_element.parent.parent
+
+    return chooser_wrapper.get_index_in_parent() == #choosers_container.children
+end
+
 ---@param action table
 ---@param event EventData
-local function update_stock_chooser(action, event)
+local function update_train_part_chooser(action, event)
     ---@type LuaGuiElement
     local element = event.element
     ---@type LuaGuiElement
     local chooser_container = element.parent
 
-    if element.elem_value == nil and not is_last_stock_chooser(element) then
+    if element.elem_value == nil and not is_last_train_part_chooser(element) then
         chooser_container.destroy()
         return
     end
@@ -85,119 +204,25 @@ end
 
 ---@param action table
 ---@param event EventData
-local function append_new_stock_chooser(action, event)
+local function add_new_train_part_chooser(action, event)
     ---@type LuaGuiElement
-    local element = event.element
+    local item_chooser = event.element
     ---@type LuaGuiElement
-    local container = element.parent.parent
+    local container = get_train_building_container(event.player_index)
 
-    if element.elem_value ~= nil and not is_last_stock_chooser_empty(container) then
-        flib_gui.add(container, gui_build_structure_rolling_stock_item_chooser())
+    if item_chooser.elem_value ~= nil and not is_last_train_part_chooser_empty(event.player_index) then
+        flib_gui.add(container, gui_build_structure_train_part_chooser())
     end
 end
 
 ---@param player LuaPlayer
 local function create(player)
-    local refs = flib_gui.build(player.gui.screen, {
-        {
-            type = "frame",
-            name = "add_group_frame",
-            direction = "vertical",
-            ref  =  {"window"},
-            style_mods = {
-                natural_width = 400,
-                natural_height = 400,
-            },
-            children = {
-                -- Titlebar
-                {
-                    type = "flow",
-                    style = "flib_titlebar_flow",
-                    ref = {"titlebar_flow"},
-                    children = {
-                        {
-                            type = "label",
-                            style = "frame_title",
-                            caption = {"gui-name.automated-train-depot-add-group-frame"},
-                            ignored_by_interaction = true
-                        },
-                        {
-                            type = "empty-widget",
-                            style = "flib_titlebar_drag_handle",
-                            ignored_by_interaction = true
-                        },
-                    }
-                },
-                -- Content
-                {
-                    type = "frame",
-                    style = "inner_frame_in_outer_frame",
-                    direction = "vertical",
-                    children = {
-                        {
-                            type = "flow",
-                            direction = "vertical",
-                            children = {
-                                {
-                                    type = "label",
-                                    caption = "Group name",
-                                },
-                                {
-                                    type = "textfield",
-                                }
-                            }
-                        },
-                        {
-                            type = "flow",
-                            direction = "vertical",
-                            children = {
-                                {
-                                    type = "label",
-                                    caption = "Build train",
-                                },
-                                {
-                                    type = "frame",
-                                    direction = "horizontal",
-                                    ref  =  {"rolling_stock_container"},
-                                    children = {
-                                        gui_build_structure_rolling_stock_item_chooser(),
-                                    }
-                                }
-                            }
-                        },
-                        -- Control buttons
-                        {
-                            type = "flow",
-                            style = "flib_titlebar_flow",
-                            children = {
-                                {
-                                    type = "button",
-                                    caption = "Cancel",
-                                    actions = {
-                                        on_click = { gui = "add_group_frame", action = "close" },
-                                    },
-                                },
-                                {
-                                    type = "empty-widget",
-                                    style = "flib_titlebar_drag_handle",
-                                    ignored_by_interaction = true
-                                },
-                                {
-                                    type = "button",
-                                    caption = "Create",
-                                },
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    })
+    local refs = flib_gui.build(player.gui.screen, {gui_build_structure_frame()})
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
 
-    global.gui[NAME][player.index] = {
+    global.gui[FRAME_NAME][player.index] = {
         refs = refs,
         state = {
             visible = false,
@@ -213,23 +238,23 @@ end
 
 ---@return string
 function frame.get_name()
-    return NAME
+    return FRAME_NAME
 end
 
 function frame.init()
-    global.gui[NAME] = {}
+    global.gui[FRAME_NAME] = {}
 end
 
 ---@param player LuaPlayer
 ---@param entity LuaEntity
 function frame.open(player, entity)
-    if global.gui[NAME][player.index] == nil then
+    if global.gui[FRAME_NAME][player.index] == nil then
         create(player, entity)
     else
         update(player, entity)
     end
 
-    local gui = global.gui[NAME][player.index]
+    local gui = global.gui[FRAME_NAME][player.index]
 
     gui.refs.window.bring_to_front()
     gui.refs.window.visible = true
@@ -240,10 +265,10 @@ end
 ---@param player LuaPlayer
 ---@param event EventData
 function frame.destroy(player, event)
-    local gui_data = global.gui[NAME][player.index]
+    local gui_data = global.gui[FRAME_NAME][player.index]
 
     if gui_data then
-        global.gui[NAME][player.index] = nil
+        global.gui[FRAME_NAME][player.index] = nil
         gui_data.refs.window.destroy()
     end
 end
@@ -253,13 +278,13 @@ end
 function frame.dispatch(action, event)
     local player = game.get_player(event.player_index)
 
-    if action.action == "close" then
+    if action.action == ACTION.CLOSE then
         frame.destroy(player, event)
-    elseif action.action == "open" then
+    elseif action.action == ACTION.OPEN then
         frame.open(player, event)
-    elseif action.action == "stock_changed" then
-        append_new_stock_chooser(action, event)
-        update_stock_chooser(action, event)
+    elseif action.action == ACTION.TRAIN_CHANGED then
+        add_new_train_part_chooser(action, event)
+        update_train_part_chooser(action, event)
     end
 end
 
