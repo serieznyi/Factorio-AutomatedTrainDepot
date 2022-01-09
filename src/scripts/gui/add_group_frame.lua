@@ -6,6 +6,7 @@ local ACTION = {
     TRAIN_CHANGED = "train_changed",
     OPEN = "open",
     CLOSE = "close",
+    DELETE_TRAIN_PART_CHOOSER = "delete_train_part_chooser",
 }
 
 local frame = {}
@@ -34,6 +35,9 @@ local function gui_build_structure_train_part_chooser()
                 visible = false,
                 style = "flib_slot_button_red",
                 sprite = "atd_sprite_trash",
+                actions = {
+                    on_click = {gui = FRAME_NAME, action = ACTION.DELETE_TRAIN_PART_CHOOSER}
+                }
             },
             {
                 type = "sprite-button",
@@ -278,13 +282,18 @@ end
 function frame.dispatch(action, event)
     local player = game.get_player(event.player_index)
 
-    if action.action == ACTION.CLOSE then
-        frame.destroy(player, event)
-    elseif action.action == ACTION.OPEN then
-        frame.open(player, event)
-    elseif action.action == ACTION.TRAIN_CHANGED then
-        add_new_train_part_chooser(action, event)
-        update_train_part_chooser(action, event)
+    local handlers = {
+        { action = ACTION.CLOSE, func = function() frame.destroy(player, event) end},
+        { action = ACTION.OPEN, func = function() frame.open(player, event) end},
+        { action = ACTION.TRAIN_CHANGED, func = function() add_new_train_part_chooser(action, event) end},
+        { action = ACTION.TRAIN_CHANGED, func = function() update_train_part_chooser(action, event) end},
+        { action = ACTION.DELETE_TRAIN_PART_CHOOSER, func = function() print(1) end},
+    }
+
+    for _, handler in pairs(handlers) do
+        if handler.action == action.action then
+            handler.func()
+        end
     end
 end
 

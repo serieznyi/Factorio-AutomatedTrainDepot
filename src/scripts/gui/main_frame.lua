@@ -178,8 +178,14 @@ end
 ---@param action table
 ---@param event EventData
 function frame.dispatch(action, event)
-    if action.action == ACTION.CLOSE then
-        frame.close(event)
+    local handlers = {
+        { action = ACTION.CLOSE, func = function() frame.close(event) end},
+    }
+
+    for _, handler in pairs(handlers) do
+        if handler.action == action.action then
+            handler.func()
+        end
     end
 end
 
