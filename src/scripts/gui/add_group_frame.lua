@@ -1,7 +1,4 @@
-local mod_gui = require("__core__.lualib.mod-gui")
 local flib_gui = require("__flib__.gui")
-
-local gui_util = require("scripts.gui.util")
 
 local FRAME_NAME = "add_group_frame"
 
@@ -276,8 +273,6 @@ function frame.open(player, entity)
     gui.refs.window.visible = true
     gui.state.visible = true
     player.opened = gui.refs.window
-
-    gui_util.disable_all_gui_except(gui.refs.window, player.index)
 end
 
 ---@param player LuaPlayer
@@ -288,7 +283,6 @@ function frame.destroy(player, event)
     if gui_data then
         global.gui[FRAME_NAME][player.index] = nil
         gui_data.refs.window.destroy()
-        gui_util.enable_all_gui()
     end
 end
 
