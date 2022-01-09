@@ -53,8 +53,7 @@ local function gui_build_structure_frame()
             },
             -- Content
             {
-                type = "frame",
-                style = "inside_shallow_frame_with_padding",
+                type = "flow",
                 direction = "horizontal",
                 children = {
                     {
@@ -65,12 +64,11 @@ local function gui_build_structure_frame()
                         },
                     },
                     {
-                        type = "frame",
+                        type = "flow",
                         name = "groups_container",
                         style_mods = {
                             maximal_width = 400, -- todo use var
                         },
-                        --style = "inside_shallow_frame_with_padding",
                         direction = "vertical",
                         children = {
                             {
@@ -83,9 +81,8 @@ local function gui_build_structure_frame()
                         }
                     },
                     {
-                        type = "frame",
+                        type = "flow",
                         name = "group_view",
-                        --style = "inside_shallow_frame_with_padding",
                         direction = "vertical",
                         children = {
                             {

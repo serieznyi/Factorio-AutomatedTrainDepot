@@ -1,5 +1,5 @@
-local main_frame = require("main_frame")
-local add_group_frame = require("add_group_frame")
+local main_frame = require("scripts.gui.main_frame")
+local add_group_frame = require("scripts.gui.add_group_frame")
 
 local index = {}
 
