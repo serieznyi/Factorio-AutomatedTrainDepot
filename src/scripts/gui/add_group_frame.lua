@@ -12,11 +12,21 @@ local function is_last_stock_chooser_empty(container)
     return chooser_container.children[1].elem_value == nil
 end
 
+---@param choose_elem_button_element LuaGuiElement
+---@return LuaGuiElement
+local function is_last_stock_chooser(choose_elem_button_element)
+    local chooser_wrapper = choose_elem_button_element.parent
+    local choosers_container = choose_elem_button_element.parent.parent
+
+    return chooser_wrapper.get_index_in_parent() == #choosers_container.children
+end
+
 ---@return table
-local function gui_get_rolling_stock_item_chooser()
+local function gui_build_structure_rolling_stock_item_chooser()
     return {
         type = "flow",
         direction = "vertical",
+        tags = {type = "chooser_wrapper"},
         children = {
             {
                 type = "choose-elem-button",
@@ -53,11 +63,24 @@ local function update_stock_chooser(action, event)
     ---@type LuaGuiElement
     local element = event.element
     ---@type LuaGuiElement
-    local container = element.parent.parent
+    local chooser_container = element.parent
 
-    --local prototype = game.entity_prototypes[element.elem_value]
-    --
-    --prototype.type == "locomotive"
+    if element.elem_value == nil and not is_last_stock_chooser(element) then
+        chooser_container.destroy()
+        return
+    end
+
+    local prototype = game.entity_prototypes[element.elem_value]
+
+    if prototype == nil then
+        chooser_container.children[3].visible = false
+    else
+        chooser_container.children[2].visible = true
+
+        if prototype.type == "locomotive" then
+            chooser_container.children[3].visible = true
+        end
+    end
 end
 
 ---@param action table
@@ -69,7 +92,7 @@ local function append_new_stock_chooser(action, event)
     local container = element.parent.parent
 
     if element.elem_value ~= nil and not is_last_stock_chooser_empty(container) then
-        flib_gui.add(container, gui_get_rolling_stock_item_chooser())
+        flib_gui.add(container, gui_build_structure_rolling_stock_item_chooser())
     end
 end
 
@@ -137,7 +160,7 @@ local function create(player)
                                     direction = "horizontal",
                                     ref  =  {"rolling_stock_container"},
                                     children = {
-                                        gui_get_rolling_stock_item_chooser(),
+                                        gui_build_structure_rolling_stock_item_chooser(),
                                     }
                                 }
                             }
@@ -235,8 +258,8 @@ function frame.dispatch(action, event)
     elseif action.action == "open" then
         frame.open(player, event)
     elseif action.action == "stock_changed" then
-        update_stock_chooser(action, event)
         append_new_stock_chooser(action, event)
+        update_stock_chooser(action, event)
     end
 end
 
