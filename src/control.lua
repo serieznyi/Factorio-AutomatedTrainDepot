@@ -8,6 +8,7 @@ automated_train_depot = require("scripts.init_modification_state")
 local event_handler = require("scripts.event_handler")
 local depot = require("scripts.depot")
 local gui_index = require("scripts.gui.index")
+local console = require("scripts.console")
 
 ---------------------------------------------------------------------------
 -- -- -- Main events
@@ -20,10 +21,11 @@ local gui_index = require("scripts.gui.index")
 -- Any mod prototypes changed
 -- Any mod settings changed
 script.on_configuration_changed(function(e)
+    dictionary.init()
+
     --if migration.on_config_changed(e, migrations.versions) then
     --    migrations.generic()
     --end
-    -- TODO
 end)
 
 -- BOOTSTRAP
@@ -39,11 +41,11 @@ event.on_init(function()
 
     -- Initialize `global` table
     depot.init()
+    console.init()
 end)
 
 -- Loaded save file what contains mod ; Cant write in global
 event.on_load(function()
-    dictionary.load()
     -- Restore local vars from `global`
     -- Re-register event handlers
     -- TODO

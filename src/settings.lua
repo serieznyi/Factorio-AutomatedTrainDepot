@@ -6,6 +6,6 @@ data:extend({
         --order = "ad",
         setting_type = "runtime-per-user",
         default_value = "2",
-        allowed_values = {"0", "1", "2", "3"}
+        allowed_values = {"1", "2", "3", "4"}
     },
 })

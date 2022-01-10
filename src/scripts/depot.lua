@@ -53,9 +53,7 @@ end
 function depot.init()
     automated_train_depot.logger:debug("depot was init")
 
-    global.depot = {
-
-    }
+    global.depot = {}
 end
 
 ---@param entity LuaEntity

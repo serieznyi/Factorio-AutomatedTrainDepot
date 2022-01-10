@@ -3,14 +3,13 @@ local gui = require("__flib__.gui")
 local depot = require("scripts.depot")
 local gui_main_frame = require("scripts.gui.main_frame")
 local gui_index = require("scripts.gui.index")
+local console = require("scripts.console")
 
 local event_handler = {}
 
 ---@param event EventData
 function event_handler.reload_settings(event)
-    -- TODO process different settings type
-
-    automated_train_depot.settings.refresh()
+    console.load(event.player_index)
 end
 
 ---@param event EventData
