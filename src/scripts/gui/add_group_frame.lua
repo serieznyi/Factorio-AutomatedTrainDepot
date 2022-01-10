@@ -189,6 +189,9 @@ local function update_train_part_chooser(action, event)
     ---@type LuaGuiElement
     local chooser_container = element.parent
 
+    chooser_container.children[3].visible = false
+    chooser_container.children[2].visible = false
+
     if element.elem_value == nil and not is_last_train_part_chooser(element) then
         chooser_container.destroy()
         return
