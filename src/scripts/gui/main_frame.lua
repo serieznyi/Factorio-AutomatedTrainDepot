@@ -62,7 +62,8 @@ local function gui_build_structure_frame()
                         type = "flow",
                         direction = "vertical",
                         style_mods = {
-                            maximal_width = FRAME_WIDTH / 4,
+                            minimal_width = FRAME_WIDTH * 0.25,
+                            maximal_width = FRAME_WIDTH * 0.25,
                         },
                         children = {
                             {
@@ -100,44 +101,34 @@ local function gui_build_structure_frame()
                                         children = {
                                             {
                                                 type = "scroll-pane",
-                                                style = "atd_scroll-pane_fake_listbox",
                                                 style_mods = {
+                                                    vertically_stretchable = true,
                                                     horizontally_stretchable = true,
                                                 },
+                                                style = "atd_scroll-pane_fake_listbox",
                                             }
                                         }
-                                    }
-                                    --{
-                                    --    type = "list-box",
-                                    --    --items = {
-                                    --    --    "asd1",
-                                    --    --    "asd2",
-                                    --    --}
-                                    --    style_mods = {
-                                    --        minimal_height = 400, -- todo use var
-                                    --        minimal_height = 800, -- todo use var
-                                    --    },
-                                    --}
+                                    },
                                 }
                             },
                         }
                     },
                     {
                         type = "flow",
-                        direction = "vertical",
                         style_mods = {
-                            vertically_stretchable = true,
-                            horizontally_stretchable = true,
+                            minimal_width = FRAME_WIDTH - (FRAME_WIDTH * 0.25),
+                            maximal_width = FRAME_WIDTH - (FRAME_WIDTH * 0.25),
                         },
+                        direction = "vertical",
                         children = {
                             {
                                 type = "frame",
-                                ref = {"content_flow"},
-                                style = "inside_deep_frame",
                                 style_mods = {
                                     horizontally_stretchable = true,
                                     vertically_stretchable = true,
-                                }
+                                },
+                                ref = {"content_frame"},
+                                style = "inside_deep_frame",
                             }
                         }
                     }
