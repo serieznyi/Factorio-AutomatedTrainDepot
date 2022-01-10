@@ -3,6 +3,8 @@ local flib_gui = require("__flib__.gui")
 local frame = {}
 
 local FRAME_NAME = "main_frame"
+local FRAME_WIDTH = 1200;
+local FRAME_HEIGHT = 400;
 
 local ACTION = {
     CLOSE = "close",
@@ -17,8 +19,8 @@ local function gui_build_structure_frame()
         ref  =  {"window"},
         visible = false,
         style_mods = {
-            natural_width = 1200,
-            natural_height = 400,
+            natural_width = FRAME_WIDTH,
+            natural_height = FRAME_HEIGHT,
         },
         children = {
             -- Titlebar
@@ -57,57 +59,87 @@ local function gui_build_structure_frame()
                 direction = "horizontal",
                 children = {
                     {
-                        type = "button",
-                        caption = "add",
-                        actions = {
-                            on_click = { gui = "add_group_frame", action = "open" },
-                        },
-                    },
-                    {
                         type = "flow",
-                        name = "groups_container",
-                        style_mods = {
-                            maximal_width = 400, -- todo use var
-                        },
                         direction = "vertical",
+                        style_mods = {
+                            maximal_width = FRAME_WIDTH / 4,
+                        },
                         children = {
                             {
-                                type = "list-box",
-                                items = {
-                                    "asd1",
-                                    "asd2",
+                                type = "frame",
+                                style = "inside_deep_frame",
+                                children = {
+                                    {
+                                        type = "frame",
+                                        style = "subheader_frame",
+                                        style_mods = {
+                                            horizontally_stretchable = true,
+                                        },
+                                        children = {
+                                            {
+                                                type = "sprite-button",
+                                                style = "tool_button_green",
+                                                tooltip = {"gui.add_new_group"},
+                                                sprite = "atd_sprite_add",
+                                                actions = {
+                                                    on_click = { gui = "add_group_frame", action = "open" },
+                                                },
+                                            },
+                                        }
+                                    },
                                 }
-                            }
+                            },
+                            {
+                                type = "flow",
+                                direction = "vertical",
+                                name = "groups_container",
+                                children = {
+                                    {
+                                        type = "frame",
+                                        style = "inside_deep_frame",
+                                        children = {
+                                            {
+                                                type = "scroll-pane",
+                                                style = "atd_scroll-pane_fake_listbox",
+                                                style_mods = {
+                                                    horizontally_stretchable = true,
+                                                },
+                                            }
+                                        }
+                                    }
+                                    --{
+                                    --    type = "list-box",
+                                    --    --items = {
+                                    --    --    "asd1",
+                                    --    --    "asd2",
+                                    --    --}
+                                    --    style_mods = {
+                                    --        minimal_height = 400, -- todo use var
+                                    --        minimal_height = 800, -- todo use var
+                                    --    },
+                                    --}
+                                }
+                            },
                         }
                     },
                     {
                         type = "flow",
-                        name = "group_view",
                         direction = "vertical",
+                        style_mods = {
+                            vertically_stretchable = true,
+                            horizontally_stretchable = true,
+                        },
                         children = {
                             {
-                                type = "tabbed-pane",
-                                children = {
-                                    {
-                                        tab = {
-                                            type = "tab",
-                                            caption = { "gui-name.automated-train-depot-group-view" },
-                                            ref = { "atd-concrete-group-view-tab" },
-                                            actions = {
-                                                --on_click = { gui = "main", action = "change_tab", tab = "trains" },
-                                            },
-                                        },
-                                        content = {
-                                            type = "frame",
-                                            --style = "ltnm_main_content_frame",
-                                            direction = "vertical",
-                                            ref = {"atd-concrete-group-view-content"},
-
-                                        }
-                                    }
-                                },
+                                type = "frame",
+                                ref = {"content_flow"},
+                                style = "inside_deep_frame",
+                                style_mods = {
+                                    horizontally_stretchable = true,
+                                    vertically_stretchable = true,
+                                }
                             }
-                        },
+                        }
                     }
                 }
             }

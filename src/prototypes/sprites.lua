@@ -31,4 +31,12 @@ data:extend({
         icon_mipmaps = 4,
         flags = {"gui-icon"}
     },
+    {
+        type = "sprite",
+        name = "atd_sprite_add",
+        filename = "__AutomatedTrainDepot__/media/graphics/icons/plus.png",
+        size = 64,
+        icon_mipmaps = 4,
+        flags = {"gui-icon"}
+    },
 })
