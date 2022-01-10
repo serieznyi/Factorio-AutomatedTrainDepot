@@ -1,62 +1,13 @@
 local flib_gui = require("__flib__.gui")
 
-local FRAME_NAME = "add_group_frame"
+local FRAME_NAME = "locomotive_configuration_frame"
 
 local ACTION = {
-    TRAIN_CHANGED = "train_changed",
     OPEN = "open",
     CLOSE = "close",
-    DELETE_TRAIN_PART_CHOOSER = "delete_train_part_chooser",
 }
 
 local frame = {}
-
----@return table
-local function gui_build_structure_train_part_chooser()
-    return {
-        type = "flow",
-        direction = "vertical",
-        tags = {type = "train_part_chooser_wrapper"},
-        children = {
-            {
-                type = "choose-elem-button",
-                name = "part_chooser",
-                elem_type = "entity",
-                elem_filters = {
-                    {filter="rolling-stock"},
-                },
-                actions = {
-                    on_elem_changed = { gui = "add_group_frame", action = ACTION.TRAIN_CHANGED },
-                }
-            },
-            {
-                type = "sprite-button",
-                name = "delete_button",
-                visible = false,
-                style = "flib_slot_button_red",
-                sprite = "atd_sprite_trash",
-                actions = {
-                    on_click = {gui = FRAME_NAME, action = ACTION.DELETE_TRAIN_PART_CHOOSER}
-                }
-            },
-            {
-                type = "sprite-button",
-                name = "locomotive_configuration_button",
-                visible = false,
-                style = "flib_slot_button_default",
-                sprite = "atd_sprite_gear",
-                on_click = { gui = "locomotive_configuration_frame", action = "open" },
-            },
-            {
-                type = "sprite-button",
-                name = "locomotive_direction_button",
-                visible = false,
-                style = "flib_slot_button_default",
-                sprite = "atd_sprite_gear",
-            },
-        }
-    }
-end
 
 ---@return table
 local function gui_build_structure_frame()
@@ -79,7 +30,7 @@ local function gui_build_structure_frame()
                     {
                         type = "label",
                         style = "frame_title",
-                        caption = {"gui-name.automated-train-depot-add-group-frame"},
+                        caption = {"gui-name.automated-train-depot-configure-locomotive"},
                         ignored_by_interaction = true
                     },
                     {
@@ -153,80 +104,6 @@ local function gui_build_structure_frame()
             }
         }
     }
-end
-
----@param player_index int
----@return LuaGuiElement
-local function get_train_building_container(player_index)
-    return global.gui[FRAME_NAME][player_index].refs.train_building_container
-end
-
----@param player_index int
----@return bool
-local function is_last_train_part_chooser_empty(player_index)
-    ---@type LuaGuiElement
-    local container = get_train_building_container(player_index)
-
-    local chooser_container = container.children[#container.children]
-
-    return chooser_container.children[1].elem_value == nil
-end
-
----@param choose_elem_button_element LuaGuiElement
----@return LuaGuiElement
-local function is_last_train_part_chooser(choose_elem_button_element)
-    local chooser_wrapper = choose_elem_button_element.parent
-    local choosers_container = choose_elem_button_element.parent.parent
-
-    return chooser_wrapper.get_index_in_parent() == #choosers_container.children
-end
-
----@param action table
----@param event EventData
-local function update_train_part_chooser(action, event)
-    ---@type LuaGuiElement
-    local element = event.element
-    ---@type LuaGuiElement
-    local chooser_container = element.parent
-
-    if element.elem_value == nil and not is_last_train_part_chooser(element) then
-        chooser_container.destroy()
-        return
-    end
-
-    local prototype = game.entity_prototypes[element.elem_value]
-
-    if prototype == nil then
-        chooser_container.children[3].visible = false
-    else
-        chooser_container.children[2].visible = true
-
-        if prototype.type == "locomotive" then
-            chooser_container.children[3].visible = true
-        end
-    end
-end
-
----@param action table
----@param event EventData
-local function delete_train_part_chooser(action, event)
-    ---@type LuaGuiElement
-    local element = event.element
-
-    element.parent.destroy()
-end
-
----@param action table
----@param event EventData
-local function add_new_train_part_chooser(action, event)
-    ---@type LuaGuiElement
-    local item_chooser = event.element
-    ---@type LuaGuiElement
-    local container = get_train_building_container(event.player_index)
-
-    if item_chooser.elem_value ~= nil and not is_last_train_part_chooser_empty(event.player_index) then
-        flib_gui.add(container, gui_build_structure_train_part_chooser())
-    end
 end
 
 ---@param player LuaPlayer

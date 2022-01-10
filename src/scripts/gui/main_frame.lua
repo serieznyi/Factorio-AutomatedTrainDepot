@@ -147,7 +147,7 @@ local function gui_build_structure_frame()
     }
 end
 
-function frame.get_name()
+function frame.name()
     return FRAME_NAME
 end
 
