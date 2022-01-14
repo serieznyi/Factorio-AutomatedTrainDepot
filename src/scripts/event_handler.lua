@@ -74,4 +74,8 @@ function event_handler.open_gui(event)
     end
 end
 
+function event_handler.bring_to_front_current_window()
+    gui_index.bring_to_front_current_window()
+end
+
 return event_handler

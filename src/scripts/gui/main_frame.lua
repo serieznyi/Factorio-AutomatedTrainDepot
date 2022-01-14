@@ -10,13 +10,6 @@ local ACTION = {
     CLOSE = "close",
 }
 
---function ui_util.properly_center_frame(player, frame, dimensions)
---    local resolution, scale = player.display_resolution, player.display_scale
---    local x_offset = ((resolution.width - (dimensions.width * scale)) / 2)
---    local y_offset = ((resolution.height - (dimensions.height * scale)) / 2)
---    frame.location = {x_offset, y_offset}
---end
-
 ---@return table
 local function gui_build_structure_frame()
     return {
@@ -142,6 +135,12 @@ local function gui_build_structure_frame()
                 }
             }
         }
+    }
+end
+
+function frame.remote_interfaces()
+    return {
+
     }
 end
 

@@ -127,6 +127,12 @@ local function update(player, entity)
     -- TODO
 end
 
+function frame.remote_interfaces()
+    return {
+
+    }
+end
+
 ---@return string
 function frame.name()
     return FRAME_NAME

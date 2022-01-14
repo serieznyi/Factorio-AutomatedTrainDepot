@@ -11,7 +11,13 @@ local gui_index = require("scripts.gui.index")
 local console = require("scripts.console")
 
 ---------------------------------------------------------------------------
--- -- -- Main events
+-- -- -- INTERFACES
+---------------------------------------------------------------------------
+---
+gui_index.register_remote_interfaces()
+
+---------------------------------------------------------------------------
+-- -- -- REGISTER MAIN EVENTS
 ---------------------------------------------------------------------------
 
 -- Game version changed
@@ -52,7 +58,7 @@ event.on_load(function()
 end)
 
 ---------------------------------------------------------------------------
--- -- -- ENTITY
+-- -- -- REGISTER ENTITY EVENTS
 ---------------------------------------------------------------------------
 
 event.register(
@@ -82,9 +88,11 @@ event.register(
 event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
 
 ---------------------------------------------------------------------------
--- -- -- GUI
+-- -- -- REGISTER GUI EVENTS
 ---------------------------------------------------------------------------
 
 gui.hook_events(event_handler.handle_gui_event)
 
 event.register(defines.events.on_gui_opened, event_handler.open_gui)
+
+event.on_nth_tick(1, event_handler.bring_to_front_current_window)
