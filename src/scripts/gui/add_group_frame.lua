@@ -273,8 +273,6 @@ function frame.open(player, entity)
 
     local gui = global.gui[FRAME_NAME][player.index]
 
-    automated_train_depot.console.debug("test")
-
     gui.refs.window.bring_to_front()
     gui.refs.window.visible = true
     gui.state.visible = true
