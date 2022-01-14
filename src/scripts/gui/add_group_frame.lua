@@ -1,15 +1,26 @@
 local flib_gui = require("__flib__.gui")
+local flib_table = require("__flib__.table")
 
 local FRAME_NAME = "add_group_frame"
 
 local ACTION = {
     TRAIN_CHANGED = "train_changed",
     OPEN = "open",
+    SAVE = "save",
     CLOSE = "close",
     DELETE_TRAIN_PART_CHOOSER = "delete_train_part_chooser",
+    CHANGE_LOCOMOTIVE_DIRECTION = "change_locomotive_direction",
 }
 
 local frame = {}
+
+local function save_form(action, event)
+    local player = game.get_player(event.player_index)
+
+    -- TODO save something
+
+    frame.destroy(player, event)
+end
 
 ---@return table
 local function gui_build_structure_train_part_chooser()
@@ -41,19 +52,28 @@ local function gui_build_structure_train_part_chooser()
             },
             {
                 type = "sprite-button",
-                name = "locomotive_configuration_button",
+                name = "locomotive_config_button",
                 visible = false,
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_gear",
                 on_click = { gui = "locomotive_configuration_frame", action = "open" },
             },
-            {
-                type = "sprite-button",
-                name = "locomotive_direction_button",
-                visible = false,
-                style = "flib_slot_button_default",
-                sprite = "atd_sprite_gear",
-            },
+            --{
+            --    type = "sprite-button",
+            --    name = "locomotive_direction_left_button",
+            --    visible = false,
+            --    style = "flib_slot_button_default",
+            --    sprite = "atd_sprite_arrow_left",
+            --    on_click = { gui = "locomotive_configuration_frame", action = "change_locomotive_direction" },
+            --},
+            --{
+            --    type = "sprite-button",
+            --    name = "locomotive_direction_right_button",
+            --    visible = false,
+            --    style = "flib_slot_button_default",
+            --    sprite = "atd_sprite_arrow_left",
+            --    on_click = { gui = "locomotive_configuration_frame", action = "change_locomotive_direction" },
+            --},
         }
     }
 end
@@ -66,8 +86,10 @@ local function gui_build_structure_frame()
         direction = "vertical",
         ref  =  {"window"},
         style_mods = {
-            natural_width = 400,
-            natural_height = 400,
+            minimal_width = 600,
+            minimal_height = 400,
+            vertically_stretchable = true,
+            horizontally_stretchable = true,
         },
         children = {
             -- Titlebar
@@ -92,7 +114,11 @@ local function gui_build_structure_frame()
             -- Content
             {
                 type = "frame",
-                style = "inner_frame_in_outer_frame",
+                style = "inside_shallow_frame_with_padding",
+                style_mods = {
+                    horizontally_stretchable = true,
+                    vertically_stretchable = true,
+                },
                 direction = "vertical",
                 children = {
                     {
@@ -105,6 +131,7 @@ local function gui_build_structure_frame()
                             },
                             {
                                 type = "textfield",
+                                ref = {"input_group_name"}
                             }
                         }
                     },
@@ -126,31 +153,37 @@ local function gui_build_structure_frame()
                             }
                         }
                     },
-                    -- Control buttons
-                    {
-                        type = "flow",
-                        style = "flib_titlebar_flow",
-                        children = {
-                            {
-                                type = "button",
-                                caption = "Cancel",
-                                actions = {
-                                    on_click = { gui = "add_group_frame", action = "close" },
-                                },
-                            },
-                            {
-                                type = "empty-widget",
-                                style = "flib_titlebar_drag_handle",
-                                ignored_by_interaction = true
-                            },
-                            {
-                                type = "button",
-                                caption = "Create",
-                            },
-                        }
-                    }
                 }
-            }
+            },
+            -- Bottom control bar
+            {
+                type = "flow",
+                style = "dialog_buttons_horizontal_flow",
+                ref = {"footerbar_flow"},
+                children = {
+                    {
+                        type = "button",
+                        style = "back_button",
+                        caption = "Cancel",
+                        actions = {
+                            on_click = { gui = "add_group_frame", action = "close" },
+                        },
+                    },
+                    {
+                        type = "empty-widget",
+                        style = "flib_dialog_footer_drag_handle",
+                        ignored_by_interaction = true
+                    },
+                    {
+                        type = "button",
+                        style = "confirm_button",
+                        caption = "Create",
+                        actions = {
+                            on_click = { gui = "add_group_frame", action = "save" },
+                        },
+                    },
+                }
+            },
         }
     }
 end
@@ -181,31 +214,50 @@ local function is_last_train_part_chooser(choose_elem_button_element)
     return chooser_wrapper.get_index_in_parent() == #choosers_container.children
 end
 
+local function change_locomotive_direction(action, event)
+    ---@type LuaGuiElement
+    local element = event.element
+
+
+end
+
+local function wrapper_button(wrapper, name)
+    for _, el in ipairs(wrapper.children) do
+        if el.name == name then
+            return el
+        end
+    end
+
+    return nil
+end
+
 ---@param action table
 ---@param event EventData
 local function update_train_part_chooser(action, event)
     ---@type LuaGuiElement
     local element = event.element
     ---@type LuaGuiElement
-    local chooser_container = element.parent
+    local chooser_wrapper = element.parent
+    local delete_button = wrapper_button(chooser_wrapper, "delete_button")
+    local locomotive_config_button = wrapper_button(chooser_wrapper, "locomotive_config_button")
 
-    chooser_container.children[3].visible = false
-    chooser_container.children[2].visible = false
+    delete_button.visible = false
+    locomotive_config_button.visible = false
 
     if element.elem_value == nil and not is_last_train_part_chooser(element) then
-        chooser_container.destroy()
+        chooser_wrapper.destroy()
         return
     end
 
     local prototype = game.entity_prototypes[element.elem_value]
 
     if prototype == nil then
-        chooser_container.children[3].visible = false
+        locomotive_config_button.visible = false
     else
-        chooser_container.children[2].visible = true
+        delete_button.visible = true
 
         if prototype.type == "locomotive" then
-            chooser_container.children[3].visible = true
+            locomotive_config_button.visible = true
         end
     end
 end
@@ -238,6 +290,7 @@ local function create(player)
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
+    refs.footerbar_flow.drag_target = refs.window
 
     global.gui[FRAME_NAME][player.index] = {
         refs = refs,
@@ -306,7 +359,9 @@ function frame.dispatch(action, event)
         { action = ACTION.OPEN, func = function(_, e) frame.open(player, e) end},
         { action = ACTION.TRAIN_CHANGED, func = function(a, e) add_new_train_part_chooser(a, e) end},
         { action = ACTION.TRAIN_CHANGED, func = function(a, e) update_train_part_chooser(a, e) end},
+        { action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(a, e) change_locomotive_direction(a, e) end},
         { action = ACTION.DELETE_TRAIN_PART_CHOOSER, func = function(a, e) delete_train_part_chooser(a, e) end},
+        { action = ACTION.SAVE, func = function(a, e) save_form(a, e) end},
     }
 
     for _, handler in pairs(handlers) do

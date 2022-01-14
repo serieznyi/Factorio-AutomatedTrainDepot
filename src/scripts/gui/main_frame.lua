@@ -182,6 +182,7 @@ function frame.create(player, entity)
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
+
     local resolution, scale = player.display_resolution, player.display_scale
     refs.window.location = {
         ((resolution.width - (FRAME_WIDTH * scale)) / 2),
