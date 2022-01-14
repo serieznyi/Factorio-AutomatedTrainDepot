@@ -1,11 +1,13 @@
 local misc = require("__flib__.misc")
 
+local logger = {}
+
 local LEVEL = {
-    NONE = "NONE",
-    ERROR = "ERROR",
-    WARNING = "WARNING",
-    INFO = "INFO",
-    DEBUG = "DEBUG",
+    NONE = 1,
+    WARNING = 2,
+    ERROR = 3,
+    INFO = 4,
+    DEBUG = 5,
 }
 
 ---------------------------------------------------
@@ -15,22 +17,12 @@ local LEVEL = {
 --   - %message
 --   - %category
 ---------------------------------------------------
-local DEFAULT_PATTERN = "[%date][%level][%category] %message"
-
--- @module lib.Logger
-local Logger = {
-    message_pattern = DEFAULT_PATTERN,
-    level = LEVEL.DEBUG
-}
+local PATTERN = "[%date][%level][%category] %message"
 
 ---@param level string
 ---@param text string
 local function write_message(level, category, text)
-    if level ~= Logger.level then
-        return
-    end
-
-    local message = Logger.message_pattern
+    local message = PATTERN
 
     message = string.gsub(message,"%%date", misc.ticks_to_timestring(game.ticks_played))
     message = string.gsub(message,"%%level", tostring(level))
@@ -42,45 +34,26 @@ end
 
 ---@param text string
 ---@param[opt=default] category Message category
-function Logger:error(text, category)
+function logger.error(text, category)
     write_message(LEVEL.ERROR, category, text)
 end
 
 ---@param text string
 ---@param[opt=default] category Message category
-function Logger:warning(text, category)
+function logger.warning(text, category)
     write_message(LEVEL.WARNING, category, text)
 end
 
 ---@param text string
 ---@param[opt=default] category Message category
-function Logger:info(text, category)
+function logger.info(text, category)
     write_message(LEVEL.INFO, category, text)
 end
 
 ---@param text string
 ---@param[opt=default] category Message category
-function Logger:debug(text, category)
+function logger.debug(text, category)
     write_message(LEVEL.DEBUG, category, text)
 end
 
-setmetatable(Logger, {
-    --- @param _ table
-    --- @param message_pattern string
-    __call = function(_, level, message_pattern)
-        local self = {}
-        setmetatable(self, { __index = Logger })
-
-        if message_pattern ~= nil and message_pattern ~= "" then
-            self.message_pattern = message_pattern
-        end
-
-        if level ~= nil then
-            self.level = level
-        end
-
-        return self
-    end
-})
-
-return Logger
+return logger
