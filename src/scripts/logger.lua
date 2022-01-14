@@ -3,11 +3,10 @@ local misc = require("__flib__.misc")
 local logger = {}
 
 local LEVEL = {
-    NONE = 1,
-    WARNING = 2,
-    ERROR = 3,
-    INFO = 4,
-    DEBUG = 5,
+    WARNING = "warning",
+    ERROR = "error",
+    INFO = "info",
+    DEBUG = "debug",
 }
 
 ---------------------------------------------------
@@ -20,8 +19,10 @@ local LEVEL = {
 local PATTERN = "[%date][%level][%category] %message"
 
 ---@param level string
+---@param category string
 ---@param text string
-local function write_message(level, category, text)
+---@param args table
+local function write_message(level, category, text, args)
     local message = PATTERN
 
     message = string.gsub(message,"%%date", misc.ticks_to_timestring(game.ticks_played))
@@ -29,31 +30,39 @@ local function write_message(level, category, text)
     message = string.gsub(message,"%%message", tostring(text))
     message = string.gsub(message,"%%category", tostring(category or 'default'))
 
+    for i, v in ipairs(args or {}) do
+        message = string.gsub(message,"{" .. tostring(i) .. "}", tostring(v))
+    end
+
     log(message)
 end
 
 ---@param text string
----@param[opt=default] category Message category
-function logger.error(text, category)
-    write_message(LEVEL.ERROR, category, text)
+---@param args table
+---@param category string Message category
+function logger.error(text, args, category)
+    write_message(LEVEL.ERROR, category, text, args)
 end
 
 ---@param text string
----@param[opt=default] category Message category
-function logger.warning(text, category)
-    write_message(LEVEL.WARNING, category, text)
+---@param args table
+---@param category string Message category
+function logger.warning(text, args, category)
+    write_message(LEVEL.WARNING, category, text, args)
 end
 
 ---@param text string
----@param[opt=default] category Message category
-function logger.info(text, category)
-    write_message(LEVEL.INFO, category, text)
+---@param args table
+---@param category string Message category
+function logger.info(text, args, category)
+    write_message(LEVEL.INFO, category, text, args)
 end
 
 ---@param text string
----@param[opt=default] category Message category
-function logger.debug(text, category)
-    write_message(LEVEL.DEBUG, category, text)
+---@param args table
+---@param category string Message category
+function logger.debug(text, args, category)
+    write_message(LEVEL.DEBUG, category, text, args)
 end
 
 return logger

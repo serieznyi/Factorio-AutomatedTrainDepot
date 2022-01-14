@@ -46,8 +46,9 @@ function event_handler.handle_gui_event(event)
         return false
     end
 
-    automated_train_depot.logger:debug(
-        "gui event `" .. action.gui .. ":" .. action.action .. "` triggered"
+    automated_train_depot.logger.debug(
+            "gui event `{1} with action `{2}` triggered",
+            {action.gui, action.action}
     )
 
     return gui_index.dispatch(action, event)

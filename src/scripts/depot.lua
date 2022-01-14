@@ -51,7 +51,7 @@ local function build_straight_rails_for_station(station_entity, railsCount)
 end
 
 function depot.init()
-    automated_train_depot.logger:debug("depot was init")
+    automated_train_depot.logger.debug("depot was init")
 
     global.depot = {}
 end
@@ -121,7 +121,10 @@ function depot.build(entity)
         dependent_entities = dependent_entities
     }
 
-    automated_train_depot.logger:debug('Entity ' .. entity.name .. '['.. entity.unit_number .. '] was build')
+    automated_train_depot.logger.debug(
+        'Entity {1}[{2}] was build',
+            {entity.name, entity.unit_number}
+    )
 end
 
 ---@param depot_entity LuaEntity
@@ -140,7 +143,10 @@ function depot.destroy(depot_entity)
 
     automated_train_depot.depots[surface.name] = nil
 
-    automated_train_depot.logger:debug('Entity ' .. entity_name .. '['.. depot_entity_id .. '] was destroy')
+    automated_train_depot.logger.debug(
+            'Entity {1}[{2}] was destroy',
+            {entity_name, depot_entity_id}
+    )
 end
 
 return depot
