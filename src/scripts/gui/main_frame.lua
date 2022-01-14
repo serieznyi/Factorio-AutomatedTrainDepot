@@ -4,11 +4,18 @@ local frame = {}
 
 local FRAME_NAME = "main_frame"
 local FRAME_WIDTH = 1200;
-local FRAME_HEIGHT = 400;
+local FRAME_HEIGHT = 600;
 
 local ACTION = {
     CLOSE = "close",
 }
+
+--function ui_util.properly_center_frame(player, frame, dimensions)
+--    local resolution, scale = player.display_resolution, player.display_scale
+--    local x_offset = ((resolution.width - (dimensions.width * scale)) / 2)
+--    local y_offset = ((resolution.height - (dimensions.height * scale)) / 2)
+--    frame.location = {x_offset, y_offset}
+--end
 
 ---@return table
 local function gui_build_structure_frame()
@@ -176,6 +183,11 @@ function frame.create(player, entity)
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
+    local resolution, scale = player.display_resolution, player.display_scale
+    refs.window.location = {
+        ((resolution.width - (FRAME_WIDTH * scale)) / 2),
+        ((resolution.height - (FRAME_HEIGHT * scale)) / 2)
+    }
 
     global.gui[FRAME_NAME][player.index] = {
         refs = refs,
@@ -199,12 +211,12 @@ end
 ---@param event EventData
 function frame.dispatch(action, event)
     local handlers = {
-        { action = ACTION.CLOSE, func = function() frame.close(event) end},
+        { action = ACTION.CLOSE, func = function(_, e) frame.close(e) end},
     }
 
     for _, handler in pairs(handlers) do
         if handler.action == action.action then
-            handler.func()
+            handler.func(action, event)
         end
     end
 end

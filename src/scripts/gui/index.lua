@@ -14,15 +14,15 @@ end
 
 function index.dispatch(action, event)
     local handlers = {
-        [main_frame.name()] = function() main_frame.dispatch(action, event) end,
-        [add_group_frame.name()] = function() add_group_frame.dispatch(action, event) end,
-        [locomotive_configuration_frame.name()] = function() locomotive_configuration_frame.dispatch(action, event) end,
+        [main_frame.name()] = function(a, e) main_frame.dispatch(a, e) end,
+        [add_group_frame.name()] = function(a, e) add_group_frame.dispatch(a, e) end,
+        [locomotive_configuration_frame.name()] = function(a, e) locomotive_configuration_frame.dispatch(a, e) end,
     }
 
     local handler = handlers[action.gui]
 
     if handler ~= nil then
-        return handler()
+        return handler(action, event)
     end
 
     return false

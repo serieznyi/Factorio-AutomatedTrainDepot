@@ -298,16 +298,16 @@ function frame.dispatch(action, event)
     local player = game.get_player(event.player_index)
 
     local handlers = {
-        { action = ACTION.CLOSE, func = function() frame.destroy(player, event) end},
-        { action = ACTION.OPEN, func = function() frame.open(player, event) end},
-        { action = ACTION.TRAIN_CHANGED, func = function() add_new_train_part_chooser(action, event) end},
-        { action = ACTION.TRAIN_CHANGED, func = function() update_train_part_chooser(action, event) end},
-        { action = ACTION.DELETE_TRAIN_PART_CHOOSER, func = function() delete_train_part_chooser(action, event) end},
+        { action = ACTION.CLOSE, func = function(_, e) frame.destroy(player, e) end},
+        { action = ACTION.OPEN, func = function(_, e) frame.open(player, e) end},
+        { action = ACTION.TRAIN_CHANGED, func = function(a, e) add_new_train_part_chooser(a, e) end},
+        { action = ACTION.TRAIN_CHANGED, func = function(a, e) update_train_part_chooser(a, e) end},
+        { action = ACTION.DELETE_TRAIN_PART_CHOOSER, func = function(a, e) delete_train_part_chooser(a, e) end},
     }
 
     for _, handler in pairs(handlers) do
         if handler.action == action.action then
-            handler.func()
+            handler.func(action, event)
         end
     end
 end
