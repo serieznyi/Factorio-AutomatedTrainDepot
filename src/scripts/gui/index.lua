@@ -1,5 +1,5 @@
 local main_frame = require("scripts.gui.main_frame")
-local add_group_frame = require("scripts.gui.add_group_frame")
+local add_group_frame = require("scripts.gui.add_group_frame.frame")
 local locomotive_configuration_frame = require("scripts.gui.locomotive_configuration_frame")
 
 local index = {}
@@ -8,12 +8,6 @@ local REGISTERED_MAIN_FRAMES = {
     main_frame,
     add_group_frame,
     locomotive_configuration_frame,
-}
-
-local EVENT_HANDLERS = {
-    [main_frame.name()] = function(a, e) main_frame.dispatch(a, e) end,
-    [add_group_frame.name()] = function(a, e) add_group_frame.dispatch(a, e) end,
-    [locomotive_configuration_frame.name()] = function(a, e) locomotive_configuration_frame.dispatch(a, e) end,
 }
 
 ---@param element LuaGuiElement
@@ -60,6 +54,7 @@ end
 
 function index.init()
     global.gui = {}
+    global.element = {}
 
     for _, module in ipairs(REGISTERED_MAIN_FRAMES) do
         module.init()
@@ -76,13 +71,13 @@ function index.dispatch(action, event)
                 {event.name, element.name}
         )
         --index.bring_to_front_current_window(player)
-        return
+        return false
     end
 
-    local handler = EVENT_HANDLERS[action.gui]
-
-    if handler ~= nil then
-        return handler(action, event)
+    for _, frame in ipairs(REGISTERED_MAIN_FRAMES) do
+        if frame.dispatch(action, event) == true then
+            return true
+        end
     end
 
     return false

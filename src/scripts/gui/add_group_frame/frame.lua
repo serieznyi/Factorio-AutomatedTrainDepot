@@ -1,13 +1,27 @@
 local flib_gui = require("__flib__.gui")
 
-local FRAME_NAME = "locomotive_configuration_frame"
-
-local ACTION = {
-    OPEN = "open",
-    CLOSE = "close",
-}
+local train_part_chooser = require("train_part_chooser")
 
 local frame = {}
+
+local FRAME_NAME = "add_group_frame"
+
+local ACTION = {
+    TRAIN_CHANGED = "train_changed",
+    OPEN = "open",
+    SAVE = "save",
+    CLOSE = "close",
+    DELETE_TRAIN_PART_CHOOSER = "delete_train_part_chooser",
+    CHANGE_LOCOMOTIVE_DIRECTION = "change_locomotive_direction",
+}
+
+local function save_form(event)
+    local player = game.get_player(event.player_index)
+
+    -- TODO save something
+
+    frame.destroy(player, event)
+end
 
 ---@return table
 local function gui_build_structure_frame()
@@ -17,8 +31,10 @@ local function gui_build_structure_frame()
         direction = "vertical",
         ref  =  {"window"},
         style_mods = {
-            natural_width = 400,
-            natural_height = 400,
+            minimal_width = 600,
+            minimal_height = 400,
+            vertically_stretchable = true,
+            horizontally_stretchable = true,
         },
         children = {
             -- Titlebar
@@ -30,7 +46,7 @@ local function gui_build_structure_frame()
                     {
                         type = "label",
                         style = "frame_title",
-                        caption = {"gui-name.automated-train-depot-configure-locomotive"},
+                        caption = {"gui-name.automated-train-depot-add-group-frame"},
                         ignored_by_interaction = true
                     },
                     {
@@ -43,7 +59,11 @@ local function gui_build_structure_frame()
             -- Content
             {
                 type = "frame",
-                style = "inner_frame_in_outer_frame",
+                style = "inside_shallow_frame_with_padding",
+                style_mods = {
+                    horizontally_stretchable = true,
+                    vertically_stretchable = true,
+                },
                 direction = "vertical",
                 children = {
                     {
@@ -71,47 +91,53 @@ local function gui_build_structure_frame()
                                 type = "frame",
                                 direction = "horizontal",
                                 ref  =  {"train_building_container"},
-                                children = {
-                                    gui_build_structure_train_part_chooser(),
-                                }
                             }
                         }
                     },
-                    -- Control buttons
-                    {
-                        type = "flow",
-                        style = "flib_titlebar_flow",
-                        children = {
-                            {
-                                type = "button",
-                                caption = "Cancel",
-                                actions = {
-                                    on_click = { gui = "add_group_frame", action = "close" },
-                                },
-                            },
-                            {
-                                type = "empty-widget",
-                                style = "flib_titlebar_drag_handle",
-                                ignored_by_interaction = true
-                            },
-                            {
-                                type = "button",
-                                caption = "Create",
-                            },
-                        }
-                    }
                 }
-            }
+            },
+            -- Bottom control bar
+            {
+                type = "flow",
+                style = "dialog_buttons_horizontal_flow",
+                ref = {"footerbar_flow"},
+                children = {
+                    {
+                        type = "button",
+                        style = "back_button",
+                        caption = "Cancel",
+                        actions = {
+                            on_click = { gui = "add_group_frame", action = "close" },
+                        },
+                    },
+                    {
+                        type = "empty-widget",
+                        style = "flib_dialog_footer_drag_handle",
+                        ignored_by_interaction = true
+                    },
+                    {
+                        type = "button",
+                        style = "confirm_button",
+                        caption = "Create",
+                        actions = {
+                            on_click = { gui = "add_group_frame", action = "save" },
+                        },
+                    },
+                }
+            },
         }
     }
 end
 
 ---@param player LuaPlayer
-local function create(player)
+local function create_for(player)
     local refs = flib_gui.build(player.gui.screen, {gui_build_structure_frame()})
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
+    refs.footerbar_flow.drag_target = refs.window
+
+    train_part_chooser.append_element_to(refs.train_building_container, player)
 
     global.gui[FRAME_NAME][player.index] = {
         refs = refs,
@@ -122,8 +148,7 @@ local function create(player)
 end
 
 ---@param player LuaPlayer
----@param entity LuaEntity
-local function update(player, entity)
+local function update_for(player)
     -- TODO
 end
 
@@ -140,15 +165,18 @@ end
 
 function frame.init()
     global.gui[FRAME_NAME] = {}
+
+    train_part_chooser.init()
 end
 
----@param player LuaPlayer
----@param entity LuaEntity
-function frame.open(player, entity)
+---@param event EventData
+function frame.open(event)
+    local player = game.get_player(event.player_index)
+
     if global.gui[FRAME_NAME][player.index] == nil then
-        create(player, entity)
+        create_for(player)
     else
-        update(player, entity)
+        update_for(player)
     end
 
     local gui = global.gui[FRAME_NAME][player.index]
@@ -159,9 +187,9 @@ function frame.open(player, entity)
     player.opened = gui.refs.window
 end
 
----@param player LuaPlayer
 ---@param event EventData
-function frame.destroy(player, event)
+function frame.destroy(event)
+    local player = game.get_player(event.player_index)
     local gui_data = global.gui[FRAME_NAME][player.index]
 
     if gui_data then
@@ -173,22 +201,24 @@ end
 ---@param action table
 ---@param event EventData
 function frame.dispatch(action, event)
-    --local player = game.get_player(event.player_index)
-    --
-    --local handlers = {
-    --    { action = ACTION.CLOSE, func = function() frame.destroy(player, event) end},
-    --    { action = ACTION.OPEN, func = function() frame.open(player, event) end},
-    --    { action = ACTION.TRAIN_CHANGED, func = function() add_new_train_part_chooser(action, event) end},
-    --    { action = ACTION.TRAIN_CHANGED, func = function() update_train_part_chooser(action, event) end},
-    --    { action = ACTION.DELETE_TRAIN_PART_CHOOSER, func = function() delete_train_part_chooser(action, event) end},
-    --}
-    --
-    --for _, handler in pairs(handlers) do
-    --    if handler.action == action.action then
-    --        handler.func()
-    --    end
-    --end
-    return false
+    local processed = false
+
+    local event_handlers = {
+        { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) frame.destroy(e) end},
+        { gui = FRAME_NAME,action = ACTION.OPEN, func = function(_, e) frame.open(e) end},
+        { gui = FRAME_NAME,action = ACTION.SAVE, func = function(a, e) save_form(e) end},
+        { gui = train_part_chooser.name(), func = function(a, e) train_part_chooser.dispatch(a, e) end},
+    }
+
+    for _, h in ipairs(event_handlers) do
+        if h.gui == action.gui and (h.action == action.action or h.action == nil) then
+            if h.func(action, event) then
+                processed = true
+            end
+        end
+    end
+
+    return processed
 end
 
 return frame
