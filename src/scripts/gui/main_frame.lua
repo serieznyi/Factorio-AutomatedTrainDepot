@@ -210,15 +210,21 @@ end
 ---@param action table
 ---@param event EventData
 function frame.dispatch(action, event)
-    local handlers = {
-        { action = ACTION.CLOSE, func = function(_, e) frame.close(e) end},
+    local processed = false
+
+    local event_handlers = {
+        { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) frame.close(e) end},
     }
 
-    for _, handler in pairs(handlers) do
-        if handler.action == action.action then
-            handler.func(action, event)
+    for _, h in ipairs(event_handlers) do
+        if h.gui == action.gui and (h.action == action.action or h.action == nil) then
+            if h.func(action, event) then
+                processed = true
+            end
         end
     end
+
+    return processed
 end
 
 function frame.close(event)

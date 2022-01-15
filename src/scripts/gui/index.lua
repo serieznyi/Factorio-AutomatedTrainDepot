@@ -75,7 +75,7 @@ function index.dispatch(action, event)
     end
 
     for _, frame in ipairs(REGISTERED_MAIN_FRAMES) do
-        if frame.dispatch(action, event) == true then
+        if frame.dispatch(action, event) then
             return true
         end
     end

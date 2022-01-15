@@ -4,6 +4,11 @@ local develop = require("scripts.develop")
 
 local ELEMENT_NAME = "train_part_chooser"
 
+local LOCOMOTIVE_DIRECTION = {
+    LEFT = 1,
+    RIGHT = 2,
+}
+
 local ACTION = {
     TRAIN_CHANGED = "train_changed",
     DELETE_TRAIN_PART_CHOOSER = "delete_train_part_chooser",
@@ -59,22 +64,29 @@ local function gui_build_structure_element()
                 sprite = "atd_sprite_gear",
                 on_click = { gui = "locomotive_configuration_frame", action = "open" },
             },
-            --{
-            --    type = "sprite-button",
-            --    name = "locomotive_direction_left_button",
-            --    visible = false,
-            --    style = "flib_slot_button_default",
-            --    sprite = "atd_sprite_arrow_left",
-            --    on_click = { gui = "locomotive_configuration_frame", action = "change_locomotive_direction" },
-            --},
-            --{
-            --    type = "sprite-button",
-            --    name = "locomotive_direction_right_button",
-            --    visible = false,
-            --    style = "flib_slot_button_default",
-            --    sprite = "atd_sprite_arrow_left",
-            --    on_click = { gui = "locomotive_configuration_frame", action = "change_locomotive_direction" },
-            --},
+            {
+                type = "flow",
+                children = {
+                    {
+                        type = "sprite-button",
+                        name = "locomotive_direction_left_button",
+                        visible = false,
+                        tags = {direction = LOCOMOTIVE_DIRECTION.LEFT},
+                        style = "flib_slot_button_default",
+                        sprite = "atd_sprite_arrow_left",
+                        on_click = { gui = ELEMENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
+                    },
+                    {
+                        type = "sprite-button",
+                        name = "locomotive_direction_right_button",
+                        tags = {direction = LOCOMOTIVE_DIRECTION.RIGHT},
+                        visible = false,
+                        style = "flib_slot_button_default",
+                        sprite = "atd_sprite_arrow_left",
+                        on_click = { gui = ELEMENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
+                    }
+                }
+            },
         }
     }
 end
@@ -106,7 +118,7 @@ local function change_locomotive_direction(action, event)
     ---@type LuaGuiElement
     local element = event.element
 
-
+    automated_train_depot.console.debug(action.action)
 end
 
 ---@param item_chooser LuaGuiElement
@@ -135,9 +147,9 @@ local function update_train_part_chooser(action, event)
     ---@type LuaGuiElement
     local chooser_wrapper = item_chooser.parent
     ---@type LuaGuiElement
-    local delete_button = gui.ref.delete_button
+    local delete_button = gui.refs.delete_button
     ---@type LuaGuiElement
-    local locomotive_config_button = gui.ref.locomotive_config_button
+    local locomotive_config_button = gui.refs.locomotive_config_button
 
     if is_chooser_item_cleaned(item_chooser) then
         chooser_wrapper.destroy()
@@ -182,22 +194,16 @@ function element.init()
     global.element[ELEMENT_NAME] = {}
 end
 
------@param player LuaPlayer
------@param event EventData
---function element.destroy(player, event)
---    local gui_data = global.gui[ELEMENT_NAME][player.index]
---
---    if gui_data then
---        global.gui[ELEMENT_NAME][player.index] = nil
---        gui_data.refs.window.destroy()
---    end
---end
+---@param player LuaPlayer
+function element.destroy(player)
+    global.element[ELEMENT_NAME][player.index] = nil
+end
 
 ---@param parent_element LuaGuiElement
 ---@param player LuaPlayer
 function element.append_element_to(parent_element, player)
-    local ref = flib_gui.build(parent_element, { gui_build_structure_element() })
-    local tags = flib_gui.get_tags(ref.element)
+    local refs = flib_gui.build(parent_element, { gui_build_structure_element() })
+    local tags = flib_gui.get_tags(refs.element)
     local chooser_id = tags.chooser_id
 
     if global.element[ELEMENT_NAME][player.index] == nil then
@@ -210,7 +216,7 @@ function element.append_element_to(parent_element, player)
     table.insert(
         global.element[ELEMENT_NAME][player.index].elements,
         chooser_id,
-        {ref = ref }
+        {refs = refs }
     )
 end
 
@@ -225,7 +231,7 @@ function element.dispatch(action, event)
     local handlers = {
         { action = ACTION.TRAIN_CHANGED, func = function(a, e) add_new_train_part_chooser(a, e) end},
         { action = ACTION.TRAIN_CHANGED, func = function(a, e) update_train_part_chooser(a, e) end},
-        --{ action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(a, e) change_locomotive_direction(a, e) end},
+        { action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(a, e) change_locomotive_direction(a, e) end},
         { action = ACTION.DELETE_TRAIN_PART_CHOOSER, func = function(a, e) delete_train_part_chooser(a, e) end},
     }
 

@@ -16,11 +16,9 @@ local ACTION = {
 }
 
 local function save_form(event)
-    local player = game.get_player(event.player_index)
-
     -- TODO save something
 
-    frame.destroy(player, event)
+    frame.destroy(event)
 end
 
 ---@return table
@@ -107,7 +105,7 @@ local function gui_build_structure_frame()
                         style = "back_button",
                         caption = "Cancel",
                         actions = {
-                            on_click = { gui = "add_group_frame", action = "close" },
+                            on_click = { gui = FRAME_NAME, action = ACTION.CLOSE },
                         },
                     },
                     {
@@ -120,7 +118,7 @@ local function gui_build_structure_frame()
                         style = "confirm_button",
                         caption = "Create",
                         actions = {
-                            on_click = { gui = "add_group_frame", action = "save" },
+                            on_click = { gui = FRAME_NAME, action = ACTION.SAVE },
                         },
                     },
                 }
@@ -190,12 +188,20 @@ end
 ---@param event EventData
 function frame.destroy(event)
     local player = game.get_player(event.player_index)
-    local gui_data = global.gui[FRAME_NAME][player.index]
+    local gui = global.gui[FRAME_NAME][player.index]
 
-    if gui_data then
-        global.gui[FRAME_NAME][player.index] = nil
-        gui_data.refs.window.destroy()
+    if gui == nil then
+        return
     end
+
+    global.gui[FRAME_NAME][player.index] = nil
+
+    local window = gui.refs.window
+
+    window.visible = false
+    window.destroy()
+
+    train_part_chooser.destroy(player)
 end
 
 ---@param action table
