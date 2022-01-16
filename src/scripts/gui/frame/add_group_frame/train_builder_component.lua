@@ -224,7 +224,7 @@ local function is_chooser_item_cleaned(item_chooser)
 end
 
 ---@param event EventData
-local function update_train_part_chooser(event)
+local function update_train_part(event)
     local player = game.get_player(event.player_index)
     ---@type LuaGuiElement
     local item_chooser = event.element
@@ -265,7 +265,7 @@ local function update_train_part_chooser(event)
 end
 
 ---@param event EventData
-local function delete_train_part_chooser(event)
+local function delete_train_part(event)
     ---@type LuaGuiElement
     local item_chooser = event.element
     ---@type LuaGuiElement
@@ -275,7 +275,7 @@ local function delete_train_part_chooser(event)
 end
 
 ---@param event EventData
-local function add_new_train_part_chooser(event)
+local function add_new_train_part(event)
     local player = game.get_player(event.player_index)
     ---@type LuaGuiElement
     local item_chooser = event.element
@@ -322,10 +322,10 @@ function component.dispatch(action, event)
     local processed = false
 
     local event_handlers = {
-        { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) add_new_train_part_chooser(e) end},
-        { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) update_train_part_chooser(e) end},
+        { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) add_new_train_part(e) end},
+        { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) update_train_part(e) end},
         { gui = COMPONENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(_, e) change_locomotive_direction(e) end},
-        { gui = COMPONENT_NAME, action = ACTION.DELETE_TRAIN_PART, func = function(_, e) delete_train_part_chooser(e) end},
+        { gui = COMPONENT_NAME, action = ACTION.DELETE_TRAIN_PART, func = function(_, e) delete_train_part(e) end},
     }
 
     for _, h in ipairs(event_handlers) do
