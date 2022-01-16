@@ -1,7 +1,7 @@
-local main_frame = require("scripts.gui.main_frame")
-local add_group_frame = require("scripts.gui.add_group_frame.frame")
+local main_frame = require("scripts.gui.frame.main_frame")
+local add_group_frame = require("scripts.gui.frame.add_group_frame.frame")
 
-local index = {}
+local manager = {}
 
 local REGISTERED_MAIN_FRAMES = {
     main_frame,
@@ -36,7 +36,7 @@ local function is_blocked_frame(element, player)
     return player.opened ~= nil and player.opened ~= event_from_frame
 end
 
-function index.bring_to_front_current_window()
+function manager.bring_to_front_current_window()
     for _, player in pairs(game.players) do
         if player.opened ~= nil and player.opened.type == "frame" then
             player.opened.bring_to_front()
@@ -44,13 +44,13 @@ function index.bring_to_front_current_window()
     end
 end
 
-function index.register_remote_interfaces()
+function manager.register_remote_interfaces()
     for _, module in ipairs(REGISTERED_MAIN_FRAMES) do
         remote.add_interface(module.name(), module.remote_interfaces())
     end
 end
 
-function index.init()
+function manager.init()
     global.gui = {}
     global.element = {}
 
@@ -59,7 +59,7 @@ function index.init()
     end
 end
 
-function index.dispatch(action, event)
+function manager.dispatch(action, event)
     local element = event.element
     local player = game.get_player(event.player_index)
 
@@ -81,4 +81,4 @@ function index.dispatch(action, event)
     return false
 end
 
-return index
+return manager

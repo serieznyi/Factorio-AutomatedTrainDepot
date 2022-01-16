@@ -1,8 +1,8 @@
 local gui = require("__flib__.gui")
 
 local depot = require("scripts.depot")
-local gui_main_frame = require("scripts.gui.main_frame")
-local gui_index = require("scripts.gui.index")
+local gui_main_frame = require("scripts.gui.frame.main_frame")
+local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 
 local event_handler = {}
@@ -51,7 +51,7 @@ function event_handler.handle_gui_event(event)
             {action.gui, action.action}
     )
 
-    return gui_index.dispatch(action, event)
+    return gui_manager.dispatch(action, event)
 end
 
 ---@param event EventData
@@ -75,7 +75,7 @@ function event_handler.open_gui(event)
 end
 
 function event_handler.bring_to_front_current_window()
-    gui_index.bring_to_front_current_window()
+    gui_manager.bring_to_front_current_window()
 end
 
 return event_handler

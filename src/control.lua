@@ -7,7 +7,7 @@ automated_train_depot = require("scripts.init_modification_state")
 
 local event_handler = require("scripts.event_handler")
 local depot = require("scripts.depot")
-local gui_index = require("scripts.gui.index")
+local gui_index = require("scripts.gui.manager")
 local console = require("scripts.console")
 
 ---------------------------------------------------------------------------
