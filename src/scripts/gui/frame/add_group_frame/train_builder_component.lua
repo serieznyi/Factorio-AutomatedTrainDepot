@@ -78,9 +78,9 @@ local component = {}
 local function get_locomotive_direction(element, player)
     local train_part_id = flib_gui.get_tags(element).train_part_id
     ---@type table
-    local gui = persistence.get_train_part(player, train_part_id)
-    local left_button = gui.refs.locomotive_direction_left_button
-    local right_button = gui.refs.locomotive_direction_right_button
+    local train_part = persistence.get_train_part(player, train_part_id)
+    local left_button = train_part.refs.locomotive_direction_left_button
+    local right_button = train_part.refs.locomotive_direction_right_button
 
     local direction_button
 
@@ -190,11 +190,11 @@ local function change_locomotive_direction(event)
     ---@type int
     local train_part_id = flib_gui.get_tags(event.element).train_part_id
     ---@type table
-    local gui = persistence.get_train_part(player, train_part_id)
+    local train_part = persistence.get_train_part(player, train_part_id)
     ---@type LuaGuiElement
-    local locomotive_direction_left_button = gui.refs.locomotive_direction_left_button
+    local locomotive_direction_left_button = train_part.refs.locomotive_direction_left_button
     ---@type LuaGuiElement
-    local locomotive_direction_right_button = gui.refs.locomotive_direction_right_button
+    local locomotive_direction_right_button = train_part.refs.locomotive_direction_right_button
 
     if locomotive_direction_left_button.visible then
         locomotive_direction_left_button.visible = false
@@ -231,17 +231,17 @@ local function update_train_part_chooser(event)
     ---@type int
     local train_part_id = flib_gui.get_tags(event.element).train_part_id
     ---@type table
-    local gui = persistence.get_train_part(player, train_part_id)
+    local train_part = persistence.get_train_part(player, train_part_id)
     ---@type LuaGuiElement
     local chooser_wrapper = item_chooser.parent
     ---@type LuaGuiElement
-    local delete_button = gui.refs.delete_button
+    local delete_button = train_part.refs.delete_button
     ---@type LuaGuiElement
-    local locomotive_config_button = gui.refs.locomotive_config_button
+    local locomotive_config_button = train_part.refs.locomotive_config_button
     ---@type LuaGuiElement
-    local locomotive_direction_left_button = gui.refs.locomotive_direction_left_button
+    local locomotive_direction_left_button = train_part.refs.locomotive_direction_left_button
     ---@type LuaGuiElement
-    local locomotive_direction_right_button = gui.refs.locomotive_direction_right_button
+    local locomotive_direction_right_button = train_part.refs.locomotive_direction_right_button
 
     if is_chooser_item_cleaned(item_chooser) then
         chooser_wrapper.destroy()
