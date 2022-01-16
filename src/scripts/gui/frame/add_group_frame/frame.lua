@@ -1,6 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
-local train_part_chooser = require("train_part_chooser")
+local train_builder_component = require("train_builder_component")
 local validator = require("scripts.gui.validator")
 local mod_table = require("scripts.util.table")
 local mod_gui = require("scripts.util.gui")
@@ -146,7 +146,7 @@ local function gui_build_structure_frame()
                             {
                                 type = "frame",
                                 direction = "horizontal",
-                                ref  =  {"train_building_container"},
+                                ref  =  {"train_builder_container"},
                             }
                         }
                     },
@@ -201,7 +201,7 @@ local function create_for(player)
     refs.titlebar_flow.drag_target = refs.window
     refs.footerbar_flow.drag_target = refs.window
 
-    train_part_chooser.append_element_to(refs.train_building_container, player)
+    train_builder_component.append_component(refs.train_builder_container, player)
 
     persistence.save_gui(player, refs)
 
@@ -233,7 +233,7 @@ end
 function frame.init()
     persistence.init()
 
-    train_part_chooser.init()
+    train_builder_component.init()
 end
 
 ---@param event EventData
@@ -268,7 +268,7 @@ function frame.destroy(event)
 
     persistence.destroy(player)
 
-    train_part_chooser.destroy(player)
+    train_builder_component.destroy(player)
 end
 
 ---@param action table
@@ -281,7 +281,7 @@ function frame.dispatch(action, event)
         { gui = FRAME_NAME, action = ACTION.OPEN, func = function(_, e) frame.open(e) end},
         { gui = FRAME_NAME, action = ACTION.SAVE, func = function(_, e) save_form(e) end},
         { gui = FRAME_NAME, action = ACTION.FORM_CHANGED, func = function(_, e) form_changed(e) end},
-        { gui = train_part_chooser.name(), func = function(a, e) train_part_chooser.dispatch(a, e) end},
+        { gui = train_builder_component.name(), func = function(a, e) train_builder_component.dispatch(a, e) end},
     }
 
     for _, h in ipairs(event_handlers) do
@@ -305,7 +305,7 @@ function frame.read_form(event)
         name = gui.refs.group_name_input.text or mod_table.NIL,
         icon = gui.refs.group_icon_input.elem_value or mod_table.NIL,
         train_color = {255, 255, 255}, -- TODO
-        train =  train_part_chooser.read_form(event)
+        train =  train_builder_component.read_form(event)
     }
 end
 

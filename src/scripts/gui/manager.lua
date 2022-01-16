@@ -52,7 +52,7 @@ end
 
 function manager.init()
     global.gui = {}
-    global.element = {}
+    global.component = {}
 
     for _, module in ipairs(REGISTERED_MAIN_FRAMES) do
         module.init()

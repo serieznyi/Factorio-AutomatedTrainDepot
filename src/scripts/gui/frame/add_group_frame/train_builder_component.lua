@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 
 local validator = require("scripts.gui.validator")
 
-local ELEMENT_NAME = "train_part_chooser"
+local COMPONENT_NAME = "train_builder"
 
 local LOCOMOTIVE_DIRECTION = {
     LEFT = 1,
@@ -11,7 +11,7 @@ local LOCOMOTIVE_DIRECTION = {
 
 local ACTION = {
     TRAIN_CHANGED = "train_changed",
-    DELETE_TRAIN_PART_CHOOSER = "delete_train_part_chooser",
+    DELETE_TRAIN_PART = "delete_train_part",
     CHANGE_LOCOMOTIVE_DIRECTION = "change_locomotive_direction",
     FORM_CHANGED = "form_changed",
 }
@@ -19,23 +19,23 @@ local ACTION = {
 ---@type table
 local persistence = {
     init = function()
-        global.element[ELEMENT_NAME] = {}
+        global.component[COMPONENT_NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        global.element[ELEMENT_NAME][player.index] = nil
+        global.component[COMPONENT_NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_elements = function(player)
-        return global.element[ELEMENT_NAME][player.index].elements
+        return global.component[COMPONENT_NAME][player.index].elements
     end,
     ---@param player LuaPlayer
-    ---@param parent_gui_element LuaGuiElement
-    set_parent = function(player, parent_gui_element)
-        if global.element[ELEMENT_NAME][player.index] == nil then
-            global.element[ELEMENT_NAME][player.index] = {
-                parent = parent_gui_element,
+    ---@param parent_element LuaGuiElement
+    set_parent = function(player, parent_element)
+        if global.component[COMPONENT_NAME][player.index] == nil then
+            global.component[COMPONENT_NAME][player.index] = {
+                parent = parent_element,
                 elements = {},
             }
         end
@@ -43,15 +43,15 @@ local persistence = {
     ---@param player LuaPlayer
     ---@return LuaGuiElement
     get_parent = function(player)
-        return global.element[ELEMENT_NAME][player.index].parent
+        return global.component[COMPONENT_NAME][player.index].parent
     end,
     ---@param player LuaPlayer
-    ---@param element_id int
+    ---@param component_id int
     ---@param refs table
-    add_element = function(player, element_id, refs)
+    add_element = function(player, component_id, refs)
         table.insert(
-            global.element[ELEMENT_NAME][player.index].elements,
-            element_id,
+            global.component[COMPONENT_NAME][player.index].elements,
+                component_id,
             { refs = refs }
         )
     end,
@@ -59,16 +59,16 @@ local persistence = {
     ---@param element_id int
     ---@return table
     get_element = function(player, element_id)
-        return global.element[ELEMENT_NAME][player.index].elements[element_id]
+        return global.component[COMPONENT_NAME][player.index].elements[element_id]
     end,
 }
 
-local element = {}
+local component = {}
 
----@param element_arg LuaGuiElement
+---@param element LuaGuiElement
 ---@param player LuaPlayer
-local function get_locomotive_direction(element_arg, player)
-    local element_id = flib_gui.get_tags(element_arg).element_id
+local function get_locomotive_direction(element, player)
+    local element_id = flib_gui.get_tags(element).element_id
     ---@type table
     local gui = persistence.get_element(player, element_id)
     local left_button = gui.refs.locomotive_direction_left_button
@@ -103,7 +103,7 @@ local function gui_build_structure_element(element_id)
                     {filter="rolling-stock"},
                 },
                 actions = {
-                    on_elem_changed = { gui = ELEMENT_NAME, action = ACTION.TRAIN_CHANGED },
+                    on_elem_changed = { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED },
                 }
             },
             {
@@ -114,7 +114,7 @@ local function gui_build_structure_element(element_id)
                 style = "flib_slot_button_red",
                 sprite = "atd_sprite_trash",
                 actions = {
-                    on_click = { gui = ELEMENT_NAME, action = ACTION.DELETE_TRAIN_PART_CHOOSER}
+                    on_click = { gui = COMPONENT_NAME, action = ACTION.DELETE_TRAIN_PART }
                 }
             },
             {
@@ -135,7 +135,7 @@ local function gui_build_structure_element(element_id)
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_left",
                 actions = {
-                    on_click = { gui = ELEMENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
+                    on_click = { gui = COMPONENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
                 }
             },
             {
@@ -146,7 +146,7 @@ local function gui_build_structure_element(element_id)
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_right",
                 actions = {
-                    on_click = { gui = ELEMENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
+                    on_click = { gui = COMPONENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
                 }
             }
         }
@@ -275,22 +275,22 @@ local function add_new_train_part_chooser(event)
 
 
     if item_chooser.elem_value ~= nil and not is_last_train_part_chooser_empty(event.player_index) then
-        element.append_element_to(container, player)
+        component.append_component(container, player)
     end
 end
 
-function element.init()
+function component.init()
     persistence.init()
 end
 
 ---@param player LuaPlayer
-function element.destroy(player)
+function component.destroy(player)
     persistence.destroy(player)
 end
 
 ---@param parent_element LuaGuiElement
 ---@param player LuaPlayer
-function element.append_element_to(parent_element, player)
+function component.append_component(parent_element, player)
     local parent_children_count = #parent_element.children
     local refs = flib_gui.build(parent_element, {
         gui_build_structure_element(parent_children_count+1)
@@ -304,20 +304,20 @@ function element.append_element_to(parent_element, player)
 end
 
 ---@return string
-function element.name()
-    return ELEMENT_NAME
+function component.name()
+    return COMPONENT_NAME
 end
 
 ---@param action table
 ---@param event EventData
-function element.dispatch(action, event)
+function component.dispatch(action, event)
     local processed = false
 
     local event_handlers = {
-        { gui = ELEMENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) add_new_train_part_chooser(e) end},
-        { gui = ELEMENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) update_train_part_chooser(e) end},
-        { gui = ELEMENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(_, e) change_locomotive_direction(e) end},
-        { gui = ELEMENT_NAME, action = ACTION.DELETE_TRAIN_PART_CHOOSER, func = function(_, e) delete_train_part_chooser(e) end},
+        { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) add_new_train_part_chooser(e) end},
+        { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) update_train_part_chooser(e) end},
+        { gui = COMPONENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(_, e) change_locomotive_direction(e) end},
+        { gui = COMPONENT_NAME, action = ACTION.DELETE_TRAIN_PART, func = function(_, e) delete_train_part_chooser(e) end},
     }
 
     for _, h in ipairs(event_handlers) do
@@ -332,7 +332,7 @@ function element.dispatch(action, event)
 end
 
 ---@param event EventData
-function element.read_form(event)
+function component.read_form(event)
     local player = game.get_player(event.player_index)
     local elements = persistence.get_elements(player)
 
@@ -376,8 +376,8 @@ function element.read_form(event)
 end
 
 ---@param event EventData
-function element.validate_form(event)
-    local form_data = element.read_form(event)
+function component.validate_form(event)
+    local form_data = component.read_form(event)
     local rules = {
         name = {
             function(value) return validator.empty(value) end,
@@ -406,4 +406,4 @@ function element.validate_form(event)
     return validation_errors
 end
 
-return element
+return component
