@@ -81,32 +81,27 @@ local function gui_build_structure_element(element_id)
                 on_click = { gui = "locomotive_configuration_frame", action = "open" },
             },
             {
-                type = "flow",
-                children = {
-                    {
-                        type = "sprite-button",
-                        visible = false,
-                        tags = { element_id = element_id, direction = LOCOMOTIVE_DIRECTION.LEFT },
-                        ref = {"locomotive_direction_left_button"},
-                        style = "flib_slot_button_default",
-                        sprite = "atd_sprite_arrow_left",
-                        actions = {
-                            on_click = { gui = ELEMENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
-                        }
-                    },
-                    {
-                        type = "sprite-button",
-                        tags = { element_id = element_id, direction = LOCOMOTIVE_DIRECTION.RIGHT },
-                        ref = {"locomotive_direction_right_button"},
-                        visible = false,
-                        style = "flib_slot_button_default",
-                        sprite = "atd_sprite_arrow_right",
-                        actions = {
-                            on_click = { gui = ELEMENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
-                        }
-                    }
+                type = "sprite-button",
+                visible = false,
+                tags = { element_id = element_id, direction = LOCOMOTIVE_DIRECTION.LEFT },
+                ref = {"locomotive_direction_left_button"},
+                style = "flib_slot_button_default",
+                sprite = "atd_sprite_arrow_left",
+                actions = {
+                    on_click = { gui = ELEMENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
                 }
             },
+            {
+                type = "sprite-button",
+                tags = { element_id = element_id, direction = LOCOMOTIVE_DIRECTION.RIGHT },
+                ref = {"locomotive_direction_right_button"},
+                visible = false,
+                style = "flib_slot_button_default",
+                sprite = "atd_sprite_arrow_right",
+                actions = {
+                    on_click = { gui = ELEMENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
+                }
+            }
         }
     }
 end
@@ -155,7 +150,7 @@ end
 
 ---@param item_chooser LuaGuiElement
 ---@return bool
-local function is_locomotive_chosen(value)
+local function is_locomotive_selected(value)
     if value == nil then
         return false
     end
@@ -188,18 +183,25 @@ local function update_train_part_chooser(action, event)
     local locomotive_config_button = gui.refs.locomotive_config_button
     ---@type LuaGuiElement
     local locomotive_direction_left_button = gui.refs.locomotive_direction_left_button
+    ---@type LuaGuiElement
+    local locomotive_direction_right_button = gui.refs.locomotive_direction_right_button
 
     if is_chooser_item_cleaned(item_chooser) then
         chooser_wrapper.destroy()
         return
     end
 
+    if item_chooser.elem_value == nil then
+        return
+    end
+
     -- init buttons
     locomotive_direction_left_button.visible = false
+    locomotive_direction_right_button.visible = false
     locomotive_config_button.visible = false
     delete_button.visible = true
 
-    if is_locomotive_chosen(item_chooser.elem_value) then
+    if is_locomotive_selected(item_chooser.elem_value) then
         locomotive_config_button.visible = true
         locomotive_direction_left_button.visible = true
     end
@@ -304,7 +306,7 @@ function element.read_form(event)
         local part_entity = part_chooser.elem_value
 
         if part_entity ~= nil then
-            if is_locomotive_chosen(part_entity) then
+            if is_locomotive_selected(part_entity) then
                 part = {
                     type = "locomotive",
                     entity = part_entity,

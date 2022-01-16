@@ -44,9 +44,6 @@ local function save_form(event)
     local form_data = frame.read_form(event)
     local validation_errors = frame.validate_form(event)
 
-    automated_train_depot.console.debug(automated_train_depot.table.to_string(form_data))
-    automated_train_depot.console.debug(automated_train_depot.table.to_string(validation_errors))
-
     frame.destroy(event)
 end
 
