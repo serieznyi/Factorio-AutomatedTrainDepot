@@ -37,5 +37,4 @@ luacheck -q ./src
 
 ## Thanks for
 
-LLOG func from https://github.com/ClaudeMetz/FactoryPlanner
 Some code project ideas from https://github.com/raiguard mods

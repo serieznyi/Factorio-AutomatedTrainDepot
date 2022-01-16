@@ -1,7 +1,5 @@
 local flib_gui = require("__flib__.gui")
 
-local develop = require("scripts.develop")
-
 local ELEMENT_NAME = "train_part_chooser"
 
 local LOCOMOTIVE_DIRECTION = {
@@ -17,14 +15,29 @@ local ACTION = {
 
 local element = {}
 
-local function generate_id()
-    return math.random(1, 100000000)
+---@param element_arg LuaGuiElement
+---@param player LuaPlayer
+local function get_locomotive_direction(element_arg, player)
+    local element_id = flib_gui.get_tags(element_arg).element_id
+    ---@type table
+    local gui = global.element[ELEMENT_NAME][player.index].elements[element_id]
+    local left_button = gui.refs.locomotive_direction_left_button
+    local right_button = gui.refs.locomotive_direction_right_button
+
+    local direction_button = nil
+
+    if left_button.visible then
+        direction_button = left_button
+    else
+        direction_button = right_button
+    end
+
+    return flib_gui.get_tags(direction_button).direction
 end
 
+---@param element_id int
 ---@return table
-local function gui_build_structure_element()
-    local element_id = generate_id()
-
+local function gui_build_structure_element(element_id)
     return {
         type = "flow",
         direction = "vertical",
@@ -139,8 +152,8 @@ end
 
 ---@param item_chooser LuaGuiElement
 ---@return bool
-local function is_locomotive_chosen(item_chooser)
-    local prototype = game.entity_prototypes[item_chooser.elem_value]
+local function is_locomotive_chosen(value)
+    local prototype = game.entity_prototypes[value]
 
     return prototype.type == "locomotive"
 end
@@ -179,7 +192,7 @@ local function update_train_part_chooser(action, event)
     locomotive_config_button.visible = false
     delete_button.visible = true
 
-    if is_locomotive_chosen(item_chooser) then
+    if is_locomotive_chosen(item_chooser.elem_value) then
         locomotive_config_button.visible = true
         locomotive_direction_left_button.visible = true
     end
@@ -222,7 +235,10 @@ end
 ---@param parent_element LuaGuiElement
 ---@param player LuaPlayer
 function element.append_element_to(parent_element, player)
-    local refs = flib_gui.build(parent_element, { gui_build_structure_element() })
+    local parent_children_count = #parent_element.children
+    local refs = flib_gui.build(parent_element, {
+        gui_build_structure_element(parent_children_count+1)
+    })
     local tags = flib_gui.get_tags(refs.element)
     local element_id = tags.element_id
 
@@ -266,6 +282,55 @@ function element.dispatch(action, event)
     end
 
     return processed
+end
+
+---@param event EventData
+function element.read_form(event)
+    local player = game.get_player(event.player_index)
+    local elements = global.element[ELEMENT_NAME][player.index].elements
+
+    local train = {}
+
+    for i, el in ipairs(elements) do
+        local part = {}
+        local part_chooser = el.refs.part_chooser
+        local part_entity = part_chooser.elem_value
+
+        if part_entity ~= nil then
+            if is_locomotive_chosen(part_entity) then
+                part = {
+                    type = "locomotive",
+                    entity = part_entity,
+                    direction = get_locomotive_direction(part_chooser, player),
+                    use_any_fuel = true,
+                    fuel = {
+                        {type = "coal", amount = 1},
+                        {type = "coal", amount = 1},
+                        {type = "coal", amount = 1},
+                    },
+                    inventory = {
+                        {entity = "entity1"},
+                        {entity = "entity2"},
+                        {entity = "entity3"},
+                    },
+                }
+            else
+                part = {
+                    type = "cargo",
+                    entity = part_entity
+                }
+            end
+
+            table.insert(train, i, part)
+        end
+    end
+
+    return train
+end
+
+---@param event EventData
+function element.validate_form(event)
+    return {}
 end
 
 return element

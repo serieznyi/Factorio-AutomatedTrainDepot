@@ -16,7 +16,9 @@ local ACTION = {
 }
 
 local function save_form(event)
-    -- TODO save something
+    local form_data = frame.read_form(event)
+
+    automated_train_depot.console.debug(automated_train_depot.table.to_string(form_data))
 
     frame.destroy(event)
 end
@@ -65,25 +67,29 @@ local function gui_build_structure_frame()
                 direction = "vertical",
                 children = {
                     {
-                        type = "flow",
-                        direction = "vertical",
+                        type = "table",
+                        column_count = 2,
                         children = {
+                            {
+                                type = "label",
+                                caption = "Group icon",
+                            },
+                            {
+                                type = "choose-elem-button",
+                                ref = {"group_icon_input"},
+                                elem_type = "item",
+                            },
                             {
                                 type = "label",
                                 caption = "Group name",
                             },
                             {
                                 type = "textfield",
-                            }
-                        }
-                    },
-                    {
-                        type = "flow",
-                        direction = "vertical",
-                        children = {
+                                ref = {"group_name_input"},
+                            },
                             {
                                 type = "label",
-                                caption = "Build train",
+                                caption = "Train",
                             },
                             {
                                 type = "frame",
@@ -225,6 +231,24 @@ function frame.dispatch(action, event)
     end
 
     return processed
+end
+
+---@param event EventData
+---@return table form data
+function frame.read_form(event)
+    local player = game.get_player(event.player_index)
+    local gui = global.gui[FRAME_NAME][player.index]
+
+    return {
+        name = gui.refs.group_name_input.text or nil,
+        icon = gui.refs.group_icon_input.elem_value or nil,
+        train_color = {255, 255, 255}, -- TODO
+        train =  train_part_chooser.read_form(event)
+    }
+end
+
+function frame.validate_form()
+    return {}
 end
 
 return frame
