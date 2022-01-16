@@ -31,19 +31,19 @@ local persistence = {
         return global.component[COMPONENT_NAME][player.index].elements
     end,
     ---@param player LuaPlayer
-    ---@param parent_element LuaGuiElement
-    set_parent = function(player, parent_element)
+    ---@param container LuaGuiElement
+    set_container = function(player, container)
         if global.component[COMPONENT_NAME][player.index] == nil then
             global.component[COMPONENT_NAME][player.index] = {
-                parent = parent_element,
+                container = container,
                 elements = {},
             }
         end
     end,
     ---@param player LuaPlayer
     ---@return LuaGuiElement
-    get_parent = function(player)
-        return global.component[COMPONENT_NAME][player.index].parent
+    get_container = function(player)
+        return global.component[COMPONENT_NAME][player.index].container
     end,
     ---@param player LuaPlayer
     ---@param component_id int
@@ -158,7 +158,7 @@ end
 local function is_last_train_part_chooser_empty(player_index)
     local player = game.get_player(player_index)
     ---@type LuaGuiElement
-    local container = persistence.get_parent(player)
+    local container = persistence.get_container(player)
     ---@type LuaGuiElement
     local chooser_container = container.children[#container.children]
 
@@ -271,8 +271,7 @@ local function add_new_train_part_chooser(event)
     ---@type LuaGuiElement
     local item_chooser = event.element
     ---@type LuaGuiElement
-    local container = persistence.get_parent(player)
-
+    local container = persistence.get_container(player)
 
     if item_chooser.elem_value ~= nil and not is_last_train_part_chooser_empty(event.player_index) then
         component.append_component(container, player)
@@ -288,17 +287,17 @@ function component.destroy(player)
     persistence.destroy(player)
 end
 
----@param parent_element LuaGuiElement
+---@param container_element LuaGuiElement
 ---@param player LuaPlayer
-function component.append_component(parent_element, player)
-    local parent_children_count = #parent_element.children
-    local refs = flib_gui.build(parent_element, {
+function component.append_component(container_element, player)
+    local parent_children_count = #container_element.children
+    local refs = flib_gui.build(container_element, {
         gui_build_structure_element(parent_children_count+1)
     })
     local tags = flib_gui.get_tags(refs.element)
     local element_id = tags.element_id
 
-    persistence.set_parent(player, parent_element)
+    persistence.set_container(player, container_element)
 
     persistence.add_element(player, element_id, refs)
 end
