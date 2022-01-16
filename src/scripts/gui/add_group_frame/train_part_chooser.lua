@@ -1,5 +1,7 @@
 local flib_gui = require("__flib__.gui")
 
+local validator = require("scripts.gui.validator")
+
 local ELEMENT_NAME = "train_part_chooser"
 
 local LOCOMOTIVE_DIRECTION = {
@@ -154,6 +156,10 @@ end
 ---@param item_chooser LuaGuiElement
 ---@return bool
 local function is_locomotive_chosen(value)
+    if value == nil then
+        return false
+    end
+
     local prototype = game.entity_prototypes[value]
 
     return prototype.type == "locomotive"
@@ -332,9 +338,30 @@ end
 ---@param event EventData
 function element.validate_form(event)
     local form_data = element.read_form(event)
+    local rules = {
+        name = {
+            function(value) return validator.empty(value) end,
+        },
+        icon = {
+            function(value) return validator.empty(value) end,
+        }
+    }
 
     local validation_errors = {}
 
+    for form_field_name, form_value in pairs(form_data) do
+        for field_name, field_validators in pairs(rules) do
+            if form_field_name == field_name then
+                for _, field_validator in pairs(field_validators) do
+                    local error = field_validator({k = form_field_name, v = form_value})
+
+                    if error ~= nil then
+                        table.insert(validation_errors, error)
+                    end
+                end
+            end
+        end
+    end
 
     return validation_errors
 end
