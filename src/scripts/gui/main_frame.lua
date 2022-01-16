@@ -24,12 +24,9 @@ local persistence = {
     ---@param player LuaPlayer
     ---@param refs table
     ---@param entity LuaEntity
-    save_gui = function(player, refs, entity)
+    save_gui = function(player, refs)
         global.gui[FRAME_NAME][player.index] = {
             refs = refs,
-            state = {
-                entity = entity,
-            },
         }
     end,
 }
@@ -164,47 +161,8 @@ local function gui_build_structure_frame()
     }
 end
 
-function frame.remote_interfaces()
-    return {
-
-    }
-end
-
-function frame.name()
-    return FRAME_NAME
-end
-
-function frame.init()
-    persistence.init()
-end
-
 ---@param player LuaPlayer
----@param entity LuaEntity
-function frame.update(player, entity)
-    -- TODO
-end
-
----@param player LuaPlayer
----@param entity LuaEntity
-function frame.open(player, entity)
-    local gui = persistence.get_gui(player)
-
-    if gui == nil then
-        frame.create(player, entity)
-    else
-        frame.update(player, entity)
-    end
-
-    gui = persistence.get_gui(player)
-
-    gui.refs.window.bring_to_front()
-    gui.refs.window.visible = true
-    player.opened = gui.refs.window
-end
-
----@param player LuaPlayer
----@param entity LuaEntity
-function frame.create(player, entity)
+local function create_for(player)
     local refs = flib_gui.build(player.gui.screen, {gui_build_structure_frame()})
 
     refs.window.force_auto_center()
@@ -216,15 +174,61 @@ function frame.create(player, entity)
         ((resolution.height - (FRAME_HEIGHT * scale)) / 2)
     }
 
-    persistence.save_gui(player, refs, entity)
+    persistence.save_gui(player, refs)
+
+    return persistence.get_gui(player)
+end
+
+---@param player LuaPlayer
+local function update_for(player)
+    local gui = persistence.get_gui(player)
+
+    -- TODO
+
+    return gui
+end
+
+---@return table
+function frame.remote_interfaces()
+    return {
+
+    }
+end
+
+---@return string
+function frame.name()
+    return FRAME_NAME
+end
+
+function frame.init()
+    persistence.init()
+end
+
+---@param player LuaPlayer
+---@param entity LuaEntity
+function frame.open(player)
+    local gui = persistence.get_gui(player)
+
+    if gui == nil then
+        gui = create_for(player)
+    else
+        gui = update_for(player)
+    end
+
+    gui.refs.window.bring_to_front()
+    gui.refs.window.visible = true
+    player.opened = gui.refs.window
 end
 
 function frame.destroy(player)
     local gui_data = persistence.get_gui(player)
 
-    if gui_data then
-        gui_data.refs.window.destroy()
+    if gui_data == nil then
+        return
     end
+
+    gui_data.refs.window.visible = false
+    gui_data.refs.window.destroy()
 
     persistence.destroy(player)
 end

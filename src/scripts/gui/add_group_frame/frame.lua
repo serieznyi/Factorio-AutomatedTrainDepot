@@ -60,6 +60,7 @@ local function form_changed(event)
     end
 end
 
+---@param event EventData
 local function save_form(event)
     local form_data = frame.read_form(event)
     local validation_errors = frame.validate_form(event)
@@ -217,6 +218,7 @@ local function update_for(player)
     return gui
 end
 
+---@return table
 function frame.remote_interfaces()
     return {
 
@@ -277,8 +279,8 @@ function frame.dispatch(action, event)
     local event_handlers = {
         { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) frame.destroy(e) end},
         { gui = FRAME_NAME, action = ACTION.OPEN, func = function(_, e) frame.open(e) end},
-        { gui = FRAME_NAME, action = ACTION.SAVE, func = function(a, e) save_form(e) end},
-        { gui = FRAME_NAME, action = ACTION.FORM_CHANGED, func = function(a, e) form_changed(e) end},
+        { gui = FRAME_NAME, action = ACTION.SAVE, func = function(_, e) save_form(e) end},
+        { gui = FRAME_NAME, action = ACTION.FORM_CHANGED, func = function(_, e) form_changed(e) end},
         { gui = train_part_chooser.name(), func = function(a, e) train_part_chooser.dispatch(a, e) end},
     }
 

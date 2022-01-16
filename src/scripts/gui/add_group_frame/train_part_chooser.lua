@@ -16,6 +16,7 @@ local ACTION = {
     FORM_CHANGED = "form_changed",
 }
 
+---@type table
 local persistence = {
     init = function()
         global.element[ELEMENT_NAME] = {}
@@ -46,7 +47,7 @@ local persistence = {
     end,
     ---@param player LuaPlayer
     ---@param element_id int
-    ---@param element_data table
+    ---@param refs table
     add_element = function(player, element_id, refs)
         table.insert(
             global.element[ELEMENT_NAME][player.index].elements,
@@ -174,9 +175,8 @@ local function is_last_train_part_chooser(choose_elem_button_element)
     return chooser_wrapper.get_index_in_parent() == #choosers_container.children
 end
 
----@param action table
 ---@param event EventData
-local function change_locomotive_direction(action, event)
+local function change_locomotive_direction(event)
     local player = game.get_player(event.player_index)
     ---@type int
     local element_id = flib_gui.get_tags(event.element).element_id
@@ -196,7 +196,7 @@ local function change_locomotive_direction(action, event)
     end
 end
 
----@param item_chooser LuaGuiElement
+---@param value string|nil
 ---@return bool
 local function is_locomotive_selected(value)
     if value == nil then
@@ -214,9 +214,8 @@ local function is_chooser_item_cleaned(item_chooser)
     return item_chooser.elem_value == nil and not is_last_train_part_chooser(item_chooser)
 end
 
----@param action table
 ---@param event EventData
-local function update_train_part_chooser(action, event)
+local function update_train_part_chooser(event)
     local player = game.get_player(event.player_index)
     ---@type LuaGuiElement
     local item_chooser = event.element
@@ -256,9 +255,8 @@ local function update_train_part_chooser(action, event)
     end
 end
 
----@param action table
 ---@param event EventData
-local function delete_train_part_chooser(action, event)
+local function delete_train_part_chooser(event)
     ---@type LuaGuiElement
     local item_chooser = event.element
     ---@type LuaGuiElement
@@ -267,9 +265,8 @@ local function delete_train_part_chooser(action, event)
     chooser_wrapper.destroy()
 end
 
----@param action table
 ---@param event EventData
-local function add_new_train_part_chooser(action, event)
+local function add_new_train_part_chooser(event)
     local player = game.get_player(event.player_index)
     ---@type LuaGuiElement
     local item_chooser = event.element
@@ -317,10 +314,10 @@ function element.dispatch(action, event)
     local processed = false
 
     local event_handlers = {
-        { gui = ELEMENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(a, e) add_new_train_part_chooser(a, e) end},
-        { gui = ELEMENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(a, e) update_train_part_chooser(a, e) end},
-        { gui = ELEMENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(a, e) change_locomotive_direction(a, e) end},
-        { gui = ELEMENT_NAME, action = ACTION.DELETE_TRAIN_PART_CHOOSER, func = function(a, e) delete_train_part_chooser(a, e) end},
+        { gui = ELEMENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) add_new_train_part_chooser(e) end},
+        { gui = ELEMENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) update_train_part_chooser(e) end},
+        { gui = ELEMENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(_, e) change_locomotive_direction(e) end},
+        { gui = ELEMENT_NAME, action = ACTION.DELETE_TRAIN_PART_CHOOSER, func = function(_, e) delete_train_part_chooser(e) end},
     }
 
     for _, h in ipairs(event_handlers) do
