@@ -23,7 +23,6 @@ local persistence = {
     end,
     ---@param player LuaPlayer
     ---@param refs table
-    ---@param entity LuaEntity
     save_gui = function(player, refs)
         global.gui[FRAME_NAME][player.index] = {
             refs = refs,

@@ -16,7 +16,6 @@ local ACTION = {
     FORM_CHANGED = "form_changed",
 }
 
----@type table
 local persistence = {
     init = function()
         global.component[COMPONENT_NAME] = {}
