@@ -35,8 +35,8 @@ local persistence = {
     end,
     ---@param player LuaPlayer
     ---@return table
-    get_elements = function(player)
-        return global.component[COMPONENT_NAME][player.index].elements
+    get_all_train_parts = function(player)
+        return global.component[COMPONENT_NAME][player.index].train_parts
     end,
     ---@param player LuaPlayer
     ---@param container LuaGuiElement
@@ -44,7 +44,7 @@ local persistence = {
         if global.component[COMPONENT_NAME][player.index] == nil then
             global.component[COMPONENT_NAME][player.index] = {
                 container = container,
-                elements = {},
+                train_parts = {},
             }
         end
     end,
@@ -54,20 +54,20 @@ local persistence = {
         return global.component[COMPONENT_NAME][player.index].container
     end,
     ---@param player LuaPlayer
-    ---@param component_id int
+    ---@param train_part_id int
     ---@param refs table
-    add_element = function(player, component_id, refs)
+    add_train_part = function(player, train_part_id, refs)
         table.insert(
-            global.component[COMPONENT_NAME][player.index].elements,
-                component_id,
+            global.component[COMPONENT_NAME][player.index].train_parts,
+                train_part_id,
             { refs = refs }
         )
     end,
     ---@param player LuaPlayer
-    ---@param element_id int
+    ---@param train_part_id int
     ---@return table
-    get_element = function(player, element_id)
-        return global.component[COMPONENT_NAME][player.index].elements[element_id]
+    get_train_part = function(player, train_part_id)
+        return global.component[COMPONENT_NAME][player.index].train_parts[train_part_id]
     end,
 }
 
@@ -76,9 +76,9 @@ local component = {}
 ---@param element LuaGuiElement
 ---@param player LuaPlayer
 local function get_locomotive_direction(element, player)
-    local element_id = flib_gui.get_tags(element).element_id
+    local train_part_id = flib_gui.get_tags(element).train_part_id
     ---@type table
-    local gui = persistence.get_element(player, element_id)
+    local gui = persistence.get_train_part(player, train_part_id)
     local left_button = gui.refs.locomotive_direction_left_button
     local right_button = gui.refs.locomotive_direction_right_button
 
@@ -93,18 +93,18 @@ local function get_locomotive_direction(element, player)
     return flib_gui.get_tags(direction_button).direction
 end
 
----@param element_id int
+---@param train_part_id int
 ---@return table
-local function gui_build_structure_element(element_id)
+local function gui_build_structure_element(train_part_id)
     return {
         type = "flow",
         direction = "vertical",
         ref = { "element" },
-        tags = {element_id = element_id},
+        tags = {train_part_id = train_part_id },
         children = {
             {
                 type = "choose-elem-button",
-                tags = {element_id = element_id},
+                tags = {train_part_id = train_part_id },
                 ref = { "part_chooser" },
                 elem_type = "entity",
                 elem_filters = {
@@ -117,7 +117,7 @@ local function gui_build_structure_element(element_id)
             {
                 type = "sprite-button",
                 ref = { "delete_button" },
-                tags = {element_id = element_id},
+                tags = {train_part_id = train_part_id },
                 visible = false,
                 style = "flib_slot_button_red",
                 sprite = "atd_sprite_trash",
@@ -129,7 +129,7 @@ local function gui_build_structure_element(element_id)
                 type = "sprite-button",
                 ref = { "locomotive_config_button" },
                 name = "locomotive_config_button",
-                tags = {element_id = element_id},
+                tags = {train_part_id = train_part_id },
                 visible = false,
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_gear",
@@ -138,7 +138,7 @@ local function gui_build_structure_element(element_id)
             {
                 type = "sprite-button",
                 visible = false,
-                tags = { element_id = element_id, direction = LOCOMOTIVE_DIRECTION.LEFT },
+                tags = { train_part_id = train_part_id, direction = LOCOMOTIVE_DIRECTION.LEFT },
                 ref = {"locomotive_direction_left_button"},
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_left",
@@ -148,7 +148,7 @@ local function gui_build_structure_element(element_id)
             },
             {
                 type = "sprite-button",
-                tags = { element_id = element_id, direction = LOCOMOTIVE_DIRECTION.RIGHT },
+                tags = { train_part_id = train_part_id, direction = LOCOMOTIVE_DIRECTION.RIGHT },
                 ref = {"locomotive_direction_right_button"},
                 visible = false,
                 style = "flib_slot_button_default",
@@ -163,20 +163,21 @@ end
 
 ---@param player_index int
 ---@return bool
-local function is_last_train_part_chooser_empty(player_index)
+local function is_last_train_part_empty(player_index)
     local player = game.get_player(player_index)
     ---@type LuaGuiElement
     local container = persistence.get_container(player)
     ---@type LuaGuiElement
-    local chooser_container = container.children[#container.children]
+    local last_train_part = container.children[#container.children]
 
     -- TODO
-    return chooser_container.children[1].elem_value == nil
+    return last_train_part.children[1].elem_value == nil
 end
 
 ---@param choose_elem_button_element LuaGuiElement
 ---@return LuaGuiElement
-local function is_last_train_part_chooser(choose_elem_button_element)
+local function is_last_train_part(choose_elem_button_element)
+    -- TODO refactor
     local chooser_wrapper = choose_elem_button_element.parent
     local choosers_container = choose_elem_button_element.parent.parent
 
@@ -187,9 +188,9 @@ end
 local function change_locomotive_direction(event)
     local player = game.get_player(event.player_index)
     ---@type int
-    local element_id = flib_gui.get_tags(event.element).element_id
+    local train_part_id = flib_gui.get_tags(event.element).train_part_id
     ---@type table
-    local gui = persistence.get_element(player, element_id)
+    local gui = persistence.get_train_part(player, train_part_id)
     ---@type LuaGuiElement
     local locomotive_direction_left_button = gui.refs.locomotive_direction_left_button
     ---@type LuaGuiElement
@@ -219,7 +220,7 @@ end
 ---@param item_chooser LuaGuiElement
 ---@return bool
 local function is_chooser_item_cleaned(item_chooser)
-    return item_chooser.elem_value == nil and not is_last_train_part_chooser(item_chooser)
+    return item_chooser.elem_value == nil and not is_last_train_part(item_chooser)
 end
 
 ---@param event EventData
@@ -228,9 +229,9 @@ local function update_train_part_chooser(event)
     ---@type LuaGuiElement
     local item_chooser = event.element
     ---@type int
-    local element_id = flib_gui.get_tags(event.element).element_id
+    local train_part_id = flib_gui.get_tags(event.element).train_part_id
     ---@type table
-    local gui = persistence.get_element(player, element_id)
+    local gui = persistence.get_train_part(player, train_part_id)
     ---@type LuaGuiElement
     local chooser_wrapper = item_chooser.parent
     ---@type LuaGuiElement
@@ -281,7 +282,7 @@ local function add_new_train_part_chooser(event)
     ---@type LuaGuiElement
     local container = persistence.get_container(player)
 
-    if item_chooser.elem_value ~= nil and not is_last_train_part_chooser_empty(event.player_index) then
+    if item_chooser.elem_value ~= nil and not is_last_train_part_empty(event.player_index) then
         component.append_component(container, player)
     end
 end
@@ -298,16 +299,16 @@ end
 ---@param container_element LuaGuiElement
 ---@param player LuaPlayer
 function component.append_component(container_element, player)
-    local parent_children_count = #container_element.children
+    local container_children_count = #container_element.children
     local refs = flib_gui.build(container_element, {
-        gui_build_structure_element(parent_children_count+1)
+        gui_build_structure_element(container_children_count +1)
     })
     local tags = flib_gui.get_tags(refs.element)
-    local element_id = tags.element_id
+    local train_part_id = tags.train_part_id
 
     persistence.set_container(player, container_element)
 
-    persistence.add_element(player, element_id, refs)
+    persistence.add_train_part(player, train_part_id, refs)
 end
 
 ---@return string
@@ -341,7 +342,7 @@ end
 ---@param event EventData
 function component.read_form(event)
     local player = game.get_player(event.player_index)
-    local elements = persistence.get_elements(player)
+    local elements = persistence.get_all_train_parts(player)
 
     local train = {}
 
