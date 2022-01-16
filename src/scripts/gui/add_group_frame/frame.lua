@@ -1,6 +1,9 @@
 local flib_gui = require("__flib__.gui")
 
 local train_part_chooser = require("train_part_chooser")
+local validator = require("scripts.gui.validator")
+local mod_table = require("scripts.util.table")
+local mod_gui = require("scripts.util.gui")
 
 local frame = {}
 
@@ -11,14 +14,38 @@ local ACTION = {
     OPEN = "open",
     SAVE = "save",
     CLOSE = "close",
+    FORM_CHANGED = "form_changed",
     DELETE_TRAIN_PART_CHOOSER = "delete_train_part_chooser",
     CHANGE_LOCOMOTIVE_DIRECTION = "change_locomotive_direction",
 }
 
+---@param event EventData
+local function form_changed(event)
+    local player = game.get_player(event.player_index)
+    local gui = global.gui[FRAME_NAME][player.index]
+    local validation_errors_container = gui.refs.validation_errors_container
+    local submit_button = gui.refs.submit_button
+    local validation_errors = frame.validate_form(event)
+
+    mod_gui.clear_children(validation_errors_container)
+
+    if #validation_errors == 0 then
+        submit_button.enabled = true
+    else
+        submit_button.enabled = false
+
+        for _, error in pairs(validation_errors) do
+            validation_errors_container.add{type="label", caption=error}
+        end
+    end
+end
+
 local function save_form(event)
     local form_data = frame.read_form(event)
+    local validation_errors = frame.validate_form(event)
 
     automated_train_depot.console.debug(automated_train_depot.table.to_string(form_data))
+    automated_train_depot.console.debug(automated_train_depot.table.to_string(validation_errors))
 
     frame.destroy(event)
 end
@@ -78,6 +105,9 @@ local function gui_build_structure_frame()
                                 type = "choose-elem-button",
                                 ref = {"group_icon_input"},
                                 elem_type = "item",
+                                actions = {
+                                    on_elem_changed = { gui = FRAME_NAME, action = ACTION.FORM_CHANGED }
+                                }
                             },
                             {
                                 type = "label",
@@ -86,6 +116,10 @@ local function gui_build_structure_frame()
                             {
                                 type = "textfield",
                                 ref = {"group_name_input"},
+                                actions = {
+                                    on_text_changed = { gui = FRAME_NAME, action = ACTION.FORM_CHANGED },
+                                    on_confirmed = { gui = FRAME_NAME, action = ACTION.FORM_CHANGED },
+                                }
                             },
                             {
                                 type = "label",
@@ -98,6 +132,11 @@ local function gui_build_structure_frame()
                             }
                         }
                     },
+                    {
+                        type = "flow",
+                        ref = {"validation_errors_container"},
+                        direction = "vertical",
+                    }
                 }
             },
             -- Bottom control bar
@@ -123,6 +162,8 @@ local function gui_build_structure_frame()
                         type = "button",
                         style = "confirm_button",
                         caption = "Create",
+                        ref = {"submit_button"},
+                        enabled = false,
                         actions = {
                             on_click = { gui = FRAME_NAME, action = ACTION.SAVE },
                         },
@@ -217,8 +258,9 @@ function frame.dispatch(action, event)
 
     local event_handlers = {
         { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) frame.destroy(e) end},
-        { gui = FRAME_NAME,action = ACTION.OPEN, func = function(_, e) frame.open(e) end},
-        { gui = FRAME_NAME,action = ACTION.SAVE, func = function(a, e) save_form(e) end},
+        { gui = FRAME_NAME, action = ACTION.OPEN, func = function(_, e) frame.open(e) end},
+        { gui = FRAME_NAME, action = ACTION.SAVE, func = function(a, e) save_form(e) end},
+        { gui = FRAME_NAME, action = ACTION.FORM_CHANGED, func = function(a, e) form_changed(e) end},
         { gui = train_part_chooser.name(), func = function(a, e) train_part_chooser.dispatch(a, e) end},
     }
 
@@ -240,15 +282,41 @@ function frame.read_form(event)
     local gui = global.gui[FRAME_NAME][player.index]
 
     return {
-        name = gui.refs.group_name_input.text or nil,
-        icon = gui.refs.group_icon_input.elem_value or nil,
+        name = gui.refs.group_name_input.text or mod_table.NIL,
+        icon = gui.refs.group_icon_input.elem_value or mod_table.NIL,
         train_color = {255, 255, 255}, -- TODO
         train =  train_part_chooser.read_form(event)
     }
 end
 
-function frame.validate_form()
-    return {}
+function frame.validate_form(event)
+    local form_data = frame.read_form(event)
+    local rules = {
+        name = {
+            function(value) return validator.empty(value) end,
+        },
+        icon = {
+            function(value) return validator.empty(value) end,
+        }
+    }
+
+    local validation_errors = {}
+
+    for form_field_name, form_value in pairs(form_data) do
+        for field_name, field_validators in pairs(rules) do
+            if form_field_name == field_name then
+                for _, field_validator in pairs(field_validators) do
+                    local error = field_validator({k = form_field_name, v = form_value})
+
+                    if error ~= nil then
+                        table.insert(validation_errors, error)
+                    end
+                end
+            end
+        end
+    end
+
+    return validation_errors
 end
 
 return frame

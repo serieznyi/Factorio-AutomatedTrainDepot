@@ -11,6 +11,7 @@ local ACTION = {
     TRAIN_CHANGED = "train_changed",
     DELETE_TRAIN_PART_CHOOSER = "delete_train_part_chooser",
     CHANGE_LOCOMOTIVE_DIRECTION = "change_locomotive_direction",
+    FORM_CHANGED = "form_changed",
 }
 
 local element = {}
@@ -24,7 +25,7 @@ local function get_locomotive_direction(element_arg, player)
     local left_button = gui.refs.locomotive_direction_left_button
     local right_button = gui.refs.locomotive_direction_right_button
 
-    local direction_button = nil
+    local direction_button
 
     if left_button.visible then
         direction_button = left_button
@@ -330,7 +331,12 @@ end
 
 ---@param event EventData
 function element.validate_form(event)
-    return {}
+    local form_data = element.read_form(event)
+
+    local validation_errors = {}
+
+
+    return validation_errors
 end
 
 return element
