@@ -5,8 +5,6 @@ local validator = require("scripts.gui.validator")
 local mod_table = require("scripts.util.table")
 local mod_gui = require("scripts.util.gui")
 
-local frame = {}
-
 local FRAME_NAME = "add_group_frame"
 
 local ACTION = {
@@ -19,10 +17,32 @@ local ACTION = {
     CHANGE_LOCOMOTIVE_DIRECTION = "change_locomotive_direction",
 }
 
+local persistence = {
+    init = function()
+        global.gui[FRAME_NAME] = {}
+    end,
+    ---@param player LuaPlayer
+    destroy = function(player)
+        global.gui[FRAME_NAME][player.index] = nil
+    end,
+    ---@param player LuaPlayer
+    ---@return table
+    get_gui = function(player)
+        return global.gui[FRAME_NAME][player.index]
+    end,
+    save_gui = function(player, refs)
+        global.gui[FRAME_NAME][player.index] = {
+            refs = refs,
+        }
+    end,
+}
+
+local frame = {}
+
 ---@param event EventData
 local function form_changed(event)
     local player = game.get_player(event.player_index)
-    local gui = global.gui[FRAME_NAME][player.index]
+    local gui = persistence.get_gui(player)
     local validation_errors_container = gui.refs.validation_errors_container
     local submit_button = gui.refs.submit_button
     local validation_errors = frame.validate_form(event)
@@ -172,6 +192,7 @@ local function gui_build_structure_frame()
 end
 
 ---@param player LuaPlayer
+---@return table
 local function create_for(player)
     local refs = flib_gui.build(player.gui.screen, {gui_build_structure_frame()})
 
@@ -181,17 +202,19 @@ local function create_for(player)
 
     train_part_chooser.append_element_to(refs.train_building_container, player)
 
-    global.gui[FRAME_NAME][player.index] = {
-        refs = refs,
-        state = {
-            visible = false,
-        },
-    }
+    persistence.save_gui(player, refs)
+
+    return persistence.get_gui(player)
 end
 
 ---@param player LuaPlayer
+---@return table
 local function update_for(player)
+    local gui = persistence.get_gui(player)
+
     -- TODO
+
+    return gui
 end
 
 function frame.remote_interfaces()
@@ -206,7 +229,7 @@ function frame.name()
 end
 
 function frame.init()
-    global.gui[FRAME_NAME] = {}
+    persistence.init()
 
     train_part_chooser.init()
 end
@@ -214,36 +237,34 @@ end
 ---@param event EventData
 function frame.open(event)
     local player = game.get_player(event.player_index)
+    local gui = persistence.get_gui(player)
 
-    if global.gui[FRAME_NAME][player.index] == nil then
-        create_for(player)
+    if gui == nil then
+        gui = create_for(player)
     else
-        update_for(player)
+        gui = update_for(player)
     end
-
-    local gui = global.gui[FRAME_NAME][player.index]
 
     gui.refs.window.bring_to_front()
     gui.refs.window.visible = true
-    gui.state.visible = true
     player.opened = gui.refs.window
 end
 
 ---@param event EventData
 function frame.destroy(event)
     local player = game.get_player(event.player_index)
-    local gui = global.gui[FRAME_NAME][player.index]
+    local gui = persistence.get_gui(player)
 
     if gui == nil then
         return
     end
 
-    global.gui[FRAME_NAME][player.index] = nil
-
     local window = gui.refs.window
 
     window.visible = false
     window.destroy()
+
+    persistence.destroy(player)
 
     train_part_chooser.destroy(player)
 end
@@ -276,7 +297,7 @@ end
 ---@return table form data
 function frame.read_form(event)
     local player = game.get_player(event.player_index)
-    local gui = global.gui[FRAME_NAME][player.index]
+    local gui = persistence.get_gui(player)
 
     return {
         name = gui.refs.group_name_input.text or mod_table.NIL,

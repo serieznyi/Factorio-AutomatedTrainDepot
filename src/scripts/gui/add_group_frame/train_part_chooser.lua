@@ -47,11 +47,11 @@ local persistence = {
     ---@param player LuaPlayer
     ---@param element_id int
     ---@param element_data table
-    add_element = function(player, element_id, element_data)
+    add_element = function(player, element_id, refs)
         table.insert(
             global.element[ELEMENT_NAME][player.index].elements,
             element_id,
-            element_data
+            { refs = refs }
         )
     end,
     ---@param player LuaPlayer
@@ -303,7 +303,7 @@ function element.append_element_to(parent_element, player)
 
     persistence.set_parent(player, parent_element)
 
-    persistence.add_element(player, element_id, { refs = refs })
+    persistence.add_element(player, element_id, refs)
 end
 
 ---@return string
