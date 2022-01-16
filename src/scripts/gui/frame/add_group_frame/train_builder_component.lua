@@ -16,6 +16,15 @@ local ACTION = {
     FORM_CHANGED = "form_changed",
 }
 
+local VALIDATION_RULES = {
+    name = {
+        function(value) return validator.empty(value) end,
+    },
+    icon = {
+        function(value) return validator.empty(value) end,
+    }
+}
+
 local persistence = {
     init = function()
         global.component[COMPONENT_NAME] = {}
@@ -376,32 +385,8 @@ end
 ---@param event EventData
 function component.validate_form(event)
     local form_data = component.read_form(event)
-    local rules = {
-        name = {
-            function(value) return validator.empty(value) end,
-        },
-        icon = {
-            function(value) return validator.empty(value) end,
-        }
-    }
 
-    local validation_errors = {}
-
-    for form_field_name, form_value in pairs(form_data) do
-        for field_name, field_validators in pairs(rules) do
-            if form_field_name == field_name then
-                for _, field_validator in pairs(field_validators) do
-                    local error = field_validator({k = form_field_name, v = form_value})
-
-                    if error ~= nil then
-                        table.insert(validation_errors, error)
-                    end
-                end
-            end
-        end
-    end
-
-    return validation_errors
+    return validator.validate(VALIDATION_RULES, form_data)
 end
 
 return component

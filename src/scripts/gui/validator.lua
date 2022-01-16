@@ -16,4 +16,27 @@ function validator.empty(value_data, message_arg)
     return nil
 end
 
+---@param rules table
+---@param data table
+---@return table
+function validator.validate(rules, data)
+    local validation_errors = {}
+
+    for form_field_name, form_value in pairs(data) do
+        for field_name, field_validators in pairs(rules) do
+            if form_field_name == field_name then
+                for _, field_validator in pairs(field_validators) do
+                    local error = field_validator({k = form_field_name, v = form_value})
+
+                    if error ~= nil then
+                        table.insert(validation_errors, error)
+                    end
+                end
+            end
+        end
+    end
+
+    return validation_errors
+end
+
 return validator
