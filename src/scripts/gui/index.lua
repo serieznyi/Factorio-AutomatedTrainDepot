@@ -1,13 +1,11 @@
 local main_frame = require("scripts.gui.main_frame")
 local add_group_frame = require("scripts.gui.add_group_frame.frame")
-local locomotive_configuration_frame = require("scripts.gui.locomotive_configuration_frame")
 
 local index = {}
 
 local REGISTERED_MAIN_FRAMES = {
     main_frame,
     add_group_frame,
-    locomotive_configuration_frame,
 }
 
 ---@param element LuaGuiElement
