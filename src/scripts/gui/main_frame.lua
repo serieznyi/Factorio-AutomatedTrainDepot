@@ -1,7 +1,5 @@
 local flib_gui = require("__flib__.gui")
 
-local frame = {}
-
 local FRAME_NAME = "main_frame"
 local FRAME_WIDTH = 1200;
 local FRAME_HEIGHT = 600;
@@ -9,6 +7,34 @@ local FRAME_HEIGHT = 600;
 local ACTION = {
     CLOSE = "close",
 }
+
+local persistence = {
+    init = function()
+        global.gui[FRAME_NAME] = {}
+    end,
+    ---@param player LuaPlayer
+    destroy = function(player)
+        global.gui[FRAME_NAME][player.index] = nil
+    end,
+    ---@param player LuaPlayer
+    ---@return table
+    get_gui = function(player)
+        return global.gui[FRAME_NAME][player.index]
+    end,
+    ---@param player LuaPlayer
+    ---@param refs table
+    ---@param entity LuaEntity
+    save_gui = function(player, refs, entity)
+        global.gui[FRAME_NAME][player.index] = {
+            refs = refs,
+            state = {
+                entity = entity,
+            },
+        }
+    end,
+}
+
+local frame = {}
 
 ---@return table
 local function gui_build_structure_frame()
@@ -149,7 +175,7 @@ function frame.name()
 end
 
 function frame.init()
-    global.gui[FRAME_NAME] = {}
+    persistence.init()
 end
 
 ---@param player LuaPlayer
@@ -161,17 +187,18 @@ end
 ---@param player LuaPlayer
 ---@param entity LuaEntity
 function frame.open(player, entity)
-    if global.gui[FRAME_NAME][player.index] == nil then
+    local gui = persistence.get_gui(player)
+
+    if gui == nil then
         frame.create(player, entity)
     else
         frame.update(player, entity)
     end
 
-    local gui = global.gui[FRAME_NAME][player.index]
+    gui = persistence.get_gui(player)
 
     gui.refs.window.bring_to_front()
     gui.refs.window.visible = true
-    gui.state.visible = true
     player.opened = gui.refs.window
 end
 
@@ -189,22 +216,17 @@ function frame.create(player, entity)
         ((resolution.height - (FRAME_HEIGHT * scale)) / 2)
     }
 
-    global.gui[FRAME_NAME][player.index] = {
-        refs = refs,
-        state = {
-            entity = entity,
-            visible = false
-        },
-    }
+    persistence.save_gui(player, refs, entity)
 end
 
 function frame.destroy(player)
-    local gui_data = global.gui[FRAME_NAME][player.index]
+    local gui_data = persistence.get_gui(player)
 
     if gui_data then
-        global.gui[FRAME_NAME][player.index] = nil
         gui_data.refs.window.destroy()
     end
+
+    persistence.destroy(player)
 end
 
 ---@param action table
@@ -229,10 +251,9 @@ end
 
 function frame.close(event)
     local player = game.get_player(event.player_index)
-    local gui = global.gui[FRAME_NAME][player.index]
+    local gui = persistence.get_gui(player)
 
     gui.refs.window.visible = false
-    gui.state.visible = false
 
     if player.opened == gui.refs.window then
         player.opened = nil
