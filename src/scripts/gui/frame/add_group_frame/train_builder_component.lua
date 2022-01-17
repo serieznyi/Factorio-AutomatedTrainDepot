@@ -65,6 +65,11 @@ local persistence = {
     end,
     ---@param player LuaPlayer
     ---@param train_part_id int
+    delete_train_part = function(player, train_part_id)
+        table.remove(global.component[COMPONENT_NAME][player.index].train_parts, train_part_id)
+    end,
+    ---@param player LuaPlayer
+    ---@param train_part_id int
     ---@return table
     get_train_part = function(player, train_part_id)
         return global.component[COMPONENT_NAME][player.index].train_parts[train_part_id]
@@ -74,9 +79,17 @@ local persistence = {
 local component = {}
 
 ---@param element LuaGuiElement
+---@return int
+local function get_train_part_id(element)
+    local tags = flib_gui.get_tags(element)
+
+    return tags.train_part_id
+end
+
+---@param element LuaGuiElement
 ---@param player LuaPlayer
 local function get_locomotive_direction(element, player)
-    local train_part_id = flib_gui.get_tags(element).train_part_id
+    local train_part_id = get_train_part_id(element)
     ---@type table
     local train_part = persistence.get_train_part(player, train_part_id)
     local left_button = train_part.refs.locomotive_direction_left_button
@@ -176,7 +189,7 @@ end
 
 ---@param choose_elem_button_element LuaGuiElement
 ---@return LuaGuiElement
-local function is_last_train_part(choose_elem_button_element)
+local function is_last_train_part_selector(choose_elem_button_element)
     -- TODO refactor
     local chooser_wrapper = choose_elem_button_element.parent
     local choosers_container = choose_elem_button_element.parent.parent
@@ -217,10 +230,10 @@ local function is_locomotive_selected(value)
     return prototype.type == "locomotive"
 end
 
----@param item_chooser LuaGuiElement
+---@param item_selector LuaGuiElement
 ---@return bool
-local function is_chooser_item_cleaned(item_chooser)
-    return item_chooser.elem_value == nil and not is_last_train_part(item_chooser)
+local function is_train_part_selector_cleaned(item_selector)
+    return item_selector.elem_value == nil and not is_last_train_part_selector(item_selector)
 end
 
 ---@param event EventData
@@ -228,8 +241,7 @@ local function update_train_part(event)
     local player = game.get_player(event.player_index)
     ---@type LuaGuiElement
     local item_chooser = event.element
-    ---@type int
-    local train_part_id = flib_gui.get_tags(event.element).train_part_id
+    local train_part_id = get_train_part_id(item_chooser)
     ---@type table
     local train_part = persistence.get_train_part(player, train_part_id)
     ---@type LuaGuiElement
@@ -243,8 +255,9 @@ local function update_train_part(event)
     ---@type LuaGuiElement
     local locomotive_direction_right_button = train_part.refs.locomotive_direction_right_button
 
-    if is_chooser_item_cleaned(item_chooser) then
+    if is_train_part_selector_cleaned(item_chooser) then
         chooser_wrapper.destroy()
+        persistence.delete_train_part(player, train_part_id)
         return
     end
 
@@ -266,12 +279,14 @@ end
 
 ---@param event EventData
 local function delete_train_part(event)
+    local player = game.get_player(event.player_index)
     ---@type LuaGuiElement
     local item_chooser = event.element
     ---@type LuaGuiElement
     local chooser_wrapper = item_chooser.parent
 
     chooser_wrapper.destroy()
+    persistence.delete_train_part(player, train_part_id)
 end
 
 ---@param event EventData
@@ -299,12 +314,10 @@ end
 ---@param container_element LuaGuiElement
 ---@param player LuaPlayer
 function component.append_component(container_element, player)
-    local container_children_count = #container_element.children
+    local train_part_id = math.random(1, 1000000)
     local refs = flib_gui.build(container_element, {
-        gui_build_structure_element(container_children_count +1)
+        gui_build_structure_element(train_part_id)
     })
-    local tags = flib_gui.get_tags(refs.element)
-    local train_part_id = tags.train_part_id
 
     persistence.set_container(player, container_element)
 
