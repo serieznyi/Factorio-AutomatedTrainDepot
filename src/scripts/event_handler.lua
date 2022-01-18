@@ -47,7 +47,7 @@ function event_handler.handle_gui_event(event)
     end
 
     automated_train_depot.logger.debug(
-            "gui event `{1} with action `{2}` triggered",
+            "Gui event `{1}:{2}` triggered",
             {action.gui, action.action}
     )
 

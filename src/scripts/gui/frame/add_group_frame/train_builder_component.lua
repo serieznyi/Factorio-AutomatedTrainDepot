@@ -283,12 +283,11 @@ end
 ---@param event EventData
 local function delete_train_part(event)
     local player = game.get_player(event.player_index)
-    ---@type LuaGuiElement
-    local item_chooser = event.element
-    ---@type LuaGuiElement
-    local chooser_wrapper = item_chooser.parent
+    ---@type int
+    local train_part_id = get_train_part_id(event.element)
+    local train_part = persistence.get_train_part(player, train_part_id)
 
-    chooser_wrapper.destroy()
+    train_part.refs.element.destroy()
     persistence.delete_train_part(player, train_part_id)
 
     return true
@@ -355,11 +354,15 @@ function component.dispatch(action, event)
 
     for _, h in ipairs(event_handlers) do
         if h.gui == action.gui and (h.action == action.action or h.action == nil) then
+            automated_train_depot.logger.debug("Event handler for `{1}:{2}` executed", {h.gui, h.action});
             if h.func(action, event) then
-                on_form_changed_callback(event)
                 processed = true
             end
         end
+    end
+
+    if processed then
+        on_form_changed_callback(event)
     end
 
     return processed
@@ -368,11 +371,11 @@ end
 ---@param event EventData
 function component.read_form(event)
     local player = game.get_player(event.player_index)
-    local elements = persistence.get_all_train_parts(player)
+    local train_parts = persistence.get_all_train_parts(player)
 
     local train = {}
 
-    for i, el in pairs(elements) do
+    for i, el in pairs(train_parts) do
         local part = {}
         local part_chooser = el.refs.part_chooser
         local part_entity_type = part_chooser.elem_value
