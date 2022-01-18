@@ -77,8 +77,8 @@ local on_form_changed_callback = function() end
 
 local component = {}
 
-local function validator_rule_has_locomotive(train_data)
-    for _, train_part in pairs(train_data.v) do
+local function validator_rule_has_locomotive(data)
+    for _, train_part in pairs(data.v) do
         if train_part.type == TRAIN_PART_TYPE.LOCOMOTIVE then
             return nil
         end
