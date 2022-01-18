@@ -1,11 +1,11 @@
 local flib_gui = require("__flib__.gui")
 
-local FRAME_NAME = "main_frame"
+local FRAME_NAME = automated_train_depot.constants.gui.frame_names.main_frame
 local FRAME_WIDTH = 1200;
 local FRAME_HEIGHT = 600;
 
 local ACTION = {
-    CLOSE = "close",
+    CLOSE = automated_train_depot.constants.gui.common_actions.close,
 }
 
 local persistence = {
@@ -54,7 +54,7 @@ local function gui_build_structure_frame()
                     {
                         type = "label",
                         style = "frame_title",
-                        caption = {"gui-name.automated-train-depot-main-frame"},
+                        caption = {"main-frame.atd-title"},
                         ignored_by_interaction = true
                     },
                     {
@@ -65,14 +65,24 @@ local function gui_build_structure_frame()
                     {
                         type = "sprite-button",
                         style = "frame_action_button",
+                        sprite = "atd_sprite_settings",
+                        actions = {
+                            on_click = {
+                                gui = automated_train_depot.constants.gui.frame_names.settings_frame,
+                                action = automated_train_depot.constants.gui.common_actions.open
+                            }
+                        }
+                    },
+                    {
+                        type = "sprite-button",
+                        style = "frame_action_button",
                         sprite = "utility/close_white",
                         hovered_sprite = "utility/close_black",
                         clicked_sprite = "utility/close_black",
-                        ref = {"titlebar", "close_button"},
                         actions = {
                             on_click = {gui = FRAME_NAME, action = ACTION.CLOSE}
                         }
-                    }
+                    },
                 }
             },
             -- Content
@@ -105,7 +115,10 @@ local function gui_build_structure_frame()
                                                 tooltip = {"gui.add_new_group"},
                                                 sprite = "atd_sprite_add",
                                                 actions = {
-                                                    on_click = { gui = "add_group_frame", action = "open" },
+                                                    on_click = {
+                                                        gui = automated_train_depot.constants.gui.frame_names.add_group_frame,
+                                                        action = "open"
+                                                    },
                                                 },
                                             },
                                         }

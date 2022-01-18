@@ -2,7 +2,7 @@ data:extend({
     -- Console logging level
     {
         type = "string-setting",
-        name = "automated-train-depot-console-level",
+        name = "atd-console-level",
         --order = "ad",
         setting_type = "runtime-per-user",
         default_value = "2",

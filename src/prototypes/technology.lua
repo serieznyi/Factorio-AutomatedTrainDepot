@@ -7,7 +7,7 @@ local automated_train_depot = {
     effects = {
         {
             type = "unlock-recipe",
-            recipe = "automated-train-depot-building"
+            recipe = "atd-building"
         }
     },
     prerequisites = { -- todo need balance

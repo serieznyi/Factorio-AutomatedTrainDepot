@@ -23,7 +23,7 @@ function console.load(player_index)
     local settings = settings.get_player_settings(player)
 
     global.console = {
-        level = tonumber(settings["automated-train-depot-console-level"].value)
+        level = tonumber(settings["atd-console-level"].value)
     }
 end
 

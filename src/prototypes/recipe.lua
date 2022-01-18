@@ -2,7 +2,7 @@ local train_depot = {
     type = "recipe",
     category = "advanced-crafting",
     subgroup = "train-transport",
-    name = "automated-train-depot-building",
+    name = "atd-building",
     enabled = false,
     ingredients = { -- todo balance it
         {"concrete", 1000},
@@ -13,7 +13,7 @@ local train_depot = {
         {"filter-inserter", 50},
         {"gate", 6},
     },
-    result = "automated-train-depot-building",
+    result = "atd-building",
     result_count = 1,
 }
 
