@@ -1,20 +1,16 @@
 local flib_gui = require("__flib__.gui")
 
-local train_builder_component = require("train_builder_component")
 local validator = require("scripts.gui.validator")
 local mod_table = require("scripts.util.table")
 local mod_gui = require("scripts.util.gui")
 
-local FRAME_NAME = automated_train_depot.constants.gui.frame_names.add_group_frame
+local FRAME_NAME = automated_train_depot.constants.gui.frame_names.settings_frame
 
 local ACTION = {
     OPEN = automated_train_depot.constants.gui.common_actions.open,
     CLOSE = automated_train_depot.constants.gui.common_actions.close,
     SAVE = automated_train_depot.constants.gui.common_actions.save,
     FORM_CHANGED = automated_train_depot.constants.gui.common_actions.form_changed,
-    TRAIN_CHANGED = "train_changed",
-    DELETE_TRAIN_PART_CHOOSER = "delete_train_part_chooser",
-    CHANGE_LOCOMOTIVE_DIRECTION = "change_locomotive_direction",
 }
 
 local VALIDATION_RULES = {
@@ -28,19 +24,19 @@ local VALIDATION_RULES = {
 
 local persistence = {
     init = function()
-        global.gui[FRAME_NAME] = {}
+        global.settings[FRAME_NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        global.gui[FRAME_NAME][player.index] = nil
+        global.settings[FRAME_NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_gui = function(player)
-        return global.gui[FRAME_NAME][player.index]
+        return global.settings[FRAME_NAME][player.index]
     end,
     save_gui = function(player, refs)
-        global.gui[FRAME_NAME][player.index] = {
+        global.settings[FRAME_NAME][player.index] = {
             refs = refs,
         }
     end,
@@ -104,7 +100,7 @@ local function gui_build_structure_frame()
                     {
                         type = "label",
                         style = "frame_title",
-                        caption = {"add-group-frame.title"},
+                        caption = {"settings-frame.atd-title"},
                         ignored_by_interaction = true
                     },
                     {
@@ -130,7 +126,7 @@ local function gui_build_structure_frame()
                         children = {
                             {
                                 type = "label",
-                                caption = "Group icon",
+                                caption = {"gui."},
                             },
                             {
                                 type = "choose-elem-button",
@@ -214,8 +210,6 @@ local function create_for(player)
     refs.titlebar_flow.drag_target = refs.window
     refs.footerbar_flow.drag_target = refs.window
 
-    train_builder_component.append_component(refs.train_builder_container, player)
-
     persistence.save_gui(player, refs)
 
     return persistence.get_gui(player)
@@ -245,13 +239,9 @@ end
 
 function frame.init()
     persistence.init()
-
-    train_builder_component.init()
-    train_builder_component.on_form_changed(function(e) form_changed(e) end)
 end
 
 function frame.load()
-    train_builder_component.on_form_changed(function(e) form_changed(e) end)
 end
 
 ---@param event EventData
@@ -288,8 +278,6 @@ function frame.destroy(event)
 
     persistence.destroy(player)
 
-    train_builder_component.destroy(player)
-
     return true
 end
 
@@ -303,7 +291,6 @@ function frame.dispatch(action, event)
         { gui = FRAME_NAME, action = ACTION.OPEN, func = function(_, e) return frame.open(e) end},
         { gui = FRAME_NAME, action = ACTION.SAVE, func = function(_, e) return save_form(e) end},
         { gui = FRAME_NAME, action = ACTION.FORM_CHANGED, func = function(_, e) return form_changed(e) end},
-        { gui = train_builder_component.name(), func = function(a, e) return train_builder_component.dispatch(a, e) end},
     }
 
     for _, h in ipairs(event_handlers) do
@@ -324,10 +311,9 @@ function frame.read_form(event)
     local gui = persistence.get_gui(player)
 
     return {
-        name = gui.refs.group_name_input.text or mod_table.NIL,
-        icon = gui.refs.group_icon_input.elem_value or mod_table.NIL,
-        train_color = {255, 255, 255}, -- TODO
-        train =  train_builder_component.read_form(event)
+        use_any_fuel = mod_table.NIL,
+        --icon = gui.refs.group_icon_input.elem_value or mod_table.NIL,
+        --train_color = {255, 255, 255}, -- TODO
     }
 end
 

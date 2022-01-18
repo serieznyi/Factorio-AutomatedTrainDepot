@@ -13,16 +13,13 @@ local ACTION = {
     TRAIN_CHANGED = "train_changed",
     DELETE_TRAIN_PART = "delete_train_part",
     CHANGE_LOCOMOTIVE_DIRECTION = "change_locomotive_direction",
-    FORM_CHANGED = "form_changed",
+    FORM_CHANGED = automated_train_depot.constants.gui.common_actions.form_changed,
 }
 
 local VALIDATION_RULES = {
-    name = {
+    trains = {
         function(value) return validator.empty(value) end,
     },
-    icon = {
-        function(value) return validator.empty(value) end,
-    }
 }
 
 local persistence = {
@@ -378,13 +375,13 @@ function component.read_form(event)
     for i, el in ipairs(elements) do
         local part = {}
         local part_chooser = el.refs.part_chooser
-        local part_entity = part_chooser.elem_value
+        local part_entity_type = part_chooser.elem_value
 
-        if part_entity ~= nil then
-            if is_locomotive_selected(part_entity) then
+        if part_entity_type ~= nil then
+            if is_locomotive_selected(part_entity_type) then
                 part = {
                     type = "locomotive",
-                    entity = part_entity,
+                    entity = part_entity_type,
                     direction = get_locomotive_direction(part_chooser, player),
                     use_any_fuel = true,
                     fuel = {
@@ -401,7 +398,7 @@ function component.read_form(event)
             else
                 part = {
                     type = "cargo",
-                    entity = part_entity
+                    entity = part_entity_type
                 }
             end
 
