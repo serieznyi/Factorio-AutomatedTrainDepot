@@ -76,6 +76,8 @@ local persistence = {
     end,
 }
 
+local on_form_changed_callback = function() end
+
 local component = {}
 
 ---@param element LuaGuiElement
@@ -216,6 +218,8 @@ local function change_locomotive_direction(event)
         locomotive_direction_left_button.visible = true
         locomotive_direction_right_button.visible = false
     end
+
+    return true
 end
 
 ---@param value string|nil
@@ -275,6 +279,8 @@ local function update_train_part(event)
         locomotive_config_button.visible = true
         locomotive_direction_left_button.visible = true
     end
+
+    return true
 end
 
 ---@param event EventData
@@ -287,6 +293,8 @@ local function delete_train_part(event)
 
     chooser_wrapper.destroy()
     persistence.delete_train_part(player, train_part_id)
+
+    return true
 end
 
 ---@param event EventData
@@ -300,6 +308,8 @@ local function add_new_train_part(event)
     if item_chooser.elem_value ~= nil and not is_last_train_part_empty(event.player_index) then
         component.append_component(container, player)
     end
+
+    return true
 end
 
 function component.init()
@@ -324,6 +334,11 @@ function component.append_component(container_element, player)
     persistence.add_train_part(player, train_part_id, refs)
 end
 
+---@param callback function
+function component.on_form_changed(callback)
+    on_form_changed_callback = callback
+end
+
 ---@return string
 function component.name()
     return COMPONENT_NAME
@@ -335,15 +350,16 @@ function component.dispatch(action, event)
     local processed = false
 
     local event_handlers = {
-        { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) add_new_train_part(e) end},
-        { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) update_train_part(e) end},
-        { gui = COMPONENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(_, e) change_locomotive_direction(e) end},
-        { gui = COMPONENT_NAME, action = ACTION.DELETE_TRAIN_PART, func = function(_, e) delete_train_part(e) end},
+        { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) return add_new_train_part(e) end},
+        { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) return update_train_part(e) end},
+        { gui = COMPONENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(_, e) return change_locomotive_direction(e) end},
+        { gui = COMPONENT_NAME, action = ACTION.DELETE_TRAIN_PART, func = function(_, e) return delete_train_part(e) end},
     }
 
     for _, h in ipairs(event_handlers) do
         if h.gui == action.gui and (h.action == action.action or h.action == nil) then
             if h.func(action, event) then
+                on_form_changed_callback(event)
                 processed = true
             end
         end

@@ -58,6 +58,8 @@ local function form_changed(event)
 
     mod_gui.clear_children(validation_errors_container)
 
+    automated_train_depot.console.debug("changed")
+
     if #validation_errors == 0 then
         submit_button.enabled = true
     else
@@ -67,6 +69,8 @@ local function form_changed(event)
             validation_errors_container.add{type="label", caption=error}
         end
     end
+
+    return true
 end
 
 ---@param event EventData
@@ -75,6 +79,8 @@ local function save_form(event)
     local validation_errors = frame.validate_form(event)
 
     frame.destroy(event)
+
+    return true
 end
 
 ---@return table
@@ -243,6 +249,11 @@ function frame.init()
     persistence.init()
 
     train_builder_component.init()
+    train_builder_component.on_form_changed(function(e) form_changed(e) end)
+end
+
+function frame.load()
+    train_builder_component.on_form_changed(function(e) form_changed(e) end)
 end
 
 ---@param event EventData
@@ -259,6 +270,8 @@ function frame.open(event)
     gui.refs.window.bring_to_front()
     gui.refs.window.visible = true
     player.opened = gui.refs.window
+
+    return true
 end
 
 ---@param event EventData
@@ -278,6 +291,8 @@ function frame.destroy(event)
     persistence.destroy(player)
 
     train_builder_component.destroy(player)
+
+    return true
 end
 
 ---@param action table
@@ -286,11 +301,11 @@ function frame.dispatch(action, event)
     local processed = false
 
     local event_handlers = {
-        { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) frame.destroy(e) end},
-        { gui = FRAME_NAME, action = ACTION.OPEN, func = function(_, e) frame.open(e) end},
-        { gui = FRAME_NAME, action = ACTION.SAVE, func = function(_, e) save_form(e) end},
-        { gui = FRAME_NAME, action = ACTION.FORM_CHANGED, func = function(_, e) form_changed(e) end},
-        { gui = train_builder_component.name(), func = function(a, e) train_builder_component.dispatch(a, e) end},
+        { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) return frame.destroy(e) end},
+        { gui = FRAME_NAME, action = ACTION.OPEN, func = function(_, e) return frame.open(e) end},
+        { gui = FRAME_NAME, action = ACTION.SAVE, func = function(_, e) return save_form(e) end},
+        { gui = FRAME_NAME, action = ACTION.FORM_CHANGED, func = function(_, e) return form_changed(e) end},
+        { gui = train_builder_component.name(), func = function(a, e) return train_builder_component.dispatch(a, e) end},
     }
 
     for _, h in ipairs(event_handlers) do

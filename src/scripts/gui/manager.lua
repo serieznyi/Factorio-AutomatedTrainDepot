@@ -78,6 +78,12 @@ function manager.init()
     end
 end
 
+function manager.load()
+    for _, module in ipairs(REGISTERED_MAIN_FRAMES) do
+        module.load()
+    end
+end
+
 function manager.dispatch(action, event)
     local element = event.element
     local player = game.get_player(event.player_index)

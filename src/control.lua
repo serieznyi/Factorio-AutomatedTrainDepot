@@ -54,7 +54,8 @@ end)
 event.on_load(function()
     -- Restore local vars from `global`
     -- Re-register event handlers
-    -- TODO
+
+    gui_index.load()
 end)
 
 ---------------------------------------------------------------------------

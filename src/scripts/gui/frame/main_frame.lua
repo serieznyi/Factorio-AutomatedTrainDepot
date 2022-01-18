@@ -203,6 +203,9 @@ function frame.init()
     persistence.init()
 end
 
+function frame.load()
+end
+
 ---@param player LuaPlayer
 ---@param entity LuaEntity
 function frame.open(player)
@@ -238,7 +241,7 @@ function frame.dispatch(action, event)
     local processed = false
 
     local event_handlers = {
-        { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) frame.close(e) end},
+        { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) return frame.close(e) end},
     }
 
     for _, h in ipairs(event_handlers) do
@@ -261,6 +264,8 @@ function frame.close(event)
     if player.opened == gui.refs.window then
         player.opened = nil
     end
+
+    return true
 end
 
 return frame
