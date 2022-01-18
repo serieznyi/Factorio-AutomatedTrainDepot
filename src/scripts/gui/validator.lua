@@ -25,7 +25,7 @@ function validator.validate(rules, data)
     for form_field_name, form_value in pairs(data) do
         for field_name, field_validators in pairs(rules) do
             if form_field_name == field_name then
-                for _, field_validator in pairs(field_validators) do
+                for _, field_validator in ipairs(field_validators) do
                     local error = field_validator({k = form_field_name, v = form_value})
 
                     if error ~= nil then

@@ -136,7 +136,7 @@ function depot.destroy(depot_entity)
     local depot_for_destroy = automated_train_depot.depots[surface.name]
     local entity_name = depot_for_destroy.depot_entity.name;
 
-    for _,e in pairs(depot_for_destroy.dependent_entities) do
+    for _,e in ipairs(depot_for_destroy.dependent_entities) do
         e.destroy()
     end
 

@@ -63,7 +63,7 @@ local function form_changed(event)
     else
         submit_button.enabled = false
 
-        for _, error in pairs(validation_errors) do
+        for _, error in ipairs(validation_errors) do
             validation_errors_container.add{type="label", caption=error}
         end
     end
