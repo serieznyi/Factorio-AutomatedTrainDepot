@@ -1,3 +1,5 @@
+local flib_table = require("__flib__.table")
+
 local main_frame = require("scripts.gui.frame.main_frame")
 local add_group_frame = require("scripts.gui.frame.add_group_frame.frame")
 
@@ -7,6 +9,8 @@ local REGISTERED_MAIN_FRAMES = {
     main_frame,
     add_group_frame,
 }
+
+local MAIN_FRAME_NAMES = flib_table.map(REGISTERED_MAIN_FRAMES, function(m) return m.name() end)
 
 ---@param element LuaGuiElement
 local function is_main_frame(element)
@@ -36,9 +40,24 @@ local function is_blocked_frame(element, player)
     return player.opened ~= nil and player.opened ~= event_from_frame
 end
 
+---@param element LuaGuiElement
+local function is_mod_frame(element)
+    if element.type ~= "frame" then
+        return false
+    end
+
+    for _, name in ipairs(MAIN_FRAME_NAMES) do
+        if element.name == name then
+            return true
+        end
+    end
+
+    return false
+end
+
 function manager.bring_to_front_current_window()
     for _, player in pairs(game.players) do
-        if player.opened ~= nil and player.opened.type == "frame" then
+        if player.opened ~= nil and is_mod_frame(player.opened) then
             player.opened.bring_to_front()
         end
     end
