@@ -57,7 +57,7 @@ local function form_changed(event)
     local gui = persistence.get_gui(player)
     local validation_errors_container = gui.refs.validation_errors_container
     local submit_button = gui.refs.submit_button
-    local validation_errors = frame.validate_input_data(event)
+    local validation_errors = frame.validate_form(event)
 
     mod_gui.clear_children(validation_errors_container)
 
@@ -77,7 +77,7 @@ end
 ---@param event EventData
 local function save_form(event)
     local form_data = frame.read_form(event)
-    local validation_errors = frame.validate_input_data(event)
+    local validation_errors = frame.validate_form(event)
 
     frame.destroy(event)
 
@@ -334,7 +334,7 @@ function frame.read_form(event)
     }
 end
 
-function frame.validate_input_data(event)
+function frame.validate_form(event)
     local form_data = frame.read_form(event)
 
     return flib_table.array_merge({
