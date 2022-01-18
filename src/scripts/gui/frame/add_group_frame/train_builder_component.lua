@@ -1,4 +1,5 @@
 local flib_gui = require("__flib__.gui")
+local flib_table = require("__flib__.table")
 
 local validator = require("scripts.gui.validator")
 
@@ -63,7 +64,7 @@ local persistence = {
     ---@param player LuaPlayer
     ---@param train_part_id int
     delete_train_part = function(player, train_part_id)
-        table.remove(global.gui_component[COMPONENT_NAME][player.index].train_parts, train_part_id)
+        flib_table.retrieve(global.gui_component[COMPONENT_NAME][player.index].train_parts, train_part_id)
     end,
     ---@param player LuaPlayer
     ---@param train_part_id int
