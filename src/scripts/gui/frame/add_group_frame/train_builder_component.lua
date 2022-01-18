@@ -24,22 +24,22 @@ local VALIDATION_RULES = {
 
 local persistence = {
     init = function()
-        global.component[COMPONENT_NAME] = {}
+        global.gui_component[COMPONENT_NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        global.component[COMPONENT_NAME][player.index] = nil
+        global.gui_component[COMPONENT_NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_all_train_parts = function(player)
-        return global.component[COMPONENT_NAME][player.index].train_parts
+        return global.gui_component[COMPONENT_NAME][player.index].train_parts
     end,
     ---@param player LuaPlayer
     ---@param container LuaGuiElement
     set_container = function(player, container)
-        if global.component[COMPONENT_NAME][player.index] == nil then
-            global.component[COMPONENT_NAME][player.index] = {
+        if global.gui_component[COMPONENT_NAME][player.index] == nil then
+            global.gui_component[COMPONENT_NAME][player.index] = {
                 container = container,
                 train_parts = {},
             }
@@ -48,14 +48,14 @@ local persistence = {
     ---@param player LuaPlayer
     ---@return LuaGuiElement
     get_container = function(player)
-        return global.component[COMPONENT_NAME][player.index].container
+        return global.gui_component[COMPONENT_NAME][player.index].container
     end,
     ---@param player LuaPlayer
     ---@param train_part_id int
     ---@param refs table
     add_train_part = function(player, train_part_id, refs)
         table.insert(
-            global.component[COMPONENT_NAME][player.index].train_parts,
+            global.gui_component[COMPONENT_NAME][player.index].train_parts,
                 train_part_id,
             { refs = refs }
         )
@@ -63,13 +63,13 @@ local persistence = {
     ---@param player LuaPlayer
     ---@param train_part_id int
     delete_train_part = function(player, train_part_id)
-        table.remove(global.component[COMPONENT_NAME][player.index].train_parts, train_part_id)
+        table.remove(global.gui_component[COMPONENT_NAME][player.index].train_parts, train_part_id)
     end,
     ---@param player LuaPlayer
     ---@param train_part_id int
     ---@return table
     get_train_part = function(player, train_part_id)
-        return global.component[COMPONENT_NAME][player.index].train_parts[train_part_id]
+        return global.gui_component[COMPONENT_NAME][player.index].train_parts[train_part_id]
     end,
 }
 

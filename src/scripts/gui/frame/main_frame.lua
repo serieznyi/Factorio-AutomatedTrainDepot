@@ -117,7 +117,7 @@ local function gui_build_structure_frame()
                                                 actions = {
                                                     on_click = {
                                                         gui = automated_train_depot.constants.gui.frame_names.add_group_frame,
-                                                        action = "open"
+                                                        action = automated_train_depot.constants.gui.common_actions.open,
                                                     },
                                                 },
                                             },

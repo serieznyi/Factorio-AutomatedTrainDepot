@@ -2,12 +2,14 @@ local flib_table = require("__flib__.table")
 
 local main_frame = require("scripts.gui.frame.main_frame")
 local add_group_frame = require("scripts.gui.frame.add_group_frame.frame")
+local settings_frame = require("scripts.gui.frame.settings")
 
 local manager = {}
 
 local REGISTERED_MAIN_FRAMES = {
     main_frame,
     add_group_frame,
+    settings_frame,
 }
 
 local MAIN_FRAME_NAMES = flib_table.map(REGISTERED_MAIN_FRAMES, function(m) return m.name() end)
@@ -71,7 +73,7 @@ end
 
 function manager.init()
     global.gui = {}
-    global.component = {}
+    global.gui_component = {}
 
     for _, module in ipairs(REGISTERED_MAIN_FRAMES) do
         module.init()

@@ -24,19 +24,19 @@ local VALIDATION_RULES = {
 
 local persistence = {
     init = function()
-        global.settings[FRAME_NAME] = {}
+        global.gui[FRAME_NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        global.settings[FRAME_NAME][player.index] = nil
+        global.gui[FRAME_NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_gui = function(player)
-        return global.settings[FRAME_NAME][player.index]
+        return global.gui[FRAME_NAME][player.index]
     end,
     save_gui = function(player, refs)
-        global.settings[FRAME_NAME][player.index] = {
+        global.gui[FRAME_NAME][player.index] = {
             refs = refs,
         }
     end,
@@ -126,37 +126,16 @@ local function gui_build_structure_frame()
                         children = {
                             {
                                 type = "label",
-                                caption = {"gui."},
+                                caption = {"settings-frame.atd-use-any-supported-fuel-checkbox"},
+                                state = false,
                             },
                             {
-                                type = "choose-elem-button",
-                                ref = {"group_icon_input"},
-                                elem_type = "item",
+                                type = "checkbox",
+                                state = false,
                                 actions = {
                                     on_elem_changed = { gui = FRAME_NAME, action = ACTION.FORM_CHANGED }
                                 }
                             },
-                            {
-                                type = "label",
-                                caption = "Group name",
-                            },
-                            {
-                                type = "textfield",
-                                ref = {"group_name_input"},
-                                actions = {
-                                    on_text_changed = { gui = FRAME_NAME, action = ACTION.FORM_CHANGED },
-                                    on_confirmed = { gui = FRAME_NAME, action = ACTION.FORM_CHANGED },
-                                }
-                            },
-                            {
-                                type = "label",
-                                caption = "Train",
-                            },
-                            {
-                                type = "frame",
-                                direction = "horizontal",
-                                ref  =  {"train_builder_container"},
-                            }
                         }
                     },
                     {
@@ -287,8 +266,8 @@ function frame.dispatch(action, event)
     local processed = false
 
     local event_handlers = {
-        { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) return frame.destroy(e) end},
         { gui = FRAME_NAME, action = ACTION.OPEN, func = function(_, e) return frame.open(e) end},
+        { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) return frame.destroy(e) end},
         { gui = FRAME_NAME, action = ACTION.SAVE, func = function(_, e) return save_form(e) end},
         { gui = FRAME_NAME, action = ACTION.FORM_CHANGED, func = function(_, e) return form_changed(e) end},
     }
