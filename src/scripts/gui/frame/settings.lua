@@ -1,4 +1,5 @@
 local flib_gui = require("__flib__.gui")
+local flib_table = require("__flib__.table")
 
 local validator = require("scripts.gui.validator")
 local mod_table = require("scripts.util.table")
@@ -77,8 +78,21 @@ local function save_form(event)
     return true
 end
 
+local function get_surface_train_stations(player)
+    local surface = player.surface
+    local train_stations = game.get_train_stops({surface = surface})
+
+    return flib_table.map(train_stations, function(el) return el.localised_name  end)
+end
+
+---@param player LuaPlayer
 ---@return table
-local function gui_build_structure_frame()
+local function gui_build_structure_frame(player)
+    local train_stations_list = flib_table.array_merge({
+        {""},
+        get_surface_train_stations(player),
+    })
+
     return {
         type = "frame",
         name = FRAME_NAME,
@@ -127,11 +141,21 @@ local function gui_build_structure_frame()
                             {
                                 type = "label",
                                 caption = {"settings-frame.atd-use-any-supported-fuel"},
-                                state = false,
                             },
                             {
                                 type = "checkbox",
                                 state = false,
+                                actions = {
+                                    on_elem_changed = { gui = FRAME_NAME, action = ACTION.FORM_CHANGED }
+                                }
+                            },
+                            {
+                                type = "label",
+                                caption = {"settings-frame.atd-default-clean-train-station"},
+                            },
+                            {
+                                type = "drop-down",
+                                items = train_stations_list,
                                 actions = {
                                     on_elem_changed = { gui = FRAME_NAME, action = ACTION.FORM_CHANGED }
                                 }
@@ -183,7 +207,7 @@ end
 ---@param player LuaPlayer
 ---@return table
 local function create_for(player)
-    local refs = flib_gui.build(player.gui.screen, {gui_build_structure_frame()})
+    local refs = flib_gui.build(player.gui.screen, {gui_build_structure_frame(player)})
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
