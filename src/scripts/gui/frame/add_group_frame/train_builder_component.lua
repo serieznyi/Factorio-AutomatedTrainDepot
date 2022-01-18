@@ -17,10 +17,9 @@ local ACTION = {
     FORM_CHANGED = automated_train_depot.constants.gui.common_actions.form_changed,
 }
 
-local VALIDATION_RULES = {
-    trains = {
-        function(value) return validator.empty(value) end,
-    },
+local TRAIN_PART_TYPE = {
+    LOCOMOTIVE = "locomotive",
+    CARGO = "cargo",
 }
 
 local persistence = {
@@ -77,6 +76,16 @@ local persistence = {
 local on_form_changed_callback = function() end
 
 local component = {}
+
+local function validator_rule_has_locomotive(train_data)
+    for _, v in pairs(train_data) do
+        if v.type == TRAIN_PART_TYPE.LOCOMOTIVE then
+            return nil
+        end
+    end
+
+    return {"validation-message.locomotive-required"}
+end
 
 ---@param element LuaGuiElement
 ---@return int
@@ -377,14 +386,14 @@ function component.read_form(event)
     local train = {}
 
     for i, el in pairs(train_parts) do
-        local part = {}
+        local train_part = {}
         local part_chooser = el.refs.part_chooser
         local part_entity_type = part_chooser.elem_value
 
         if part_entity_type ~= nil then
             if is_locomotive_selected(part_entity_type) then
-                part = {
-                    type = "locomotive",
+                train_part = {
+                    type = TRAIN_PART_TYPE.LOCOMOTIVE,
                     entity = part_entity_type,
                     direction = get_locomotive_direction(part_chooser, player),
                     use_any_fuel = true,
@@ -400,13 +409,13 @@ function component.read_form(event)
                     },
                 }
             else
-                part = {
-                    type = "cargo",
+                train_part = {
+                    type = TRAIN_PART_TYPE.CARGO,
                     entity = part_entity_type
                 }
             end
 
-            table.insert(train, i, part)
+            table.insert(train, i, train_part)
         end
     end
 
@@ -416,8 +425,14 @@ end
 ---@param event EventData
 function component.validate_form(event)
     local form_data = component.read_form(event)
+    local validator_rules = {
+        {
+            match = validator.match_by_name("train"),
+            rules = { validator_rule_has_locomotive },
+        },
+    }
 
-    return validator.validate(VALIDATION_RULES, form_data)
+    return validator.validate(validator_rules, {train = form_data})
 end
 
 return component

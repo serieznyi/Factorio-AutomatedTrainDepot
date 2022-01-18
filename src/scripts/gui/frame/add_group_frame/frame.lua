@@ -1,4 +1,5 @@
 local flib_gui = require("__flib__.gui")
+local flib_table = require("__flib__.table")
 
 local train_builder_component = require("train_builder_component")
 local validator = require("scripts.gui.validator")
@@ -18,11 +19,13 @@ local ACTION = {
 }
 
 local VALIDATION_RULES = {
-    name = {
-        function(value) return validator.empty(value) end,
+    {
+        match = validator.match_by_name("name"),
+        rules = { validator.rule_empty },
     },
-    icon = {
-        function(value) return validator.empty(value) end,
+    {
+        match = validator.match_by_name("icon"),
+        rules = { validator.rule_empty },
     },
 }
 
@@ -54,7 +57,7 @@ local function form_changed(event)
     local gui = persistence.get_gui(player)
     local validation_errors_container = gui.refs.validation_errors_container
     local submit_button = gui.refs.submit_button
-    local validation_errors = frame.validate_form(event)
+    local validation_errors = frame.validate_input_data(event)
 
     mod_gui.clear_children(validation_errors_container)
 
@@ -74,7 +77,7 @@ end
 ---@param event EventData
 local function save_form(event)
     local form_data = frame.read_form(event)
-    local validation_errors = frame.validate_form(event)
+    local validation_errors = frame.validate_input_data(event)
 
     frame.destroy(event)
 
@@ -331,10 +334,13 @@ function frame.read_form(event)
     }
 end
 
-function frame.validate_form(event)
+function frame.validate_input_data(event)
     local form_data = frame.read_form(event)
 
-    return validator.validate(VALIDATION_RULES, form_data)
+    return flib_table.array_merge({
+        train_builder_component.validate_form(event),
+        validator.validate(VALIDATION_RULES, form_data)
+    })
 end
 
 return frame

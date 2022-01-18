@@ -15,10 +15,10 @@ local ACTION = {
 
 local VALIDATION_RULES = {
     name = {
-        function(value) return validator.empty(value) end,
+        function(value) return validator.rule_empty(value) end,
     },
     icon = {
-        function(value) return validator.empty(value) end,
+        function(value) return validator.rule_empty(value) end,
     },
 }
 
