@@ -372,7 +372,7 @@ function component.read_form(event)
 
     local train = {}
 
-    for i, el in ipairs(elements) do
+    for i, el in pairs(elements) do
         local part = {}
         local part_chooser = el.refs.part_chooser
         local part_entity_type = part_chooser.elem_value
