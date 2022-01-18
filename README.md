@@ -37,4 +37,4 @@ luacheck -q ./src
 
 ## Thanks for
 
-Some code project ideas from https://github.com/raiguard mods
+[raiguard](https://github.com/raiguard) for some code project ideas from https://github.com/raiguard mods
