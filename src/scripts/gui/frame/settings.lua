@@ -126,7 +126,7 @@ local function gui_build_structure_frame()
                         children = {
                             {
                                 type = "label",
-                                caption = {"settings-frame.atd-use-any-supported-fuel-checkbox"},
+                                caption = {"settings-frame.atd-use-any-supported-fuel"},
                                 state = false,
                             },
                             {

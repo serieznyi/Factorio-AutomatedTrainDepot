@@ -104,7 +104,7 @@ local function gui_build_structure_frame()
                     {
                         type = "label",
                         style = "frame_title",
-                        caption = {"add-group-frame.title"},
+                        caption = {"add-group-frame.atd-title"},
                         ignored_by_interaction = true
                     },
                     {
