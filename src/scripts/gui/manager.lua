@@ -58,7 +58,7 @@ local function is_mod_frame(element)
 end
 
 function manager.bring_to_front_current_window()
-    for _, player in ipairs(game.players) do
+    for _, player in pairs(game.players) do
         if player.opened ~= nil and is_mod_frame(player.opened) then
             player.opened.bring_to_front()
         end
