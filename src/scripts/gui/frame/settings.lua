@@ -82,7 +82,7 @@ local function get_surface_train_stations(player)
     local surface = player.surface
     local train_stations = game.get_train_stops({surface = surface})
 
-    return flib_table.map(train_stations, function(el) return el.localised_name  end)
+    return flib_table.map(train_stations, function(el) return el.backer_name  end)
 end
 
 ---@param player LuaPlayer
