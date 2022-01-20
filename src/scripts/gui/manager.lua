@@ -3,6 +3,7 @@ local flib_table = require("__flib__.table")
 local main_frame = require("scripts.gui.frame.main_frame")
 local add_group_frame = require("scripts.gui.frame.add_group_frame.frame")
 local settings_frame = require("scripts.gui.frame.settings")
+local depot = require("scripts.depot")
 
 local manager = {}
 
@@ -67,7 +68,7 @@ end
 
 function manager.register_remote_interfaces()
     for _, module in ipairs(REGISTERED_MAIN_FRAMES) do
-        remote.add_interface(module.name(), module.remote_interfaces())
+        remote.add_interface("automated_train_depot." .. module.name(), module.remote_interfaces())
     end
 end
 
@@ -78,12 +79,18 @@ function manager.init()
     for _, module in ipairs(REGISTERED_MAIN_FRAMES) do
         module.init()
     end
+
+    --- TODO use interface ?
+    add_group_frame.on_form_save(depot.save_group)
 end
 
 function manager.load()
     for _, module in ipairs(REGISTERED_MAIN_FRAMES) do
         module.load()
     end
+
+    --- TODO use interface ?
+    add_group_frame.on_form_save(depot.save_group)
 end
 
 function manager.dispatch(action, event)

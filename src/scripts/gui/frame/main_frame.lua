@@ -1,5 +1,7 @@
 local flib_gui = require("__flib__.gui")
 
+local mod_gui = require("scripts.util.gui")
+
 local FRAME_NAME = automated_train_depot.constants.gui.frame_names.main_frame
 local FRAME_WIDTH = 1200;
 local FRAME_HEIGHT = 600;
@@ -128,7 +130,6 @@ local function gui_build_structure_frame()
                             {
                                 type = "flow",
                                 direction = "vertical",
-                                name = "groups_container",
                                 children = {
                                     {
                                         type = "frame",
@@ -136,11 +137,12 @@ local function gui_build_structure_frame()
                                         children = {
                                             {
                                                 type = "scroll-pane",
+                                                ref = {"groups_container"},
                                                 style_mods = {
                                                     vertically_stretchable = true,
                                                     horizontally_stretchable = true,
                                                 },
-                                                style = "atd_scroll-pane_fake_listbox",
+                                                style = "atd_scroll_pane_list_box",
                                             }
                                         }
                                     },
@@ -174,6 +176,33 @@ local function gui_build_structure_frame()
 end
 
 ---@param player LuaPlayer
+---@param container LuaGuiElement
+local function populate_groups_list(player, container)
+    if global.groups[player.surface.name] ~= nil then
+        if global.groups[player.surface.name][player.force.name] ~= nil then
+            mod_gui.clear_children(container)
+
+            for _, group in pairs(global.groups[player.surface.name][player.force.name]) do
+                local icon = mod_gui.image_from_item_name(group.icon)
+
+                flib_gui.add(container, {
+                    type = "button",
+                    caption = icon .. " " .. group.name,
+                    style = "atd_button_list_box_item"
+                })
+            end
+        end
+    end
+end
+
+---@param player LuaPlayer
+local function update_gui(player)
+    local gui = persistence.get_gui(player)
+
+    populate_groups_list(player, gui.refs.groups_container)
+end
+
+---@param player LuaPlayer
 local function create_for(player)
     local refs = flib_gui.build(player.gui.screen, {gui_build_structure_frame()})
 
@@ -203,7 +232,8 @@ end
 ---@return table
 function frame.remote_interfaces()
     return {
-
+        ---@param player LuaPlayer
+        update = function(player) update_gui(player) end,
     }
 end
 
@@ -220,7 +250,6 @@ function frame.load()
 end
 
 ---@param player LuaPlayer
----@param entity LuaEntity
 function frame.open(player)
     local gui = persistence.get_gui(player)
 
@@ -229,6 +258,8 @@ function frame.open(player)
     else
         gui = update_for(player)
     end
+
+    populate_groups_list(player, gui.refs.groups_container)
 
     gui.refs.window.bring_to_front()
     gui.refs.window.visible = true

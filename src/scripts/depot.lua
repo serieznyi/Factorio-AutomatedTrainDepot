@@ -1,9 +1,37 @@
 local flib_direction = require('__flib__.direction')
-local flib_gui = require("__flib__.gui")
 
 local FORCE_DEFAULT = "player"
 local DEPOT_RAILS_COUNT = 4
 local RAIL_ENTITY_LENGTH = 2
+
+local persistence = {
+    init = function()
+        global.groups = {}
+    end,
+    ---@param player LuaPlayer
+    destroy = function(player)
+        global.gui[FRAME_NAME][player.index] = nil
+    end,
+    ---@param player LuaPlayer
+    ---@param index uint
+    ---@return table
+    get_group = function(player, index)
+        return global.groups[player.surface.name][player.force.name][index]
+    end,
+    ---@param player LuaPlayer
+    ---@param group_data table
+    add_group = function(player, group_data)
+        if global.groups[player.surface.name] == nil then
+            global.groups[player.surface.name] = {}
+        end
+
+        if global.groups[player.surface.name][player.force.name] == nil then
+            global.groups[player.surface.name][player.force.name] = {}
+        end
+
+        table.insert(global.groups[player.surface.name][player.force.name], group_data)
+    end,
+}
 
 local depot = {}
 
@@ -53,8 +81,7 @@ end
 function depot.init()
     automated_train_depot.logger.debug("depot was init")
 
-    global.depot = {}
-    global.groups = {}
+    persistence.init()
 end
 
 ---@param entity LuaEntity
@@ -148,6 +175,11 @@ function depot.destroy(depot_entity)
             'Entity {1}[{2}] was destroy',
             {entity_name, depot_entity_id}
     )
+end
+
+---@param group_data table
+function depot.save_group(player, group_data)
+    persistence.add_group(player, group_data)
 end
 
 return depot

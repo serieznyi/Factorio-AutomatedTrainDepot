@@ -330,7 +330,7 @@ end
 ---@param container_element LuaGuiElement
 ---@param player LuaPlayer
 function component.append_component(container_element, player)
-    local train_part_id = math.random(1, 1000000)
+    local train_part_id = script.generate_event_name()
     local refs = flib_gui.build(container_element, {
         gui_build_structure_element(train_part_id)
     })

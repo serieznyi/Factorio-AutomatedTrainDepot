@@ -49,6 +49,8 @@ local persistence = {
     end,
 }
 
+local on_form_save_callback = function()  end
+
 local frame = {}
 
 ---@param event EventData
@@ -76,10 +78,17 @@ end
 
 ---@param event EventData
 local function save_form(event)
+    local player = game.get_player(event.player_index)
     local form_data = frame.read_form(event)
     local validation_errors = frame.validate_form(event)
 
+    if #validation_errors == 0 then
+        on_form_save_callback(player, form_data)
+    end
+
     frame.destroy(event)
+
+    remote.call("automated_train_depot.main_frame", "update", player)
 
     return true
 end
@@ -257,6 +266,11 @@ function frame.load()
     train_builder_component.on_form_changed(function(e) form_changed(e) end)
 end
 
+---@param callback function
+function frame.on_form_save(callback)
+    on_form_save_callback = callback
+end
+
 ---@param event EventData
 function frame.open(event)
     local player = game.get_player(event.player_index)
@@ -329,7 +343,7 @@ function frame.read_form(event)
     return {
         name = gui.refs.group_name_input.text or mod_table.NIL,
         icon = gui.refs.group_icon_input.elem_value or mod_table.NIL,
-        train_color = {255, 255, 255}, -- TODO
+        train_color = {255, 255, 255}, -- TODO add chooser
         train =  train_builder_component.read_form(event)
     }
 end
