@@ -233,16 +233,6 @@ local function create_for(player)
     return persistence.get_gui(player)
 end
 
----@param player LuaPlayer
----@return table
-local function update_for(player)
-    local gui = persistence.get_gui(player)
-
-    -- TODO
-
-    return gui
-end
-
 ---@return table
 function frame.remote_interfaces()
     return {
@@ -278,8 +268,6 @@ function frame.open(event)
 
     if gui == nil then
         gui = create_for(player)
-    else
-        gui = update_for(player)
     end
 
     gui.refs.window.bring_to_front()

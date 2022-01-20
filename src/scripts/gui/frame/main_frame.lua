@@ -8,6 +8,7 @@ local FRAME_HEIGHT = 600;
 
 local ACTION = {
     CLOSE = automated_train_depot.constants.gui.common_actions.close,
+    GROUP_SELECTED = "group_selected",
 }
 
 local persistence = {
@@ -114,12 +115,26 @@ local function gui_build_structure_frame()
                                             {
                                                 type = "sprite-button",
                                                 style = "tool_button_green",
-                                                tooltip = {"gui.add_new_group"},
+                                                tooltip = {"main-frame.atd-add-new-group"},
                                                 sprite = "atd_sprite_add",
                                                 actions = {
                                                     on_click = {
                                                         gui = automated_train_depot.constants.gui.frame_names.add_group_frame,
                                                         action = automated_train_depot.constants.gui.common_actions.open,
+                                                    },
+                                                },
+                                            },
+                                            {
+                                                type = "sprite-button",
+                                                style = "tool_button",
+                                                tooltip = {"main-frame.atd-edit-group"},
+                                                ref = {"edit_group_button"},
+                                                sprite = "atd_sprite_edit",
+                                                enabled = false,
+                                                actions = {
+                                                    on_click = {
+                                                        gui = automated_train_depot.constants.gui.frame_names.add_group_frame,
+                                                        action = automated_train_depot.constants.gui.common_actions.edit,
                                                     },
                                                 },
                                             },
@@ -175,9 +190,33 @@ local function gui_build_structure_frame()
     }
 end
 
+---@param selected_element LuaGuiElement
+---@param gui table
+local function active_group_button(selected_element, gui)
+    gui.refs.edit_group_button.enabled = true
+
+    ---@param child LuaGuiElement
+    for i, child in ipairs(gui.refs.groups_container.children) do
+        if i ~= selected_element.get_index_in_parent() then
+            flib_gui.update(child, {style = "atd_button_list_box_item"})
+        else
+            flib_gui.update(child, {style = "atd_button_list_box_item_active"})
+        end
+    end
+end
+
+---@param event EventData
+local function group_selected(event)
+    local player = game.get_player(event.player_index)
+    local gui = persistence.get_gui(player)
+
+    active_group_button(event.element, gui)
+end
+
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
 local function populate_groups_list(player, container)
+    -- todo get data from persistence
     if global.groups[player.surface.name] ~= nil then
         if global.groups[player.surface.name][player.force.name] ~= nil then
             mod_gui.clear_children(container)
@@ -188,7 +227,10 @@ local function populate_groups_list(player, container)
                 flib_gui.add(container, {
                     type = "button",
                     caption = icon .. " " .. group.name,
-                    style = "atd_button_list_box_item"
+                    style = "atd_button_list_box_item",
+                    actions = {
+                        on_click = { gui = FRAME_NAME, action = ACTION.GROUP_SELECTED}
+                    }
                 })
             end
         end
@@ -286,6 +328,7 @@ function frame.dispatch(action, event)
 
     local event_handlers = {
         { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) return frame.close(e) end},
+        { gui = FRAME_NAME, action = ACTION.GROUP_SELECTED, func = function(_, e) return group_selected(e) end},
     }
 
     for _, h in ipairs(event_handlers) do

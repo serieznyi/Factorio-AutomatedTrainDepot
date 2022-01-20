@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Original code taken from https://forums.factorio.com/viewtopic.php?f=69&t=93693
 
 from PIL import Image
@@ -38,12 +39,12 @@ def create_mipmap(outputf, inputf, size, levels):
 def getOutputDir(options) -> str:
     output_dir = None
     if options.output_dir is None:
-        output_dir = script_dir
+        output_dir = runtime_dir
     else:
         output_dir = os.path.abspath(options.output_dir.strip())
 
     if not os.path.exists(output_dir) or not os.path.isdir(output_dir):
-        print("Path `" + output_dir + "` not exists or not directory");
+        print("Path `" + output_dir + "` not exists or not directory")
         exit(1)
 
     return output_dir
