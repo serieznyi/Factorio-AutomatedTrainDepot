@@ -247,7 +247,6 @@ end
 
 function frame.init()
     persistence.init()
-
     train_builder_component.init()
     train_builder_component.on_form_changed(function(e) form_changed(e) end)
 end

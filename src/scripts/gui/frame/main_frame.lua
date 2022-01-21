@@ -138,6 +138,20 @@ local function gui_build_structure_frame()
                                                     },
                                                 },
                                             },
+                                            {
+                                                type = "sprite-button",
+                                                style = "tool_button_red",
+                                                tooltip = {"main-frame.atd-delete-group"},
+                                                ref = {"delete_group_button"},
+                                                sprite = "atd_sprite_trash",
+                                                enabled = false,
+                                                actions = {
+                                                    on_click = {
+                                                        gui = automated_train_depot.constants.gui.frame_names.main_frame,
+                                                        action = automated_train_depot.constants.gui.common_actions.delete,
+                                                    },
+                                                },
+                                            },
                                         }
                                     },
                                 }
@@ -193,8 +207,6 @@ end
 ---@param selected_element LuaGuiElement
 ---@param gui table
 local function active_group_button(selected_element, gui)
-    gui.refs.edit_group_button.enabled = true
-
     ---@param child LuaGuiElement
     for i, child in ipairs(gui.refs.groups_container.children) do
         if i ~= selected_element.get_index_in_parent() then
@@ -206,11 +218,22 @@ local function active_group_button(selected_element, gui)
 end
 
 ---@param event EventData
-local function group_selected(event)
+local function select_group(event)
     local player = game.get_player(event.player_index)
     local gui = persistence.get_gui(player)
 
     active_group_button(event.element, gui)
+
+    gui.refs.edit_group_button.enabled = true
+    gui.refs.delete_group_button.enabled = true
+end
+
+---@param event EventData
+local function delete_group(event)
+    local player = game.get_player(event.player_index)
+    local gui = persistence.get_gui(player)
+
+    -- TODO
 end
 
 ---@param player LuaPlayer
@@ -235,6 +258,8 @@ local function populate_groups_list(player, container)
             end
         end
     end
+
+    -- todo select first group
 end
 
 ---@param player LuaPlayer
@@ -262,15 +287,6 @@ local function create_for(player)
     return persistence.get_gui(player)
 end
 
----@param player LuaPlayer
-local function update_for(player)
-    local gui = persistence.get_gui(player)
-
-    -- TODO
-
-    return gui
-end
-
 ---@return table
 function frame.remote_interfaces()
     return {
@@ -293,32 +309,14 @@ end
 
 ---@param player LuaPlayer
 function frame.open(player)
-    local gui = persistence.get_gui(player)
-
-    if gui == nil then
-        gui = create_for(player)
-    else
-        gui = update_for(player)
-    end
+    local gui = create_for(player)
 
     populate_groups_list(player, gui.refs.groups_container)
 
-    gui.refs.window.bring_to_front()
-    gui.refs.window.visible = true
-    player.opened = gui.refs.window
-end
-
-function frame.destroy(player)
-    local gui_data = persistence.get_gui(player)
-
-    if gui_data == nil then
-        return
-    end
-
-    gui_data.refs.window.visible = false
-    gui_data.refs.window.destroy()
-
-    persistence.destroy(player)
+    local window = gui.refs.window
+    window.bring_to_front()
+    window.visible = true
+    player.opened = window
 end
 
 ---@param action table
@@ -328,7 +326,8 @@ function frame.dispatch(action, event)
 
     local event_handlers = {
         { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) return frame.close(e) end},
-        { gui = FRAME_NAME, action = ACTION.GROUP_SELECTED, func = function(_, e) return group_selected(e) end},
+        { gui = FRAME_NAME, action = ACTION.GROUP_SELECTED, func = function(_, e) return select_group(e) end},
+        { gui = FRAME_NAME, action = ACTION.DELETE_GROUP, func = function(_, e) return delete_group(e) end},
     }
 
     for _, h in ipairs(event_handlers) do
@@ -345,12 +344,17 @@ end
 function frame.close(event)
     local player = game.get_player(event.player_index)
     local gui = persistence.get_gui(player)
+    local window = gui.refs.window
 
-    gui.refs.window.visible = false
+    window.visible = false
 
     if player.opened == gui.refs.window then
         player.opened = nil
     end
+
+    window.destroy()
+
+    persistence.destroy(player)
 
     return true
 end
