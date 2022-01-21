@@ -1,4 +1,4 @@
-local constants = require("scripts.gui.frame.add_group_frame.constants")
+local constants = require("scripts.gui.frame.add_group.constants")
 
 local FRAME_NAME = constants.FRAME_NAME
 local ACTION = constants.ACTION

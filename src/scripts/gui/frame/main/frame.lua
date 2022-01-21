@@ -2,8 +2,8 @@ local flib_gui = require("__flib__.gui")
 
 local mod_gui = require("scripts.util.gui")
 
-local constants = require("scripts.gui.frame.main_frame.constants")
-local build_structure = require("scripts.gui.frame.main_frame.build_structure")
+local constants = require("scripts.gui.frame.main.constants")
+local build_structure = require("scripts.gui.frame.main.build_structure")
 
 local FRAME_NAME = constants.FRAME_NAME
 local FRAME_WIDTH = 1200;

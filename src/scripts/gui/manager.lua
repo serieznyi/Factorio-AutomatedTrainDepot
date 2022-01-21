@@ -1,7 +1,7 @@
 local flib_table = require("__flib__.table")
 
-local main_frame = require("scripts.gui.frame.main_frame.frame")
-local add_group_frame = require("scripts.gui.frame.add_group_frame.frame")
+local main_frame = require("scripts.gui.frame.main.frame")
+local add_group_frame = require("scripts.gui.frame.add_group.frame")
 local settings_frame = require("scripts.gui.frame.settings.frame")
 local depot = require("scripts.depot")
 

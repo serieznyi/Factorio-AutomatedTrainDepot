@@ -1,4 +1,4 @@
-local constants = require("scripts.gui.frame.main_frame.constants")
+local constants = require("scripts.gui.frame.main.constants")
 
 local FRAME_NAME = constants.FRAME_NAME
 
