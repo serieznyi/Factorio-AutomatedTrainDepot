@@ -1,8 +1,8 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
-local constants = require("scripts.gui.frame.add_group.component.constants")
-local build_structure = require("scripts.gui.frame.add_group.component.build_structure")
+local constants = require("scripts.gui.frame.add_group.component.train_builder.constants")
+local build_structure = require("scripts.gui.frame.add_group.component.train_builder.build_structure")
 local validator = require("scripts.gui.validator")
 
 local COMPONENT_NAME = constants.COMPONENT_NAME

@@ -3,7 +3,7 @@ local flib_table = require("__flib__.table")
 
 local constants = require("scripts.gui.frame.add_group.constants")
 local build_structure = require("scripts.gui.frame.add_group.build_structure")
-local train_builder_component = require("scripts.gui.frame.add_group.component.train_builder")
+local train_builder_component = require("scripts.gui.frame.add_group.component.train_builder.component")
 local validator = require("scripts.gui.validator")
 local mod_table = require("scripts.util.table")
 local mod_gui = require("scripts.util.gui")
