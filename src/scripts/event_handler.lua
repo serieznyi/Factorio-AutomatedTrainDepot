@@ -1,7 +1,7 @@
 local gui = require("__flib__.gui")
 
 local depot = require("scripts.depot")
-local gui_main_frame = require("scripts.gui.frame.main_frame")
+local gui_main_frame = require("scripts.gui.frame.main_frame.frame")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 
