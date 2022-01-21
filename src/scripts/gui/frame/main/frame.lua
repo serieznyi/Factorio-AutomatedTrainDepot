@@ -8,7 +8,6 @@ local build_structure = require("scripts.gui.frame.main.build_structure")
 local FRAME_NAME = constants.FRAME_NAME
 local FRAME_WIDTH = 1200;
 local FRAME_HEIGHT = 600;
-
 local ACTION = constants.ACTION
 
 local persistence = {

@@ -12,11 +12,8 @@ constants.entity_names = {
 
 constants.gui = {
     common_actions = {
-        close = "close",
         open = "open",
-        save = "save",
         edit = "edit",
-        form_changed = "form_changed",
     },
     frame_names = {
         main_frame = "main_frame",

@@ -8,9 +8,7 @@ local mod_table = require("scripts.util.table")
 local mod_gui = require("scripts.util.gui")
 
 local FRAME_NAME = constants.FRAME_NAME
-
 local ACTION = constants.ACTION
-
 local VALIDATION_RULES = {
     name = {
         function(value) return validator.rule_empty(value) end,

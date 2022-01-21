@@ -9,9 +9,7 @@ local mod_table = require("scripts.util.table")
 local mod_gui = require("scripts.util.gui")
 
 local FRAME_NAME = constants.FRAME_NAME
-
 local ACTION = constants.ACTION
-
 local VALIDATION_RULES = {
     {
         match = validator.match_by_name("name"),

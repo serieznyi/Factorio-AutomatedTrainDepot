@@ -1,10 +1,8 @@
 local constants = require("scripts.gui.frame.main.constants")
 
 local FRAME_NAME = constants.FRAME_NAME
-
 local FRAME_WIDTH = constants.FRAME_WIDTH
 local FRAME_HEIGHT = constants.FRAME_HEIGHT
-
 local ACTION = constants.ACTION
 
 local build_structure = {}
