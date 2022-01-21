@@ -86,7 +86,7 @@ local function save_form(event)
         on_form_save_callback(player, form_data)
     end
 
-    frame.destroy(event)
+    frame.close(event)
 
     remote.call("automated_train_depot.main_frame", "update", player)
 
@@ -277,7 +277,7 @@ function frame.open(event)
 end
 
 ---@param event EventData
-function frame.destroy(event)
+function frame.close(event)
     local player = game.get_player(event.player_index)
     local gui = persistence.get_gui(player)
 
@@ -303,7 +303,7 @@ function frame.dispatch(action, event)
     local processed = false
 
     local event_handlers = {
-        { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) return frame.destroy(e) end},
+        { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) return frame.close(e) end},
         { gui = FRAME_NAME, action = ACTION.OPEN, func = function(_, e) return frame.open(e) end},
         { gui = FRAME_NAME, action = ACTION.SAVE, func = function(_, e) return save_form(e) end},
         { gui = FRAME_NAME, action = ACTION.FORM_CHANGED, func = function(_, e) return form_changed(e) end},
