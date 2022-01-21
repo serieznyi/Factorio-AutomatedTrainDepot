@@ -1,22 +1,16 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
-local train_builder_component = require("train_builder_component")
+local constants = require("scripts.gui.frame.add_group_frame.constants")
+local build_structure = require("scripts.gui.frame.add_group_frame.build_structure")
+local train_builder_component = require("scripts.gui.frame.add_group_frame.component.train_builder")
 local validator = require("scripts.gui.validator")
 local mod_table = require("scripts.util.table")
 local mod_gui = require("scripts.util.gui")
 
-local FRAME_NAME = automated_train_depot.constants.gui.frame_names.add_group_frame
+local FRAME_NAME = constants.FRAME_NAME
 
-local ACTION = {
-    OPEN = automated_train_depot.constants.gui.common_actions.open,
-    CLOSE = automated_train_depot.constants.gui.common_actions.close,
-    SAVE = automated_train_depot.constants.gui.common_actions.save,
-    FORM_CHANGED = automated_train_depot.constants.gui.common_actions.form_changed,
-    TRAIN_CHANGED = "train_changed",
-    DELETE_TRAIN_PART_CHOOSER = "delete_train_part_chooser",
-    CHANGE_LOCOMOTIVE_DIRECTION = "change_locomotive_direction",
-}
+local ACTION = constants.ACTION
 
 local VALIDATION_RULES = {
     {
@@ -93,134 +87,10 @@ local function save_form(event)
     return true
 end
 
----@return table
-local function gui_build_structure_frame()
-    return {
-        type = "frame",
-        name = FRAME_NAME,
-        direction = "vertical",
-        ref  =  {"window"},
-        style_mods = {
-            minimal_width = 600,
-            minimal_height = 400,
-            vertically_stretchable = true,
-            horizontally_stretchable = true,
-        },
-        children = {
-            -- Titlebar
-            {
-                type = "flow",
-                style = "flib_titlebar_flow",
-                ref = {"titlebar_flow"},
-                children = {
-                    {
-                        type = "label",
-                        style = "frame_title",
-                        caption = {"add-group-frame.atd-title"},
-                        ignored_by_interaction = true
-                    },
-                    {
-                        type = "empty-widget",
-                        style = "flib_titlebar_drag_handle",
-                        ignored_by_interaction = true
-                    },
-                }
-            },
-            -- Content
-            {
-                type = "frame",
-                style = "inside_shallow_frame_with_padding",
-                style_mods = {
-                    horizontally_stretchable = true,
-                    vertically_stretchable = true,
-                },
-                direction = "vertical",
-                children = {
-                    {
-                        type = "table",
-                        column_count = 2,
-                        children = {
-                            {
-                                type = "label",
-                                caption = "Group icon",
-                            },
-                            {
-                                type = "choose-elem-button",
-                                ref = {"group_icon_input"},
-                                elem_type = "item",
-                                actions = {
-                                    on_elem_changed = { gui = FRAME_NAME, action = ACTION.FORM_CHANGED }
-                                }
-                            },
-                            {
-                                type = "label",
-                                caption = "Group name",
-                            },
-                            {
-                                type = "textfield",
-                                ref = {"group_name_input"},
-                                actions = {
-                                    on_text_changed = { gui = FRAME_NAME, action = ACTION.FORM_CHANGED },
-                                    on_confirmed = { gui = FRAME_NAME, action = ACTION.FORM_CHANGED },
-                                }
-                            },
-                            {
-                                type = "label",
-                                caption = "Train",
-                            },
-                            {
-                                type = "frame",
-                                direction = "horizontal",
-                                ref  =  {"train_builder_container"},
-                            }
-                        }
-                    },
-                    {
-                        type = "flow",
-                        ref = {"validation_errors_container"},
-                        direction = "vertical",
-                    }
-                }
-            },
-            -- Bottom control bar
-            {
-                type = "flow",
-                style = "dialog_buttons_horizontal_flow",
-                ref = {"footerbar_flow"},
-                children = {
-                    {
-                        type = "button",
-                        style = "back_button",
-                        caption = "Cancel",
-                        actions = {
-                            on_click = { gui = FRAME_NAME, action = ACTION.CLOSE },
-                        },
-                    },
-                    {
-                        type = "empty-widget",
-                        style = "flib_dialog_footer_drag_handle",
-                        ignored_by_interaction = true
-                    },
-                    {
-                        type = "button",
-                        style = "confirm_button",
-                        caption = "Create",
-                        ref = {"submit_button"},
-                        enabled = false,
-                        actions = {
-                            on_click = { gui = FRAME_NAME, action = ACTION.SAVE },
-                        },
-                    },
-                }
-            },
-        }
-    }
-end
-
 ---@param player LuaPlayer
 ---@return table
 local function create_for(player)
-    local refs = flib_gui.build(player.gui.screen, {gui_build_structure_frame()})
+    local refs = flib_gui.build(player.gui.screen, {build_structure.get()})
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
