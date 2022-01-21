@@ -102,7 +102,7 @@ function manager.dispatch(action, event)
                 "Event `{1}` for gui element `{2}` is blocked",
                 {event.name, element.name}
         )
-        --index.bring_to_front_current_window(player)
+        index.bring_to_front_current_window(player)
         return false
     end
 
