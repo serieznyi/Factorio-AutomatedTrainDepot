@@ -65,14 +65,14 @@ function depot.build(entity)
     local SIGNALS_POS_Y = entity.position.y + 5
 
     local depot_signals_input = surface.create_entity({
-        name = mod.defines.entity_names.depot_building_input,
+        name = mod.defines.entity.depot_building_input.name,
         position = {entity.position.x + 2, SIGNALS_POS_Y}
     })
     shadow_entity(depot_signals_input)
     table.insert(dependent_entities, depot_signals_input)
 
     local depot_signals_output = surface.create_entity({
-        name = mod.defines.entity_names.depot_building_output,
+        name = mod.defines.entity.depot_building_output.name,
         position = {entity.position.x - 1, SIGNALS_POS_Y}
     })
     shadow_entity(depot_signals_output)
@@ -81,7 +81,7 @@ function depot.build(entity)
     -- Input station, rails and signals
 
     local depot_station_input = surface.create_entity({
-        name = mod.defines.entity_names.depot_building_train_stop_input,
+        name = mod.defines.entity.depot_building_train_stop_input.name,
         position = {entity.position.x + 6.5, entity.position.y - 4.5}
     })
     shadow_entity(depot_station_input)
@@ -97,7 +97,7 @@ function depot.build(entity)
     ---- Output station, rails and signals
 
     local depot_station_output = surface.create_entity({
-        name = mod.defines.entity_names.depot_building_train_stop_output,
+        name = mod.defines.entity.depot_building_train_stop_output.name,
         position = {entity.position.x - 5.5, entity.position.y - 4.5},
         direction = defines.direction.south
     })

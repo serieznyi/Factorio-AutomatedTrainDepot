@@ -10,7 +10,7 @@ function build_structure.get(surface_train_stations_list)
     return {
         type = "frame",
         name = FRAME.NAME,
-        tags = {type = mod.defines.gui.frame_type_name},
+        tags = {type = mod.defines.gui.mod_gui_marker_name },
         direction = "vertical",
         ref  =  {"window"},
         style_mods = {

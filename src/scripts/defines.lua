@@ -10,21 +10,26 @@ defines.remote_interfaces = {
     add_group_frame = "atd-add-group-frame",
 }
 
-defines.entity_names = {
-    depot_building = "atd-building",
-    depot_building_input = "atd-building-input",
-    depot_building_output = "atd-building-output",
-    depot_building_train_stop_input = "atd-building-train-stop-input",
-    depot_building_train_stop_output = "atd-building-train-stop-output",
+defines.entity = {
+    depot_building = {
+        name = "atd-building",
+    },
+    depot_building_input = {
+        name = "atd-building-input",
+    },
+    depot_building_output = {
+        name = "atd-building-output",
+    },
+    depot_building_train_stop_input = {
+        name = "atd-building-train-stop-input",
+    },
+    depot_building_train_stop_output = {
+        name = "atd-building-train-stop-output",
+    },
 }
 
 defines.gui = {
-    frame_type_name = "atd_frame",
-    frame_names = {
-        main_frame = "main_frame",
-        settings_frame = "settings_frame",
-        add_group_frame = "add_group_frame",
-    }
+    mod_gui_marker_name = "atd_frame",
 }
 
 return defines

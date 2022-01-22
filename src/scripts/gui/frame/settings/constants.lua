@@ -1,7 +1,7 @@
 local constants = {}
 
 constants.FRAME = {
-    NAME = mod.defines.gui.frame_names.settings_frame
+    NAME = "settings_frame"
 }
 constants.ACTION = {
     OPEN = "open",
