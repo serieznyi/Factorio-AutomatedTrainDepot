@@ -6,6 +6,12 @@ constants.gui = {
     frame_type_name = "atd_frame"
 }
 
+constants.remote_interfaces = {
+    main_frame = "atd-main-frame",
+    settings_frame = "atd-settings-frame",
+    add_group_frame = "atd-add-group-frame",
+}
+
 constants.entity_names = {
     depot_building = "atd-building",
     depot_building_input = "atd-building-input",
