@@ -14,31 +14,16 @@ local FRAME_MODULES = {
 }
 
 ---@param element LuaGuiElement
-local function is_main_frame(element)
-    for _, gui in ipairs(FRAME_MODULES) do
-        if gui.name() == element.name then
-            return true
-        end
-    end
-
-    return false
-end
-
----@param element LuaGuiElement
-local function get_element_main_frame(element)
-    if element.type == "frame" and is_main_frame(element) then
+local function get_element_frame(element)
+    if element.type == "frame" then
         return element
     end
 
-    return get_element_main_frame(element.parent)
-end
+    if element.parent == nil then
+        return element
+    end
 
----@param element LuaGuiElement
----@param player LuaPlayer
-local function is_blocked_frame(element, player)
-    local event_from_frame = get_element_main_frame(element)
-
-    return player.opened ~= nil and player.opened ~= event_from_frame
+    return get_element_frame(element.parent)
 end
 
 ---@param element LuaGuiElement
@@ -54,6 +39,14 @@ local function is_mod_frame(element)
     end
 
     return false
+end
+
+---@param element LuaGuiElement
+---@param player LuaPlayer
+local function is_event_target_blocked(element, player)
+    local frame = get_element_frame(element)
+
+    return player.opened ~= nil and player.opened == frame and is_mod_frame(frame)
 end
 
 function manager.bring_to_front_current_window()
@@ -95,7 +88,7 @@ function manager.dispatch(action, event)
     local element = event.element
     local player = game.get_player(event.player_index)
 
-    if is_blocked_frame(element, player) then
+    if is_event_target_blocked(element, player) then
         automated_train_depot.logger.debug(
                 "Event `{1}` for gui element `{2}` is blocked",
                 {event.name, element.name}
