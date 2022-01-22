@@ -49,7 +49,7 @@ local function is_mod_frame(element)
 
     local tags = flib_gui.get_tags(element)
 
-    if tags ~= nil and tags.type == "atd_frame" then
+    if tags ~= nil and tags.type == automated_train_depot.constants.gui.frame_type_name then
         return true
     end
 

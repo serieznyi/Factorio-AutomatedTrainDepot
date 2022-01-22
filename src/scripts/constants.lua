@@ -2,6 +2,10 @@ local constants = {}
 
 constants.modification_name = "AutomatedTrainDepot"
 
+constants.gui = {
+    frame_type_name = "atd_frame"
+}
+
 constants.entity_names = {
     depot_building = "atd-building",
     depot_building_input = "atd-building-input",

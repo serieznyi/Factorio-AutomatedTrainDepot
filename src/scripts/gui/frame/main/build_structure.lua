@@ -11,7 +11,7 @@ function build_structure.get()
     return {
         type = "frame",
         name = FRAME.NAME,
-        tags = {type = "atd_frame"},
+        tags = {type = automated_train_depot.constants.gui.frame_type_name},
         direction = "vertical",
         ref  =  {"window"},
         visible = false,
