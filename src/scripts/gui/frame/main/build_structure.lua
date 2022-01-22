@@ -42,7 +42,7 @@ function build_structure.get()
                         style = "frame_action_button",
                         sprite = "atd_sprite_settings",
                         actions = {
-                            on_click = settings_frame.on_click_form_event()
+                            on_click = settings_frame.action_on_click()
                         }
                     },
                     {
@@ -89,7 +89,7 @@ function build_structure.get()
                                                 tooltip = {"main-frame.atd-add-new-group"},
                                                 sprite = "atd_sprite_add",
                                                 actions = {
-                                                    on_click = add_group_frame.on_click_form_event()
+                                                    on_click = add_group_frame.action_on_click()
                                                 },
                                             },
                                             {

@@ -102,7 +102,7 @@ local function create_for(player)
 end
 
 
-function frame.on_click_form_event()
+function frame.action_on_click()
     return {
         gui = FRAME.NAME,
         action = ACTION.OPEN
