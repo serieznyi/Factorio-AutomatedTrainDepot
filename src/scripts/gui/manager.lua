@@ -59,7 +59,11 @@ end
 
 function manager.register_remote_interfaces()
     for _, module in ipairs(FRAME_MODULES) do
-        remote.add_interface("automated_train_depot." .. module.name(), module.remote_interfaces())
+        for interface_name, functions in pairs(module.remote_interfaces()) do
+            if functions ~= {} then
+                remote.add_interface(interface_name, functions)
+            end
+        end
     end
 end
 

@@ -118,8 +118,10 @@ end
 ---@return table
 function frame.remote_interfaces()
     return {
-        ---@param player LuaPlayer
-        update = function(player) update_gui(player) end,
+        [automated_train_depot.constants.remote_interfaces.main_frame] = {
+            ---@param player LuaPlayer
+            update = function(player) update_gui(player) end,
+        }
     }
 end
 
