@@ -1,7 +1,7 @@
 local constants = {}
 
 constants.FRAME = {
-    NAME = mod.constants.gui.frame_names.add_group_frame,
+    NAME = mod.defines.gui.frame_names.add_group_frame,
 }
 
 constants.ACTION = {

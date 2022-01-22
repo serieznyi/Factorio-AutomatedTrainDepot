@@ -79,7 +79,7 @@ local function save_form(event)
 
     frame.close(event)
 
-    remote.call(mod.constants.remote_interfaces.main_frame, "update", player)
+    remote.call(mod.defines.remote_interfaces.main_frame, "update", player)
 
     return true
 end
@@ -111,7 +111,7 @@ end
 ---@return table
 function frame.remote_interfaces()
     return {
-        [mod.constants.remote_interfaces.add_group_frame] = {}
+        [mod.defines.remote_interfaces.add_group_frame] = {}
     }
 end
 

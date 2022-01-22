@@ -118,7 +118,7 @@ end
 ---@return table
 function frame.remote_interfaces()
     return {
-        [mod.constants.remote_interfaces.main_frame] = {
+        [mod.defines.remote_interfaces.main_frame] = {
             ---@param player LuaPlayer
             update = function(player) update_gui(player) end,
         }

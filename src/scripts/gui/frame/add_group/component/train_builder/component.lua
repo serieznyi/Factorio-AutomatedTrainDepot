@@ -284,7 +284,7 @@ function component.dispatch(action, event)
 
     for _, h in ipairs(event_handlers) do
         if h.gui == action.gui and (h.action == action.action or h.action == nil) then
-            mod.logger.debug("Event handler for `{1}:{2}` executed", { h.gui, h.action});
+            mod.util.logger.debug("Event handler for `{1}:{2}` executed", { h.gui, h.action});
             if h.func(action, event) then
                 processed = true
             end

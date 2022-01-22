@@ -72,7 +72,7 @@ event.register(
             defines.events.on_entity_cloned
         },
         event_handler.build_depot_entity,
-        {{ filter="name", name= mod.constants.entity_names.depot_building }}
+        {{ filter="name", name= mod.defines.entity_names.depot_building }}
 )
 
 event.register(
@@ -83,7 +83,7 @@ event.register(
             defines.events.script_raised_destroy,
         },
         event_handler.destroy_depot_entity,
-        {{ filter="name", name= mod.constants.entity_names.depot_building }}
+        {{ filter="name", name= mod.defines.entity_names.depot_building }}
 )
 
 event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)

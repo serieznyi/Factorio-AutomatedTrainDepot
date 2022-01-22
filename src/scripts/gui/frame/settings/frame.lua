@@ -109,7 +109,7 @@ end
 ---@return table
 function frame.remote_interfaces()
     return {
-        [mod.constants.remote_interfaces.settings_frame] = {}
+        [mod.defines.remote_interfaces.settings_frame] = {}
     }
 end
 

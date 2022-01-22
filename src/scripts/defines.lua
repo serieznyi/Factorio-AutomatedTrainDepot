@@ -1,14 +1,16 @@
-local constants = {}
+local defines = {}
 
-constants.modification_name = "AutomatedTrainDepot"
+defines.events = {
 
-constants.remote_interfaces = {
+}
+
+defines.remote_interfaces = {
     main_frame = "atd-main-frame",
     settings_frame = "atd-settings-frame",
     add_group_frame = "atd-add-group-frame",
 }
 
-constants.entity_names = {
+defines.entity_names = {
     depot_building = "atd-building",
     depot_building_input = "atd-building-input",
     depot_building_output = "atd-building-output",
@@ -16,7 +18,7 @@ constants.entity_names = {
     depot_building_train_stop_output = "atd-building-train-stop-output",
 }
 
-constants.gui = {
+defines.gui = {
     frame_type_name = "atd_frame",
     frame_names = {
         main_frame = "main_frame",
@@ -25,4 +27,4 @@ constants.gui = {
     }
 }
 
-return constants
+return defines
