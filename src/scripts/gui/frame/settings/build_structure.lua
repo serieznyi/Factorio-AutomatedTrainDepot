@@ -10,6 +10,7 @@ function build_structure.get(surface_train_stations_list)
     return {
         type = "frame",
         name = FRAME.NAME,
+        tags = {type = "atd_frame"},
         direction = "vertical",
         ref  =  {"window"},
         style_mods = {

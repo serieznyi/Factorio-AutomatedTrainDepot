@@ -1,4 +1,4 @@
-local flib_table = require("__flib__.table")
+local flib_gui = require("__flib__.gui")
 
 local main_frame = require("scripts.gui.frame.main.frame")
 local add_group_frame = require("scripts.gui.frame.add_group.frame")
@@ -7,17 +7,15 @@ local depot = require("scripts.depot")
 
 local manager = {}
 
-local REGISTERED_MAIN_FRAMES = {
+local FRAME_MODULES = {
     main_frame,
     add_group_frame,
     settings_frame,
 }
 
-local MAIN_FRAME_NAMES = flib_table.map(REGISTERED_MAIN_FRAMES, function(m) return m.name() end)
-
 ---@param element LuaGuiElement
 local function is_main_frame(element)
-    for _, gui in ipairs(REGISTERED_MAIN_FRAMES) do
+    for _, gui in ipairs(FRAME_MODULES) do
         if gui.name() == element.name then
             return true
         end
@@ -49,10 +47,10 @@ local function is_mod_frame(element)
         return false
     end
 
-    for _, name in ipairs(MAIN_FRAME_NAMES) do
-        if element.name == name then
-            return true
-        end
+    local tags = flib_gui.get_tags(element)
+
+    if tags ~= nil and tags.type == "atd_frame" then
+        return true
     end
 
     return false
@@ -67,7 +65,7 @@ function manager.bring_to_front_current_window()
 end
 
 function manager.register_remote_interfaces()
-    for _, module in ipairs(REGISTERED_MAIN_FRAMES) do
+    for _, module in ipairs(FRAME_MODULES) do
         remote.add_interface("automated_train_depot." .. module.name(), module.remote_interfaces())
     end
 end
@@ -76,7 +74,7 @@ function manager.init()
     global.gui = {}
     global.gui_component = {}
 
-    for _, module in ipairs(REGISTERED_MAIN_FRAMES) do
+    for _, module in ipairs(FRAME_MODULES) do
         module.init()
     end
 
@@ -85,7 +83,7 @@ function manager.init()
 end
 
 function manager.load()
-    for _, module in ipairs(REGISTERED_MAIN_FRAMES) do
+    for _, module in ipairs(FRAME_MODULES) do
         module.load()
     end
 
@@ -106,7 +104,7 @@ function manager.dispatch(action, event)
         return false
     end
 
-    for _, frame in ipairs(REGISTERED_MAIN_FRAMES) do
+    for _, frame in ipairs(FRAME_MODULES) do
         if frame.dispatch(action, event) then
             return true
         end

@@ -11,6 +11,7 @@ function build_structure.get()
     return {
         type = "frame",
         name = FRAME.NAME,
+        tags = {type = "atd_frame"},
         direction = "vertical",
         ref  =  {"window"},
         visible = false,
