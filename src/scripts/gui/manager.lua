@@ -20,7 +20,7 @@ local function is_mod_frame(element)
 
     local tags = flib_gui.get_tags(element)
 
-    if tags ~= nil and tags.type == automated_train_depot.constants.gui.frame_type_name then
+    if tags ~= nil and tags.type == mod.constants.gui.frame_type_name then
         return true
     end
 
@@ -90,7 +90,7 @@ function manager.dispatch(action, event)
     local player = game.get_player(event.player_index)
 
     if is_event_target_blocked(element, player) then
-        automated_train_depot.logger.debug(
+        mod.logger.debug(
                 "Event `{1}` for gui element `{2}` is blocked",
                 {event.name, element.name}
         )

@@ -109,7 +109,7 @@ end
 ---@return table
 function frame.remote_interfaces()
     return {
-        [automated_train_depot.constants.remote_interfaces.settings_frame] = {}
+        [mod.constants.remote_interfaces.settings_frame] = {}
     }
 end
 

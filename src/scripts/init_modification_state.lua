@@ -1,11 +1,11 @@
-local automated_train_depot = {}
+local mod = {}
 
-automated_train_depot.constants = require("scripts.constants")
-automated_train_depot.table = require("scripts.util.table")
+mod.constants = require("scripts.constants")
+mod.table = require("scripts.util.table")
 
-automated_train_depot.logger = require("scripts.logger")
-automated_train_depot.console = require("scripts.console")
+mod.logger = require("scripts.logger")
+mod.console = require("scripts.console")
 
-automated_train_depot.depots = {}
+mod.depots = {}
 
-return automated_train_depot
+return mod

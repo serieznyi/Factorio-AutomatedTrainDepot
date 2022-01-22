@@ -9,7 +9,7 @@ function build_structure.get()
     return {
         type = "frame",
         name = FRAME.NAME,
-        tags = {type = automated_train_depot.constants.gui.frame_type_name},
+        tags = {type = mod.constants.gui.frame_type_name},
         direction = "vertical",
         ref  =  {"window"},
         style_mods = {

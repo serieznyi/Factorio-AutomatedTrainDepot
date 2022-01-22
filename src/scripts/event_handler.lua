@@ -20,7 +20,7 @@ function event_handler.build_depot_entity(event)
         return
     end
 
-    if entity.name == automated_train_depot.constants.entity_names.depot_building then
+    if entity.name == mod.constants.entity_names.depot_building then
         depot.build(entity)
     end
 end
@@ -33,7 +33,7 @@ function event_handler.destroy_depot_entity(event)
         return
     end
 
-    if entity.name == automated_train_depot.constants.entity_names.depot_building then
+    if entity.name == mod.constants.entity_names.depot_building then
         depot.destroy(entity)
     end
 end
@@ -46,7 +46,7 @@ function event_handler.handle_gui_event(event)
         return false
     end
 
-    automated_train_depot.logger.debug(
+    mod.logger.debug(
             "Gui event `{1}:{2}` triggered",
             {action.gui, action.action}
     )
@@ -69,7 +69,7 @@ function event_handler.open_gui(event)
     ---@type LuaPlayer
     local player = game.get_player(event.player_index)
 
-    if entity.name == automated_train_depot.constants.entity_names.depot_building then
+    if entity.name == mod.constants.entity_names.depot_building then
         gui_main_frame.open(player)
     end
 end

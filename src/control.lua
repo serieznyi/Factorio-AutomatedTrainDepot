@@ -3,7 +3,7 @@ local dictionary = require("__flib__.dictionary")
 local on_tick_n = require("__flib__.on-tick-n")
 local gui = require("__flib__.gui")
 
-automated_train_depot = require("scripts.init_modification_state")
+mod = require("scripts.init_modification_state")
 
 local event_handler = require("scripts.event_handler")
 local depot = require("scripts.depot")
@@ -72,7 +72,7 @@ event.register(
             defines.events.on_entity_cloned
         },
         event_handler.build_depot_entity,
-        {{ filter="name", name= automated_train_depot.constants.entity_names.depot_building }}
+        {{ filter="name", name= mod.constants.entity_names.depot_building }}
 )
 
 event.register(
@@ -83,7 +83,7 @@ event.register(
             defines.events.script_raised_destroy,
         },
         event_handler.destroy_depot_entity,
-        {{ filter="name", name= automated_train_depot.constants.entity_names.depot_building }}
+        {{ filter="name", name= mod.constants.entity_names.depot_building }}
 )
 
 event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
