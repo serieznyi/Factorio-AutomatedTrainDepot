@@ -29,7 +29,7 @@ defines.entity = {
 }
 
 defines.gui = {
-    mod_gui_marker_name = "atd_frame",
+    mod_frame_marker_name = "atd_frame",
 }
 
 return defines

@@ -9,7 +9,7 @@ function build_structure.get()
     return {
         type = "frame",
         name = FRAME.NAME,
-        tags = {type = mod.defines.gui.mod_gui_marker_name },
+        tags = {type = mod.defines.gui.mod_frame_marker_name },
         direction = "vertical",
         ref  =  {"window"},
         style_mods = {

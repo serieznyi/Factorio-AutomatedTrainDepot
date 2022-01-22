@@ -20,7 +20,7 @@ local function is_mod_frame(element)
 
     local tags = flib_gui.get_tags(element)
 
-    if tags ~= nil and tags.type == mod.defines.gui.mod_gui_marker_name then
+    if tags ~= nil and tags.type == mod.defines.gui.mod_frame_marker_name then
         return true
     end
 
