@@ -38,6 +38,7 @@ function build_structure.get()
                     },
                     {
                         type = "sprite-button",
+                        name = "frame_settings_button",
                         style = "frame_action_button",
                         sprite = "atd_sprite_settings",
                         actions = {
@@ -49,6 +50,7 @@ function build_structure.get()
                     },
                     {
                         type = "sprite-button",
+                        name = "frame_close_button",
                         style = "frame_action_button",
                         sprite = "utility/close_white",
                         hovered_sprite = "utility/close_black",
@@ -85,6 +87,7 @@ function build_structure.get()
                                         children = {
                                             {
                                                 type = "sprite-button",
+                                                name = "add_new_group_button",
                                                 style = "tool_button_green",
                                                 tooltip = {"main-frame.atd-add-new-group"},
                                                 sprite = "atd_sprite_add",
@@ -97,6 +100,7 @@ function build_structure.get()
                                             },
                                             {
                                                 type = "sprite-button",
+                                                name = "edit_group_button",
                                                 style = "tool_button",
                                                 tooltip = {"main-frame.atd-edit-group"},
                                                 ref = {"edit_group_button"},
@@ -104,13 +108,14 @@ function build_structure.get()
                                                 enabled = false,
                                                 actions = {
                                                     on_click = {
-                                                        gui = automated_train_depot.constants.gui.frame_names.add_group_frame,
-                                                        action = automated_train_depot.constants.gui.common_actions.edit,
+                                                        gui = FRAME_NAME,
+                                                        action = ACTION.EDIT_GROUP,
                                                     },
                                                 },
                                             },
                                             {
                                                 type = "sprite-button",
+                                                name = "delete_group_button",
                                                 style = "tool_button_red",
                                                 tooltip = {"main-frame.atd-delete-group"},
                                                 ref = {"delete_group_button"},
@@ -118,8 +123,8 @@ function build_structure.get()
                                                 enabled = false,
                                                 actions = {
                                                     on_click = {
-                                                        gui = automated_train_depot.constants.gui.frame_names.main_frame,
-                                                        action = automated_train_depot.constants.gui.common_actions.delete,
+                                                        gui = FRAME_NAME,
+                                                        action = ACTION.DELETE_GROUP,
                                                     },
                                                 },
                                             },
