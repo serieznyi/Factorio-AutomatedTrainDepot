@@ -3,7 +3,6 @@ local flib_gui = require("__flib__.gui")
 local main_frame = require("scripts.gui.frame.main.frame")
 local add_group_frame = require("scripts.gui.frame.add_group.frame")
 local settings_frame = require("scripts.gui.frame.settings.frame")
-local depot = require("scripts.depot")
 
 local manager = {}
 
@@ -78,18 +77,12 @@ function manager.init()
     for _, module in ipairs(FRAME_MODULES) do
         module.init()
     end
-
-    --- TODO use interface ?
-    add_group_frame.on_form_save(depot.save_group)
 end
 
 function manager.load()
     for _, module in ipairs(FRAME_MODULES) do
         module.load()
     end
-
-    --- TODO use interface ?
-    add_group_frame.on_form_save(depot.save_group)
 end
 
 function manager.dispatch(action, event)

@@ -7,6 +7,7 @@ local train_builder_component = require("scripts.gui.frame.add_group.component.t
 local validator = require("scripts.gui.validator")
 local mod_table = require("scripts.util.table")
 local mod_gui = require("scripts.util.gui")
+local storage = require("scripts.storage")
 
 local FRAME = constants.FRAME
 local ACTION = constants.ACTION
@@ -41,8 +42,6 @@ local persistence = {
     end,
 }
 
-local on_form_save_callback = function()  end
-
 local frame = {}
 
 ---@param event EventData
@@ -75,7 +74,7 @@ local function save_form(event)
     local validation_errors = frame.validate_form(event)
 
     if #validation_errors == 0 then
-        on_form_save_callback(player, form_data)
+        storage.add_group(player, form_data)
     end
 
     frame.close(event)
@@ -129,11 +128,6 @@ end
 
 function frame.load()
     train_builder_component.on_form_changed(function(e) form_changed(e) end)
-end
-
----@param callback function
-function frame.on_form_save(callback)
-    on_form_save_callback = callback
 end
 
 ---@param event EventData
