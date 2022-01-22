@@ -1,7 +1,7 @@
-local event = require("__flib__.event")
-local dictionary = require("__flib__.dictionary")
-local on_tick_n = require("__flib__.on-tick-n")
-local gui = require("__flib__.gui")
+local flib_event = require("__flib__.event")
+local flib_dictionary = require("__flib__.dictionary")
+local flib_on_tick_n = require("__flib__.on-tick-n")
+local flib_gui = require("__flib__.gui")
 
 mod = require("scripts.modification_vars")
 
@@ -27,7 +27,7 @@ gui_index.register_remote_interfaces()
 -- Any mod prototypes changed
 -- Any mod settings changed
 script.on_configuration_changed(function(e)
-    dictionary.init()
+    flib_dictionary.init()
 
     --if migration.on_config_changed(e, migrations.versions) then
     --    migrations.generic()
@@ -37,10 +37,10 @@ end)
 -- BOOTSTRAP
 
 -- Save file created ;  Loaded save file what don`t contain mod ;  Can write in `global` and read `game`
-event.on_init(function()
+flib_event.on_init(function()
     -- Initialize libraries
-    dictionary.init()
-    on_tick_n.init()
+    flib_dictionary.init()
+    flib_on_tick_n.init()
 
     -- Initialize `global` table for gui
     gui_index.init()
@@ -51,7 +51,7 @@ event.on_init(function()
 end)
 
 -- Loaded save file what contains mod ; Cant write in global
-event.on_load(function()
+flib_event.on_load(function()
     -- Restore local vars from `global`
     -- Re-register event handlers
 
@@ -62,7 +62,7 @@ end)
 -- -- -- REGISTER ENTITY EVENTS
 ---------------------------------------------------------------------------
 
-event.register(
+flib_event.register(
         {
             defines.events.on_built_entity,
             defines.events.on_robot_built_entity,
@@ -75,7 +75,7 @@ event.register(
         {{ filter="name", name= mod.defines.entity_names.depot_building }}
 )
 
-event.register(
+flib_event.register(
         {
             defines.events.on_pre_player_mined_item,
             defines.events.on_robot_pre_mined,
@@ -86,14 +86,14 @@ event.register(
         {{ filter="name", name= mod.defines.entity_names.depot_building }}
 )
 
-event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
+flib_event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
 
 ---------------------------------------------------------------------------
 -- -- -- REGISTER GUI EVENTS
 ---------------------------------------------------------------------------
 
-gui.hook_events(event_handler.handle_gui_event)
+flib_gui.hook_events(event_handler.handle_gui_event)
 
-event.register(defines.events.on_gui_opened, event_handler.open_gui)
+flib_event.register(defines.events.on_gui_opened, event_handler.open_gui)
 
-event.on_nth_tick(1, event_handler.bring_to_front_current_window)
+flib_event.on_nth_tick(1, event_handler.bring_to_front_current_window)
