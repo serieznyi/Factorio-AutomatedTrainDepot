@@ -2,10 +2,6 @@ local constants = {}
 
 constants.modification_name = "AutomatedTrainDepot"
 
-constants.gui = {
-    frame_type_name = "atd_frame"
-}
-
 constants.remote_interfaces = {
     main_frame = "atd-main-frame",
     settings_frame = "atd-settings-frame",
@@ -21,9 +17,7 @@ constants.entity_names = {
 }
 
 constants.gui = {
-    common_actions = {
-        open = "open",
-    },
+    frame_type_name = "atd_frame",
     frame_names = {
         main_frame = "main_frame",
         settings_frame = "settings_frame",

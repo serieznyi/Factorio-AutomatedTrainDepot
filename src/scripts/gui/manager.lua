@@ -14,19 +14,6 @@ local FRAME_MODULES = {
 }
 
 ---@param element LuaGuiElement
-local function get_element_frame(element)
-    if element.type == "frame" then
-        return element
-    end
-
-    if element.parent == nil then
-        return element
-    end
-
-    return get_element_frame(element.parent)
-end
-
----@param element LuaGuiElement
 local function is_mod_frame(element)
     if element.type ~= "frame" then
         return false
@@ -42,11 +29,28 @@ local function is_mod_frame(element)
 end
 
 ---@param element LuaGuiElement
+local function get_element_mod_frame(element)
+    if element.type == "frame" and is_mod_frame(element) then
+        return element
+    end
+
+    if element.parent == nil then
+        return nil
+    end
+
+    return get_element_mod_frame(element.parent)
+end
+
+---@param element LuaGuiElement
 ---@param player LuaPlayer
 local function is_event_target_blocked(element, player)
-    local frame = get_element_frame(element)
+    local element_frame = get_element_mod_frame(element)
 
-    return player.opened ~= nil and player.opened == frame and is_mod_frame(frame)
+    if element_frame == nil then
+        return false
+    end
+
+    return player.opened ~= nil and player.opened ~= element_frame
 end
 
 function manager.bring_to_front_current_window()
