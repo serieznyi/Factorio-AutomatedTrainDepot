@@ -8,7 +8,7 @@ local validator = require("scripts.gui.validator")
 local mod_table = require("scripts.util.table")
 local mod_gui = require("scripts.util.gui")
 
-local FRAME_NAME = constants.FRAME_NAME
+local FRAME = constants.FRAME
 local ACTION = constants.ACTION
 local VALIDATION_RULES = {
     {
@@ -23,19 +23,19 @@ local VALIDATION_RULES = {
 
 local persistence = {
     init = function()
-        global.gui[FRAME_NAME] = {}
+        global.gui[FRAME.NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        global.gui[FRAME_NAME][player.index] = nil
+        global.gui[FRAME.NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_gui = function(player)
-        return global.gui[FRAME_NAME][player.index]
+        return global.gui[FRAME.NAME][player.index]
     end,
     save_gui = function(player, refs)
-        global.gui[FRAME_NAME][player.index] = {
+        global.gui[FRAME.NAME][player.index] = {
             refs = refs,
         }
     end,
@@ -101,6 +101,14 @@ local function create_for(player)
     return persistence.get_gui(player)
 end
 
+
+function frame.on_click_form_event()
+    return {
+        gui = FRAME.NAME,
+        action = ACTION.OPEN
+    }
+end
+
 ---@return table
 function frame.remote_interfaces()
     return {
@@ -110,7 +118,7 @@ end
 
 ---@return string
 function frame.name()
-    return FRAME_NAME
+    return FRAME.NAME
 end
 
 function frame.init()
@@ -171,10 +179,10 @@ function frame.dispatch(action, event)
     local processed = false
 
     local event_handlers = {
-        { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) return frame.close(e) end},
-        { gui = FRAME_NAME, action = ACTION.OPEN, func = function(_, e) return frame.open(e) end},
-        { gui = FRAME_NAME, action = ACTION.SAVE, func = function(_, e) return save_form(e) end},
-        { gui = FRAME_NAME, action = ACTION.FORM_CHANGED, func = function(_, e) return form_changed(e) end},
+        { gui = FRAME.NAME, action = ACTION.CLOSE, func = function(_, e) return frame.close(e) end},
+        { gui = FRAME.NAME, action = ACTION.OPEN, func = function(_, e) return frame.open(e) end},
+        { gui = FRAME.NAME, action = ACTION.SAVE, func = function(_, e) return save_form(e) end},
+        { gui = FRAME.NAME, action = ACTION.FORM_CHANGED, func = function(_, e) return form_changed(e) end},
         { gui = train_builder_component.name(), func = function(a, e) return train_builder_component.dispatch(a, e) end},
     }
 

@@ -1,6 +1,8 @@
 local constants = {}
 
-constants.FRAME_NAME = automated_train_depot.constants.gui.frame_names.add_group_frame
+constants.FRAME = {
+    NAME = automated_train_depot.constants.gui.frame_names.add_group_frame,
+}
 
 constants.ACTION = {
     OPEN = "open",

@@ -5,28 +5,26 @@ local mod_gui = require("scripts.util.gui")
 local constants = require("scripts.gui.frame.main.constants")
 local build_structure = require("scripts.gui.frame.main.build_structure")
 
-local FRAME_NAME = constants.FRAME_NAME
-local FRAME_WIDTH = 1200;
-local FRAME_HEIGHT = 600;
+local FRAME = constants.FRAME
 local ACTION = constants.ACTION
 
 local persistence = {
     init = function()
-        global.gui[FRAME_NAME] = {}
+        global.gui[FRAME.NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        global.gui[FRAME_NAME][player.index] = nil
+        global.gui[FRAME.NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_gui = function(player)
-        return global.gui[FRAME_NAME][player.index]
+        return global.gui[FRAME.NAME][player.index]
     end,
     ---@param player LuaPlayer
     ---@param refs table
     save_gui = function(player, refs)
-        global.gui[FRAME_NAME][player.index] = {
+        global.gui[FRAME.NAME][player.index] = {
             refs = refs,
         }
     end,
@@ -82,7 +80,7 @@ local function populate_groups_list(player, container)
                     caption = icon .. " " .. group.name,
                     style = "atd_button_list_box_item",
                     actions = {
-                        on_click = { gui = FRAME_NAME, action = ACTION.GROUP_SELECTED}
+                        on_click = { gui = FRAME.NAME, action = ACTION.GROUP_SELECTED}
                     }
                 })
             end
@@ -108,8 +106,8 @@ local function create_for(player)
 
     local resolution, scale = player.display_resolution, player.display_scale
     refs.window.location = {
-        ((resolution.width - (FRAME_WIDTH * scale)) / 2),
-        ((resolution.height - (FRAME_HEIGHT * scale)) / 2)
+        ((resolution.width - (FRAME.WIDTH * scale)) / 2),
+        ((resolution.height - (FRAME.HEIGHT * scale)) / 2)
     }
 
     persistence.save_gui(player, refs)
@@ -127,7 +125,7 @@ end
 
 ---@return string
 function frame.name()
-    return FRAME_NAME
+    return FRAME.NAME
 end
 
 function frame.init()
@@ -155,9 +153,9 @@ function frame.dispatch(action, event)
     local processed = false
 
     local event_handlers = {
-        { gui = FRAME_NAME, action = ACTION.CLOSE, func = function(_, e) return frame.close(e) end},
-        { gui = FRAME_NAME, action = ACTION.GROUP_SELECTED, func = function(_, e) return select_group(e) end},
-        { gui = FRAME_NAME, action = ACTION.DELETE_GROUP, func = function(_, e) return delete_group(e) end},
+        { gui = FRAME.NAME, action = ACTION.CLOSE, func = function(_, e) return frame.close(e) end},
+        { gui = FRAME.NAME, action = ACTION.GROUP_SELECTED, func = function(_, e) return select_group(e) end},
+        { gui = FRAME.NAME, action = ACTION.DELETE_GROUP, func = function(_, e) return delete_group(e) end},
     }
 
     for _, h in ipairs(event_handlers) do

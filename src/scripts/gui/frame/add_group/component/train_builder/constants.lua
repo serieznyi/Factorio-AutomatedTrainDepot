@@ -1,6 +1,8 @@
 local constants = {}
 
-constants.COMPONENT_NAME = "train_builder"
+constants.COMPONENT = {
+    NAME = "train_builder",
+}
 
 constants.ACTION = {
     TRAIN_CHANGED = "train_changed",

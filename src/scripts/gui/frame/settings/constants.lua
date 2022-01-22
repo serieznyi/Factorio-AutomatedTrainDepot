@@ -1,7 +1,8 @@
 local constants = {}
 
-constants.FRAME_NAME = automated_train_depot.constants.gui.frame_names.settings_frame
-
+constants.FRAME = {
+    NAME = automated_train_depot.constants.gui.frame_names.settings_frame
+}
 constants.ACTION = {
     OPEN = "open",
     CLOSE = "close",

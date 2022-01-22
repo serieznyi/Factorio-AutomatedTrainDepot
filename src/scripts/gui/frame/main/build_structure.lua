@@ -1,8 +1,8 @@
 local constants = require("scripts.gui.frame.main.constants")
+local settings_frame = require("scripts.gui.frame.settings.frame")
+local add_group_frame = require("scripts.gui.frame.add_group.frame")
 
-local FRAME_NAME = constants.FRAME_NAME
-local FRAME_WIDTH = constants.FRAME_WIDTH
-local FRAME_HEIGHT = constants.FRAME_HEIGHT
+local FRAME = constants.FRAME
 local ACTION = constants.ACTION
 
 local build_structure = {}
@@ -10,13 +10,13 @@ local build_structure = {}
 function build_structure.get()
     return {
         type = "frame",
-        name = FRAME_NAME,
+        name = FRAME.NAME,
         direction = "vertical",
         ref  =  {"window"},
         visible = false,
         style_mods = {
-            natural_width = FRAME_WIDTH,
-            natural_height = FRAME_HEIGHT,
+            natural_width = FRAME.WIDTH,
+            natural_height = FRAME.HEIGHT,
         },
         children = {
             -- Titlebar
@@ -42,10 +42,7 @@ function build_structure.get()
                         style = "frame_action_button",
                         sprite = "atd_sprite_settings",
                         actions = {
-                            on_click = {
-                                gui = automated_train_depot.constants.gui.frame_names.settings_frame,
-                                action = automated_train_depot.constants.gui.common_actions.open
-                            }
+                            on_click = settings_frame.on_click_form_event()
                         }
                     },
                     {
@@ -56,7 +53,7 @@ function build_structure.get()
                         hovered_sprite = "utility/close_black",
                         clicked_sprite = "utility/close_black",
                         actions = {
-                            on_click = {gui = FRAME_NAME, action = ACTION.CLOSE}
+                            on_click = {gui = FRAME.NAME, action = ACTION.CLOSE}
                         }
                     },
                 }
@@ -70,8 +67,8 @@ function build_structure.get()
                         type = "flow",
                         direction = "vertical",
                         style_mods = {
-                            minimal_width = FRAME_WIDTH * 0.25,
-                            maximal_width = FRAME_WIDTH * 0.25,
+                            minimal_width = FRAME.WIDTH * 0.25,
+                            maximal_width = FRAME.WIDTH * 0.25,
                         },
                         children = {
                             {
@@ -92,10 +89,7 @@ function build_structure.get()
                                                 tooltip = {"main-frame.atd-add-new-group"},
                                                 sprite = "atd_sprite_add",
                                                 actions = {
-                                                    on_click = {
-                                                        gui = automated_train_depot.constants.gui.frame_names.add_group_frame,
-                                                        action = automated_train_depot.constants.gui.common_actions.open,
-                                                    },
+                                                    on_click = add_group_frame.on_click_form_event()
                                                 },
                                             },
                                             {
@@ -108,7 +102,7 @@ function build_structure.get()
                                                 enabled = false,
                                                 actions = {
                                                     on_click = {
-                                                        gui = FRAME_NAME,
+                                                        gui = FRAME.NAME,
                                                         action = ACTION.EDIT_GROUP,
                                                     },
                                                 },
@@ -123,7 +117,7 @@ function build_structure.get()
                                                 enabled = false,
                                                 actions = {
                                                     on_click = {
-                                                        gui = FRAME_NAME,
+                                                        gui = FRAME.NAME,
                                                         action = ACTION.DELETE_GROUP,
                                                     },
                                                 },
@@ -158,8 +152,8 @@ function build_structure.get()
                     {
                         type = "flow",
                         style_mods = {
-                            minimal_width = FRAME_WIDTH - (FRAME_WIDTH * 0.25),
-                            maximal_width = FRAME_WIDTH - (FRAME_WIDTH * 0.25),
+                            minimal_width = FRAME.WIDTH - (FRAME.WIDTH * 0.25),
+                            maximal_width = FRAME.WIDTH - (FRAME.WIDTH * 0.25),
                         },
                         direction = "vertical",
                         children = {

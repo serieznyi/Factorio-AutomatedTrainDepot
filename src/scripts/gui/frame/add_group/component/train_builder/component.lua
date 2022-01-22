@@ -5,7 +5,7 @@ local constants = require("scripts.gui.frame.add_group.component.train_builder.c
 local build_structure = require("scripts.gui.frame.add_group.component.train_builder.build_structure")
 local validator = require("scripts.gui.validator")
 
-local COMPONENT_NAME = constants.COMPONENT_NAME
+local COMPONENT = constants.COMPONENT
 local ACTION = constants.ACTION
 local TRAIN_PART_TYPE = {
     LOCOMOTIVE = "locomotive",
@@ -14,22 +14,22 @@ local TRAIN_PART_TYPE = {
 
 local persistence = {
     init = function()
-        global.gui_component[COMPONENT_NAME] = {}
+        global.gui_component[COMPONENT.NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        global.gui_component[COMPONENT_NAME][player.index] = nil
+        global.gui_component[COMPONENT.NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_all_train_parts = function(player)
-        return global.gui_component[COMPONENT_NAME][player.index].train_parts
+        return global.gui_component[COMPONENT.NAME][player.index].train_parts
     end,
     ---@param player LuaPlayer
     ---@param container LuaGuiElement
     set_container = function(player, container)
-        if global.gui_component[COMPONENT_NAME][player.index] == nil then
-            global.gui_component[COMPONENT_NAME][player.index] = {
+        if global.gui_component[COMPONENT.NAME][player.index] == nil then
+            global.gui_component[COMPONENT.NAME][player.index] = {
                 container = container,
                 train_parts = {},
             }
@@ -38,14 +38,14 @@ local persistence = {
     ---@param player LuaPlayer
     ---@return LuaGuiElement
     get_container = function(player)
-        return global.gui_component[COMPONENT_NAME][player.index].container
+        return global.gui_component[COMPONENT.NAME][player.index].container
     end,
     ---@param player LuaPlayer
     ---@param train_part_id int
     ---@param refs table
     add_train_part = function(player, train_part_id, refs)
         table.insert(
-            global.gui_component[COMPONENT_NAME][player.index].train_parts,
+            global.gui_component[COMPONENT.NAME][player.index].train_parts,
                 train_part_id,
             { refs = refs }
         )
@@ -53,13 +53,13 @@ local persistence = {
     ---@param player LuaPlayer
     ---@param train_part_id int
     delete_train_part = function(player, train_part_id)
-        flib_table.retrieve(global.gui_component[COMPONENT_NAME][player.index].train_parts, train_part_id)
+        flib_table.retrieve(global.gui_component[COMPONENT.NAME][player.index].train_parts, train_part_id)
     end,
     ---@param player LuaPlayer
     ---@param train_part_id int
     ---@return table
     get_train_part = function(player, train_part_id)
-        return global.gui_component[COMPONENT_NAME][player.index].train_parts[train_part_id]
+        return global.gui_component[COMPONENT.NAME][player.index].train_parts[train_part_id]
     end,
 }
 
@@ -267,7 +267,7 @@ end
 
 ---@return string
 function component.name()
-    return COMPONENT_NAME
+    return COMPONENT.NAME
 end
 
 ---@param action table
@@ -276,10 +276,10 @@ function component.dispatch(action, event)
     local processed = false
 
     local event_handlers = {
-        { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) return add_new_train_part(e) end},
-        { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) return update_train_part(e) end},
-        { gui = COMPONENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(_, e) return change_locomotive_direction(e) end},
-        { gui = COMPONENT_NAME, action = ACTION.DELETE_TRAIN_PART, func = function(_, e) return delete_train_part(e) end},
+        { gui = COMPONENT.NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) return add_new_train_part(e) end},
+        { gui = COMPONENT.NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) return update_train_part(e) end},
+        { gui = COMPONENT.NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(_, e) return change_locomotive_direction(e) end},
+        { gui = COMPONENT.NAME, action = ACTION.DELETE_TRAIN_PART, func = function(_, e) return delete_train_part(e) end},
     }
 
     for _, h in ipairs(event_handlers) do

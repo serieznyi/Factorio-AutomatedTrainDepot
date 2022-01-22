@@ -1,6 +1,6 @@
 local constants = require("scripts.gui.frame.add_group.component.train_builder.constants")
 
-local COMPONENT_NAME = constants.COMPONENT_NAME
+local COMPONENT = constants.COMPONENT
 local ACTION = constants.ACTION
 local LOCOMOTIVE_DIRECTION = constants.LOCOMOTIVE_DIRECTION
 
@@ -23,7 +23,7 @@ function build_structure.get(train_part_id)
                     {filter="rolling-stock"},
                 },
                 actions = {
-                    on_elem_changed = { gui = COMPONENT_NAME, action = ACTION.TRAIN_CHANGED },
+                    on_elem_changed = { gui = COMPONENT.NAME, action = ACTION.TRAIN_CHANGED },
                 }
             },
             {
@@ -34,7 +34,7 @@ function build_structure.get(train_part_id)
                 style = "flib_slot_button_red",
                 sprite = "atd_sprite_trash",
                 actions = {
-                    on_click = { gui = COMPONENT_NAME, action = ACTION.DELETE_TRAIN_PART }
+                    on_click = { gui = COMPONENT.NAME, action = ACTION.DELETE_TRAIN_PART }
                 }
             },
             {
@@ -55,7 +55,7 @@ function build_structure.get(train_part_id)
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_left",
                 actions = {
-                    on_click = { gui = COMPONENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
+                    on_click = { gui = COMPONENT.NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
                 }
             },
             {
@@ -66,7 +66,7 @@ function build_structure.get(train_part_id)
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_right",
                 actions = {
-                    on_click = { gui = COMPONENT_NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
+                    on_click = { gui = COMPONENT.NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
                 }
             }
         }
