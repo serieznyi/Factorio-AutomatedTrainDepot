@@ -89,7 +89,7 @@ function manager.dispatch(event)
 
     --- Gui event
     if is_event_target_blocked(event) then
-        mod.util.logger.debug("Event `{1}` for gui element `{2}` is blocked", {event_name, element.name})
+        mod.util.logger.debug("Event `{1}` for gui element `{2}` is blocked", {event_name, event.element.name})
         manager.bring_to_front_current_window(player)
         return false
     end
