@@ -8,13 +8,6 @@ defines.events = {
     on_mod_gui_type_of_train_part_changed = script.generate_event_name(),
 }
 
-defines.all_events = {
-    defines.events.on_mod_group_saved,
-    defines.events.on_mod_gui_form_changed,
-    defines.events.on_mod_gui_group_selected,
-    defines.events.on_mod_gui_type_of_train_part_changed,
-}
-
 defines.entity = require("prototypes.defines.entity")
 
 defines.gui = {
