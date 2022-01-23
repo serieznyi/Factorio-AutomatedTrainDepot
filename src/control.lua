@@ -88,6 +88,8 @@ flib_event.register(
 
 flib_event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
 
+--flib_event.register(mod.defines.events, event_handler.pass_to_gui)
+
 ---------------------------------------------------------------------------
 -- -- -- REGISTER GUI EVENTS
 ---------------------------------------------------------------------------
@@ -97,3 +99,7 @@ flib_gui.hook_events(event_handler.handle_gui_event)
 flib_event.register(defines.events.on_gui_opened, event_handler.open_gui)
 
 flib_event.on_nth_tick(1, event_handler.bring_to_front_current_window)
+
+---------------------------------------------------------------------------
+-- -- -- OTHER
+---------------------------------------------------------------------------

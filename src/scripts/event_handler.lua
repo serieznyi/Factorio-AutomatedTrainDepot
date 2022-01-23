@@ -42,16 +42,11 @@ end
 function event_handler.handle_gui_event(event)
     local action = gui.read_action(event)
 
-    if action == nil then
-        return false
+    if action ~= nil then
+        mod.util.logger.debug("Gui event `{1}:{2}` triggered", {action.gui, action.action})
     end
 
-    mod.util.logger.debug(
-            "Gui event `{1}:{2}` triggered",
-            {action.gui, action.action}
-    )
-
-    return gui_manager.dispatch(action, event)
+    return gui_manager.dispatch(event, action)
 end
 
 ---@param event EventData
@@ -76,6 +71,11 @@ end
 
 function event_handler.bring_to_front_current_window()
     gui_manager.bring_to_front_current_window()
+end
+
+---@param event EventData
+function event_handler.pass_to_gui(event)
+    gui_manager.dispatch(event)
 end
 
 return event_handler

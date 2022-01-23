@@ -1,6 +1,7 @@
 local flib_gui = require("__flib__.gui")
 
 local mod_gui = require("scripts.util.gui")
+local mod_event = require("scripts.util.event")
 
 local constants = require("scripts.gui.frame.main.constants")
 local build_structure = require("scripts.gui.frame.main.build_structure")
@@ -90,8 +91,9 @@ local function populate_groups_list(player, container)
     -- todo select first group
 end
 
----@param player LuaPlayer
-local function update_gui(player)
+---@param event EventData
+local function update_gui(event)
+    local player = game.get_player(event.player_index)
     local gui = persistence.get_gui(player)
 
     populate_groups_list(player, gui.refs.groups_container)
@@ -117,12 +119,7 @@ end
 
 ---@return table
 function frame.remote_interfaces()
-    return {
-        [mod.defines.remote_interfaces.main_frame] = {
-            ---@param player LuaPlayer
-            update = function(player) update_gui(player) end,
-        }
-    }
+    return {}
 end
 
 ---@return string
@@ -151,24 +148,14 @@ end
 
 ---@param action table
 ---@param event EventData
-function frame.dispatch(action, event)
-    local processed = false
-
-    local event_handlers = {
-        { gui = FRAME.NAME, action = ACTION.CLOSE, func = function(_, e) return frame.close(e) end},
-        { gui = FRAME.NAME, action = ACTION.GROUP_SELECTED, func = function(_, e) return select_group(e) end},
-        { gui = FRAME.NAME, action = ACTION.DELETE_GROUP, func = function(_, e) return delete_group(e) end},
+function frame.dispatch(event, action)
+    local handlers = {
+        { gui = FRAME.NAME, action = ACTION.CLOSE, func = frame.close},
+        { gui = FRAME.NAME, action = ACTION.GROUP_SELECTED, func = select_group},
+        { gui = FRAME.NAME, action = ACTION.DELETE_GROUP, func = delete_group},
     }
 
-    for _, h in ipairs(event_handlers) do
-        if h.gui == action.gui and (h.action == action.action or h.action == nil) then
-            if h.func(action, event) then
-                processed = true
-            end
-        end
-    end
-
-    return processed
+    return mod_event.dispatch_gui(handlers, event, action)
 end
 
 function frame.close(event)

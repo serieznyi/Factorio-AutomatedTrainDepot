@@ -1,6 +1,8 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
+local mod_event = require("scripts.util.event")
+
 local constants = require("scripts.gui.frame.add_group.component.train_builder.constants")
 local build_structure = require("scripts.gui.frame.add_group.component.train_builder.build_structure")
 local validator = require("scripts.gui.validator")
@@ -62,8 +64,6 @@ local persistence = {
         return global.gui_component[COMPONENT.NAME][player.index].train_parts[train_part_id]
     end,
 }
-
-local on_form_changed_callback = function() end
 
 local component = {}
 
@@ -272,27 +272,18 @@ end
 
 ---@param action table
 ---@param event EventData
-function component.dispatch(action, event)
-    local processed = false
-
+function component.dispatch(event, action)
     local event_handlers = {
-        { gui = COMPONENT.NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) return add_new_train_part(e) end},
-        { gui = COMPONENT.NAME, action = ACTION.TRAIN_CHANGED, func = function(_, e) return update_train_part(e) end},
-        { gui = COMPONENT.NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = function(_, e) return change_locomotive_direction(e) end},
-        { gui = COMPONENT.NAME, action = ACTION.DELETE_TRAIN_PART, func = function(_, e) return delete_train_part(e) end},
+        { gui = COMPONENT.NAME, action = ACTION.TRAIN_CHANGED, func = add_new_train_part},
+        { gui = COMPONENT.NAME, action = ACTION.TRAIN_CHANGED, func = update_train_part},
+        { gui = COMPONENT.NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION, func = change_locomotive_direction},
+        { gui = COMPONENT.NAME, action = ACTION.DELETE_TRAIN_PART, func = delete_train_part},
     }
 
-    for _, h in ipairs(event_handlers) do
-        if h.gui == action.gui and (h.action == action.action or h.action == nil) then
-            mod.util.logger.debug("Event handler for `{1}:{2}` executed", { h.gui, h.action});
-            if h.func(action, event) then
-                processed = true
-            end
-        end
-    end
+    local processed = mod_event.dispatch_gui(event_handlers, event, action)
 
     if processed then
-        on_form_changed_callback(event)
+        script.raise_event(mod.defines.events.on_form_changed, {})
     end
 
     return processed

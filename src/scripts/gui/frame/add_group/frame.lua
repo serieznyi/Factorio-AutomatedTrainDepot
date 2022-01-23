@@ -1,12 +1,14 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
+local mod_event = require("scripts.util.event")
+local mod_table = require("scripts.util.table")
+local mod_gui = require("scripts.util.gui")
+
 local constants = require("scripts.gui.frame.add_group.constants")
 local build_structure = require("scripts.gui.frame.add_group.build_structure")
 local train_builder_component = require("scripts.gui.frame.add_group.component.train_builder.component")
 local validator = require("scripts.gui.validator")
-local mod_table = require("scripts.util.table")
-local mod_gui = require("scripts.util.gui")
 local storage = require("scripts.storage")
 
 local FRAME = constants.FRAME
@@ -79,7 +81,7 @@ local function save_form(event)
 
     frame.close(event)
 
-    remote.call(mod.defines.remote_interfaces.main_frame, "update", player)
+    script.raise_event(mod.defines.events.on_group_saved, {})
 
     return true
 end
@@ -169,26 +171,16 @@ end
 
 ---@param action table
 ---@param event EventData
-function frame.dispatch(action, event)
-    local processed = false
-
-    local event_handlers = {
-        { gui = FRAME.NAME, action = ACTION.CLOSE, func = function(_, e) return frame.close(e) end},
-        { gui = FRAME.NAME, action = ACTION.OPEN, func = function(_, e) return frame.open(e) end},
-        { gui = FRAME.NAME, action = ACTION.SAVE, func = function(_, e) return save_form(e) end},
-        { gui = FRAME.NAME, action = ACTION.FORM_CHANGED, func = function(_, e) return form_changed(e) end},
-        { gui = train_builder_component.name(), func = function(a, e) return train_builder_component.dispatch(a, e) end},
+function frame.dispatch(event, action)
+    local handlers = {
+        { gui = FRAME.NAME, action = ACTION.CLOSE, func = frame.close},
+        { gui = FRAME.NAME, action = ACTION.OPEN, func = frame.open},
+        { gui = FRAME.NAME, action = ACTION.SAVE, func = save_form},
+        { gui = FRAME.NAME, action = ACTION.FORM_CHANGED, func = form_changed},
+        { gui = train_builder_component.name(), func = train_builder_component.dispatch},
     }
 
-    for _, h in ipairs(event_handlers) do
-        if h.gui == action.gui and (h.action == action.action or h.action == nil) then
-            if h.func(action, event) then
-                processed = true
-            end
-        end
-    end
-
-    return processed
+    return mod_event.dispatch_gui(handlers, event, action)
 end
 
 ---@param event EventData

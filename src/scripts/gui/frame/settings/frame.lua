@@ -1,11 +1,13 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
+local mod_event = require("scripts.util.event")
+local mod_table = require("scripts.util.table")
+local mod_gui = require("scripts.util.gui")
+
 local constants = require("scripts.gui.frame.settings.constants")
 local build_structure = require("scripts.gui.frame.settings.build_structure")
 local validator = require("scripts.gui.validator")
-local mod_table = require("scripts.util.table")
-local mod_gui = require("scripts.util.gui")
 
 local FRAME = constants.FRAME
 local ACTION = constants.ACTION
@@ -162,25 +164,15 @@ end
 
 ---@param action table
 ---@param event EventData
-function frame.dispatch(action, event)
-    local processed = false
-
-    local event_handlers = {
-        { gui = FRAME.NAME, action = ACTION.OPEN, func = function(_, e) return frame.open(e) end},
-        { gui = FRAME.NAME, action = ACTION.CLOSE, func = function(_, e) return frame.destroy(e) end},
-        { gui = FRAME.NAME, action = ACTION.SAVE, func = function(_, e) return save_form(e) end},
-        { gui = FRAME.NAME, action = ACTION.FORM_CHANGED, func = function(_, e) return form_changed(e) end},
+function frame.dispatch(event, action)
+    local handlers = {
+        { gui = FRAME.NAME, action = ACTION.OPEN, func = frame.open},
+        { gui = FRAME.NAME, action = ACTION.CLOSE, func = frame.destroy},
+        { gui = FRAME.NAME, action = ACTION.SAVE, func = save_form},
+        { gui = FRAME.NAME, action = ACTION.FORM_CHANGED, func = form_changed},
     }
 
-    for _, h in ipairs(event_handlers) do
-        if h.gui == action.gui and (h.action == action.action or h.action == nil) then
-            if h.func(action, event) then
-                processed = true
-            end
-        end
-    end
-
-    return processed
+    return mod_event.dispatch_gui(handlers, event, action)
 end
 
 ---@param event EventData

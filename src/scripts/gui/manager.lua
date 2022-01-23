@@ -40,9 +40,15 @@ local function get_element_mod_frame(element)
     return get_element_mod_frame(element.parent)
 end
 
----@param element LuaGuiElement
----@param player LuaPlayer
-local function is_event_target_blocked(element, player)
+---@param event EventData
+local function is_event_target_blocked(event)
+    local element = event.element or nil
+    local player = game.get_player(event.player_index)
+
+    if element == nil then
+        return false
+    end
+
     local element_frame = get_element_mod_frame(element)
 
     if element_frame == nil then
@@ -85,11 +91,12 @@ function manager.load()
     end
 end
 
-function manager.dispatch(action, event)
-    local element = event.element
-    local player = game.get_player(event.player_index)
+---@param event EventData
+function manager.dispatch(event, action)
+    local processed = false
 
-    if is_event_target_blocked(element, player) then
+    --- Gui event
+    if is_event_target_blocked(event) then
         mod.util.logger.debug(
                 "Event `{1}` for gui element `{2}` is blocked",
                 {event.name, element.name}
@@ -98,13 +105,13 @@ function manager.dispatch(action, event)
         return false
     end
 
-    for _, frame in ipairs(FRAME_MODULES) do
-        if frame.dispatch(action, event) then
-            return true
+    for _, module in ipairs(FRAME_MODULES) do
+        if module.dispatch(event, action) then
+            processed = true
         end
     end
 
-    return false
+    return processed
 end
 
 return manager

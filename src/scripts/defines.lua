@@ -1,7 +1,8 @@
 local defines = {}
 
 defines.events = {
-
+    on_group_saved = script.generate_event_name(),
+    on_form_changed = script.generate_event_name(),
 }
 
 defines.remote_interfaces = {
