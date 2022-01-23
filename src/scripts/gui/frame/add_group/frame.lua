@@ -110,13 +110,6 @@ function frame.action_on_click()
     }
 end
 
----@return table
-function frame.remote_interfaces()
-    return {
-        [mod.defines.remote_interfaces.add_group_frame] = {}
-    }
-end
-
 ---@return string
 function frame.name()
     return FRAME.NAME

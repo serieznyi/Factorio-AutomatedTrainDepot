@@ -117,11 +117,6 @@ local function create_for(player)
     return persistence.get_gui(player)
 end
 
----@return table
-function frame.remote_interfaces()
-    return {}
-end
-
 ---@return string
 function frame.name()
     return FRAME.NAME

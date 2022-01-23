@@ -10,12 +10,6 @@ defines.all_events = {
     defines.events.on_form_changed,
 }
 
-defines.remote_interfaces = {
-    main_frame = "atd-main-frame",
-    settings_frame = "atd-settings-frame",
-    add_group_frame = "atd-add-group-frame",
-}
-
 defines.entity = require("prototypes.defines.entity")
 
 defines.gui = {

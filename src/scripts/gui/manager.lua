@@ -68,16 +68,6 @@ function manager.bring_to_front_current_window()
     end
 end
 
-function manager.register_remote_interfaces()
-    for _, module in ipairs(FRAME_MODULES) do
-        for interface_name, functions in pairs(module.remote_interfaces()) do
-            if functions ~= {} then
-                remote.add_interface(interface_name, functions)
-            end
-        end
-    end
-end
-
 function manager.init()
     global.gui = {}
     global.gui_component = {}
