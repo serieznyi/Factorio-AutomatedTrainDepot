@@ -269,10 +269,10 @@ end
 ---@param event EventData
 function component.dispatch(event, action)
     local event_handlers = {
-        { target = COMPONENT.NAME, action = ACTION.TYPE_OF_TRAIN_PART_CHANGED, func = add_new_train_part},
-        { target = COMPONENT.NAME, action = ACTION.TYPE_OF_TRAIN_PART_CHANGED, func = update_train_part},
+        { target = COMPONENT.NAME, action = ACTION.TYPE_OF_TRAIN_PART_CHANGED,  func = add_new_train_part},
+        { target = COMPONENT.NAME, action = ACTION.TYPE_OF_TRAIN_PART_CHANGED,  func = update_train_part},
         { target = COMPONENT.NAME, action = ACTION.LOCOMOTIVE_DIRECTION_CHANGE, func = change_locomotive_direction},
-        { target = COMPONENT.NAME, action = ACTION.TRAIN_PART_DELETE, func = delete_train_part},
+        { target = COMPONENT.NAME, action = ACTION.TRAIN_PART_DELETE,           func = delete_train_part},
     }
 
     local processed = mod_event.dispatch(event_handlers, event, action)
