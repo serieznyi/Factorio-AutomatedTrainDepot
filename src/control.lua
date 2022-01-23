@@ -3,7 +3,7 @@ local flib_dictionary = require("__flib__.dictionary")
 local flib_on_tick_n = require("__flib__.on-tick-n")
 local flib_gui = require("__flib__.gui")
 
-mod = require("scripts.modification_vars")
+mod = require("scripts.mod")
 
 local event_handler = require("scripts.event_handler")
 local depot = require("scripts.depot")
