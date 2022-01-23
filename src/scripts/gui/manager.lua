@@ -69,9 +69,6 @@ function manager.bring_to_front_current_window()
 end
 
 function manager.init()
-    global.gui = {}
-    global.gui_component = {}
-
     for _, module in ipairs(FRAME_MODULES) do
         module.init()
     end

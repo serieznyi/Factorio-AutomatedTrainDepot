@@ -20,21 +20,21 @@ local VALIDATION_RULES = {
     },
 }
 
-local persistence = {
+local storage = {
     init = function()
-        global.gui[FRAME.NAME] = {}
+        mod.storage.gui[FRAME.NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        global.gui[FRAME.NAME][player.index] = nil
+        mod.storage.gui[FRAME.NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_gui = function(player)
-        return global.gui[FRAME.NAME][player.index]
+        return mod.storage.gui[FRAME.NAME][player.index]
     end,
     save_gui = function(player, refs)
-        global.gui[FRAME.NAME][player.index] = {
+        mod.storage.gui[FRAME.NAME][player.index] = {
             refs = refs,
         }
     end,
@@ -45,7 +45,7 @@ local frame = {}
 ---@param event EventData
 local function form_changed(event)
     local player = game.get_player(event.player_index)
-    local gui = persistence.get_gui(player)
+    local gui = storage.get_gui(player)
     local validation_errors_container = gui.refs.validation_errors_container
     local submit_button = gui.refs.submit_button
     local validation_errors = frame.validate_form(event)
@@ -96,9 +96,9 @@ local function create_for(player)
     refs.titlebar_flow.drag_target = refs.window
     refs.footerbar_flow.drag_target = refs.window
 
-    persistence.save_gui(player, refs)
+    storage.save_gui(player, refs)
 
-    return persistence.get_gui(player)
+    return storage.get_gui(player)
 end
 
 function frame.action_on_click()
@@ -114,16 +114,17 @@ function frame.name()
 end
 
 function frame.init()
-    persistence.init()
+    storage.init()
 end
 
 function frame.load()
+    storage.init()
 end
 
 ---@param event EventData
 function frame.open(event)
     local player = game.get_player(event.player_index)
-    local gui = persistence.get_gui(player)
+    local gui = storage.get_gui(player)
 
     if gui == nil then
         gui = create_for(player)
@@ -139,7 +140,7 @@ end
 ---@param event EventData
 function frame.destroy(event)
     local player = game.get_player(event.player_index)
-    local gui = persistence.get_gui(player)
+    local gui = storage.get_gui(player)
 
     if gui == nil then
         return
@@ -150,7 +151,7 @@ function frame.destroy(event)
     window.visible = false
     window.destroy()
 
-    persistence.destroy(player)
+    storage.destroy(player)
 
     return true
 end
@@ -172,7 +173,7 @@ end
 ---@return table form data
 function frame.read_form(event)
     local player = game.get_player(event.player_index)
-    local gui = persistence.get_gui(player)
+    local gui = storage.get_gui(player)
 
     return {
         use_any_fuel = mod_table.NIL,

@@ -8,7 +8,10 @@ mod.util = {
 }
 
 -- Save module runtime vars
-mod.storage = {} -- todo use me
+mod.storage = {
+    gui = {},
+    gui_component = {},
+}
 mod.depots = {} -- todo remove me
 
 return mod

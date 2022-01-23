@@ -9,7 +9,7 @@ local constants = require("scripts.gui.frame.add_group.constants")
 local build_structure = require("scripts.gui.frame.add_group.build_structure")
 local train_builder_component = require("scripts.gui.frame.add_group.component.train_builder.component")
 local validator = require("scripts.gui.validator")
-local storage = require("scripts.storage")
+local repository = require("scripts.repository")
 
 local FRAME = constants.FRAME
 local ACTION = constants.ACTION
@@ -24,21 +24,21 @@ local VALIDATION_RULES = {
     },
 }
 
-local persistence = {
+local storage = {
     init = function()
-        global.gui[FRAME.NAME] = {}
+        mod.storage.gui[FRAME.NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        global.gui[FRAME.NAME][player.index] = nil
+        mod.storage.gui[FRAME.NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_gui = function(player)
-        return global.gui[FRAME.NAME][player.index]
+        return mod.storage.gui[FRAME.NAME][player.index]
     end,
     save_gui = function(player, refs)
-        global.gui[FRAME.NAME][player.index] = {
+        mod.storage.gui[FRAME.NAME][player.index] = {
             refs = refs,
         }
     end,
@@ -49,7 +49,7 @@ local frame = {}
 ---@param event EventData
 local function form_changed(event)
     local player = game.get_player(event.player_index)
-    local gui = persistence.get_gui(player)
+    local gui = storage.get_gui(player)
     local validation_errors_container = gui.refs.validation_errors_container
     local submit_button = gui.refs.submit_button
     local validation_errors = frame.validate_form(event)
@@ -76,7 +76,7 @@ local function save_form(event)
     local validation_errors = frame.validate_form(event)
 
     if #validation_errors == 0 then
-        storage.add_group(player, form_data)
+        repository.add_group(player, form_data)
     end
 
     frame.close(event)
@@ -97,9 +97,9 @@ local function create_for(player)
 
     train_builder_component.append_component(refs.train_builder_container, player)
 
-    persistence.save_gui(player, refs)
+    storage.save_gui(player, refs)
 
-    return persistence.get_gui(player)
+    return storage.get_gui(player)
 end
 
 
@@ -116,17 +116,19 @@ function frame.name()
 end
 
 function frame.init()
-    persistence.init()
+    storage.init()
     train_builder_component.init()
 end
 
 function frame.load()
+    storage.init()
+    train_builder_component.init()
 end
 
 ---@param event EventData
 function frame.open(event)
     local player = game.get_player(event.player_index)
-    local gui = persistence.get_gui(player)
+    local gui = storage.get_gui(player)
 
     if gui == nil then
         gui = create_for(player)
@@ -142,7 +144,7 @@ end
 ---@param event EventData
 function frame.close(event)
     local player = game.get_player(event.player_index)
-    local gui = persistence.get_gui(player)
+    local gui = storage.get_gui(player)
 
     if gui == nil then
         return
@@ -153,7 +155,7 @@ function frame.close(event)
     window.visible = false
     window.destroy()
 
-    persistence.destroy(player)
+    storage.destroy(player)
 
     train_builder_component.destroy(player)
 
@@ -179,7 +181,7 @@ end
 ---@return table form data
 function frame.read_form(event)
     local player = game.get_player(event.player_index)
-    local gui = persistence.get_gui(player)
+    local gui = storage.get_gui(player)
 
     return {
         name = gui.refs.group_name_input.text or mod_table.NIL,

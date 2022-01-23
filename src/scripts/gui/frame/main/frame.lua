@@ -9,23 +9,23 @@ local build_structure = require("scripts.gui.frame.main.build_structure")
 local FRAME = constants.FRAME
 local ACTION = constants.ACTION
 
-local persistence = {
+local storage = {
     init = function()
-        global.gui[FRAME.NAME] = {}
+        mod.storage.gui[FRAME.NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        global.gui[FRAME.NAME][player.index] = nil
+        mod.storage.gui[FRAME.NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_gui = function(player)
-        return global.gui[FRAME.NAME][player.index]
+        return mod.storage.gui[FRAME.NAME][player.index]
     end,
     ---@param player LuaPlayer
     ---@param refs table
     save_gui = function(player, refs)
-        global.gui[FRAME.NAME][player.index] = {
+        mod.storage.gui[FRAME.NAME][player.index] = {
             refs = refs,
         }
     end,
@@ -49,7 +49,7 @@ end
 ---@param event EventData
 local function select_group(event)
     local player = game.get_player(event.player_index)
-    local gui = persistence.get_gui(player)
+    local gui = storage.get_gui(player)
 
     active_group_button(event.element, gui)
 
@@ -60,7 +60,7 @@ end
 ---@param event EventData
 local function delete_group(event)
     local player = game.get_player(event.player_index)
-    local gui = persistence.get_gui(player)
+    local gui = storage.get_gui(player)
 
     -- TODO
 end
@@ -94,7 +94,7 @@ end
 ---@param event EventData
 local function update_gui(event)
     local player = game.get_player(event.player_index)
-    local gui = persistence.get_gui(player)
+    local gui = storage.get_gui(player)
 
     populate_groups_list(player, gui.refs.groups_container)
 end
@@ -112,9 +112,9 @@ local function create_for(player)
         ((resolution.height - (FRAME.HEIGHT * scale)) / 2)
     }
 
-    persistence.save_gui(player, refs)
+    storage.save_gui(player, refs)
 
-    return persistence.get_gui(player)
+    return storage.get_gui(player)
 end
 
 ---@return string
@@ -123,10 +123,11 @@ function frame.name()
 end
 
 function frame.init()
-    persistence.init()
+    storage.init()
 end
 
 function frame.load()
+    storage.init()
 end
 
 ---@param player LuaPlayer
@@ -156,7 +157,7 @@ end
 
 function frame.close(event)
     local player = game.get_player(event.player_index)
-    local gui = persistence.get_gui(player)
+    local gui = storage.get_gui(player)
     local window = gui.refs.window
 
     window.visible = false
@@ -167,7 +168,7 @@ function frame.close(event)
 
     window.destroy()
 
-    persistence.destroy(player)
+    storage.destroy(player)
 
     return true
 end
