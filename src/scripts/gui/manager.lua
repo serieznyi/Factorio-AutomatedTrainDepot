@@ -1,5 +1,7 @@
 local flib_gui = require("__flib__.gui")
 
+local mod_event = require("scripts.util.event")
+
 local main_frame = require("scripts.gui.frame.main.frame")
 local add_group_frame = require("scripts.gui.frame.add_group.frame")
 local settings_frame = require("scripts.gui.frame.settings.frame")
@@ -92,17 +94,23 @@ function manager.load()
 end
 
 ---@param event EventData
-function manager.dispatch(event, action)
+function manager.dispatch(event)
+    local player = game.get_player(event.player_index)
     local processed = false
+    local action = flib_gui.read_action(event)
+    local event_name = mod_event.event_name(event.name)
 
     --- Gui event
     if is_event_target_blocked(event) then
-        mod.util.logger.debug(
-                "Event `{1}` for gui element `{2}` is blocked",
-                {event.name, element.name}
-        )
+        mod.util.logger.debug("Event `{1}` for gui element `{2}` is blocked", {event_name, element.name})
         manager.bring_to_front_current_window(player)
         return false
+    end
+
+    if action ~= nil then
+        mod.util.logger.debug("Event `{1}` for gui `{2}:{3}` triggered", {event_name, action.gui, action.action})
+    else
+        mod.util.logger.debug("Event `{1}` triggered", { event_name })
     end
 
     for _, module in ipairs(FRAME_MODULES) do

@@ -1,5 +1,3 @@
-local gui = require("__flib__.gui")
-
 local depot = require("scripts.depot")
 local gui_main_frame = require("scripts.gui.frame.main.frame")
 local gui_manager = require("scripts.gui.manager")
@@ -40,13 +38,7 @@ end
 
 ---@param event EventData
 function event_handler.handle_gui_event(event)
-    local action = gui.read_action(event)
-
-    if action ~= nil then
-        mod.util.logger.debug("Gui event `{1}:{2}` triggered", {action.gui, action.action})
-    end
-
-    return gui_manager.dispatch(event, action)
+    return gui_manager.dispatch(event)
 end
 
 ---@param event EventData

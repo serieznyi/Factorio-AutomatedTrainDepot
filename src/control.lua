@@ -52,9 +52,6 @@ end)
 
 -- Loaded save file what contains mod ; Cant write in global
 flib_event.on_load(function()
-    -- Restore local vars from `global`
-    -- Re-register event handlers
-
     gui_index.load()
 end)
 
@@ -88,7 +85,7 @@ flib_event.register(
 
 flib_event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
 
---flib_event.register(mod.defines.events, event_handler.pass_to_gui)
+flib_event.register(mod.defines.all_events, event_handler.pass_to_gui)
 
 ---------------------------------------------------------------------------
 -- -- -- REGISTER GUI EVENTS

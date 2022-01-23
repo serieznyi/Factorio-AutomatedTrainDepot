@@ -150,12 +150,13 @@ end
 ---@param event EventData
 function frame.dispatch(event, action)
     local handlers = {
-        { gui = FRAME.NAME, action = ACTION.CLOSE, func = frame.close},
-        { gui = FRAME.NAME, action = ACTION.GROUP_SELECTED, func = select_group},
-        { gui = FRAME.NAME, action = ACTION.DELETE_GROUP, func = delete_group},
+        { gui = FRAME.NAME, action = ACTION.CLOSE, func = frame.close },
+        { gui = FRAME.NAME, action = ACTION.GROUP_SELECTED, func = select_group },
+        { gui = FRAME.NAME, action = ACTION.DELETE_GROUP, func = delete_group },
+        { event = mod.defines.events.on_group_saved, func = update_gui },
     }
 
-    return mod_event.dispatch_gui(handlers, event, action)
+    return mod_event.dispatch(handlers, event, action)
 end
 
 function frame.close(event)

@@ -260,11 +260,6 @@ function component.append_component(container_element, player)
     persistence.add_train_part(player, train_part_id, refs)
 end
 
----@param callback function
-function component.on_form_changed(callback)
-    on_form_changed_callback = callback
-end
-
 ---@return string
 function component.name()
     return COMPONENT.NAME
@@ -280,10 +275,10 @@ function component.dispatch(event, action)
         { gui = COMPONENT.NAME, action = ACTION.DELETE_TRAIN_PART, func = delete_train_part},
     }
 
-    local processed = mod_event.dispatch_gui(event_handlers, event, action)
+    local processed = mod_event.dispatch(event_handlers, event, action)
 
     if processed then
-        script.raise_event(mod.defines.events.on_form_changed, {})
+        script.raise_event(mod.defines.events.on_form_changed, {player_index = event.player_index})
     end
 
     return processed

@@ -118,10 +118,7 @@ function depot.build(entity)
         dependent_entities = dependent_entities
     }
 
-    mod.util.logger.debug(
-        'Entity {1}[{2}] was build',
-            {entity.name, entity.unit_number}
-    )
+    mod.util.logger.debug('Entity {1}[{2}] was build', {entity.name, entity.unit_number})
 end
 
 ---@param depot_entity LuaEntity
@@ -140,10 +137,7 @@ function depot.destroy(depot_entity)
 
     mod.depots[surface.name] = nil
 
-    mod.util.logger.debug(
-            'Entity {1}[{2}] was destroy',
-            {entity_name, depot_entity_id}
-    )
+    mod.util.logger.debug('Entity {1}[{2}] was destroy', {entity_name, depot_entity_id})
 end
 
 return depot

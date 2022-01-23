@@ -81,7 +81,7 @@ local function save_form(event)
 
     frame.close(event)
 
-    script.raise_event(mod.defines.events.on_group_saved, {})
+    script.raise_event(mod.defines.events.on_group_saved, {player_index = event.player_index})
 
     return true
 end
@@ -125,11 +125,9 @@ end
 function frame.init()
     persistence.init()
     train_builder_component.init()
-    train_builder_component.on_form_changed(function(e) form_changed(e) end)
 end
 
 function frame.load()
-    train_builder_component.on_form_changed(function(e) form_changed(e) end)
 end
 
 ---@param event EventData
@@ -178,9 +176,10 @@ function frame.dispatch(event, action)
         { gui = FRAME.NAME, action = ACTION.SAVE, func = save_form},
         { gui = FRAME.NAME, action = ACTION.FORM_CHANGED, func = form_changed},
         { gui = train_builder_component.name(), func = train_builder_component.dispatch},
+        { event = mod.defines.events.on_form_changed, func = form_changed },
     }
 
-    return mod_event.dispatch_gui(handlers, event, action)
+    return mod_event.dispatch(handlers, event, action)
 end
 
 ---@param event EventData

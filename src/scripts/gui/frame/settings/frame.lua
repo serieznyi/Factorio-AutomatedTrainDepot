@@ -172,7 +172,7 @@ function frame.dispatch(event, action)
         { gui = FRAME.NAME, action = ACTION.FORM_CHANGED, func = form_changed},
     }
 
-    return mod_event.dispatch_gui(handlers, event, action)
+    return mod_event.dispatch(handlers, event, action)
 end
 
 ---@param event EventData
