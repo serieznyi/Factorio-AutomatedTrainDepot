@@ -149,7 +149,7 @@ function frame.dispatch(event, action)
         { target = FRAME.NAME, action = ACTION.CLOSE, func = frame.close },
         { target = FRAME.NAME, action = ACTION.GROUP_SELECTED, func = select_group },
         { target = FRAME.NAME, action = ACTION.DELETE_GROUP, func = delete_group },
-        { event = mod.defines.events.on_mod_group_saved, func = update_gui },
+        { target = FRAME.NAME, event = mod.defines.events.on_mod_group_saved, func = update_gui },
     }
 
     return mod_event.dispatch(handlers, event, action)

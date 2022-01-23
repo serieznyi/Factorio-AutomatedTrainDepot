@@ -278,7 +278,8 @@ function component.dispatch(event, action)
     local processed = mod_event.dispatch(event_handlers, event, action)
 
     if processed then
-        script.raise_event(mod.defines.events.on_mod_gui_form_changed, { player_index = event.player_index})
+        -- todo
+        script.raise_event(mod.defines.events.on_mod_gui_form_changed, { player_index = event.player_index, target = "add_group_frame" })
     end
 
     return processed

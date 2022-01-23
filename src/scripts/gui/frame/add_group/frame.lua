@@ -81,7 +81,7 @@ local function save_form(event)
 
     frame.close(event)
 
-    script.raise_event(mod.defines.events.on_mod_group_saved, { player_index = event.player_index})
+    script.raise_event(mod.defines.events.on_mod_group_saved, { player_index = event.player_index, target = "main_frame"})
 
     return true
 end
@@ -166,12 +166,11 @@ end
 ---@param event EventData
 function frame.dispatch(event, action)
     local handlers = {
-        { target = FRAME.NAME, action = ACTION.CLOSE, func = frame.close},
-        { target = FRAME.NAME, action = ACTION.OPEN, func = frame.open},
-        { target = FRAME.NAME, action = ACTION.SAVE, func = save_form},
-        { target = FRAME.NAME, action = ACTION.FORM_CHANGED, func = form_changed},
-        { target = train_builder_component.name(), func = train_builder_component.dispatch},
-        { event = mod.defines.events.on_mod_gui_form_changed, func = form_changed },
+        { target = FRAME.NAME,                      action = ACTION.CLOSE,                              func = frame.close},
+        { target = FRAME.NAME,                      action = ACTION.OPEN,                               func = frame.open},
+        { target = FRAME.NAME,                      action = ACTION.SAVE,                               func = save_form},
+        { target = train_builder_component.name(),  action = mod.defines.gui.actions.any,               func = train_builder_component.dispatch},
+        { target = FRAME.NAME,                      event = mod.defines.events.on_mod_gui_form_changed, func = form_changed },
     }
 
     return mod_event.dispatch(handlers, event, action)

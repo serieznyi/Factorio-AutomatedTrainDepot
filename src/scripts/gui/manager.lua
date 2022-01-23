@@ -84,18 +84,43 @@ end
 function manager.dispatch(event)
     local player = game.get_player(event.player_index)
     local processed = false
-    local action = flib_gui.read_action(event)
+    local event_data = mod_event.read_event_data(event)
     local event_name = mod_event.event_name(event.name)
 
     --- Gui event
-    if is_event_target_blocked(event) then
+    if mod_event.is_gui_event(event) and is_event_target_blocked(event) then
         mod.util.logger.debug("Event `{1}` for gui element `{2}` is blocked", {event_name, event.element.name})
         manager.bring_to_front_current_window(player)
+        return true
+    end
+
+    if event_data == {} then
         return false
     end
 
+    if event_data.trigger_event ~= nil and event_data ~= nil then
+        mod.util.logger.debug(
+                "Redirect event `{1} ({2})` -> `{3} ({4})`",
+                    {
+                            event_name,
+                            event_data.target,
+                            mod_event.event_name(event_data.trigger_event),
+                    }
+        )
+
+        script.raise_event(
+                event_data.trigger_event,
+                {
+                    target = event_data.target,
+                    player_index = player.index,
+                }
+        )
+
+        return true
+    end
+
     for _, module in ipairs(FRAME_MODULES) do
-        if module.dispatch(event, action) then
+        if module.dispatch(event, event_data) then
             processed = true
         end
     end

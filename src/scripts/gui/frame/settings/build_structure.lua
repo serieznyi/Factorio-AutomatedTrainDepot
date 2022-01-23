@@ -61,7 +61,7 @@ function build_structure.get(surface_train_stations_list)
                                 type = "checkbox",
                                 state = false,
                                 actions = {
-                                    on_elem_changed = { target = FRAME.NAME, action = ACTION.FORM_CHANGED }
+                                    on_elem_changed = { target = FRAME.NAME, trigger_event = mod.defines.events.on_mod_gui_form_changed }
                                 }
                             },
                             {
@@ -72,7 +72,7 @@ function build_structure.get(surface_train_stations_list)
                                 type = "drop-down",
                                 items = surface_train_stations_list,
                                 actions = {
-                                    on_elem_changed = { target = FRAME.NAME, action = ACTION.FORM_CHANGED }
+                                    on_elem_changed = { target = FRAME.NAME, trigger_event = mod.defines.events.on_mod_gui_form_changed }
                                 }
                             },
                         }

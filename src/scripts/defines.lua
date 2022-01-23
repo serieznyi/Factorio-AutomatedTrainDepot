@@ -12,6 +12,7 @@ defines.entity = require("prototypes.defines.entity")
 
 defines.gui = {
     actions = {
+        any = script.generate_event_name(),
         -- common
         close_frame = script.generate_event_name(),
         save_form = script.generate_event_name(),

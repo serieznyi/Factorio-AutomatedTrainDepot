@@ -160,10 +160,10 @@ end
 ---@param event EventData
 function frame.dispatch(event, action)
     local handlers = {
-        { target = FRAME.NAME, action = ACTION.OPEN, func = frame.open},
-        { target = FRAME.NAME, action = ACTION.CLOSE, func = frame.destroy},
-        { target = FRAME.NAME, action = ACTION.SAVE, func = save_form},
-        { target = FRAME.NAME, action = ACTION.FORM_CHANGED, func = form_changed},
+        { target = FRAME.NAME, action = ACTION.OPEN,                                func = frame.open},
+        { target = FRAME.NAME, action = ACTION.CLOSE,                               func = frame.destroy},
+        { target = FRAME.NAME, action = ACTION.SAVE,                                func = save_form},
+        { target = FRAME.NAME, event = mod.defines.events.on_mod_gui_form_changed,  func = form_changed },
     }
 
     return mod_event.dispatch(handlers, event, action)

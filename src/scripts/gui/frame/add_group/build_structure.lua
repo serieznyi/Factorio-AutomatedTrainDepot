@@ -61,7 +61,7 @@ function build_structure.get()
                                 ref = {"group_icon_input"},
                                 elem_type = "item",
                                 actions = {
-                                    on_elem_changed = { target = FRAME.NAME, action = ACTION.FORM_CHANGED }
+                                    on_elem_changed = { target = FRAME.NAME, trigger_event = mod.defines.events.on_mod_gui_form_changed }
                                 }
                             },
                             {
@@ -72,8 +72,8 @@ function build_structure.get()
                                 type = "textfield",
                                 ref = {"group_name_input"},
                                 actions = {
-                                    on_text_changed = { target = FRAME.NAME, action = ACTION.FORM_CHANGED },
-                                    on_confirmed = { target = FRAME.NAME, action = ACTION.FORM_CHANGED },
+                                    on_text_changed = { target = FRAME.NAME, trigger_event = mod.defines.events.on_mod_gui_form_changed },
+                                    on_confirmed = { target = FRAME.NAME, trigger_event = mod.defines.events.on_mod_gui_form_changed },
                                 }
                             },
                             {

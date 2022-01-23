@@ -1,3 +1,5 @@
+local flib_gui = require("__flib__.gui")
+
 local event = {}
 
 local event_name_map
@@ -16,6 +18,11 @@ local function init()
     end
 end
 
+---@param event_arg EventData
+function event.is_gui_event(event_arg)
+    return event_arg.element ~= nil
+end
+
 ---@param event_number uint
 function event.event_name(event_number)
     if event_name_map == nil then
@@ -25,25 +32,45 @@ function event.event_name(event_number)
     return event_name_map[event_number] or 'unknown(' .. event_number .. ')'
 end
 
+---@param event_arg EventData
+function event.read_event_data(event_arg)
+    local event_data = flib_gui.read_action(event_arg)
+
+    if event_data == nil then
+        event_data = {}
+    end
+
+    event_data.name = event.event_name(event_arg.name)
+
+    if event_data.target == nil then
+        event_data.target = event_arg.target
+    end
+
+    return event_data
+end
+
 ---@param handlers table
 ---@param event_arg EventData
----@param action table
-function event.dispatch(handlers, event_arg, action)
+---@param event_data table
+function event.dispatch(handlers, event_arg, event_data)
     local processed = false
-    local gui_event = action ~= nil
+    local gui_event = event_arg.element ~= nil
     local event_name = event.event_name(event_arg.name)
 
     for _, h in ipairs(handlers) do
-        if gui_event and h.target == action.target and (h.action == action.action or h.action == nil) then
-            if h.func(event_arg, action) then
-                mod.util.logger.debug("Event `{1} ({2}:{3})` handled", { event_name, h.target, h.action or "unknown"})
-                processed = true
+        if event_data.target == h.target then
+            if (event_data.action ~= nil and (h.action == event_data.action or h.action == mod.defines.gui.actions.any)) or (h.event ~= nil and h.event == event_arg.name) then
+                if h.func(event_arg, event_data) then
+                    processed = true
+
+                    if gui_event then
+                        mod.util.logger.debug("Event `{1} ({2}:{3})` handled", { event_name, h.target, h.action or "unknown"})
+                    else
+                        mod.util.logger.debug("Event `{1}` handled", { event_name })
+                    end
+                end
             end
-        elseif h.event ~= nil and h.event == event_arg.name then
-            if h.func(event_arg) then
-                mod.util.logger.debug("Event `{1}` handled", { event_name })
-                processed = true
-            end
+
         end
     end
 
