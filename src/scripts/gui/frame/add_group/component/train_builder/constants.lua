@@ -5,9 +5,9 @@ constants.COMPONENT = {
 }
 
 constants.ACTION = {
-    TRAIN_CHANGED = "train_changed",
-    DELETE_TRAIN_PART = "delete_train_part",
-    CHANGE_LOCOMOTIVE_DIRECTION = "change_locomotive_direction",
+    TYPE_OF_TRAIN_PART_CHANGED = "type_of_train_part_changed",
+    TRAIN_PART_DELETE = "train_part_deleted",
+    LOCOMOTIVE_DIRECTION_CHANGE = "locomotive_direction_changed",
     FORM_CHANGED = "form_changed",
 }
 

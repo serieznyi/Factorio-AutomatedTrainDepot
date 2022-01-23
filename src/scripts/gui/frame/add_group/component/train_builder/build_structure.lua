@@ -23,7 +23,7 @@ function build_structure.get(train_part_id)
                     {filter="rolling-stock"},
                 },
                 actions = {
-                    on_elem_changed = { gui = COMPONENT.NAME, action = ACTION.TRAIN_CHANGED },
+                    on_elem_changed = { target = COMPONENT.NAME, action = ACTION.TYPE_OF_TRAIN_PART_CHANGED },
                 }
             },
             {
@@ -34,7 +34,7 @@ function build_structure.get(train_part_id)
                 style = "flib_slot_button_red",
                 sprite = "atd_sprite_trash",
                 actions = {
-                    on_click = { gui = COMPONENT.NAME, action = ACTION.DELETE_TRAIN_PART }
+                    on_click = { target = COMPONENT.NAME, action = ACTION.TRAIN_PART_DELETE }
                 }
             },
             {
@@ -45,7 +45,6 @@ function build_structure.get(train_part_id)
                 visible = false,
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_gear",
-                on_click = { gui = "locomotive_configuration_frame", action = "open" },
             },
             {
                 type = "sprite-button",
@@ -55,7 +54,7 @@ function build_structure.get(train_part_id)
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_left",
                 actions = {
-                    on_click = { gui = COMPONENT.NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
+                    on_click = { target = COMPONENT.NAME, action = ACTION.LOCOMOTIVE_DIRECTION_CHANGE },
                 }
             },
             {
@@ -66,7 +65,7 @@ function build_structure.get(train_part_id)
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_right",
                 actions = {
-                    on_click = { gui = COMPONENT.NAME, action = ACTION.CHANGE_LOCOMOTIVE_DIRECTION },
+                    on_click = { target = COMPONENT.NAME, action = ACTION.LOCOMOTIVE_DIRECTION_CHANGE },
                 }
             }
         }

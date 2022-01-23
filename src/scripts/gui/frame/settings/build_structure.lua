@@ -61,7 +61,7 @@ function build_structure.get(surface_train_stations_list)
                                 type = "checkbox",
                                 state = false,
                                 actions = {
-                                    on_elem_changed = { gui = FRAME.NAME, action = ACTION.FORM_CHANGED }
+                                    on_elem_changed = { target = FRAME.NAME, action = ACTION.FORM_CHANGED }
                                 }
                             },
                             {
@@ -72,7 +72,7 @@ function build_structure.get(surface_train_stations_list)
                                 type = "drop-down",
                                 items = surface_train_stations_list,
                                 actions = {
-                                    on_elem_changed = { gui = FRAME.NAME, action = ACTION.FORM_CHANGED }
+                                    on_elem_changed = { target = FRAME.NAME, action = ACTION.FORM_CHANGED }
                                 }
                             },
                         }
@@ -95,7 +95,7 @@ function build_structure.get(surface_train_stations_list)
                         style = "back_button",
                         caption = "Cancel",
                         actions = {
-                            on_click = { gui = FRAME.NAME, action = ACTION.CLOSE },
+                            on_click = { target = FRAME.NAME, action = ACTION.CLOSE },
                         },
                     },
                     {
@@ -110,7 +110,7 @@ function build_structure.get(surface_train_stations_list)
                         ref = {"submit_button"},
                         enabled = false,
                         actions = {
-                            on_click = { gui = FRAME.NAME, action = ACTION.SAVE },
+                            on_click = { target = FRAME.NAME, action = ACTION.SAVE },
                         },
                     },
                 }

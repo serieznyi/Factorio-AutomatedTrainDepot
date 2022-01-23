@@ -103,7 +103,7 @@ end
 
 function frame.action_on_click()
     return {
-        gui = FRAME.NAME,
+        target = FRAME.NAME,
         action = ACTION.OPEN
     }
 end
@@ -160,10 +160,10 @@ end
 ---@param event EventData
 function frame.dispatch(event, action)
     local handlers = {
-        { gui = FRAME.NAME, action = ACTION.OPEN, func = frame.open},
-        { gui = FRAME.NAME, action = ACTION.CLOSE, func = frame.destroy},
-        { gui = FRAME.NAME, action = ACTION.SAVE, func = save_form},
-        { gui = FRAME.NAME, action = ACTION.FORM_CHANGED, func = form_changed},
+        { target = FRAME.NAME, action = ACTION.OPEN, func = frame.open},
+        { target = FRAME.NAME, action = ACTION.CLOSE, func = frame.destroy},
+        { target = FRAME.NAME, action = ACTION.SAVE, func = save_form},
+        { target = FRAME.NAME, action = ACTION.FORM_CHANGED, func = form_changed},
     }
 
     return mod_event.dispatch(handlers, event, action)

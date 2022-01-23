@@ -94,12 +94,6 @@ function manager.dispatch(event)
         return false
     end
 
-    if action ~= nil then
-        mod.util.logger.debug("Event `{1}` for gui `{2}:{3}` triggered", {event_name, action.gui, action.action})
-    else
-        mod.util.logger.debug("Event `{1}` triggered", { event_name })
-    end
-
     for _, module in ipairs(FRAME_MODULES) do
         if module.dispatch(event, action) then
             processed = true

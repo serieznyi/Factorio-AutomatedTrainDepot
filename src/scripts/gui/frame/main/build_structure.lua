@@ -54,7 +54,7 @@ function build_structure.get()
                         hovered_sprite = "utility/close_black",
                         clicked_sprite = "utility/close_black",
                         actions = {
-                            on_click = {gui = FRAME.NAME, action = ACTION.CLOSE}
+                            on_click = {target = FRAME.NAME, action = ACTION.CLOSE}
                         }
                     },
                 }
@@ -103,7 +103,7 @@ function build_structure.get()
                                                 enabled = false,
                                                 actions = {
                                                     on_click = {
-                                                        gui = FRAME.NAME,
+                                                        target = FRAME.NAME,
                                                         action = ACTION.EDIT_GROUP,
                                                     },
                                                 },
@@ -118,7 +118,7 @@ function build_structure.get()
                                                 enabled = false,
                                                 actions = {
                                                     on_click = {
-                                                        gui = FRAME.NAME,
+                                                        target = FRAME.NAME,
                                                         action = ACTION.DELETE_GROUP,
                                                     },
                                                 },

@@ -81,7 +81,7 @@ local function populate_groups_list(player, container)
                     caption = icon .. " " .. group.name,
                     style = "atd_button_list_box_item",
                     actions = {
-                        on_click = { gui = FRAME.NAME, action = ACTION.GROUP_SELECTED}
+                        on_click = { target = FRAME.NAME, action = ACTION.GROUP_SELECTED}
                     }
                 })
             end
@@ -146,10 +146,10 @@ end
 ---@param event EventData
 function frame.dispatch(event, action)
     local handlers = {
-        { gui = FRAME.NAME, action = ACTION.CLOSE, func = frame.close },
-        { gui = FRAME.NAME, action = ACTION.GROUP_SELECTED, func = select_group },
-        { gui = FRAME.NAME, action = ACTION.DELETE_GROUP, func = delete_group },
-        { event = mod.defines.events.on_group_saved, func = update_gui },
+        { target = FRAME.NAME, action = ACTION.CLOSE, func = frame.close },
+        { target = FRAME.NAME, action = ACTION.GROUP_SELECTED, func = select_group },
+        { target = FRAME.NAME, action = ACTION.DELETE_GROUP, func = delete_group },
+        { event = mod.defines.events.on_mod_group_saved, func = update_gui },
     }
 
     return mod_event.dispatch(handlers, event, action)

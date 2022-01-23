@@ -31,16 +31,17 @@ end
 function event.dispatch(handlers, event_arg, action)
     local processed = false
     local gui_event = action ~= nil
+    local event_name = event.event_name(event_arg.name)
 
     for _, h in ipairs(handlers) do
-        if gui_event and h.gui == action.gui and (h.action == action.action or h.action == nil) then
+        if gui_event and h.target == action.target and (h.action == action.action or h.action == nil) then
             if h.func(event_arg, action) then
-                mod.util.logger.debug("Event `{1}:{2}` handled", { h.gui, h.action or "unknown"})
+                mod.util.logger.debug("Event `{1} ({2}:{3})` handled", { event_name, h.target, h.action or "unknown"})
                 processed = true
             end
         elseif h.event ~= nil and h.event == event_arg.name then
             if h.func(event_arg) then
-                mod.util.logger.debug("Event `{1}` handled", { event.event_name(event_arg.name) })
+                mod.util.logger.debug("Event `{1}` handled", { event_name })
                 processed = true
             end
         end
