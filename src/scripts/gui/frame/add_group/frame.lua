@@ -83,12 +83,19 @@ local function save_form(event)
     local validation_errors = frame.validate_form(event)
 
     if #validation_errors == 0 then
-        repository.add_group(player, form_data)
+        local group = repository.add_group(player, form_data)
+
+        script.raise_event(
+                mod.defines.events.on_mod_group_saved,
+                {
+                    player_index = event.player_index,
+                    target = mod.defines.gui.frames.main.name,
+                    group_id = group.id
+                }
+        )
     end
 
     frame.close(event)
-
-    script.raise_event(mod.defines.events.on_mod_group_saved, { player_index = event.player_index, target = "main_frame"})
 
     return true
 end

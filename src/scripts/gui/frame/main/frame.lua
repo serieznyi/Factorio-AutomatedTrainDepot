@@ -2,6 +2,7 @@ local flib_gui = require("__flib__.gui")
 
 local mod_gui = require("scripts.util.gui")
 local mod_event = require("scripts.util.event")
+local repository = require("scripts.repository")
 
 local constants = require("scripts.gui.frame.main.constants")
 local build_structure = require("scripts.gui.frame.main.build_structure")
@@ -67,24 +68,21 @@ end
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
 local function populate_groups_list(player, container)
-    -- todo get data from persistence
-    if global.groups[player.surface.name] ~= nil then
-        if global.groups[player.surface.name][player.force.name] ~= nil then
-            mod_gui.clear_children(container)
+    local groups = repository.find_all(player)
 
-            for _, group in pairs(global.groups[player.surface.name][player.force.name]) do
-                local icon = mod_gui.image_from_item_name(group.icon)
+    mod_gui.clear_children(container)
 
-                flib_gui.add(container, {
-                    type = "button",
-                    caption = icon .. " " .. group.name,
-                    style = "atd_button_list_box_item",
-                    actions = {
-                        on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.select_group }
-                    }
-                })
-            end
-        end
+    for _, group in pairs(groups) do
+        local icon = mod_gui.image_from_item_name(group.icon)
+
+        flib_gui.add(container, {
+            type = "button",
+            caption = icon .. " " .. group.name,
+            style = "atd_button_list_box_item",
+            actions = {
+                on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.select_group }
+            }
+        })
     end
 
     -- todo select first group
