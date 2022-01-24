@@ -25,6 +25,23 @@ local function is_mod_frame(element)
     return false
 end
 
+---@param event_arg EventData
+local function read_event_data(event_arg)
+    local event_data = flib_gui.read_action(event_arg)
+
+    if event_data == nil then
+        event_data = {}
+    end
+
+    event_data.name = mod_event.event_name(event_arg.name)
+
+    if event_data.target == nil then
+        event_data.target = event_arg.target
+    end
+
+    return event_data
+end
+
 ---@param element LuaGuiElement
 local function get_element_mod_frame(element)
     if element.type == "frame" and is_mod_frame(element) then
@@ -93,7 +110,7 @@ end
 ---@param event EventData
 function manager.dispatch(event)
     local processed = false
-    local event_data = mod_event.read_event_data(event)
+    local event_data = read_event_data(event)
 
     -- todo frame move not blocked
     if is_event_blocked(event) then

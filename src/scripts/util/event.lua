@@ -32,23 +32,6 @@ function event.event_name(event_number)
     return event_name_map[event_number] or 'unknown(' .. event_number .. ')'
 end
 
----@param event_arg EventData
-function event.read_event_data(event_arg)
-    local event_data = flib_gui.read_action(event_arg)
-
-    if event_data == nil then
-        event_data = {}
-    end
-
-    event_data.name = event.event_name(event_arg.name)
-
-    if event_data.target == nil then
-        event_data.target = event_arg.target
-    end
-
-    return event_data
-end
-
 ---@param handlers table
 ---@param event_arg EventData
 ---@param event_data table
