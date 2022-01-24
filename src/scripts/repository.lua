@@ -23,7 +23,17 @@ end
 ---@param id uint
 ---@return table
 function global_storage.get_group(player, id)
-    return global.groups[player.surface.name][player.force.name][id]
+    if global.groups[player.surface.name] == nil or global.groups[player.surface.name][player.force.name] == nil then
+        return nil
+    end
+
+    for _, v in pairs(global.groups[player.surface.name][player.force.name]) do
+        if v.id == id then
+            return v
+        end
+    end
+
+    return nil
 end
 
 ---@param player LuaPlayer
@@ -49,15 +59,24 @@ function global_storage.add_group(player, group_data)
 
     group_data.id = group_sequence:next()
 
-    table.insert(global.groups[player.surface.name][player.force.name], group_data.id, group_data)
+    table.insert(global.groups[player.surface.name][player.force.name], group_data)
 
-    return global.groups[player.surface.name][player.force.name][group_data.id]
+    return group_data
 end
 
 ---@param player LuaPlayer
 ---@param group_id uint
 function global_storage.delete_group(player, group_id)
-    table.remove(global.groups[player.surface.name][player.force.name], group_id)
+
+    if global.groups[player.surface.name] == nil or global.groups[player.surface.name][player.force.name] == nil then
+        return
+    end
+
+    for i, v in pairs(global.groups[player.surface.name][player.force.name]) do
+        if v.id == group_id then
+            return table.remove(global.groups[player.surface.name][player.force.name], i)
+        end
+    end
 end
 
 return global_storage

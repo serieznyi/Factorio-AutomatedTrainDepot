@@ -124,8 +124,7 @@ function private.refresh_groups_list(player, container)
 
     mod_gui.clear_children(container)
 
-    local i = 1
-    for _, group in pairs(groups) do
+    for i, group in pairs(groups) do
         local icon = mod_gui.image_for_item(group.icon)
         local group_selected = group.id == selected_group_id
 
@@ -142,8 +141,6 @@ function private.refresh_groups_list(player, container)
                 on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.select_group }
             }
         })
-
-        i = i + 1
     end
 end
 
