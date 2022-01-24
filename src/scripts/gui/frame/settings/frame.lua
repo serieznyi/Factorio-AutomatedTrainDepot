@@ -21,19 +21,19 @@ local VALIDATION_RULES = {
 
 local storage = {
     init = function()
-        mod.storage.gui[FRAME.NAME] = {}
+        global.gui[FRAME.NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        mod.storage.gui[FRAME.NAME][player.index] = nil
+        global.gui[FRAME.NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_gui = function(player)
-        return mod.storage.gui[FRAME.NAME][player.index]
+        return global.gui[FRAME.NAME][player.index]
     end,
     save_gui = function(player, refs)
-        mod.storage.gui[FRAME.NAME][player.index] = {
+        global.gui[FRAME.NAME][player.index] = {
             refs = refs,
         }
     end,

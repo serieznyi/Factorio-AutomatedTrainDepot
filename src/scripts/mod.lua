@@ -7,11 +7,6 @@ mod.util = {
     logger = require("scripts.logger"),
 }
 
--- Save module runtime vars
-mod.storage = {
-    gui = {},
-    gui_component = {},
-}
 mod.depots = {} -- todo remove me
 
 return mod

@@ -15,22 +15,22 @@ local TRAIN_PART_TYPE = {
 
 local storage = {
     init = function()
-        mod.storage.gui_component[COMPONENT.NAME] = {}
+        global.gui_component[COMPONENT.NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        mod.storage.gui_component[COMPONENT.NAME][player.index] = nil
+        global.gui_component[COMPONENT.NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_all_train_parts = function(player)
-        return mod.storage.gui_component[COMPONENT.NAME][player.index].train_parts
+        return global.gui_component[COMPONENT.NAME][player.index].train_parts
     end,
     ---@param player LuaPlayer
     ---@param container LuaGuiElement
     set_container = function(player, container)
-        if mod.storage.gui_component[COMPONENT.NAME][player.index] == nil then
-            mod.storage.gui_component[COMPONENT.NAME][player.index] = {
+        if global.gui_component[COMPONENT.NAME][player.index] == nil then
+            global.gui_component[COMPONENT.NAME][player.index] = {
                 container = container,
                 train_parts = {},
             }
@@ -39,14 +39,14 @@ local storage = {
     ---@param player LuaPlayer
     ---@return LuaGuiElement
     get_container = function(player)
-        return mod.storage.gui_component[COMPONENT.NAME][player.index].container
+        return global.gui_component[COMPONENT.NAME][player.index].container
     end,
     ---@param player LuaPlayer
     ---@param train_part_id int
     ---@param refs table
     add_train_part = function(player, train_part_id, refs)
         table.insert(
-            mod.storage.gui_component[COMPONENT.NAME][player.index].train_parts,
+            global.gui_component[COMPONENT.NAME][player.index].train_parts,
                 train_part_id,
             { refs = refs }
         )
@@ -54,13 +54,13 @@ local storage = {
     ---@param player LuaPlayer
     ---@param train_part_id int
     delete_train_part = function(player, train_part_id)
-        flib_table.retrieve(mod.storage.gui_component[COMPONENT.NAME][player.index].train_parts, train_part_id)
+        flib_table.retrieve(global.gui_component[COMPONENT.NAME][player.index].train_parts, train_part_id)
     end,
     ---@param player LuaPlayer
     ---@param train_part_id int
     ---@return table
     get_train_part = function(player, train_part_id)
-        return mod.storage.gui_component[COMPONENT.NAME][player.index].train_parts[train_part_id]
+        return global.gui_component[COMPONENT.NAME][player.index].train_parts[train_part_id]
     end,
 }
 
