@@ -21,19 +21,19 @@ local VALIDATION_RULES = {
 
 local storage = {
     init = function()
-        global.gui[FRAME.NAME] = {}
+        global.gui.frame[FRAME.NAME] = {}
     end,
     ---@param player LuaPlayer
     destroy = function(player)
-        global.gui[FRAME.NAME][player.index] = nil
+        global.gui.frame[FRAME.NAME][player.index] = nil
     end,
     ---@param player LuaPlayer
     ---@return table
     get_gui = function(player)
-        return global.gui[FRAME.NAME][player.index]
+        return global.gui.frame[FRAME.NAME][player.index]
     end,
     save_gui = function(player, refs)
-        global.gui[FRAME.NAME][player.index] = {
+        global.gui.frame[FRAME.NAME][player.index] = {
             refs = refs,
         }
     end,
@@ -118,7 +118,6 @@ function frame.init()
 end
 
 function frame.load()
-    storage.init()
 end
 
 ---@param event EventData
