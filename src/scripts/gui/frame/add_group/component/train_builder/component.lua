@@ -277,7 +277,6 @@ function component.dispatch(event, action)
     local processed = mod_event.dispatch(event_handlers, event, action)
 
     if processed then
-        -- todo
         script.raise_event(
                 mod.defines.events.on_mod_gui_form_changed,
                 { player_index = event.player_index, target = mod.defines.gui.frames.add_group.name }

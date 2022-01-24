@@ -2,16 +2,12 @@ local flib_gui = require("__flib__.gui")
 
 local mod_event = require("scripts.util.event")
 
-local main_frame = require("scripts.gui.frame.main.frame")
-local add_group_frame = require("scripts.gui.frame.add_group.frame")
-local settings_frame = require("scripts.gui.frame.settings.frame")
-
 local manager = {}
 
 local FRAME_MODULES = {
-    main_frame,
-    add_group_frame,
-    settings_frame,
+    require("scripts.gui.frame.main.frame"),
+    require("scripts.gui.frame.add_group.frame"),
+    require("scripts.gui.frame.settings.frame"),
 }
 
 ---@param element LuaGuiElement
@@ -43,21 +39,35 @@ local function get_element_mod_frame(element)
 end
 
 ---@param event EventData
-local function is_event_target_blocked(event)
-    local element = event.element or nil
-    local player = game.get_player(event.player_index)
-
-    if element == nil then
+local function is_event_blocked(event)
+    if not mod_event.is_gui_event(event) then
         return false
     end
 
+    local element = event.element
     local element_frame = get_element_mod_frame(element)
 
     if element_frame == nil then
         return false
     end
 
-    return player.opened ~= nil and player.opened ~= element_frame
+    local player = game.get_player(event.player_index)
+
+    if player.opened ~= nil and player.opened ~= element_frame then
+        mod.util.logger.debug(
+                "Event `{1}` for gui element `{2}` is blocked",
+                {
+                    mod_event.event_name(event.name),
+                    event.element.name
+                }
+        )
+
+        manager.bring_to_front_current_window(player)
+
+        return true
+    end
+
+    return false
 end
 
 function manager.bring_to_front_current_window()
@@ -82,15 +92,11 @@ end
 
 ---@param event EventData
 function manager.dispatch(event)
-    local player = game.get_player(event.player_index)
     local processed = false
     local event_data = mod_event.read_event_data(event)
-    local event_name = mod_event.event_name(event.name)
 
-    --- Gui event
-    if mod_event.is_gui_event(event) and is_event_target_blocked(event) then
-        mod.util.logger.debug("Event `{1}` for gui element `{2}` is blocked", {event_name, event.element.name})
-        manager.bring_to_front_current_window(player)
+    -- todo frame move not blocked
+    if is_event_blocked(event) then
         return true
     end
 
