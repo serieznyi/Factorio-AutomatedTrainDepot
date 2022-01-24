@@ -40,8 +40,7 @@ function build_structure.get()
                         style = "frame_action_button",
                         sprite = "atd_sprite_settings",
                         actions = {
-                            -- todo use name from defines
-                            on_click = { target = "settings_frame", action = mod.defines.gui.actions.open_frame }
+                            on_click = { target = mod.defines.gui.frames.settings.name, action = mod.defines.gui.actions.open_frame }
                         }
                     },
                     {
@@ -88,8 +87,7 @@ function build_structure.get()
                                                 tooltip = {"main-frame.atd-add-new-group"},
                                                 sprite = "atd_sprite_add",
                                                 actions = {
-                                                    -- todo use name from defines
-                                                    on_click = { target = "add_group_frame", action = mod.defines.gui.actions.open_frame }
+                                                    on_click = { target = mod.defines.gui.frames.add_group.name, action = mod.defines.gui.actions.open_frame }
                                                 },
                                             },
                                             {

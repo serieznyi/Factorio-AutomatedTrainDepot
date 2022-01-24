@@ -1,7 +1,7 @@
 local constants = {}
 
 constants.FRAME = {
-    NAME = "main_frame",
+    NAME = mod.defines.gui.frames.main.name,
     WIDTH = 1200,
     HEIGHT = 600,
 }

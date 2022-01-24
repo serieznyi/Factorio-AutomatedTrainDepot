@@ -1,7 +1,7 @@
 local constants = {}
 
 constants.FRAME = {
-    NAME = "settings_frame"
+    NAME = mod.defines.gui.frames.settings.name
 }
 
 return constants

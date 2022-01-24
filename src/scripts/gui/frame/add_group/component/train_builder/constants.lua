@@ -1,7 +1,7 @@
 local constants = {}
 
 constants.COMPONENT = {
-    NAME = "train_builder",
+    NAME = mod.defines.gui.components.train_builder.name,
 }
 
 constants.LOCOMOTIVE_DIRECTION = {

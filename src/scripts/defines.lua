@@ -27,6 +27,14 @@ defines.gui = {
         -- other
         trigger_form_changed = script.generate_event_name(),
     },
+    frames = {
+        main = { name = "main_frame" },
+        add_group = { name = "add_group_frame" },
+        settings = { name = "settings_frame" },
+    },
+    components = {
+      train_builder = { name = "train_builder_component" }
+    },
     mod_frame_marker_name = "atd_frame",
 }
 
