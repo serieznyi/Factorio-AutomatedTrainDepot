@@ -20,8 +20,7 @@ end
 
 ---@param item_name string
 function gui.image_for_item(item_name)
-    local item_prototype = game.item_prototypes[item_name]
-    local icon_path = item_prototype.type .. "/" .. item_name
+    local icon_path = "item/" .. item_name
 
     if not game.is_valid_sprite_path(icon_path) then
         return "[img=utility/missing_icon]"
