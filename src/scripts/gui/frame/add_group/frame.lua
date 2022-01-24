@@ -23,120 +23,48 @@ local VALIDATION_RULES = {
     },
 }
 
-local storage = {
-    init = function()
-        global.gui.frame[FRAME.NAME] = {}
-    end,
-    ---@param player LuaPlayer
-    destroy = function(player)
-        global.gui.frame[FRAME.NAME][player.index] = nil
-    end,
-    ---@param player LuaPlayer
-    ---@return table
-    get_gui = function(player)
-        return global.gui.frame[FRAME.NAME][player.index]
-    end,
-    save_gui = function(player, refs)
-        global.gui.frame[FRAME.NAME][player.index] = {
-            refs = refs,
-        }
-    end,
-}
+local public = {}
+local private = {}
+local storage = {}
 
-local frame = {}
+---------------------------------------------------------------------------
+-- -- -- STORAGE
+---------------------------------------------------------------------------
 
----@param event EventData
-local function trigger_form_changed(event)
-    script.raise_event(
-            mod.defines.events.on_mod_gui_form_changed,
-            { target = FRAME.NAME,  player_index = event.player_index}
-    )
+function storage.init()
+    global.gui.frame[FRAME.NAME] = {}
 end
 
----@param event EventData
-local function form_changed(event)
-    local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
-    local validation_errors_container = gui.refs.validation_errors_container
-    local submit_button = gui.refs.submit_button
-    local validation_errors = frame.validate_form(event)
-
-    mod_gui.clear_children(validation_errors_container)
-
-    if #validation_errors == 0 then
-        submit_button.enabled = true
-    else
-        submit_button.enabled = false
-
-        for _, error in ipairs(validation_errors) do
-            validation_errors_container.add{type="label", caption=error}
-        end
-    end
-
-    return true
-end
-
----@param event EventData
-local function save_form(event)
-    local player = game.get_player(event.player_index)
-    local form_data = frame.read_form(event)
-    local validation_errors = frame.validate_form(event)
-
-    if #validation_errors == 0 then
-        local group = repository.add_group(player, form_data)
-
-        script.raise_event(
-                mod.defines.events.on_mod_group_saved,
-                {
-                    player_index = event.player_index,
-                    target = mod.defines.gui.frames.main.name,
-                    group_id = group.id
-                }
-        )
-    end
-
-    frame.close(event)
-
-    return true
+---@param player LuaPlayer
+function storage.destroy(player)
+    global.gui.frame[FRAME.NAME][player.index] = nil
 end
 
 ---@param player LuaPlayer
 ---@return table
-local function create_for(player)
-    local refs = flib_gui.build(player.gui.screen, {build_structure.get()})
-
-    refs.window.force_auto_center()
-    refs.titlebar_flow.drag_target = refs.window
-    refs.footerbar_flow.drag_target = refs.window
-
-    train_builder_component.append_component(refs.train_builder_container, player)
-
-    storage.save_gui(player, refs)
-
-    return storage.get_gui(player)
+function storage.get_gui(player)
+    return global.gui.frame[FRAME.NAME][player.index]
 end
 
----@return string
-function frame.name()
-    return FRAME.NAME
+---@param player LuaPlayer
+---@param refs table
+function storage.save_gui(player, refs)
+    global.gui.frame[FRAME.NAME][player.index] = {
+        refs = refs,
+    }
 end
 
-function frame.init()
-    storage.init()
-    train_builder_component.init()
-end
-
-function frame.load()
-    train_builder_component.load()
-end
+---------------------------------------------------------------------------
+-- -- -- PRIVATE
+---------------------------------------------------------------------------
 
 ---@param event EventData
-function frame.open(event)
+function private.handle_frame_open(event)
     local player = game.get_player(event.player_index)
     local gui = storage.get_gui(player)
 
     if gui == nil then
-        gui = create_for(player)
+        gui = private.create_for(player)
     end
 
     gui.refs.window.bring_to_front()
@@ -147,7 +75,7 @@ function frame.open(event)
 end
 
 ---@param event EventData
-function frame.close(event)
+function private.handle_frame_close(event)
     local player = game.get_player(event.player_index)
     local gui = storage.get_gui(player)
 
@@ -167,17 +95,108 @@ function frame.close(event)
     return true
 end
 
+---@param event EventData
+function private.handle_trigger_form_changed(event)
+    script.raise_event(
+            mod.defines.events.on_mod_gui_form_changed,
+            { target = FRAME.NAME,  player_index = event.player_index}
+    )
+
+    return true
+end
+
+---@param event EventData
+function private.handle_form_changed(event)
+    local player = game.get_player(event.player_index)
+    local gui = storage.get_gui(player)
+    local validation_errors_container = gui.refs.validation_errors_container
+    local submit_button = gui.refs.submit_button
+    local validation_errors = public.validate_form(event)
+
+    mod_gui.clear_children(validation_errors_container)
+
+    if #validation_errors == 0 then
+        submit_button.enabled = true
+    else
+        submit_button.enabled = false
+
+        for _, error in ipairs(validation_errors) do
+            validation_errors_container.add{type="label", caption=error}
+        end
+    end
+
+    return true
+end
+
+---@param event EventData
+function private.handle_save_form(event)
+    local player = game.get_player(event.player_index)
+    local form_data = public.read_form(event)
+    local validation_errors = public.validate_form(event)
+
+    if #validation_errors == 0 then
+        local group = repository.add_group(player, form_data)
+
+        script.raise_event(
+                mod.defines.events.on_mod_group_saved,
+                {
+                    player_index = event.player_index,
+                    target = mod.defines.gui.frames.main.name,
+                    group_id = group.id
+                }
+        )
+    end
+
+    private.handle_frame_close(event)
+
+    return true
+end
+
+---@param player LuaPlayer
+---@return table
+function private.create_for(player)
+    local refs = flib_gui.build(player.gui.screen, {build_structure.get()})
+
+    refs.window.force_auto_center()
+    refs.titlebar_flow.drag_target = refs.window
+    refs.footerbar_flow.drag_target = refs.window
+
+    train_builder_component.append_component(refs.train_builder_container, player)
+
+    storage.save_gui(player, refs)
+
+    return storage.get_gui(player)
+end
+
+---------------------------------------------------------------------------
+-- -- -- PUBLIC
+---------------------------------------------------------------------------
+
+---@return string
+function public.name()
+    return FRAME.NAME
+end
+
+function public.init()
+    storage.init()
+    train_builder_component.init()
+end
+
+function public.load()
+    train_builder_component.load()
+end
+
 ---@param action table
 ---@param event EventData
-function frame.dispatch(event, action)
+function public.dispatch(event, action)
     local handlers = {
-        { target = FRAME.NAME,                      action = mod.defines.gui.actions.trigger_form_changed,  func = trigger_form_changed},
-        { target = FRAME.NAME,                      action = mod.defines.gui.actions.close_frame,           func = frame.close},
-        { target = FRAME.NAME,                      action = mod.defines.gui.actions.open_frame,            func = frame.open},
-        { target = FRAME.NAME,                      action = mod.defines.gui.actions.save_form,             func = save_form},
+        { target = FRAME.NAME,                      action = mod.defines.gui.actions.trigger_form_changed,  func = private.handle_trigger_form_changed },
+        { target = FRAME.NAME,                      action = mod.defines.gui.actions.close_frame,           func = private.handle_frame_close },
+        { target = FRAME.NAME,                      action = mod.defines.gui.actions.open_frame,            func = private.handle_frame_open },
+        { target = FRAME.NAME,                      action = mod.defines.gui.actions.save_form,             func = private.handle_save_form },
         { target = train_builder_component.name(),  action = mod.defines.gui.actions.any,                   func = train_builder_component.dispatch},
         -- todo
-        { target = FRAME.NAME,                      event = mod.defines.events.on_mod_gui_form_changed,     func = form_changed },
+        { target = FRAME.NAME,                      event = mod.defines.events.on_mod_gui_form_changed,     func = private.handle_form_changed },
     }
 
     return mod_event.dispatch(handlers, event, action)
@@ -185,7 +204,7 @@ end
 
 ---@param event EventData
 ---@return table form data
-function frame.read_form(event)
+function public.read_form(event)
     local player = game.get_player(event.player_index)
     local gui = storage.get_gui(player)
 
@@ -197,8 +216,8 @@ function frame.read_form(event)
     }
 end
 
-function frame.validate_form(event)
-    local form_data = frame.read_form(event)
+function public.validate_form(event)
+    local form_data = public.read_form(event)
 
     return flib_table.array_merge({
         train_builder_component.validate_form(event),
@@ -206,4 +225,4 @@ function frame.validate_form(event)
     })
 end
 
-return frame
+return public
