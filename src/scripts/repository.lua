@@ -54,4 +54,10 @@ function global_storage.add_group(player, group_data)
     return global.groups[player.surface.name][player.force.name][group_data.id]
 end
 
+---@param player LuaPlayer
+---@param group_id uint
+function global_storage.delete_group(player, group_id)
+    table.remove(global.groups[player.surface.name][player.force.name], group_id)
+end
+
 return global_storage

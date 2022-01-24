@@ -19,7 +19,7 @@ function gui.clear_children(element)
 end
 
 ---@param item_name string
-function gui.image_from_item_name(item_name)
+function gui.image_for_item(item_name)
     local item_prototype = game.item_prototypes[item_name]
     local icon_path = item_prototype.type .. "/" .. item_name
 

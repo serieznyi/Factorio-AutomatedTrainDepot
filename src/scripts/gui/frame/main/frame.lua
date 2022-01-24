@@ -9,95 +9,180 @@ local build_structure = require("scripts.gui.frame.main.build_structure")
 
 local FRAME = constants.FRAME
 
-local storage = {
-    init = function()
-        global.gui.frame[FRAME.NAME] = {}
-    end,
-    ---@param player LuaPlayer
-    destroy = function(player)
-        global.gui.frame[FRAME.NAME][player.index] = nil
-    end,
-    ---@param player LuaPlayer
-    ---@return table
-    get_gui = function(player)
-        return global.gui.frame[FRAME.NAME][player.index]
-    end,
-    ---@param player LuaPlayer
-    ---@param refs table
-    save_gui = function(player, refs)
-        global.gui.frame[FRAME.NAME][player.index] = {
-            refs = refs,
-        }
-    end,
-}
+local public = {}
+local private = {}
+local storage = {}
 
-local frame = {}
+---------------------------------------------------------------------------
+-- -- -- STORAGE
+---------------------------------------------------------------------------
 
----@param selected_element LuaGuiElement
----@param gui table
-local function active_group_button(selected_element, gui)
-    ---@param child LuaGuiElement
-    for i, child in ipairs(gui.refs.groups_container.children) do
-        if i ~= selected_element.get_index_in_parent() then
-            flib_gui.update(child, {style = "atd_button_list_box_item"})
-        else
-            flib_gui.update(child, {style = "atd_button_list_box_item_active"})
+function storage.init()
+    global.gui.frame[FRAME.NAME] = {}
+end
+
+---@param player LuaPlayer
+function storage.destroy(player)
+    global.gui.frame[FRAME.NAME][player.index] = nil
+end
+
+---@param player LuaPlayer
+---@return table
+function storage.get_gui(player)
+    return global.gui.frame[FRAME.NAME][player.index]
+end
+
+---@param player LuaPlayer
+---@param refs table
+function storage.save_gui(player, refs)
+    global.gui.frame[FRAME.NAME][player.index] = {
+        refs = refs,
+    }
+end
+
+---@param player LuaPlayer
+function storage.get_selected_group(player)
+    return global.gui.frame[FRAME.NAME][player.index].selected_group
+end
+
+---------------------------------------------------------------------------
+-- -- -- PRIVATE
+---------------------------------------------------------------------------
+
+---@param event EventData
+function private.handle_update_gui(event)
+    local player = game.get_player(event.player_index)
+
+    private.refresh_gui(player)
+
+    return true
+end
+
+---@param event EventData
+function private.handle_select_group(event)
+    local player = game.get_player(event.player_index)
+    local gui = storage.get_gui(player)
+
+    private.mark_selected_group_button(event.element, gui)
+
+    private.refresh_gui(player)
+
+    return true
+end
+
+---@param player LuaPlayer
+function private.get_selected_group_element(player)
+    local gui = storage.get_gui(player)
+
+    for _, v in ipairs(gui.refs.groups_container.children) do
+        local tags = flib_gui.get_tags(v)
+
+        if tags.selected == true then
+            return v
         end
     end
+
+    return nil
+end
+
+---@param player LuaPlayer
+function private.get_selected_group_id(player)
+    local selected_group_element = private.get_selected_group_element(player)
+
+    if selected_group_element == nil then
+        return nil
+    end
+
+    local selected_group_element_tags = flib_gui.get_tags(selected_group_element)
+
+    return  selected_group_element_tags.group_id
 end
 
 ---@param event EventData
-local function select_group(event)
+function private.handle_delete_group(event)
     local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
+    local selected_group_element = private.get_selected_group_element(player)
 
-    active_group_button(event.element, gui)
+    if selected_group_element ~= nil then
+        local group_id = private.get_selected_group_id(player)
 
-    gui.refs.edit_group_button.enabled = true
-    gui.refs.delete_group_button.enabled = true
-end
+        repository.delete_group(player, group_id)
 
----@param event EventData
-local function delete_group(event)
-    local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
+        selected_group_element.destroy()
+    end
 
-    -- TODO
+    private.refresh_gui(player)
+
+    return true
 end
 
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
-local function populate_groups_list(player, container)
+function private.refresh_groups_list(player, container)
     local groups = repository.find_all(player)
+    local selected_group_id = private.get_selected_group_id(player)
 
     mod_gui.clear_children(container)
 
+    local i = 1
     for _, group in pairs(groups) do
-        local icon = mod_gui.image_from_item_name(group.icon)
+        local icon = mod_gui.image_for_item(group.icon)
+        local group_selected = group.id == selected_group_id
+
+        if selected_group_id == nil and i == 1 then
+            group_selected = true
+        end
 
         flib_gui.add(container, {
             type = "button",
             caption = icon .. " " .. group.name,
-            style = "atd_button_list_box_item",
+            style = group_selected and "atd_button_list_box_item_active" or "atd_button_list_box_item",
+            tags = { group_id = group.id, selected = group_selected },
             actions = {
                 on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.select_group }
             }
         })
-    end
 
-    -- todo select first group
+        i = i + 1
+    end
 end
 
----@param event EventData
-local function update_gui(event)
-    local player = game.get_player(event.player_index)
+function private.refresh_groups_control_buttons(player)
     local gui = storage.get_gui(player)
+    local selected_group_id = private.get_selected_group_id(player)
+    local group_selected = selected_group_id ~= nil
 
-    populate_groups_list(player, gui.refs.groups_container)
+    gui.refs.edit_group_button.enabled = group_selected
+    gui.refs.delete_group_button.enabled = group_selected
 end
 
 ---@param player LuaPlayer
-local function create_for(player)
+function private.refresh_gui(player)
+    local gui = storage.get_gui(player)
+
+    private.refresh_groups_list(player, gui.refs.groups_container)
+
+    private.refresh_groups_control_buttons(player)
+end
+
+---@param player LuaPlayer
+---@param selected_element LuaGuiElement
+---@param gui table
+function private.mark_selected_group_button(selected_element, gui)
+    local element_index = selected_element.get_index_in_parent()
+
+    ---@param child LuaGuiElement
+    for i, child in ipairs(gui.refs.groups_container.children) do
+        if i ~= element_index then
+            flib_gui.update(child, { tags = {selected = false} })
+        else
+            flib_gui.update(child, { tags = {selected = true} })
+        end
+    end
+end
+
+---@param player LuaPlayer
+function private.create_for(player)
     local refs = flib_gui.build(player.gui.screen, { build_structure.get() })
 
     refs.window.force_auto_center()
@@ -114,45 +199,7 @@ local function create_for(player)
     return storage.get_gui(player)
 end
 
----@return string
-function frame.name()
-    return FRAME.NAME
-end
-
-function frame.init()
-    storage.init()
-end
-
-function frame.load()
-end
-
----@param player LuaPlayer
-function frame.open(player)
-    local gui = create_for(player)
-
-    populate_groups_list(player, gui.refs.groups_container)
-
-    local window = gui.refs.window
-    window.bring_to_front()
-    window.visible = true
-    player.opened = window
-end
-
----@param action table
----@param event EventData
-function frame.dispatch(event, action)
-    local handlers = {
-        { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame,    func = frame.close },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.select_group,   func = select_group },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.delete_group,   func = delete_group },
-        -- todo
-        { target = FRAME.NAME, event = mod.defines.events.on_mod_group_saved,   func = update_gui },
-    }
-
-    return mod_event.dispatch(handlers, event, action)
-end
-
-function frame.close(event)
+function private.close_frame(event)
     local player = game.get_player(event.player_index)
     local gui = storage.get_gui(player)
     local window = gui.refs.window
@@ -170,4 +217,46 @@ function frame.close(event)
     return true
 end
 
-return frame
+---------------------------------------------------------------------------
+-- -- -- PUBLIC
+---------------------------------------------------------------------------
+
+---@return string
+function public.name()
+    return FRAME.NAME
+end
+
+function public.init()
+    storage.init()
+end
+
+function public.load()
+end
+
+---@param player LuaPlayer
+function public.open(player)
+    local gui = private.create_for(player)
+
+    private.refresh_groups_list(player, gui.refs.groups_container)
+
+    local window = gui.refs.window
+    window.bring_to_front()
+    window.visible = true
+    player.opened = window
+end
+
+---@param action table
+---@param event EventData
+function public.dispatch(event, action)
+    local handlers = {
+        { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame,    func = private.close_frame },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.select_group,   func = private.handle_select_group },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.delete_group,   func = private.handle_delete_group },
+        -- todo
+        { target = FRAME.NAME, event = mod.defines.events.on_mod_group_saved,   func = private.handle_update_gui },
+    }
+
+    return mod_event.dispatch(handlers, event, action)
+end
+
+return public
