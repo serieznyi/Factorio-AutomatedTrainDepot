@@ -108,7 +108,12 @@ function build_structure.get()
                                                 ref = {"delete_group_button"},
                                                 sprite = "atd_sprite_trash",
                                                 enabled = false,
-                                                actions = {},
+                                                actions = {
+                                                    on_click = {
+                                                        target = mod.defines.gui.frames.main.name,
+                                                        action = mod.defines.gui.actions.delete_group
+                                                    }
+                                                },
                                             },
                                         }
                                     },
