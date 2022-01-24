@@ -70,6 +70,24 @@ function private.handle_select_group(event)
     return true
 end
 
+---@param event EventData
+function private.handle_delete_group(event)
+    local player = game.get_player(event.player_index)
+    local selected_group_element = private.get_selected_group_element(player)
+
+    if selected_group_element ~= nil then
+        local group_id = private.get_selected_group_id(player)
+
+        repository.delete_group(player, group_id)
+
+        selected_group_element.destroy()
+    end
+
+    private.refresh_gui(player)
+
+    return true
+end
+
 ---@param player LuaPlayer
 function private.get_selected_group_element(player)
     local gui = storage.get_gui(player)
@@ -96,24 +114,6 @@ function private.get_selected_group_id(player)
     local selected_group_element_tags = flib_gui.get_tags(selected_group_element)
 
     return  selected_group_element_tags.group_id
-end
-
----@param event EventData
-function private.handle_delete_group(event)
-    local player = game.get_player(event.player_index)
-    local selected_group_element = private.get_selected_group_element(player)
-
-    if selected_group_element ~= nil then
-        local group_id = private.get_selected_group_id(player)
-
-        repository.delete_group(player, group_id)
-
-        selected_group_element.destroy()
-    end
-
-    private.refresh_gui(player)
-
-    return true
 end
 
 ---@param player LuaPlayer
