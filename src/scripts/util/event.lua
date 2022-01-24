@@ -1,4 +1,4 @@
-local flib_gui = require("__flib__.gui")
+local mod_gui = require("scripts.util.gui")
 
 local event = {}
 
@@ -37,20 +37,26 @@ end
 ---@param event_data table
 function event.dispatch(handlers, event_arg, event_data)
     local processed = false
-    local gui_event = event_arg.element ~= nil
     local event_name = event.event_name(event_arg.name)
 
     for _, h in ipairs(handlers) do
         if event_data.target == h.target then
-            if (event_data.action ~= nil and (h.action == event_data.action or h.action == mod.defines.gui.actions.any)) or (h.event ~= nil and h.event == event_arg.name) then
+            if
+                (event_data.action ~= nil and (h.action == event_data.action or h.action == mod.defines.gui.actions.any)) or
+                (h.event ~= nil and h.event == event_arg.name)
+            then
                 if h.func(event_arg, event_data) then
                     processed = true
 
-                    if gui_event then
-                        mod.util.logger.debug("Event `{1} ({2}:{3})` handled", { event_name, h.target, h.action or "unknown"})
-                    else
-                        mod.util.logger.debug("Event `{1}` handled", { event_name })
+                    local action_name = "?"
+                    if h.action ~= nil then
+                        action_name = mod_gui.action_name(h.action)
                     end
+
+                    mod.util.logger.debug(
+                            "Event `{1} ({2}:{3})` handled",
+                            { event_name, h.target, action_name}
+                    )
                 end
             end
 
