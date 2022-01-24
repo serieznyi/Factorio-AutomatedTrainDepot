@@ -14,13 +14,18 @@ defines.gui = {
     actions = {
         any = script.generate_event_name(),
         -- common
+        open_frame = script.generate_event_name(),
         close_frame = script.generate_event_name(),
         save_form = script.generate_event_name(),
         -- group
         delete_group = script.generate_event_name(),
+        select_group = script.generate_event_name(),
         -- train gui
         delete_train_part = script.generate_event_name(),
         change_locomotive_direction = script.generate_event_name(),
+        refresh_train_part = script.generate_event_name(),
+        -- other
+        trigger_form_changed = script.generate_event_name(),
     },
     mod_frame_marker_name = "atd_frame",
 }

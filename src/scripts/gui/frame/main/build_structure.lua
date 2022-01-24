@@ -1,9 +1,6 @@
 local constants = require("scripts.gui.frame.main.constants")
-local settings_frame = require("scripts.gui.frame.settings.frame")
-local add_group_frame = require("scripts.gui.frame.add_group.frame")
 
 local FRAME = constants.FRAME
-local ACTION = constants.ACTION
 
 local build_structure = {}
 
@@ -43,7 +40,8 @@ function build_structure.get()
                         style = "frame_action_button",
                         sprite = "atd_sprite_settings",
                         actions = {
-                            on_click = settings_frame.action_on_click()
+                            -- todo use name from defines
+                            on_click = { target = "settings_frame", action = mod.defines.gui.actions.open_frame }
                         }
                     },
                     {
@@ -54,7 +52,7 @@ function build_structure.get()
                         hovered_sprite = "utility/close_black",
                         clicked_sprite = "utility/close_black",
                         actions = {
-                            on_click = {target = FRAME.NAME, action = ACTION.CLOSE}
+                            on_click = {target = FRAME.NAME, action = mod.defines.gui.actions.close_frame}
                         }
                     },
                 }
@@ -90,7 +88,8 @@ function build_structure.get()
                                                 tooltip = {"main-frame.atd-add-new-group"},
                                                 sprite = "atd_sprite_add",
                                                 actions = {
-                                                    on_click = add_group_frame.action_on_click()
+                                                    -- todo use name from defines
+                                                    on_click = { target = "add_group_frame", action = mod.defines.gui.actions.open_frame }
                                                 },
                                             },
                                             {
@@ -101,12 +100,7 @@ function build_structure.get()
                                                 ref = {"edit_group_button"},
                                                 sprite = "atd_sprite_edit",
                                                 enabled = false,
-                                                actions = {
-                                                    on_click = {
-                                                        target = FRAME.NAME,
-                                                        action = ACTION.EDIT_GROUP,
-                                                    },
-                                                },
+                                                actions = {},
                                             },
                                             {
                                                 type = "sprite-button",
@@ -116,12 +110,7 @@ function build_structure.get()
                                                 ref = {"delete_group_button"},
                                                 sprite = "atd_sprite_trash",
                                                 enabled = false,
-                                                actions = {
-                                                    on_click = {
-                                                        target = FRAME.NAME,
-                                                        action = ACTION.DELETE_GROUP,
-                                                    },
-                                                },
+                                                actions = {},
                                             },
                                         }
                                     },

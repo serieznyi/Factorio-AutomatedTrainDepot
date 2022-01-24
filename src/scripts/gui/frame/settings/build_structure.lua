@@ -1,7 +1,6 @@
 local constants = require("scripts.gui.frame.settings.constants")
 
 local FRAME = constants.FRAME
-local ACTION = constants.ACTION
 
 local build_structure = {}
 
@@ -61,7 +60,7 @@ function build_structure.get(surface_train_stations_list)
                                 type = "checkbox",
                                 state = false,
                                 actions = {
-                                    on_elem_changed = { target = FRAME.NAME, trigger_event = mod.defines.events.on_mod_gui_form_changed }
+                                    on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed }
                                 }
                             },
                             {
@@ -72,7 +71,7 @@ function build_structure.get(surface_train_stations_list)
                                 type = "drop-down",
                                 items = surface_train_stations_list,
                                 actions = {
-                                    on_elem_changed = { target = FRAME.NAME, trigger_event = mod.defines.events.on_mod_gui_form_changed }
+                                    on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed }
                                 }
                             },
                         }
@@ -95,7 +94,7 @@ function build_structure.get(surface_train_stations_list)
                         style = "back_button",
                         caption = "Cancel",
                         actions = {
-                            on_click = { target = FRAME.NAME, action = ACTION.CLOSE },
+                            on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame },
                         },
                     },
                     {
@@ -110,7 +109,7 @@ function build_structure.get(surface_train_stations_list)
                         ref = {"submit_button"},
                         enabled = false,
                         actions = {
-                            on_click = { target = FRAME.NAME, action = ACTION.SAVE },
+                            on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.save_form },
                         },
                     },
                 }

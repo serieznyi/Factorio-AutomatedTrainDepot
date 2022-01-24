@@ -98,27 +98,6 @@ function manager.dispatch(event)
         return false
     end
 
-    if event_data.trigger_event ~= nil and event_data ~= nil then
-        mod.util.logger.debug(
-                "Redirect event `{1} ({2})` -> `{3} ({4})`",
-                    {
-                            event_name,
-                            event_data.target,
-                            mod_event.event_name(event_data.trigger_event),
-                    }
-        )
-
-        script.raise_event(
-                event_data.trigger_event,
-                {
-                    target = event_data.target,
-                    player_index = player.index,
-                }
-        )
-
-        return true
-    end
-
     for _, module in ipairs(FRAME_MODULES) do
         if module.dispatch(event, event_data) then
             processed = true

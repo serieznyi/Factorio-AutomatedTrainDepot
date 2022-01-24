@@ -1,7 +1,6 @@
 local constants = require("scripts.gui.frame.add_group.constants")
 
 local FRAME = constants.FRAME
-local ACTION = constants.ACTION
 
 local build_structure = {}
 
@@ -61,7 +60,7 @@ function build_structure.get()
                                 ref = {"group_icon_input"},
                                 elem_type = "item",
                                 actions = {
-                                    on_elem_changed = { target = FRAME.NAME, trigger_event = mod.defines.events.on_mod_gui_form_changed }
+                                    on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed }
                                 }
                             },
                             {
@@ -72,8 +71,8 @@ function build_structure.get()
                                 type = "textfield",
                                 ref = {"group_name_input"},
                                 actions = {
-                                    on_text_changed = { target = FRAME.NAME, trigger_event = mod.defines.events.on_mod_gui_form_changed },
-                                    on_confirmed = { target = FRAME.NAME, trigger_event = mod.defines.events.on_mod_gui_form_changed },
+                                    on_text_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed },
+                                    on_confirmed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed },
                                 }
                             },
                             {
@@ -105,7 +104,7 @@ function build_structure.get()
                         style = "back_button",
                         caption = "Cancel",
                         actions = {
-                            on_click = { target = FRAME.NAME, action = ACTION.CLOSE },
+                            on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame },
                         },
                     },
                     {
@@ -120,7 +119,7 @@ function build_structure.get()
                         ref = {"submit_button"},
                         enabled = false,
                         actions = {
-                            on_click = { target = FRAME.NAME, action = ACTION.SAVE },
+                            on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.save_form },
                         },
                     },
                 }

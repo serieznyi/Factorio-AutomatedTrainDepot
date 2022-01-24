@@ -12,7 +12,6 @@ local validator = require("scripts.gui.validator")
 local repository = require("scripts.repository")
 
 local FRAME = constants.FRAME
-local ACTION = constants.ACTION
 local VALIDATION_RULES = {
     {
         match = validator.match_by_name("name"),
@@ -45,6 +44,14 @@ local storage = {
 }
 
 local frame = {}
+
+---@param event EventData
+local function trigger_form_changed(event)
+    script.raise_event(
+            mod.defines.events.on_mod_gui_form_changed,
+            { target = FRAME.NAME,  player_index = event.player_index}
+    )
+end
 
 ---@param event EventData
 local function form_changed(event)
@@ -100,14 +107,6 @@ local function create_for(player)
     storage.save_gui(player, refs)
 
     return storage.get_gui(player)
-end
-
-
-function frame.action_on_click()
-    return {
-        target = FRAME.NAME,
-        action = ACTION.OPEN
-    }
 end
 
 ---@return string
@@ -166,11 +165,13 @@ end
 ---@param event EventData
 function frame.dispatch(event, action)
     local handlers = {
-        { target = FRAME.NAME,                      action = ACTION.CLOSE,                              func = frame.close},
-        { target = FRAME.NAME,                      action = ACTION.OPEN,                               func = frame.open},
-        { target = FRAME.NAME,                      action = ACTION.SAVE,                               func = save_form},
-        { target = train_builder_component.name(),  action = mod.defines.gui.actions.any,               func = train_builder_component.dispatch},
-        { target = FRAME.NAME,                      event = mod.defines.events.on_mod_gui_form_changed, func = form_changed },
+        { target = FRAME.NAME,                      action = mod.defines.gui.actions.trigger_form_changed,  func = trigger_form_changed},
+        { target = FRAME.NAME,                      action = mod.defines.gui.actions.close_frame,           func = frame.close},
+        { target = FRAME.NAME,                      action = mod.defines.gui.actions.open_frame,            func = frame.open},
+        { target = FRAME.NAME,                      action = mod.defines.gui.actions.save_form,             func = save_form},
+        { target = train_builder_component.name(),  action = mod.defines.gui.actions.any,                   func = train_builder_component.dispatch},
+        -- todo
+        { target = FRAME.NAME,                      event = mod.defines.events.on_mod_gui_form_changed,     func = form_changed },
     }
 
     return mod_event.dispatch(handlers, event, action)

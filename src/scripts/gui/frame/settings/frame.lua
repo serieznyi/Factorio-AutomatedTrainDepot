@@ -10,7 +10,6 @@ local build_structure = require("scripts.gui.frame.settings.build_structure")
 local validator = require("scripts.gui.validator")
 
 local FRAME = constants.FRAME
-local ACTION = constants.ACTION
 local VALIDATION_RULES = {
     name = {
         function(value) return validator.rule_empty(value) end,
@@ -75,6 +74,14 @@ local function save_form(event)
     return true
 end
 
+---@param event EventData
+local function trigger_form_changed(event)
+    script.raise_event(
+            mod.defines.events.on_mod_gui_form_changed,
+            { target = FRAME.NAME,  player_index = event.player_index}
+    )
+end
+
 local function get_surface_train_stations(player)
     local surface = player.surface
     local train_stations = game.get_train_stops({surface = surface})
@@ -99,13 +106,6 @@ local function create_for(player)
     storage.save_gui(player, refs)
 
     return storage.get_gui(player)
-end
-
-function frame.action_on_click()
-    return {
-        target = FRAME.NAME,
-        action = ACTION.OPEN
-    }
 end
 
 ---@return string
@@ -160,10 +160,12 @@ end
 ---@param event EventData
 function frame.dispatch(event, action)
     local handlers = {
-        { target = FRAME.NAME, action = ACTION.OPEN,                                func = frame.open},
-        { target = FRAME.NAME, action = ACTION.CLOSE,                               func = frame.destroy},
-        { target = FRAME.NAME, action = ACTION.SAVE,                                func = save_form},
-        { target = FRAME.NAME, event = mod.defines.events.on_mod_gui_form_changed,  func = form_changed },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.open_frame,             func = frame.open},
+        { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed,   func = trigger_form_changed},
+        { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame,            func = frame.destroy},
+        { target = FRAME.NAME, action = mod.defines.gui.actions.save_form,              func = save_form},
+        -- todo
+        { target = FRAME.NAME, event = mod.defines.events.on_mod_gui_form_changed,      func = form_changed },
     }
 
     return mod_event.dispatch(handlers, event, action)

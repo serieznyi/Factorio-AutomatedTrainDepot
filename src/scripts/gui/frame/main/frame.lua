@@ -7,7 +7,6 @@ local constants = require("scripts.gui.frame.main.constants")
 local build_structure = require("scripts.gui.frame.main.build_structure")
 
 local FRAME = constants.FRAME
-local ACTION = constants.ACTION
 
 local storage = {
     init = function()
@@ -81,7 +80,7 @@ local function populate_groups_list(player, container)
                     caption = icon .. " " .. group.name,
                     style = "atd_button_list_box_item",
                     actions = {
-                        on_click = { target = FRAME.NAME, action = ACTION.GROUP_SELECTED}
+                        on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.select_group }
                     }
                 })
             end
@@ -146,10 +145,11 @@ end
 ---@param event EventData
 function frame.dispatch(event, action)
     local handlers = {
-        { target = FRAME.NAME, action = ACTION.CLOSE, func = frame.close },
-        { target = FRAME.NAME, action = ACTION.GROUP_SELECTED, func = select_group },
-        { target = FRAME.NAME, action = ACTION.DELETE_GROUP, func = delete_group },
-        { target = FRAME.NAME, event = mod.defines.events.on_mod_group_saved, func = update_gui },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame,    func = frame.close },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.select_group,   func = select_group },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.delete_group,   func = delete_group },
+        -- todo
+        { target = FRAME.NAME, event = mod.defines.events.on_mod_group_saved,   func = update_gui },
     }
 
     return mod_event.dispatch(handlers, event, action)

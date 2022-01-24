@@ -1,7 +1,6 @@
 local constants = require("scripts.gui.frame.add_group.component.train_builder.constants")
 
 local COMPONENT = constants.COMPONENT
-local ACTION = constants.ACTION
 local LOCOMOTIVE_DIRECTION = constants.LOCOMOTIVE_DIRECTION
 
 local build_structure = {}
@@ -23,7 +22,7 @@ function build_structure.get(train_part_id)
                     {filter="rolling-stock"},
                 },
                 actions = {
-                    on_elem_changed = { target = COMPONENT.NAME, action = ACTION.TYPE_OF_TRAIN_PART_CHANGED },
+                    on_elem_changed = { target = COMPONENT.NAME, action = mod.defines.gui.actions.refresh_train_part },
                 }
             },
             {
@@ -34,7 +33,7 @@ function build_structure.get(train_part_id)
                 style = "flib_slot_button_red",
                 sprite = "atd_sprite_trash",
                 actions = {
-                    on_click = { target = COMPONENT.NAME, action = ACTION.TRAIN_PART_DELETE }
+                    on_click = { target = COMPONENT.NAME, action = mod.defines.gui.actions.delete_train_part }
                 }
             },
             {
@@ -54,7 +53,7 @@ function build_structure.get(train_part_id)
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_left",
                 actions = {
-                    on_click = { target = COMPONENT.NAME, action = ACTION.LOCOMOTIVE_DIRECTION_CHANGE },
+                    on_click = { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_locomotive_direction },
                 }
             },
             {
@@ -65,7 +64,7 @@ function build_structure.get(train_part_id)
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_right",
                 actions = {
-                    on_click = { target = COMPONENT.NAME, action = ACTION.LOCOMOTIVE_DIRECTION_CHANGE },
+                    on_click = { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_locomotive_direction },
                 }
             }
         }
