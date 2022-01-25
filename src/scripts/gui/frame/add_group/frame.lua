@@ -65,12 +65,12 @@ function private.handle_frame_open(event)
     local tags = flib_gui.get_tags(event.element)
 
     if gui == nil then
-        gui = private.create_for(player)
+        gui = private.create_for(player, tags)
     end
 
     if tags.group_id ~= nil then
         local group_data = repository.get_group(player, tags.group_id)
-        private.write_form(gui, group_data)
+        private.write_form(player, gui, group_data)
     end
 
     gui.refs.window.bring_to_front()
@@ -78,15 +78,6 @@ function private.handle_frame_open(event)
     player.opened = gui.refs.window
 
     return true
-end
-
-function private.write_form(gui, group_data)
-
-    gui.refs.group_icon_input.elem_value = group_data.icon
-    gui.refs.group_name_input.text = group_data.name
-
-    --train_builder_component.write_form(gui.refs.groups_container, group_data.trains)
-
 end
 
 ---@param event EventData
@@ -165,6 +156,18 @@ function private.handle_save_form(event)
     private.handle_frame_close(event)
 
     return true
+end
+
+function private.write_form(player, gui, group_data)
+
+    gui.refs.group_icon_input.elem_value = group_data.icon
+    gui.refs.group_name_input.text = group_data.name
+
+    -- todo remove key from parts
+    for _, train_part in pairs(group_data.train) do
+        train_builder_component.append_component(gui.refs.train_builder_container, player, train_part)
+    end
+
 end
 
 ---@param player LuaPlayer

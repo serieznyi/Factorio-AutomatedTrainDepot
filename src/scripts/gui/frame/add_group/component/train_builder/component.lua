@@ -8,6 +8,7 @@ local build_structure = require("scripts.gui.frame.add_group.component.train_bui
 local validator = require("scripts.gui.validator")
 
 local COMPONENT = constants.COMPONENT
+local LOCOMOTIVE_DIRECTION = constants.LOCOMOTIVE_DIRECTION
 local TRAIN_PART_TYPE = {
     LOCOMOTIVE = "locomotive",
     CARGO = "cargo",
@@ -86,40 +87,8 @@ function private.handle_update_train_part(event)
     local player = game.get_player(event.player_index)
     ---@type LuaGuiElement
     local item_chooser = event.element
-    local train_part_id = private.get_train_part_id(item_chooser)
-    ---@type table
-    local train_part = storage.get_train_part(player, train_part_id)
-    ---@type LuaGuiElement
-    local chooser_wrapper = item_chooser.parent
-    ---@type LuaGuiElement
-    local delete_button = train_part.refs.delete_button
-    ---@type LuaGuiElement
-    local locomotive_config_button = train_part.refs.locomotive_config_button
-    ---@type LuaGuiElement
-    local locomotive_direction_left_button = train_part.refs.locomotive_direction_left_button
-    ---@type LuaGuiElement
-    local locomotive_direction_right_button = train_part.refs.locomotive_direction_right_button
 
-    if private.is_train_part_selector_cleaned(item_chooser) then
-        chooser_wrapper.destroy()
-        storage.delete_train_part(player, train_part_id)
-        return
-    end
-
-    if item_chooser.elem_value == nil then
-        return
-    end
-
-    -- init buttons
-    locomotive_direction_left_button.visible = false
-    locomotive_direction_right_button.visible = false
-    locomotive_config_button.visible = false
-    delete_button.visible = true
-
-    if private.is_locomotive_selected(item_chooser.elem_value) then
-        locomotive_config_button.visible = true
-        locomotive_direction_left_button.visible = true
-    end
+    private.update_train_part(player, item_chooser)
 
     return true
 end
@@ -155,24 +124,66 @@ end
 ---@param event EventData
 function private.handle_change_locomotive_direction(event)
     local player = game.get_player(event.player_index)
+    local tags = flib_gui.get_tags(event.element)
     ---@type int
-    local train_part_id = flib_gui.get_tags(event.element).train_part_id
+    local train_part_id = tags.train_part_id
+    local direction = tags.direction == LOCOMOTIVE_DIRECTION.RIGHT and LOCOMOTIVE_DIRECTION.LEFT or LOCOMOTIVE_DIRECTION.RIGHT
+
+    private.set_locomotive_direction(train_part_id, player, direction)
+
+    return true
+end
+
+---@param train_part_id uint
+---@param player LuaPlayer
+---@param new_direction uint
+function private.set_locomotive_direction(train_part_id, player, new_direction)
     ---@type table
     local train_part = storage.get_train_part(player, train_part_id)
+    local locomotive_direction_left_button = train_part.refs.locomotive_direction_left_button
+    local locomotive_direction_right_button = train_part.refs.locomotive_direction_right_button
+
+    locomotive_direction_left_button.visible = (new_direction == LOCOMOTIVE_DIRECTION.LEFT)
+    locomotive_direction_right_button.visible = (new_direction == LOCOMOTIVE_DIRECTION.RIGHT)
+end
+
+---@param player LuaPlayer
+---@param item_chooser LuaGuiElement
+function private.update_train_part(player, item_chooser)
+    local train_part_id = private.get_train_part_id(item_chooser)
+    ---@type table
+    local train_part = storage.get_train_part(player, train_part_id)
+    ---@type LuaGuiElement
+    local chooser_wrapper = item_chooser.parent
+    ---@type LuaGuiElement
+    local delete_button = train_part.refs.delete_button
+    ---@type LuaGuiElement
+    local locomotive_config_button = train_part.refs.locomotive_config_button
     ---@type LuaGuiElement
     local locomotive_direction_left_button = train_part.refs.locomotive_direction_left_button
     ---@type LuaGuiElement
     local locomotive_direction_right_button = train_part.refs.locomotive_direction_right_button
 
-    if locomotive_direction_left_button.visible then
-        locomotive_direction_left_button.visible = false
-        locomotive_direction_right_button.visible = true
-    else
-        locomotive_direction_left_button.visible = true
-        locomotive_direction_right_button.visible = false
+    if private.is_train_part_selector_cleaned(item_chooser) then
+        chooser_wrapper.destroy()
+        storage.delete_train_part(player, train_part_id)
+        return
     end
 
-    return true
+    if item_chooser.elem_value == nil then
+        return
+    end
+
+    -- init buttons
+    locomotive_direction_left_button.visible = false
+    locomotive_direction_right_button.visible = false
+    locomotive_config_button.visible = false
+    delete_button.visible = true
+
+    if private.is_locomotive_selected(item_chooser.elem_value) then
+        locomotive_config_button.visible = true
+        locomotive_direction_left_button.visible = true
+    end
 end
 
 function private.validator_rule_has_locomotive(data)
@@ -270,9 +281,21 @@ function public.destroy(player)
     storage.destroy(player)
 end
 
+function private.write_form(player, refs, train)
+    refs.part_chooser.elem_value = train.entity
+
+    if train.type == TRAIN_PART_TYPE.LOCOMOTIVE then
+        local train_part_id = private.get_train_part_id(refs.part_chooser)
+
+        private.set_locomotive_direction(train_part_id, player, train.entity.direction)
+    elseif train.type == TRAIN_PART_TYPE.CARGO then
+        -- todo
+    end
+end
+
 ---@param container_element LuaGuiElement
 ---@param player LuaPlayer
-function public.append_component(container_element, player)
+function public.append_component(container_element, player, train_data)
     -- todo use math rand
     local train_part_id = script.generate_event_name()
     local refs = flib_gui.build(container_element, {build_structure.get(train_part_id)})
@@ -280,6 +303,10 @@ function public.append_component(container_element, player)
     storage.set_container(player, container_element)
 
     storage.add_train_part(player, train_part_id, refs)
+
+    if train_data ~= nil then
+        private.write_form(player, refs, train_data)
+    end
 end
 
 ---@return string
