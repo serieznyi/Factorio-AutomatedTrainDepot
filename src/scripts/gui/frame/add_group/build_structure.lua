@@ -8,7 +8,7 @@ local build_structure = {}
 function build_structure.get(group)
     local group_name = group ~= nil and group.name or nil
     local new = group_name == nil
-    local group_id = group.id
+    local group_id = group ~= nil and group.id or nil
 
     return {
         type = "frame",
