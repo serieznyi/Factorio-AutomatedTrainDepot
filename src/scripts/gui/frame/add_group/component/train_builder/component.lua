@@ -39,7 +39,7 @@ end
 
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
-function storage.set_container(player, container)
+function storage.save_container(player, container)
     if global.gui.component[COMPONENT.NAME][player.index] == nil then
         global.gui.component[COMPONENT.NAME][player.index] = {
             container = container,
@@ -85,10 +85,9 @@ end
 ---@param event EventData
 function private.handle_update_train_part(event)
     local player = game.get_player(event.player_index)
-    ---@type LuaGuiElement
-    local item_chooser = event.element
+    local train_part_id = private.get_train_part_id(event.element)
 
-    private.update_train_part(player, item_chooser)
+    private.update_train_part(player, train_part_id)
 
     return true
 end
@@ -115,7 +114,7 @@ function private.handle_add_new_train_part(event)
     local container = storage.get_container(player)
 
     if item_chooser.elem_value ~= nil and not private.is_last_train_part_empty(event.player_index) then
-        public.append_component(container, player)
+        public.add_train_part(container, player)
     end
 
     return true
@@ -125,11 +124,12 @@ end
 function private.handle_change_locomotive_direction(event)
     local player = game.get_player(event.player_index)
     local tags = flib_gui.get_tags(event.element)
-    ---@type int
-    local train_part_id = tags.train_part_id
+    local train_part_id = private.get_train_part_id(event.element)
     local direction = tags.direction == LOCOMOTIVE_DIRECTION.RIGHT and LOCOMOTIVE_DIRECTION.LEFT or LOCOMOTIVE_DIRECTION.RIGHT
 
     private.set_locomotive_direction(train_part_id, player, direction)
+
+    private.update_train_part(player, train_part_id)
 
     return true
 end
@@ -142,47 +142,47 @@ function private.set_locomotive_direction(train_part_id, player, new_direction)
     local train_part = storage.get_train_part(player, train_part_id)
     local locomotive_direction_left_button = train_part.refs.locomotive_direction_left_button
     local locomotive_direction_right_button = train_part.refs.locomotive_direction_right_button
-
-    locomotive_direction_left_button.visible = (new_direction == LOCOMOTIVE_DIRECTION.LEFT)
-    locomotive_direction_right_button.visible = (new_direction == LOCOMOTIVE_DIRECTION.RIGHT)
+    flib_gui.update(locomotive_direction_left_button, { tags = { current_direction = new_direction } })
+    flib_gui.update(locomotive_direction_right_button, { tags = { current_direction = new_direction } })
 end
 
 ---@param player LuaPlayer
----@param item_chooser LuaGuiElement
-function private.update_train_part(player, item_chooser)
-    local train_part_id = private.get_train_part_id(item_chooser)
-    ---@type table
+---@param train_part_id uint
+function private.update_train_part(player, train_part_id)
     local train_part = storage.get_train_part(player, train_part_id)
     ---@type LuaGuiElement
-    local chooser_wrapper = item_chooser.parent
-    ---@type LuaGuiElement
     local delete_button = train_part.refs.delete_button
+    ---@type LuaGuiElement
+    local part_chooser = train_part.refs.part_chooser
     ---@type LuaGuiElement
     local locomotive_config_button = train_part.refs.locomotive_config_button
     ---@type LuaGuiElement
     local locomotive_direction_left_button = train_part.refs.locomotive_direction_left_button
     ---@type LuaGuiElement
     local locomotive_direction_right_button = train_part.refs.locomotive_direction_right_button
+    ---@type uint
+    local tags = flib_gui.get_tags(train_part.refs.locomotive_direction_right_button)
+    local current_locomotive_direction = tags.current_direction
 
-    if private.is_train_part_selector_cleaned(item_chooser) then
-        chooser_wrapper.destroy()
+    if private.is_train_part_selector_cleaned(player, train_part_id) then
+        train_part.refs.element.destroy()
         storage.delete_train_part(player, train_part_id)
         return
     end
 
-    if item_chooser.elem_value == nil then
+    if part_chooser.elem_value == nil then
         return
     end
 
-    -- init buttons
-    locomotive_direction_left_button.visible = false
-    locomotive_direction_right_button.visible = false
-    locomotive_config_button.visible = false
+    local locomotive_part = private.is_locomotive_selected(part_chooser.elem_value)
+
+    locomotive_config_button.visible = locomotive_part
     delete_button.visible = true
 
-    if private.is_locomotive_selected(item_chooser.elem_value) then
-        locomotive_config_button.visible = true
-        locomotive_direction_left_button.visible = true
+    if locomotive_part then
+        locomotive_direction_left_button.visible = (current_locomotive_direction == LOCOMOTIVE_DIRECTION.LEFT)
+        locomotive_direction_right_button.visible = (current_locomotive_direction == LOCOMOTIVE_DIRECTION.RIGHT)
+
     end
 end
 
@@ -237,14 +237,16 @@ function private.is_last_train_part_empty(player_index)
     return last_train_part.children[1].elem_value == nil
 end
 
----@param choose_elem_button_element LuaGuiElement
----@return LuaGuiElement
-function private.is_last_train_part_selector(choose_elem_button_element)
-    -- TODO refactor
-    local chooser_wrapper = choose_elem_button_element.parent
-    local choosers_container = choose_elem_button_element.parent.parent
+---@param player LuaPlayer
+---@param train_part_id uint
+---@return bool
+function private.is_last_train_part_selector(player, train_part_id)
+    local train_part = storage.get_train_part(player, train_part_id)
+    local component = storage.get_container(player)
+    ---@type LuaGuiElement
+    local element = train_part.refs.element
 
-    return chooser_wrapper.get_index_in_parent() == #choosers_container.children
+    return element.get_index_in_parent() == #component.children
 end
 
 ---@param value string|nil
@@ -259,10 +261,13 @@ function private.is_locomotive_selected(value)
     return prototype.type == "locomotive"
 end
 
----@param item_selector LuaGuiElement
+---@param player LuaPlayer
+---@param train_part_id uint
 ---@return bool
-function private.is_train_part_selector_cleaned(item_selector)
-    return item_selector.elem_value == nil and not private.is_last_train_part_selector(item_selector)
+function private.is_train_part_selector_cleaned(player, train_part_id)
+    local train_part = storage.get_train_part(player, train_part_id)
+
+    return train_part.refs.part_chooser.elem_value == nil and not private.is_last_train_part_selector(item_selector)
 end
 
 ---------------------------------------------------------------------------
@@ -281,31 +286,32 @@ function public.destroy(player)
     storage.destroy(player)
 end
 
-function private.write_form(player, refs, train)
-    refs.part_chooser.elem_value = train.entity
+function private.write_form(player, refs, train_part_data)
+    refs.part_chooser.elem_value = train_part_data.entity
 
-    if train.type == TRAIN_PART_TYPE.LOCOMOTIVE then
+    if train_part_data.type == TRAIN_PART_TYPE.LOCOMOTIVE then
         local train_part_id = private.get_train_part_id(refs.part_chooser)
 
-        private.set_locomotive_direction(train_part_id, player, train.entity.direction)
-    elseif train.type == TRAIN_PART_TYPE.CARGO then
+        private.set_locomotive_direction(train_part_id, player, train_part_data.direction)
+    elseif train_part_data.type == TRAIN_PART_TYPE.CARGO then
         -- todo
     end
 end
 
 ---@param container_element LuaGuiElement
 ---@param player LuaPlayer
-function public.append_component(container_element, player, train_data)
+function public.add_train_part(container_element, player, train_part_data)
     -- todo use math rand
     local train_part_id = script.generate_event_name()
     local refs = flib_gui.build(container_element, {build_structure.get(train_part_id)})
 
-    storage.set_container(player, container_element)
+    storage.save_container(player, container_element)
 
     storage.add_train_part(player, train_part_id, refs)
 
-    if train_data ~= nil then
-        private.write_form(player, refs, train_data)
+    if train_part_data ~= nil then
+        private.write_form(player, refs, train_part_data)
+        private.update_train_part(player, train_part_id)
     end
 end
 

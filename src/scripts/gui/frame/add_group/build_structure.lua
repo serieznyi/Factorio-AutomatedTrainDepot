@@ -4,11 +4,16 @@ local FRAME = constants.FRAME
 
 local build_structure = {}
 
-function build_structure.get()
+---@param group table
+function build_structure.get(group)
+    local group_name = group ~= nil and group.name or nil
+    local new = group_name == nil
+    local group_id = group.id
+
     return {
         type = "frame",
         name = FRAME.NAME,
-        tags = {type = mod.defines.gui.mod_frame_marker_name },
+        tags = { type = mod.defines.gui.mod_frame_marker_name, group_id = group_id },
         direction = "vertical",
         ref  =  {"window"},
         style_mods = {
@@ -27,7 +32,7 @@ function build_structure.get()
                     {
                         type = "label",
                         style = "frame_title",
-                        caption = {"add-group-frame.atd-title"},
+                        caption = new and {"add-group-frame.atd-add-title"} or {"add-group-frame.atd-edit-title", group_name},
                         ignored_by_interaction = true
                     },
                     {
@@ -53,7 +58,7 @@ function build_structure.get()
                         children = {
                             {
                                 type = "label",
-                                caption = "Group icon",
+                                caption = { "add-group-frame.atd-icon" },
                             },
                             {
                                 type = "choose-elem-button",
@@ -65,7 +70,7 @@ function build_structure.get()
                             },
                             {
                                 type = "label",
-                                caption = "Group name",
+                                caption = { "add-group-frame.atd-name" },
                             },
                             {
                                 type = "textfield",
@@ -77,7 +82,7 @@ function build_structure.get()
                             },
                             {
                                 type = "label",
-                                caption = "Train",
+                                caption = { "add-group-frame.atd-train" },
                             },
                             {
                                 type = "frame",
@@ -102,7 +107,7 @@ function build_structure.get()
                     {
                         type = "button",
                         style = "back_button",
-                        caption = "Cancel",
+                        caption = { "gui.atd-cancel" },
                         actions = {
                             on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame },
                         },
@@ -115,7 +120,7 @@ function build_structure.get()
                     {
                         type = "button",
                         style = "confirm_button",
-                        caption = "Create",
+                        caption = new and {"gui.atd-create"} or {"gui.atd-update"},
                         ref = {"submit_button"},
                         enabled = false,
                         actions = {

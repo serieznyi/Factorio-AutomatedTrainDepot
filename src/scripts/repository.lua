@@ -1,11 +1,33 @@
 local Sequence = require("scripts.lib.Sequence")
 
-local global_storage = {}
+local public = {}
+local private = {}
 
 ---@type scripts.lib.Sequence
 local group_sequence
 
-function global_storage.init()
+---------------------------------------------------------------------------
+-- -- -- PRIVATE
+---------------------------------------------------------------------------
+
+---@param player LuaPlayer
+---@param group_id uint
+---@return uint
+function private.get_group_index(player, group_id)
+    for i, v in pairs(global.groups[player.surface.name][player.force.name]) do
+        if v.id == group_id then
+            return i
+        end
+    end
+
+    return nil
+end
+
+---------------------------------------------------------------------------
+-- -- -- PUBLIC
+---------------------------------------------------------------------------
+
+function public.init()
     global.sequence = {
         group = 1
     }
@@ -17,7 +39,7 @@ function global_storage.init()
     global.groups = {}
 end
 
-function global_storage.load()
+function public.load()
     group_sequence = Sequence(global.sequence.group, function(value)
         global.sequence.group = value
     end)
@@ -26,7 +48,7 @@ end
 ---@param player LuaPlayer
 ---@param id uint
 ---@return table
-function global_storage.get_group(player, id)
+function public.get_group(player, id)
     if global.groups[player.surface.name] == nil or global.groups[player.surface.name][player.force.name] == nil then
         return nil
     end
@@ -42,7 +64,7 @@ end
 
 ---@param player LuaPlayer
 ---@return table
-function global_storage.find_all(player)
+function public.find_all(player)
     if global.groups[player.surface.name] == nil then
         return {}
     end
@@ -52,7 +74,7 @@ end
 
 ---@param player LuaPlayer
 ---@param group_data table
-function global_storage.add_group(player, group_data)
+function public.add_group(player, group_data)
     if global.groups[player.surface.name] == nil then
         global.groups[player.surface.name] = {}
     end
@@ -61,16 +83,20 @@ function global_storage.add_group(player, group_data)
         global.groups[player.surface.name][player.force.name] = {}
     end
 
-    group_data.id = group_sequence:next()
-
-    table.insert(global.groups[player.surface.name][player.force.name], group_data)
+    if group_data.id == nil then
+        group_data.id = group_sequence:next()
+        table.insert(global.groups[player.surface.name][player.force.name], group_data)
+    else
+        local index = private.get_group_index(player, group_data.id)
+        global.groups[player.surface.name][player.force.name][index] = group_data
+    end
 
     return group_data
 end
 
 ---@param player LuaPlayer
 ---@param group_id uint
-function global_storage.delete_group(player, group_id)
+function public.delete_group(player, group_id)
 
     if global.groups[player.surface.name] == nil or global.groups[player.surface.name][player.force.name] == nil then
         return
@@ -83,4 +109,4 @@ function global_storage.delete_group(player, group_id)
     end
 end
 
-return global_storage
+return public

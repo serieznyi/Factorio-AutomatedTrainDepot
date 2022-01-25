@@ -92,7 +92,7 @@ function build_structure.get(surface_train_stations_list)
                     {
                         type = "button",
                         style = "back_button",
-                        caption = "Cancel",
+                        caption = { "gui.atd-cancel" },
                         actions = {
                             on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame },
                         },
@@ -105,7 +105,7 @@ function build_structure.get(surface_train_stations_list)
                     {
                         type = "button",
                         style = "confirm_button",
-                        caption = "Create",
+                        caption = { "gui.atd-create" },
                         ref = {"submit_button"},
                         enabled = false,
                         actions = {

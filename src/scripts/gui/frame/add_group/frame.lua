@@ -65,12 +65,7 @@ function private.handle_frame_open(event)
     local tags = flib_gui.get_tags(event.element)
 
     if gui == nil then
-        gui = private.create_for(player, tags)
-    end
-
-    if tags.group_id ~= nil then
-        local group_data = repository.get_group(player, tags.group_id)
-        private.write_form(player, gui, group_data)
+        gui = private.create_for(player, tags.group_id)
     end
 
     gui.refs.window.bring_to_front()
@@ -158,28 +153,36 @@ function private.handle_save_form(event)
     return true
 end
 
-function private.write_form(player, gui, group_data)
+---@param player LuaPlayer
+function private.write_form(player, refs, group)
 
-    gui.refs.group_icon_input.elem_value = group_data.icon
-    gui.refs.group_name_input.text = group_data.name
+    refs.group_icon_input.elem_value = group.icon
+    refs.group_name_input.text = group.name
 
     -- todo remove key from parts
-    for _, train_part in pairs(group_data.train) do
-        train_builder_component.append_component(gui.refs.train_builder_container, player, train_part)
+    for _, train_part in pairs(group.train) do
+        train_builder_component.add_train_part(refs.train_builder_container, player, train_part)
     end
 
 end
 
 ---@param player LuaPlayer
+---@param group_id uint
 ---@return table
-function private.create_for(player)
-    local refs = flib_gui.build(player.gui.screen, {build_structure.get()})
+function private.create_for(player, group_id)
+    local group = repository.get_group(player, group_id)
+
+    local refs = flib_gui.build(player.gui.screen, {build_structure.get(group)})
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
     refs.footerbar_flow.drag_target = refs.window
 
-    train_builder_component.append_component(refs.train_builder_container, player)
+    if group_id ~= nil then
+        private.write_form(player, refs, group)
+    end
+
+    train_builder_component.add_train_part(refs.train_builder_container, player)
 
     storage.save_gui(player, refs)
 
@@ -226,8 +229,10 @@ end
 function public.read_form(event)
     local player = game.get_player(event.player_index)
     local gui = storage.get_gui(player)
+    local window_tags = flib_gui.get_tags(gui.refs.window)
 
     return {
+        id = window_tags.group_id,
         name = gui.refs.group_name_input.text or mod_table.NIL,
         icon = gui.refs.group_icon_input.elem_value or mod_table.NIL,
         train_color = {255, 255, 255}, -- TODO add chooser
