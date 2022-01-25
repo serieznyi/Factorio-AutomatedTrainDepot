@@ -239,7 +239,7 @@ end
 function public.open(player)
     local gui = private.create_for(player)
 
-    private.refresh_groups_list(player, gui.refs.groups_container)
+    private.refresh_gui(player)
 
     local window = gui.refs.window
     window.bring_to_front()
