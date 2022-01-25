@@ -74,6 +74,17 @@ function build_structure.get(surface_train_stations_list)
                                     on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed }
                                 }
                             },
+                            {
+                                type = "label",
+                                caption = {"settings-frame.atd-default-target-train-station"},
+                            },
+                            {
+                                type = "drop-down",
+                                items = surface_train_stations_list,
+                                actions = {
+                                    on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed }
+                                }
+                            },
                         }
                     },
                     {
