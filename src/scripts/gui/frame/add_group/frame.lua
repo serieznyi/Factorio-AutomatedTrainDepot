@@ -62,9 +62,15 @@ end
 function private.handle_frame_open(event)
     local player = game.get_player(event.player_index)
     local gui = storage.get_gui(player)
+    local tags = flib_gui.get_tags(event.element)
 
     if gui == nil then
         gui = private.create_for(player)
+    end
+
+    if tags.group_id ~= nil then
+        local group_data = repository.get_group(player, tags.group_id)
+        private.write_form(gui, group_data)
     end
 
     gui.refs.window.bring_to_front()
@@ -72,6 +78,15 @@ function private.handle_frame_open(event)
     player.opened = gui.refs.window
 
     return true
+end
+
+function private.write_form(gui, group_data)
+
+    gui.refs.group_icon_input.elem_value = group_data.icon
+    gui.refs.group_name_input.text = group_data.name
+
+    --train_builder_component.write_form(gui.refs.groups_container, group_data.trains)
+
 end
 
 ---@param event EventData
@@ -193,6 +208,7 @@ function public.dispatch(event, action)
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.trigger_form_changed,  func = private.handle_trigger_form_changed },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.close_frame,           func = private.handle_frame_close },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.open_frame,            func = private.handle_frame_open },
+        { target = FRAME.NAME,                      action = mod.defines.gui.actions.edit_group,            func = private.handle_frame_open },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.save_form,             func = private.handle_save_form },
         { target = train_builder_component.name(),  action = mod.defines.gui.actions.any,                   func = train_builder_component.dispatch},
         -- todo

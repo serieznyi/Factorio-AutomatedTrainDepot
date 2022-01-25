@@ -151,6 +151,11 @@ function private.refresh_groups_control_buttons(player)
 
     gui.refs.edit_group_button.enabled = group_selected
     gui.refs.delete_group_button.enabled = group_selected
+
+    if group_selected then
+        -- todo сделать так же для delete
+        flib_gui.update(gui.refs.edit_group_button, { tags = { group_id = selected_group_id } })
+    end
 end
 
 ---@param player LuaPlayer

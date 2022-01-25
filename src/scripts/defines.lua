@@ -20,6 +20,7 @@ defines.gui = {
         -- group
         delete_group = script.generate_event_name(),
         select_group = script.generate_event_name(),
+        edit_group = script.generate_event_name(),
         -- train gui
         delete_train_part = script.generate_event_name(),
         change_locomotive_direction = script.generate_event_name(),

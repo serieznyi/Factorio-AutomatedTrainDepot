@@ -98,7 +98,9 @@ function build_structure.get()
                                                 ref = {"edit_group_button"},
                                                 sprite = "atd_sprite_edit",
                                                 enabled = false,
-                                                actions = {},
+                                                actions = {
+                                                    on_click = { target = mod.defines.gui.frames.add_group.name, action = mod.defines.gui.actions.edit_group }
+                                                },
                                             },
                                             {
                                                 type = "sprite-button",
@@ -109,10 +111,7 @@ function build_structure.get()
                                                 sprite = "atd_sprite_trash",
                                                 enabled = false,
                                                 actions = {
-                                                    on_click = {
-                                                        target = mod.defines.gui.frames.main.name,
-                                                        action = mod.defines.gui.actions.delete_group
-                                                    }
+                                                    on_click = { target = mod.defines.gui.frames.main.name, action = mod.defines.gui.actions.delete_group }
                                                 },
                                             },
                                         }
