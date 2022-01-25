@@ -136,6 +136,7 @@ function private.refresh_groups_list(player, container)
             type = "button",
             caption = icon .. " " .. group.name,
             style = group_selected and "atd_button_list_box_item_active" or "atd_button_list_box_item",
+            tooltip = {"main-frame.atd-group-list-button-tooltip", group.name},
             tags = { group_id = group.id, selected = group_selected },
             actions = {
                 on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.select_group }
@@ -167,7 +168,6 @@ function private.refresh_gui(player)
     private.refresh_groups_control_buttons(player)
 end
 
----@param player LuaPlayer
 ---@param selected_element LuaGuiElement
 ---@param gui table
 function private.mark_selected_group_button(selected_element, gui)

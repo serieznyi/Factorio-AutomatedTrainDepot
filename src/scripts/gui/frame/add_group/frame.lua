@@ -240,6 +240,7 @@ function public.read_form(event)
     -- TODO add chooser
     train_group.train_color = {255, 255, 255}
     train_group.train =  train_builder_component.read_form(event)
+    train_group.enabled = false
 
     return train_group
 end

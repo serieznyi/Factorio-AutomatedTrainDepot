@@ -38,6 +38,7 @@ function build_structure.get()
                         type = "sprite-button",
                         name = "frame_settings_button",
                         style = "frame_action_button",
+                        tooltip = {"main-frame.atd-open-settings"},
                         sprite = "atd_sprite_settings",
                         actions = {
                             on_click = { target = mod.defines.gui.frames.settings.name, action = mod.defines.gui.actions.open_frame }
@@ -48,6 +49,7 @@ function build_structure.get()
                         name = "frame_close_button",
                         style = "frame_action_button",
                         sprite = "utility/close_white",
+                        tooltip = {"gui.close-window"},
                         hovered_sprite = "utility/close_black",
                         clicked_sprite = "utility/close_black",
                         actions = {
