@@ -225,19 +225,23 @@ function public.dispatch(event, action)
 end
 
 ---@param event EventData
----@return table form data
+---@return atd.TrainGroup form data
 function public.read_form(event)
     local player = game.get_player(event.player_index)
     local gui = storage.get_gui(player)
     local window_tags = flib_gui.get_tags(gui.refs.window)
 
-    return {
-        id = window_tags.group_id,
-        name = gui.refs.group_name_input.text or mod_table.NIL,
-        icon = gui.refs.group_icon_input.elem_value or mod_table.NIL,
-        train_color = {255, 255, 255}, -- TODO add chooser
-        train =  train_builder_component.read_form(event)
-    }
+    ---@type atd.TrainGroup
+    local train_group = {}
+
+    train_group.id = window_tags.group_id
+    train_group.name = gui.refs.group_name_input.text or mod_table.NIL
+    train_group.icon = gui.refs.group_icon_input.elem_value or mod_table.NIL
+    -- TODO add chooser
+    train_group.train_color = {255, 255, 255}
+    train_group.train =  train_builder_component.read_form(event)
+
+    return train_group
 end
 
 function public.validate_form(event)

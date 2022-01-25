@@ -47,7 +47,7 @@ end
 
 ---@param player LuaPlayer
 ---@param id uint
----@return table
+---@return atd.TrainGroup
 function public.get_group(player, id)
     if global.groups[player.surface.name] == nil or global.groups[player.surface.name][player.force.name] == nil then
         return nil
@@ -63,7 +63,7 @@ function public.get_group(player, id)
 end
 
 ---@param player LuaPlayer
----@return table
+---@return table set of train groups
 function public.find_all(player)
     if global.groups[player.surface.name] == nil then
         return {}
@@ -73,8 +73,8 @@ function public.find_all(player)
 end
 
 ---@param player LuaPlayer
----@param group_data table
-function public.add_group(player, group_data)
+---@param train_group atd.TrainGroup
+function public.add_group(player, train_group)
     if global.groups[player.surface.name] == nil then
         global.groups[player.surface.name] = {}
     end
@@ -83,15 +83,15 @@ function public.add_group(player, group_data)
         global.groups[player.surface.name][player.force.name] = {}
     end
 
-    if group_data.id == nil then
-        group_data.id = group_sequence:next()
-        table.insert(global.groups[player.surface.name][player.force.name], group_data)
+    if train_group.id == nil then
+        train_group.id = group_sequence:next()
+        table.insert(global.groups[player.surface.name][player.force.name], train_group)
     else
-        local index = private.get_group_index(player, group_data.id)
-        global.groups[player.surface.name][player.force.name][index] = group_data
+        local index = private.get_group_index(player, train_group.id)
+        global.groups[player.surface.name][player.force.name][index] = train_group
     end
 
-    return group_data
+    return train_group
 end
 
 ---@param player LuaPlayer
