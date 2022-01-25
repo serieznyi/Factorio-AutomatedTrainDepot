@@ -10,13 +10,17 @@ function global_storage.init()
         group = 1
     }
 
-    group_sequence = Sequence(global.sequence.group)
+    group_sequence = Sequence(global.sequence.group, function(value)
+        global.sequence.group = value
+    end)
 
     global.groups = {}
 end
 
 function global_storage.load()
-    group_sequence = Sequence(global.sequence.group)
+    group_sequence = Sequence(global.sequence.group, function(value)
+        global.sequence.group = value
+    end)
 end
 
 ---@param player LuaPlayer
