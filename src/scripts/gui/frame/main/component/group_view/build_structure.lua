@@ -56,7 +56,32 @@ function public.get(train_group)
                     type = "flow",
                     direction = "horizontal",
                     ref = { "train_view" },
-                }
+                },
+                {
+                    type = "flow",
+                    direction = "horizontal",
+                    children = {
+                        {
+                            type = "button",
+                            style = "tool_button",
+                            caption = "-",
+                        },
+                        {
+                            type = "textfield",
+                            numeric = true,
+                            lose_focus_on_confirm = true,
+                            allow_decimal = false,
+                            allow_negative = false,
+                            text = train_group.amount,
+                        },
+                        {
+                            type = "button",
+                            style = "tool_button",
+                            caption = "+",
+                        },
+                    }
+                },
+
             },
         },
         -- Bottom control bar
@@ -78,7 +103,7 @@ function public.get(train_group)
                     style = "button",
                     caption = {"train-group-view.atd-pause"},
                     ref = {"pause_button"},
-                    enabled = false,
+                    enabled = train_group.state ~= mod.defines.train_group.state.paused,
                     actions = {},
                 },
                 {
@@ -86,7 +111,7 @@ function public.get(train_group)
                     style = "button",
                     caption = {"train-group-view.atd-start"},
                     ref = {"start_button"},
-                    enabled = false,
+                    enabled = train_group.state ~= mod.defines.train_group.state.processed,
                     actions = {},
                 },
             }

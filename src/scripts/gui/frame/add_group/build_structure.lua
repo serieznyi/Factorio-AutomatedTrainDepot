@@ -4,11 +4,11 @@ local FRAME = constants.FRAME
 
 local build_structure = {}
 
----@param group table
-function build_structure.get(group)
-    local group_name = group ~= nil and group.name or nil
+---@param train_group atd.TrainGroup
+function build_structure.get(train_group)
+    local group_name = train_group ~= nil and train_group.name or nil
     local new = group_name == nil
-    local group_id = group ~= nil and group.id or nil
+    local group_id = train_group ~= nil and train_group.id or nil
 
     return {
         type = "frame",

@@ -18,6 +18,13 @@ TrainGroup.icon = nil
 ---@see atd.TrainPart
 TrainGroup.train = nil
 
+---@type uint
+---@see mod.defined.train_group.state
+TrainGroup.state = nil
+
+---@type uint
+TrainGroup.amount = nil
+
 ---------------------------------------------------------------------------
 -- -- -- TrainPart
 ---------------------------------------------------------------------------

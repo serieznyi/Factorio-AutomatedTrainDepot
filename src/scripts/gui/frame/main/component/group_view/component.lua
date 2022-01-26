@@ -75,7 +75,7 @@ function private.refresh_train_view(player, train_group)
     flib_gui.add(container, {
             type = "sprite-button",
             enabled = false,
-            style = "flib_selected_slot_default",
+            style = "flib_slot_default",
             sprite = mod_gui.image_path_for_item(train_part.entity),
         })
     end

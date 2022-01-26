@@ -8,6 +8,13 @@ defines.events = {
     on_mod_gui_type_of_train_part_changed = script.generate_event_name(),
 }
 
+defines.train_group = {
+    state = {
+        processed = 1,
+        paused = 2,
+    }
+}
+
 defines.entity = require("prototypes.defines.entity")
 
 defines.gui = {
