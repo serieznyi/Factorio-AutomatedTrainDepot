@@ -267,7 +267,7 @@ end
 function private.is_train_part_selector_cleaned(player, train_part_id)
     local train_part = storage.get_train_part(player, train_part_id)
 
-    return train_part.refs.part_chooser.elem_value == nil and not private.is_last_train_part_selector(item_selector)
+    return train_part.refs.part_chooser.elem_value == nil and not private.is_last_train_part_selector(player, train_part_id)
 end
 
 ---------------------------------------------------------------------------
