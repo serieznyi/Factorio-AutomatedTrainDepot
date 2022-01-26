@@ -6,6 +6,7 @@ local repository = require("scripts.repository")
 
 local constants = require("scripts.gui.frame.main.constants")
 local build_structure = require("scripts.gui.frame.main.build_structure")
+local group_view_component = require("scripts.gui.frame.main.component.group_view.component")
 
 local FRAME = constants.FRAME
 
@@ -61,11 +62,8 @@ end
 ---@param event EventData
 function private.handle_select_group(event)
     local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
 
-    private.mark_selected_group_button(event.element, gui)
-
-    private.refresh_gui(player)
+    private.select_train_group(player, event.element)
 
     return true
 end
@@ -86,6 +84,25 @@ function private.handle_delete_group(event)
     private.refresh_gui(player)
 
     return true
+end
+
+---@param player LuaPlayer
+---@param train_group_button_element LuaGuiElement
+function private.select_train_group(player, train_group_button_element)
+    local gui = storage.get_gui(player)
+
+    private.mark_selected_group_button(train_group_button_element, gui)
+
+    ---
+    local group_id = private.get_selected_group_id(player)
+    local train_group = repository.get_group(player, group_id)
+
+    mod_gui.clear_children(gui.refs.content_frame)
+
+    group_view_component.create(gui.refs.content_frame, player, train_group)
+
+    ---
+    private.refresh_gui(player)
 end
 
 ---@param player LuaPlayer
@@ -124,9 +141,10 @@ function private.refresh_groups_list(player, container)
 
     mod_gui.clear_children(container)
 
-    for i, group in pairs(groups) do
-        local icon = mod_gui.image_for_item(group.icon)
-        local group_selected = group.id == selected_group_id
+    ---@param train_group atd.TrainGroup
+    for i, train_group in pairs(groups) do
+        local icon = mod_gui.image_for_item(train_group.icon)
+        local group_selected = train_group.id == selected_group_id
 
         if selected_group_id == nil and i == 1 then
             group_selected = true
@@ -134,10 +152,10 @@ function private.refresh_groups_list(player, container)
 
         flib_gui.add(container, {
             type = "button",
-            caption = icon .. " " .. group.name,
+            caption = icon .. " " .. train_group.name,
             style = group_selected and "atd_button_list_box_item_active" or "atd_button_list_box_item",
-            tooltip = {"main-frame.atd-group-list-button-tooltip", group.name},
-            tags = { group_id = group.id, selected = group_selected },
+            tooltip = { "main-frame.atd-group-list-button-tooltip", train_group.name},
+            tags = { group_id = train_group.id, selected = group_selected },
             actions = {
                 on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.select_group }
             }
@@ -230,9 +248,11 @@ end
 
 function public.init()
     storage.init()
+    group_view_component.init()
 end
 
 function public.load()
+    group_view_component.load()
 end
 
 ---@param player LuaPlayer

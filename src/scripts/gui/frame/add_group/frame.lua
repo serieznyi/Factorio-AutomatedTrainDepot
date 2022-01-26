@@ -241,6 +241,7 @@ function public.read_form(event)
     train_group.train_color = {255, 255, 255}
     train_group.train =  train_builder_component.read_form(event)
     train_group.enabled = false
+    train_group.amount = 0
 
     return train_group
 end

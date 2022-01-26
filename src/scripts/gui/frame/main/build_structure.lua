@@ -49,7 +49,7 @@ function build_structure.get()
                         name = "frame_close_button",
                         style = "frame_action_button",
                         sprite = "utility/close_white",
-                        tooltip = {"gui.close-window"},
+                        tooltip = {"gui.atd-close-window"},
                         hovered_sprite = "utility/close_black",
                         clicked_sprite = "utility/close_black",
                         actions = {

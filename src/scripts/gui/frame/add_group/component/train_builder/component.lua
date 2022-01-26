@@ -300,7 +300,8 @@ end
 
 ---@param container_element LuaGuiElement
 ---@param player LuaPlayer
-function public.add_train_part(container_element, player, train_part_data)
+---@param train_part atd.TrainPart
+function public.add_train_part(container_element, player, train_part)
     -- todo use math rand
     local train_part_id = script.generate_event_name()
     local refs = flib_gui.build(container_element, {build_structure.get(train_part_id)})
@@ -309,8 +310,8 @@ function public.add_train_part(container_element, player, train_part_data)
 
     storage.add_train_part(player, train_part_id, refs)
 
-    if train_part_data ~= nil then
-        private.write_form(player, refs, train_part_data)
+    if train_part ~= nil then
+        private.write_form(player, refs, train_part)
         private.update_train_part(player, train_part_id)
     end
 end
