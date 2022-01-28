@@ -93,6 +93,7 @@ flib_gui.hook_events(event_handler.handle_gui_event)
 
 flib_event.register(defines.events.on_gui_opened, event_handler.open_gui)
 
+-- todo регистрировать только если окно открыто
 flib_event.on_nth_tick(1, event_handler.bring_to_front_current_window)
 
 ---------------------------------------------------------------------------

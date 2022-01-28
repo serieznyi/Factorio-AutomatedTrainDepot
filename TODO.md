@@ -11,4 +11,3 @@
  - после изменения группы предложить действия над уже существующими поездами группы
  - remove gui and components data for user what logout/ban/deleted
  - copy train part on Ctrl + Click
- - ignored_by_interaction позволяет выключить клики по gui. Можно не использовать цикл для ужержания gui on top?
