@@ -281,7 +281,7 @@ function public.dispatch(event, action)
         { target = FRAME.NAME, action = mod.defines.gui.actions.delete_group, func = private.handle_delete_group },
         { target = group_view_component.name(), action = mod.defines.gui.actions.enable_train_group, func = group_view_component.dispatch },
         -- todo
-        { target = FRAME.NAME, event = mod.defines.events.on_mod_group_saved, func = private.handle_update_gui },
+        { target = FRAME.NAME, event = mod.defines.events.on_group_saved_mod, func = private.handle_update_gui },
     }
 
     return mod_event.dispatch(handlers, event, action)

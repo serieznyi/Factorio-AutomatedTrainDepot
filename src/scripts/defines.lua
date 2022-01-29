@@ -1,11 +1,15 @@
 local defines = {}
 
 defines.events = {
-    on_mod_group_saved = script.generate_event_name(),
+    -- persistence
+    on_group_added_persistence_mod = script.generate_event_name(),
+    on_group_deleted_persistence_mod = script.generate_event_name(),
+    -- other
+    on_group_saved_mod = script.generate_event_name(),
     -- gui events
-    on_mod_gui_form_changed = script.generate_event_name(),
-    on_mod_gui_group_selected = script.generate_event_name(),
-    on_mod_gui_type_of_train_part_changed = script.generate_event_name(),
+    on_gui_form_changed_mod = script.generate_event_name(),
+    on_gui_group_selected_mod = script.generate_event_name(),
+    on_gui_type_of_train_part_changed_mod = script.generate_event_name(),
 }
 
 defines.train_group = {

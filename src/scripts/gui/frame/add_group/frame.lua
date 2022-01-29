@@ -103,7 +103,7 @@ end
 ---@param event EventData
 function private.handle_trigger_form_changed(event)
     script.raise_event(
-            mod.defines.events.on_mod_gui_form_changed,
+            mod.defines.events.on_gui_form_changed_mod,
             { target = FRAME.NAME,  player_index = event.player_index}
     )
 
@@ -143,7 +143,7 @@ function private.handle_save_form(event)
         local train_group = persistence_storage.add_group(player, form_data)
 
         script.raise_event(
-                mod.defines.events.on_mod_group_saved,
+                mod.defines.events.on_group_saved_mod,
                 {
                     player_index = event.player_index,
                     target = mod.defines.gui.frames.main.name,
@@ -222,7 +222,7 @@ function public.dispatch(event, action)
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.save_form,             func = private.handle_save_form },
         { target = train_builder_component.name(),  action = mod.defines.gui.actions.any,                   func = train_builder_component.dispatch},
         -- todo
-        { target = FRAME.NAME,                      event = mod.defines.events.on_mod_gui_form_changed,     func = private.handle_form_changed },
+        { target = FRAME.NAME, event = mod.defines.events.on_gui_form_changed_mod, func = private.handle_form_changed },
     }
 
     return mod_event.dispatch(handlers, event, action)

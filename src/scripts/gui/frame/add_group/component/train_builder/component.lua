@@ -336,7 +336,7 @@ function public.dispatch(event, action)
 
     if processed then
         script.raise_event(
-                mod.defines.events.on_mod_gui_form_changed,
+                mod.defines.events.on_gui_form_changed_mod,
                 { player_index = event.player_index, target = mod.defines.gui.frames.add_group.name }
         )
     end
