@@ -4,18 +4,18 @@ local public = {}
 local private = {}
 
 ---@type scripts.lib.Sequence
-local group_sequence
+local train_template_sequence
 
 ---------------------------------------------------------------------------
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
 ---@param player LuaPlayer
----@param group_id uint
+---@param train_template_id uint
 ---@return uint
-function private.get_group_index(player, group_id)
-    for i, v in pairs(global.groups[player.surface.name][player.force.name]) do
-        if v.id == group_id then
+function private.get_train_template_index(player, train_template_id)
+    for i, v in pairs(global.train_templates[player.surface.name][player.force.name]) do
+        if v.id == train_template_id then
             return i
         end
     end
@@ -29,31 +29,33 @@ end
 
 function public.init()
     global.sequence = {
-        group = 1
+        train_template = 1
     }
 
-    group_sequence = Sequence(global.sequence.group, function(value)
-        global.sequence.group = value
+    train_template_sequence = Sequence(global.sequence.train_template, function(value)
+        global.sequence.train_template = value
     end)
 
-    global.groups = {}
+    global.train_templates = {}
 end
 
 function public.load()
-    group_sequence = Sequence(global.sequence.group, function(value)
-        global.sequence.group = value
+    train_template_sequence = Sequence(global.sequence.train_template, function(value)
+        global.sequence.train_template = value
     end)
 end
 
 ---@param player LuaPlayer
 ---@param id uint
----@return atd.TrainGroup
-function public.get_group(player, id)
-    if global.groups[player.surface.name] == nil or global.groups[player.surface.name][player.force.name] == nil then
+---@return atd.TrainTemplate
+function public.get_train_template(player, id)
+    if global.train_templates[player.surface.name] == nil or
+       global.train_templates[player.surface.name][player.force.name] == nil
+    then
         return nil
     end
 
-    for _, v in pairs(global.groups[player.surface.name][player.force.name]) do
+    for _, v in pairs(global.train_templates[player.surface.name][player.force.name]) do
         if v.id == id then
             return v
         end
@@ -63,48 +65,50 @@ function public.get_group(player, id)
 end
 
 ---@param player LuaPlayer
----@return table set of train groups
+---@return table set of train templates
 function public.find_all(player)
-    if global.groups[player.surface.name] == nil then
+    if global.train_templates[player.surface.name] == nil then
         return {}
     end
 
-    return global.groups[player.surface.name][player.force.name] or {}
+    return global.train_templates[player.surface.name][player.force.name] or {}
 end
 
 ---@param player LuaPlayer
----@param train_group atd.TrainGroup
-function public.add_train_group(player, train_group)
-    if global.groups[player.surface.name] == nil then
-        global.groups[player.surface.name] = {}
+---@param train_template atd.TrainTemplate
+function public.add_train_template(player, train_template)
+    if global.train_templates[player.surface.name] == nil then
+        global.train_templates[player.surface.name] = {}
     end
 
-    if global.groups[player.surface.name][player.force.name] == nil then
-        global.groups[player.surface.name][player.force.name] = {}
+    if global.train_templates[player.surface.name][player.force.name] == nil then
+        global.train_templates[player.surface.name][player.force.name] = {}
     end
 
-    if train_group.id == nil then
-        train_group.id = group_sequence:next()
-        table.insert(global.groups[player.surface.name][player.force.name], train_group)
+    if train_template.id == nil then
+        train_template.id = train_template_sequence:next()
+        table.insert(global.train_templates[player.surface.name][player.force.name], train_template)
     else
-        local index = private.get_group_index(player, train_group.id)
-        global.groups[player.surface.name][player.force.name][index] = train_group
+        local index = private.get_train_template_index(player, train_template.id)
+        global.train_templates[player.surface.name][player.force.name][index] = train_template
     end
 
-    return train_group
+    return train_template
 end
 
 ---@param player LuaPlayer
----@param group_id uint
-function public.delete_group(player, group_id)
+---@param train_template_id uint
+function public.delete_train_template(player, train_template_id)
 
-    if global.groups[player.surface.name] == nil or global.groups[player.surface.name][player.force.name] == nil then
+    if global.train_templates[player.surface.name] == nil or
+       global.train_templates[player.surface.name][player.force.name] == nil
+    then
         return
     end
 
-    for i, v in pairs(global.groups[player.surface.name][player.force.name]) do
-        if v.id == group_id then
-            return table.remove(global.groups[player.surface.name][player.force.name], i)
+    for i, v in pairs(global.train_templates[player.surface.name][player.force.name]) do
+        if v.id == train_template_id then
+            return table.remove(global.train_templates[player.surface.name][player.force.name], i)
         end
     end
 end

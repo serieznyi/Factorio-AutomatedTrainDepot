@@ -2,30 +2,30 @@
 -- -- -- Group
 ---------------------------------------------------------------------------
 
----@class atd.TrainGroup
-local TrainGroup = {}
+---@class atd.TrainTemplate
+local TrainTemplate = {}
 
 ---@type uint
-TrainGroup.id = nil
+TrainTemplate.id = nil
 
 ---@type string
-TrainGroup.name = nil
+TrainTemplate.name = nil
 
 ---@type string
-TrainGroup.icon = nil
+TrainTemplate.icon = nil
 
 ---@type table Set of TrainPart
 ---@see atd.TrainPart
-TrainGroup.train = nil
+TrainTemplate.train = nil
 
 ---@type uint
-TrainGroup.enabled = false
+TrainTemplate.enabled = false
 
 ---@type uint
-TrainGroup.amount = nil
+TrainTemplate.amount = nil
 
 ---@type boolean
-TrainGroup.readonly = false
+TrainTemplate.readonly = false
 
 ---------------------------------------------------------------------------
 -- -- -- TrainPart

@@ -7,26 +7,26 @@ local private = {}
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
----@param train_group atd.TrainGroup
-function private.build_train_group_name(train_group)
-    local icon = mod_gui.image_for_item(train_group.icon)
+---@param train_template atd.TrainTemplate
+function private.build_train_template_name(train_template)
+    local icon = mod_gui.image_for_item(train_template.icon)
 
-    return icon .. " " .. train_group.name
+    return icon .. " " .. train_template.name
 end
 
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
 
----@param train_group atd.TrainGroup
-function public.get(train_group)
-    local train_group_name = private.build_train_group_name(train_group)
+---@param train_template atd.TrainTemplate
+function public.get(train_template)
+    local train_template_name = private.build_train_template_name(train_template)
 
     return {
         type = "frame",
         direction = "vertical",
         ref = { "component" },
-        tags = { train_group_id = train_group.id },
+        tags = { train_template_id = train_template.id },
         children = {
             -- Titlebar
             {
@@ -46,7 +46,7 @@ function public.get(train_group)
                         children = {
                             {
                                 type = "label",
-                                caption = train_group_name,
+                                caption = train_template_name,
                             },
                         }
                     },
@@ -73,7 +73,7 @@ function public.get(train_group)
                                 lose_focus_on_confirm = true,
                                 allow_decimal = false,
                                 allow_negative = false,
-                                text = train_group.amount,
+                                text = train_template.amount,
                             },
                             {
                                 type = "button",
@@ -102,22 +102,22 @@ function public.get(train_group)
                     {
                         type = "button",
                         style = "button",
-                        caption = {"train-group-view.atd-disable"},
+                        caption = {"train-template-view.atd-disable"},
                         ref = {"disable_button"},
-                        enabled = train_group.enabled,
+                        enabled = train_template.enabled,
                         actions = {
-                            on_click = { target = mod.defines.gui.components.group_view.name, action = mod.defines.gui.actions.disable_train_group }
+                            on_click = { target = mod.defines.gui.components.template_view.name, action = mod.defines.gui.actions.disable_train_template }
                         },
                     },
                     {
                         type = "button",
                         style = "button",
-                        caption = {"train-group-view.atd-enable"},
+                        caption = {"train-template-view.atd-enable"},
                         ref = {"enable_button"},
-                        enabled = not train_group.enabled,
-                        tags = { train_group_id = train_group.id },
+                        enabled = not train_template.enabled,
+                        tags = { train_template_id = train_template.id },
                         actions = {
-                            on_click = { target = mod.defines.gui.components.group_view.name, action = mod.defines.gui.actions.enable_train_group }
+                            on_click = { target = mod.defines.gui.components.template_view.name, action = mod.defines.gui.actions.enable_train_template }
                         },
                     },
                 }

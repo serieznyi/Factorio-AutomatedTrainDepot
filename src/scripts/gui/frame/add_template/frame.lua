@@ -5,9 +5,9 @@ local mod_event = require("scripts.util.event")
 local mod_table = require("scripts.util.table")
 local mod_gui = require("scripts.util.gui")
 
-local constants = require("scripts.gui.frame.add_group.constants")
-local build_structure = require("scripts.gui.frame.add_group.build_structure")
-local train_builder_component = require("scripts.gui.frame.add_group.component.train_builder.component")
+local constants = require("scripts.gui.frame.add_template.constants")
+local build_structure = require("scripts.gui.frame.add_template.build_structure")
+local train_builder_component = require("scripts.gui.frame.add_template.component.train_builder.component")
 local validator = require("scripts.gui.validator")
 local persistence_storage = require("scripts.persistence_storage")
 
@@ -69,7 +69,7 @@ function private.handle_frame_open(event)
     local tags = flib_gui.get_tags(event.element)
 
     if refs == nil then
-        refs = private.create_for(player, tags.group_id)
+        refs = private.create_for(player, tags.train_template_id)
     end
 
     refs.window.bring_to_front()
@@ -140,14 +140,14 @@ function private.handle_save_form(event)
     local validation_errors = public.validate_form(event)
 
     if #validation_errors == 0 then
-        local train_group = persistence_storage.add_train_group(player, form_data)
+        local train_template = persistence_storage.add_train_template(player, form_data)
 
         script.raise_event(
-                mod.defines.events.on_group_saved_mod,
+                mod.defines.events.on_train_template_saved_mod,
                 {
                     player_index = event.player_index,
                     target = mod.defines.gui.frames.main.name,
-                    group_id = train_group.id
+                    train_template_id = train_template.id
                 }
         )
     end
@@ -158,32 +158,33 @@ function private.handle_save_form(event)
 end
 
 ---@param player LuaPlayer
-function private.write_form(player, refs, group)
+---@param train_template atd.TrainTemplate
+function private.write_form(player, refs, train_template)
 
-    refs.group_icon_input.elem_value = group.icon
-    refs.group_name_input.text = group.name
+    refs.icon_input.elem_value = train_template.icon
+    refs.name_input.text = train_template.name
 
     -- todo remove key from parts
-    for _, train_part in pairs(group.train) do
+    for _, train_part in pairs(train_template.train) do
         train_builder_component.add_train_part(refs.train_builder_container, player, train_part)
     end
 
 end
 
 ---@param player LuaPlayer
----@param group_id uint
+---@param train_template_id uint
 ---@return table
-function private.create_for(player, group_id)
-    local group = persistence_storage.get_group(player, group_id)
+function private.create_for(player, train_template_id)
+    local train_template = persistence_storage.get_train_template(player, train_template_id)
 
-    local refs = flib_gui.build(player.gui.screen, {build_structure.get(group)})
+    local refs = flib_gui.build(player.gui.screen, {build_structure.get(train_template)})
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
     refs.footerbar_flow.drag_target = refs.window
 
-    if group_id ~= nil then
-        private.write_form(player, refs, group)
+    if train_template_id ~= nil then
+        private.write_form(player, refs, train_template)
     end
 
     train_builder_component.add_train_part(refs.train_builder_container, player)
@@ -218,7 +219,7 @@ function public.dispatch(event, action)
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.trigger_form_changed,  func = private.handle_trigger_form_changed },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.close_frame,           func = private.handle_frame_close },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.open_frame,            func = private.handle_frame_open },
-        { target = FRAME.NAME,                      action = mod.defines.gui.actions.edit_group,            func = private.handle_frame_open },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.edit_train_template, func = private.handle_frame_open },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.save_form,             func = private.handle_save_form },
         { target = train_builder_component.name(),  action = mod.defines.gui.actions.any,                   func = train_builder_component.dispatch},
         -- todo
@@ -229,25 +230,25 @@ function public.dispatch(event, action)
 end
 
 ---@param event EventData
----@return atd.TrainGroup form data
+---@return atd.TrainTemplate form data
 function public.read_form(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
     local window_tags = flib_gui.get_tags(refs.window)
 
-    ---@type atd.TrainGroup
-    local train_group = {}
+    ---@type atd.TrainTemplate
+    local train_template = {}
 
-    train_group.id = window_tags.group_id
-    train_group.name = refs.group_name_input.text or mod_table.NIL
-    train_group.icon = refs.group_icon_input.elem_value or mod_table.NIL
+    train_template.id = window_tags.train_template_id
+    train_template.name = refs.name_input.text or mod_table.NIL
+    train_template.icon = refs.icon_input.elem_value or mod_table.NIL
     -- TODO add chooser
-    train_group.train_color = {255, 255, 255}
-    train_group.train =  train_builder_component.read_form(event)
-    train_group.enabled = false
-    train_group.amount = 0
+    train_template.train_color = { 255, 255, 255}
+    train_template.train =  train_builder_component.read_form(event)
+    train_template.enabled = false
+    train_template.amount = 0
 
-    return train_group
+    return train_template
 end
 
 function public.validate_form(event)

@@ -1,4 +1,4 @@
-local constants = require("scripts.gui.frame.add_group.component.train_builder.constants")
+local constants = require("scripts.gui.frame.add_template.component.train_builder.constants")
 
 local COMPONENT = constants.COMPONENT
 

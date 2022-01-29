@@ -6,7 +6,7 @@ local manager = {}
 
 local FRAME_MODULES = {
     require("scripts.gui.frame.main.frame"),
-    require("scripts.gui.frame.add_group.frame"),
+    require("scripts.gui.frame.add_template.frame"),
     require("scripts.gui.frame.settings.frame"),
 }
 

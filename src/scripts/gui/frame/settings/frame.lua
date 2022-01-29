@@ -199,7 +199,7 @@ function public.read_form(event)
 
     return {
         use_any_fuel = mod_table.NIL,
-        --icon = gui.refs.group_icon_input.elem_value or mod_table.NIL,
+        --icon = gui.refs.icon_input.elem_value or mod_table.NIL,
         --train_color = {255, 255, 255}, -- TODO
     }
 end

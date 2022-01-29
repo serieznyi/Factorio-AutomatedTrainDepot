@@ -3,8 +3,8 @@ local flib_table = require("__flib__.table")
 
 local mod_event = require("scripts.util.event")
 
-local constants = require("scripts.gui.frame.add_group.component.train_builder.constants")
-local build_structure = require("scripts.gui.frame.add_group.component.train_builder.build_structure")
+local constants = require("scripts.gui.frame.add_template.component.train_builder.constants")
+local build_structure = require("scripts.gui.frame.add_template.component.train_builder.build_structure")
 local validator = require("scripts.gui.validator")
 
 local COMPONENT = constants.COMPONENT
@@ -337,7 +337,7 @@ function public.dispatch(event, action)
     if processed then
         script.raise_event(
                 mod.defines.events.on_gui_form_changed_mod,
-                { player_index = event.player_index, target = mod.defines.gui.frames.add_group.name }
+                { player_index = event.player_index, target = mod.defines.gui.frames.add_template.name }
         )
     end
 

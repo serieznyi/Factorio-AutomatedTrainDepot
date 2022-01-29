@@ -1,19 +1,19 @@
-local constants = require("scripts.gui.frame.add_group.constants")
+local constants = require("scripts.gui.frame.add_template.constants")
 
 local FRAME = constants.FRAME
 
 local build_structure = {}
 
----@param train_group atd.TrainGroup
-function build_structure.get(train_group)
-    local group_name = train_group ~= nil and train_group.name or nil
-    local new = group_name == nil
-    local group_id = train_group ~= nil and train_group.id or nil
+---@param train_template atd.TrainTemplate
+function build_structure.get(train_template)
+    local train_template_name = train_template ~= nil and train_template.name or nil
+    local new = train_template_name == nil
+    local train_template_id = train_template ~= nil and train_template.id or nil
 
     return {
         type = "frame",
         name = FRAME.NAME,
-        tags = { type = mod.defines.gui.mod_frame_marker_name, group_id = group_id },
+        tags = { type = mod.defines.gui.mod_frame_marker_name, train_template_id = train_template_id },
         direction = "vertical",
         ref  =  {"window"},
         style_mods = {
@@ -32,7 +32,7 @@ function build_structure.get(train_group)
                     {
                         type = "label",
                         style = "frame_title",
-                        caption = new and {"add-group-frame.atd-add-title"} or {"add-group-frame.atd-edit-title", group_name},
+                        caption = new and {"add-train-template-frame.atd-add-title"} or { "add-train-template-frame.atd-edit-title", train_template_name },
                         ignored_by_interaction = true
                     },
                     {
@@ -58,11 +58,11 @@ function build_structure.get(train_group)
                         children = {
                             {
                                 type = "label",
-                                caption = { "add-group-frame.atd-icon" },
+                                caption = { "add-train-template-frame.atd-icon" },
                             },
                             {
                                 type = "choose-elem-button",
-                                ref = {"group_icon_input"},
+                                ref = {"icon_input"},
                                 elem_type = "item",
                                 actions = {
                                     on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed }
@@ -70,11 +70,11 @@ function build_structure.get(train_group)
                             },
                             {
                                 type = "label",
-                                caption = { "add-group-frame.atd-name" },
+                                caption = { "add-train-template-frame.atd-name" },
                             },
                             {
                                 type = "textfield",
-                                ref = {"group_name_input"},
+                                ref = {"name_input"},
                                 actions = {
                                     on_text_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed },
                                     on_confirmed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed },
@@ -82,7 +82,7 @@ function build_structure.get(train_group)
                             },
                             {
                                 type = "label",
-                                caption = { "add-group-frame.atd-train" },
+                                caption = { "add-train-template-frame.atd-train" },
                             },
                             {
                                 type = "frame",

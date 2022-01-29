@@ -84,36 +84,33 @@ function build_structure.get()
                                         children = {
                                             {
                                                 type = "sprite-button",
-                                                name = "add_new_group_button",
                                                 style = "tool_button_green",
-                                                tooltip = {"main-frame.atd-add-new-group"},
+                                                tooltip = {"main-frame.atd-add-new-train-template"},
                                                 sprite = "atd_sprite_add",
                                                 actions = {
-                                                    on_click = { target = mod.defines.gui.frames.add_group.name, action = mod.defines.gui.actions.open_frame }
+                                                    on_click = { target = mod.defines.gui.frames.add_template.name, action = mod.defines.gui.actions.open_frame }
                                                 },
                                             },
                                             {
                                                 type = "sprite-button",
-                                                name = "edit_group_button",
                                                 style = "tool_button",
-                                                tooltip = {"main-frame.atd-edit-group"},
-                                                ref = {"edit_group_button"},
+                                                tooltip = {"main-frame.atd-edit-train-template"},
+                                                ref = {"edit_button"},
                                                 sprite = "atd_sprite_edit",
                                                 enabled = false,
                                                 actions = {
-                                                    on_click = { target = mod.defines.gui.frames.add_group.name, action = mod.defines.gui.actions.edit_group }
+                                                    on_click = { target = mod.defines.gui.frames.add_template.name, action = mod.defines.gui.actions.edit_train_template }
                                                 },
                                             },
                                             {
                                                 type = "sprite-button",
-                                                name = "delete_group_button",
                                                 style = "tool_button_red",
-                                                tooltip = {"main-frame.atd-delete-group"},
-                                                ref = {"delete_group_button"},
+                                                tooltip = {"main-frame.atd-delete-template"},
+                                                ref = {"delete_button"},
                                                 sprite = "atd_sprite_trash",
                                                 enabled = false,
                                                 actions = {
-                                                    on_click = { target = mod.defines.gui.frames.main.name, action = mod.defines.gui.actions.delete_group }
+                                                    on_click = { target = mod.defines.gui.frames.main.name, action = mod.defines.gui.actions.delete_train_template }
                                                 },
                                             },
                                         }
@@ -130,7 +127,7 @@ function build_structure.get()
                                         children = {
                                             {
                                                 type = "scroll-pane",
-                                                ref = {"groups_container"},
+                                                ref = {"trains_templates_container"},
                                                 style_mods = {
                                                     vertically_stretchable = true,
                                                     horizontally_stretchable = true,
