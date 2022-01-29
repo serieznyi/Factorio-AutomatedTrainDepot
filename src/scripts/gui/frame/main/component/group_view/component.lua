@@ -7,7 +7,7 @@ local mod_gui = require("scripts.util.gui")
 local build_structure = require("scripts.gui.frame.main.component.group_view.build_structure")
 
 local COMPONENT = {
-    NAME = "group_view"
+    NAME = mod.defines.gui.components.group_view.name
 }
 
 local public = {}
@@ -29,31 +29,23 @@ end
 
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
-function storage.save_container(player, container)
-    if global.gui.component[COMPONENT.NAME][player.index] == nil then
-        global.gui.component[COMPONENT.NAME][player.index] = {
-            container = container,
-        }
-    end
-end
-
----@param player LuaPlayer
 ---@param refs table
-function storage.save_gui(player, refs)
+function storage.set(player, container, refs)
     global.gui.component[COMPONENT.NAME][player.index] = {
+        container = container,
         refs = refs
     }
 end
 
 ---@param player LuaPlayer
 ---@return table
-function storage.get_gui(player)
-    return global.gui.component[COMPONENT.NAME][player.index]
+function storage.refs(player)
+    return global.gui.component[COMPONENT.NAME][player.index].refs
 end
 
 ---@param player LuaPlayer
 ---@return LuaGuiElement
-function storage.get_container(player)
+function storage.container(player)
     return global.gui.component[COMPONENT.NAME][player.index].container
 end
 
@@ -64,8 +56,8 @@ end
 ---@param player LuaPlayer
 ---@param train_group atd.TrainGroup
 function private.refresh_train_view(player, train_group)
-    local gui = storage.get_gui(player)
-    local container = gui.refs.train_view
+    local refs = storage.refs(player)
+    local container = refs.train_view
 
     mod_gui.clear_children(container)
 
@@ -79,6 +71,18 @@ function private.refresh_train_view(player, train_group)
             sprite = mod_gui.image_path_for_item(train_part.entity),
         })
     end
+end
+
+function private.handle_enable_train_group(e)
+    local player = game.get_player(e.player_index)
+
+    player.print("enabled")
+end
+
+function private.handle_disable_train_group(e)
+    local player = game.get_player(e.player_index)
+
+    player.print("disabled")
 end
 
 ---------------------------------------------------------------------------
@@ -108,9 +112,7 @@ end
 function public.create(container, player, train_group)
     local refs = flib_gui.build(container, {build_structure.get(train_group)})
 
-    storage.save_container(player, container)
-
-    storage.save_gui(player, refs)
+    storage.set(player, container, refs)
 
     private.refresh_train_view(player, train_group)
 end
@@ -119,7 +121,8 @@ end
 ---@param event EventData
 function public.dispatch(event, action)
     local event_handlers = {
-        --{ target = COMPONENT.NAME, action = mod.defines.gui.actions.refresh_train_part,             func = private.handle_add_new_train_part },
+        { target = COMPONENT.NAME, action = mod.defines.gui.actions.enable_train_group, func = private.handle_enable_train_group },
+        { target = COMPONENT.NAME, action = mod.defines.gui.actions.disable_train_group, func = private.handle_disable_train_group },
     }
 
     return mod_event.dispatch(event_handlers, event, action)

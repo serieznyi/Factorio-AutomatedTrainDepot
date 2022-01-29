@@ -136,14 +136,14 @@ function private.handle_save_form(event)
     local validation_errors = public.validate_form(event)
 
     if #validation_errors == 0 then
-        local group = repository.add_group(player, form_data)
+        local train_group = repository.add_group(player, form_data)
 
         script.raise_event(
                 mod.defines.events.on_mod_group_saved,
                 {
                     player_index = event.player_index,
                     target = mod.defines.gui.frames.main.name,
-                    group_id = group.id
+                    group_id = train_group.id
                 }
         )
     end
@@ -240,7 +240,7 @@ function public.read_form(event)
     -- TODO add chooser
     train_group.train_color = {255, 255, 255}
     train_group.train =  train_builder_component.read_form(event)
-    train_group.state = mod.defines.train_group.state.paused
+    train_group.state = mod.defines.train_group.state.enabled
     train_group.amount = 0
 
     return train_group

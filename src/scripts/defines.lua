@@ -11,7 +11,7 @@ defines.events = {
 defines.train_group = {
     state = {
         processed = 1,
-        paused = 2,
+        enabled = 2,
     }
 }
 
@@ -41,7 +41,8 @@ defines.gui = {
         refresh_train_part = script.generate_event_name(),
         -- other
         trigger_form_changed = script.generate_event_name(),
-        start_build_train = script.generate_event_name(),
+        enable_train_group = script.generate_event_name(),
+        disable_train_group = script.generate_event_name(),
     },
     frames = {
         main = { name = "main_frame" },
@@ -49,7 +50,8 @@ defines.gui = {
         settings = { name = "settings_frame" },
     },
     components = {
-      train_builder = { name = "train_builder_component" }
+      train_builder = { name = "train_builder_component" },
+      group_view = { name = "group_view_component" },
     },
     mod_frame_marker_name = "atd_frame",
 }

@@ -101,20 +101,22 @@ function public.get(train_group)
                 {
                     type = "button",
                     style = "button",
-                    caption = {"train-group-view.atd-pause"},
-                    ref = {"pause_button"},
-                    enabled = train_group.state ~= mod.defines.train_group.state.paused,
-                    actions = {},
+                    caption = {"train-group-view.atd-disable"},
+                    ref = {"enable_button"},
+                    enabled = train_group.state ~= mod.defines.train_group.state.enabled,
+                    actions = {
+                        on_click = { target = mod.defines.gui.components.group_view.name, action = mod.defines.gui.actions.disable_train_group }
+                    },
                 },
                 {
                     type = "button",
                     style = "button",
-                    caption = {"train-group-view.atd-start"},
-                    ref = {"start_button"},
-                    enabled = train_group.state ~= mod.defines.train_group.state.processed,
+                    caption = {"train-group-view.atd-enable"},
+                    ref = {"disable_button"},
+                    enabled = train_group.state ~= mod.defines.train_group.state.enabled,
                     tags = { train_group_id = train_group.id },
                     actions = {
-                        on_click = { target = mod.defines.gui.frames.main.name, action = mod.defines.gui.actions.start_build_train}
+                        on_click = { target = mod.defines.gui.components.group_view.name, action = mod.defines.gui.actions.enable_train_group }
                     },
                 },
             }
