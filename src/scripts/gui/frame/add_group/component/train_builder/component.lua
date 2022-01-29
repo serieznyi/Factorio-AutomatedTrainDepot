@@ -381,7 +381,7 @@ function public.read_form(event)
                 }
             end
 
-            table.insert(train, i, train_part)
+            table.insert(train, train_part)
         end
     end
 
