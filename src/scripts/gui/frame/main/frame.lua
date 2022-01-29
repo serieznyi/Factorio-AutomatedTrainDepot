@@ -23,19 +23,23 @@ function storage.init()
 end
 
 ---@param player LuaPlayer
-function storage.destroy(player)
+function storage.clean(player)
     global.gui.frame[FRAME.NAME][player.index] = nil
 end
 
 ---@param player LuaPlayer
 ---@return table
-function storage.get_gui(player)
-    return global.gui.frame[FRAME.NAME][player.index]
+function storage.refs(player)
+    if global.gui.frame[FRAME.NAME][player.index] == nil then
+        return nil
+    end
+
+    return global.gui.frame[FRAME.NAME][player.index].refs
 end
 
 ---@param player LuaPlayer
 ---@param refs table
-function storage.save_gui(player, refs)
+function storage.set(player, refs)
     global.gui.frame[FRAME.NAME][player.index] = {
         refs = refs,
     }
@@ -89,17 +93,17 @@ end
 ---@param player LuaPlayer
 ---@param train_group_button_element LuaGuiElement
 function private.select_train_group(player, train_group_button_element)
-    local gui = storage.get_gui(player)
+    local refs = storage.refs(player)
 
-    private.mark_selected_group_button(train_group_button_element, gui)
+    private.mark_selected_group_button(train_group_button_element, refs)
 
     ---
     local group_id = private.get_selected_group_id(player)
     local train_group = repository.get_group(player, group_id)
 
-    mod_gui.clear_children(gui.refs.content_frame)
+    mod_gui.clear_children(refs.content_frame)
 
-    group_view_component.create(gui.refs.content_frame, player, train_group)
+    group_view_component.create(refs.content_frame, player, train_group)
 
     ---
     private.refresh_gui(player)
@@ -107,9 +111,9 @@ end
 
 ---@param player LuaPlayer
 function private.get_selected_group_element(player)
-    local gui = storage.get_gui(player)
+    local refs = storage.refs(player)
 
-    for _, v in ipairs(gui.refs.groups_container.children) do
+    for _, v in ipairs(refs.groups_container.children) do
         local tags = flib_gui.get_tags(v)
 
         if tags.selected == true then
@@ -164,35 +168,35 @@ function private.refresh_groups_list(player, container)
 end
 
 function private.refresh_groups_control_buttons(player)
-    local gui = storage.get_gui(player)
+    local refs = storage.refs(player)
     local selected_group_id = private.get_selected_group_id(player)
     local group_selected = selected_group_id ~= nil
 
-    gui.refs.edit_group_button.enabled = group_selected
-    gui.refs.delete_group_button.enabled = group_selected
+    refs.edit_group_button.enabled = group_selected
+    refs.delete_group_button.enabled = group_selected
 
     if group_selected then
         -- todo сделать так же для delete
-        flib_gui.update(gui.refs.edit_group_button, { tags = { group_id = selected_group_id } })
+        flib_gui.update(refs.edit_group_button, { tags = { group_id = selected_group_id } })
     end
 end
 
 ---@param player LuaPlayer
 function private.refresh_gui(player)
-    local gui = storage.get_gui(player)
+    local refs = storage.refs(player)
 
-    private.refresh_groups_list(player, gui.refs.groups_container)
+    private.refresh_groups_list(player, refs.groups_container)
 
     private.refresh_groups_control_buttons(player)
 end
 
 ---@param selected_element LuaGuiElement
----@param gui table
-function private.mark_selected_group_button(selected_element, gui)
+---@param refs table
+function private.mark_selected_group_button(selected_element, refs)
     local element_index = selected_element.get_index_in_parent()
 
     ---@param child LuaGuiElement
-    for i, child in ipairs(gui.refs.groups_container.children) do
+    for i, child in ipairs(refs.groups_container.children) do
         if i ~= element_index then
             flib_gui.update(child, { tags = {selected = false} })
         else
@@ -214,25 +218,25 @@ function private.create_for(player)
         ((resolution.height - (FRAME.HEIGHT * scale)) / 2)
     }
 
-    storage.save_gui(player, refs)
+    storage.set(player, refs)
 
-    return storage.get_gui(player)
+    return storage.refs(player)
 end
 
 function private.handle_close_frame(event)
     local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
-    local window = gui.refs.window
+    local refs = storage.refs(player)
+    local window = refs.window
 
     window.visible = false
 
-    if player.opened == gui.refs.window then
+    if player.opened == refs.window then
         player.opened = nil
     end
 
     window.destroy()
 
-    storage.destroy(player)
+    storage.clean(player)
 
     return true
 end
@@ -257,11 +261,12 @@ end
 
 ---@param player LuaPlayer
 function public.open(player)
-    local gui = private.create_for(player)
+    local refs = private.create_for(player)
 
     private.refresh_gui(player)
 
-    local window = gui.refs.window
+    ---@type LuaGuiElement
+    local window = refs.window
     window.bring_to_front()
     window.visible = true
     player.opened = window

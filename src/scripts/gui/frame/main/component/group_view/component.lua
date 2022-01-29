@@ -23,7 +23,7 @@ function storage.init()
 end
 
 ---@param player LuaPlayer
-function storage.destroy(player)
+function storage.clean(player)
     global.gui.component[COMPONENT.NAME][player.index] = nil
 end
 
@@ -40,6 +40,10 @@ end
 ---@param player LuaPlayer
 ---@return table
 function storage.refs(player)
+    if global.gui.component[COMPONENT.NAME][player.index] == nil then
+        return nil
+    end
+
     return global.gui.component[COMPONENT.NAME][player.index].refs
 end
 
@@ -98,7 +102,7 @@ end
 
 ---@param player LuaPlayer
 function public.destroy(player)
-    storage.destroy(player)
+    storage.clean(player)
 end
 
 ---@return string

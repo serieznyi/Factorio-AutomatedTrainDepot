@@ -36,19 +36,23 @@ function storage.init()
 end
 
 ---@param player LuaPlayer
-function storage.destroy(player)
+function storage.clean(player)
     global.gui.frame[FRAME.NAME][player.index] = nil
 end
 
 ---@param player LuaPlayer
 ---@return table
-function storage.get_gui(player)
-    return global.gui.frame[FRAME.NAME][player.index]
+function storage.refs(player)
+    if global.gui.frame[FRAME.NAME][player.index] == nil then
+        return nil
+    end
+
+    return global.gui.frame[FRAME.NAME][player.index].refs
 end
 
 ---@param player LuaPlayer
 ---@param refs table
-function storage.save_gui(player, refs)
+function storage.set(player, refs)
     global.gui.frame[FRAME.NAME][player.index] = {
         refs = refs,
     }
@@ -61,16 +65,16 @@ end
 ---@param event EventData
 function private.handle_frame_open(event)
     local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
+    local refs = storage.refs(player)
     local tags = flib_gui.get_tags(event.element)
 
-    if gui == nil then
-        gui = private.create_for(player, tags.group_id)
+    if refs == nil then
+        refs = private.create_for(player, tags.group_id)
     end
 
-    gui.refs.window.bring_to_front()
-    gui.refs.window.visible = true
-    player.opened = gui.refs.window
+    refs.window.bring_to_front()
+    refs.window.visible = true
+    player.opened = refs.window
 
     return true
 end
@@ -78,18 +82,18 @@ end
 ---@param event EventData
 function private.handle_frame_close(event)
     local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
+    local refs = storage.refs(player)
 
-    if gui == nil then
+    if refs == nil then
         return
     end
 
-    local window = gui.refs.window
+    local window = refs.window
 
     window.visible = false
     window.destroy()
 
-    storage.destroy(player)
+    storage.clean(player)
 
     train_builder_component.destroy(player)
 
@@ -109,9 +113,9 @@ end
 ---@param event EventData
 function private.handle_form_changed(event)
     local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
-    local validation_errors_container = gui.refs.validation_errors_container
-    local submit_button = gui.refs.submit_button
+    local refs = storage.refs(player)
+    local validation_errors_container = refs.validation_errors_container
+    local submit_button = refs.submit_button
     local validation_errors = public.validate_form(event)
 
     mod_gui.clear_children(validation_errors_container)
@@ -184,9 +188,9 @@ function private.create_for(player, group_id)
 
     train_builder_component.add_train_part(refs.train_builder_container, player)
 
-    storage.save_gui(player, refs)
+    storage.set(player, refs)
 
-    return storage.get_gui(player)
+    return refs
 end
 
 ---------------------------------------------------------------------------
@@ -228,15 +232,15 @@ end
 ---@return atd.TrainGroup form data
 function public.read_form(event)
     local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
-    local window_tags = flib_gui.get_tags(gui.refs.window)
+    local refs = storage.refs(player)
+    local window_tags = flib_gui.get_tags(refs.window)
 
     ---@type atd.TrainGroup
     local train_group = {}
 
     train_group.id = window_tags.group_id
-    train_group.name = gui.refs.group_name_input.text or mod_table.NIL
-    train_group.icon = gui.refs.group_icon_input.elem_value or mod_table.NIL
+    train_group.name = refs.group_name_input.text or mod_table.NIL
+    train_group.icon = refs.group_icon_input.elem_value or mod_table.NIL
     -- TODO add chooser
     train_group.train_color = {255, 255, 255}
     train_group.train =  train_builder_component.read_form(event)

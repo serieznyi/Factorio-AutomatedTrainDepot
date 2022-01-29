@@ -32,17 +32,21 @@ function storage.init()
 end
 
 ---@param player LuaPlayer
-function storage.destroy(player)
+function storage.clean(player)
     global.gui.frame[FRAME.NAME][player.index] = nil
 end
 
 ---@param player LuaPlayer
 ---@return table
-function storage.get_gui(player)
-    return global.gui.frame[FRAME.NAME][player.index]
+function storage.refs(player)
+    if global.gui.frame[FRAME.NAME][player.index] == nil then
+        return nil
+    end
+
+    return global.gui.frame[FRAME.NAME][player.index].refs
 end
 
-function storage.save_gui(player, refs)
+function storage.set(player, refs)
     global.gui.frame[FRAME.NAME][player.index] = {
         refs = refs,
     }
@@ -55,9 +59,9 @@ end
 ---@param event EventData
 function private.handle_form_changed(event)
     local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
-    local validation_errors_container = gui.refs.validation_errors_container
-    local submit_button = gui.refs.submit_button
+    local refs = storage.refs(player)
+    local validation_errors_container = refs.validation_errors_container
+    local submit_button = refs.submit_button
     local validation_errors = public.validate_form(event)
 
     mod_gui.clear_children(validation_errors_container)
@@ -98,15 +102,15 @@ end
 ---@param event EventData
 function private.handle_open_frame(event)
     local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
+    local refs = storage.refs(player)
 
-    if gui == nil then
-        gui = private.create_for(player)
+    if refs == nil then
+        refs = private.create_for(player)
     end
 
-    gui.refs.window.bring_to_front()
-    gui.refs.window.visible = true
-    player.opened = gui.refs.window
+    refs.window.bring_to_front()
+    refs.window.visible = true
+    player.opened = refs.window
 
     return true
 end
@@ -114,18 +118,18 @@ end
 ---@param event EventData
 function private.handle_frame_destroy(event)
     local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
+    local refs = storage.refs(player)
 
-    if gui == nil then
+    if refs == nil then
         return
     end
 
-    local window = gui.refs.window
+    local window = refs.window
 
     window.visible = false
     window.destroy()
 
-    storage.destroy(player)
+    storage.clean(player)
 
     return true
 end
@@ -151,9 +155,9 @@ function private.create_for(player)
     refs.titlebar_flow.drag_target = refs.window
     refs.footerbar_flow.drag_target = refs.window
 
-    storage.save_gui(player, refs)
+    storage.set(player, refs)
 
-    return storage.get_gui(player)
+    return refs
 end
 
 ---------------------------------------------------------------------------
@@ -191,7 +195,7 @@ end
 ---@return table form data
 function public.read_form(event)
     local player = game.get_player(event.player_index)
-    local gui = storage.get_gui(player)
+    local refs = storage.refs(player)
 
     return {
         use_any_fuel = mod_table.NIL,

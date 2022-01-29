@@ -26,24 +26,26 @@ function storage.init()
 end
 
 ---@param player LuaPlayer
-function storage.destroy(player)
+function storage.clean(player)
     global.gui.component[COMPONENT.NAME][player.index] = nil
 end
 
 ---@param player LuaPlayer
 ---@return table
-function storage.get_all_train_parts(player)
+function storage.get_train_parts(player)
     return global.gui.component[COMPONENT.NAME][player.index].train_parts
 end
 
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
-function storage.save_container(player, container)
+function storage.set_container(player, container)
     if global.gui.component[COMPONENT.NAME][player.index] == nil then
         global.gui.component[COMPONENT.NAME][player.index] = {
             container = container,
             train_parts = {},
         }
+    else
+        global.gui.component[COMPONENT.NAME][player.index].container = container
     end
 end
 
@@ -282,7 +284,7 @@ end
 
 ---@param player LuaPlayer
 function public.destroy(player)
-    storage.destroy(player)
+    storage.clean(player)
 end
 
 function private.write_form(player, refs, train_part_data)
@@ -305,7 +307,7 @@ function public.add_train_part(container_element, player, train_part)
     local train_part_id = script.generate_event_name()
     local refs = flib_gui.build(container_element, {build_structure.get(train_part_id)})
 
-    storage.save_container(player, container_element)
+    storage.set_container(player, container_element)
 
     storage.add_train_part(player, train_part_id, refs)
 
@@ -345,7 +347,7 @@ end
 ---@param event EventData
 function public.read_form(event)
     local player = game.get_player(event.player_index)
-    local train_parts = storage.get_all_train_parts(player)
+    local train_parts = storage.get_train_parts(player)
 
     local train = {}
 
