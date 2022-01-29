@@ -9,10 +9,6 @@ defines.events = {
 }
 
 defines.train_group = {
-    state = {
-        processed = 1,
-        enabled = 2,
-    }
 }
 
 defines.train = {

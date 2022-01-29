@@ -103,7 +103,7 @@ function public.get(train_group)
                     style = "button",
                     caption = {"train-group-view.atd-disable"},
                     ref = {"enable_button"},
-                    enabled = train_group.state ~= mod.defines.train_group.state.enabled,
+                    enabled = train_group.enabled,
                     actions = {
                         on_click = { target = mod.defines.gui.components.group_view.name, action = mod.defines.gui.actions.disable_train_group }
                     },
@@ -113,7 +113,7 @@ function public.get(train_group)
                     style = "button",
                     caption = {"train-group-view.atd-enable"},
                     ref = {"disable_button"},
-                    enabled = train_group.state ~= mod.defines.train_group.state.enabled,
+                    enabled = not train_group.enabled,
                     tags = { train_group_id = train_group.id },
                     actions = {
                         on_click = { target = mod.defines.gui.components.group_view.name, action = mod.defines.gui.actions.enable_train_group }

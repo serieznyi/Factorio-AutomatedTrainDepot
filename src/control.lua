@@ -10,7 +10,7 @@ local event_handler = require("scripts.event_handler")
 local depot_building = require("scripts.depot.depot_building")
 local gui_index = require("scripts.gui.manager")
 local console = require("scripts.console")
-local repository = require("scripts.repository")
+local persistence_storage = require("scripts.persistence_storage")
 
 ---------------------------------------------------------------------------
 -- -- -- REGISTER MAIN EVENTS
@@ -44,13 +44,13 @@ flib_event.on_init(function()
     -- Initialize `global` table
     depot_building.init()
     console.init()
-    repository.init()
+    persistence_storage.init()
 end)
 
 -- Loaded save file what contains mod ; Cant write in global
 flib_event.on_load(function()
     gui_index.load()
-    repository.load()
+    persistence_storage.load()
 end)
 
 ---------------------------------------------------------------------------

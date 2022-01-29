@@ -19,8 +19,7 @@ TrainGroup.icon = nil
 TrainGroup.train = nil
 
 ---@type uint
----@see mod.defined.train_group.state
-TrainGroup.state = nil
+TrainGroup.enabled = false
 
 ---@type uint
 TrainGroup.amount = nil

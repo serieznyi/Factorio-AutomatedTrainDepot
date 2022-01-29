@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 
 local mod_gui = require("scripts.util.gui")
 local mod_event = require("scripts.util.event")
-local repository = require("scripts.repository")
+local persistence_storage = require("scripts.persistence_storage")
 
 local constants = require("scripts.gui.frame.main.constants")
 local build_structure = require("scripts.gui.frame.main.build_structure")
@@ -80,7 +80,7 @@ function private.handle_delete_group(event)
     if selected_group_element ~= nil then
         local group_id = private.get_selected_group_id(player)
 
-        repository.delete_group(player, group_id)
+        persistence_storage.delete_group(player, group_id)
 
         selected_group_element.destroy()
     end
@@ -99,7 +99,7 @@ function private.select_train_group(player, train_group_button_element)
 
     ---
     local group_id = private.get_selected_group_id(player)
-    local train_group = repository.get_group(player, group_id)
+    local train_group = persistence_storage.get_group(player, group_id)
 
     mod_gui.clear_children(refs.content_frame)
 
@@ -140,7 +140,7 @@ end
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
 function private.refresh_groups_list(player, container)
-    local groups = repository.find_all(player)
+    local groups = persistence_storage.find_all(player)
     local selected_group_id = private.get_selected_group_id(player)
 
     mod_gui.clear_children(container)
@@ -279,7 +279,7 @@ function public.dispatch(event, action)
         { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame, func = private.handle_close_frame },
         { target = FRAME.NAME, action = mod.defines.gui.actions.select_group, func = private.handle_select_group },
         { target = FRAME.NAME, action = mod.defines.gui.actions.delete_group, func = private.handle_delete_group },
-        { target = group_view_component.name(), action = mod.defines.gui.actions.enable_train_group },
+        { target = group_view_component.name(), action = mod.defines.gui.actions.enable_train_group, func = group_view_component.dispatch },
         -- todo
         { target = FRAME.NAME, event = mod.defines.events.on_mod_group_saved, func = private.handle_update_gui },
     }

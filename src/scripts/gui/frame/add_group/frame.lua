@@ -9,7 +9,7 @@ local constants = require("scripts.gui.frame.add_group.constants")
 local build_structure = require("scripts.gui.frame.add_group.build_structure")
 local train_builder_component = require("scripts.gui.frame.add_group.component.train_builder.component")
 local validator = require("scripts.gui.validator")
-local repository = require("scripts.repository")
+local persistence_storage = require("scripts.persistence_storage")
 
 local FRAME = constants.FRAME
 local VALIDATION_RULES = {
@@ -140,7 +140,7 @@ function private.handle_save_form(event)
     local validation_errors = public.validate_form(event)
 
     if #validation_errors == 0 then
-        local train_group = repository.add_group(player, form_data)
+        local train_group = persistence_storage.add_group(player, form_data)
 
         script.raise_event(
                 mod.defines.events.on_mod_group_saved,
@@ -174,7 +174,7 @@ end
 ---@param group_id uint
 ---@return table
 function private.create_for(player, group_id)
-    local group = repository.get_group(player, group_id)
+    local group = persistence_storage.get_group(player, group_id)
 
     local refs = flib_gui.build(player.gui.screen, {build_structure.get(group)})
 
@@ -244,7 +244,7 @@ function public.read_form(event)
     -- TODO add chooser
     train_group.train_color = {255, 255, 255}
     train_group.train =  train_builder_component.read_form(event)
-    train_group.state = mod.defines.train_group.state.enabled
+    train_group.enabled = false
     train_group.amount = 0
 
     return train_group
