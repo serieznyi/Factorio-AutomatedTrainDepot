@@ -8,9 +8,21 @@ mod = require("scripts.mod")
 local mod_table = require("scripts.util.table")
 local event_handler = require("scripts.event_handler")
 local depot_building = require("scripts.depot.depot_building")
+local depot = require("scripts.depot.depot")
 local gui_index = require("scripts.gui.manager")
 local console = require("scripts.console")
 local persistence_storage = require("scripts.persistence_storage")
+
+---------------------------------------------------------------------------
+-- -- -- CONSOLE COMMANDS
+---------------------------------------------------------------------------
+
+commands.add_command("atd-register-unmanaged-trains", {"command.atd-register-unmanaged-trains-help"}, function(command)
+    local player = game.get_player(command.player_index)
+
+    depot.register_all_unmanaged_trains(player)
+end)
+
 
 ---------------------------------------------------------------------------
 -- -- -- REGISTER MAIN EVENTS
@@ -43,6 +55,7 @@ flib_event.on_init(function()
 
     -- Initialize `global` table
     depot_building.init()
+    depot.init()
     console.init()
     persistence_storage.init()
 end)
@@ -50,6 +63,7 @@ end)
 -- Loaded save file what contains mod ; Cant write in global
 flib_event.on_load(function()
     gui_index.load()
+    depot.load()
     persistence_storage.load()
 end)
 

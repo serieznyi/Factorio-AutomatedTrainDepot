@@ -24,6 +24,9 @@ TrainGroup.enabled = false
 ---@type uint
 TrainGroup.amount = nil
 
+---@type boolean
+TrainGroup.readonly = false
+
 ---------------------------------------------------------------------------
 -- -- -- TrainPart
 ---------------------------------------------------------------------------

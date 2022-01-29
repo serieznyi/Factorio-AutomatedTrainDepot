@@ -16,9 +16,15 @@ defines.train_group = {
 }
 
 defines.train = {
+    state = {
+        execute_schedule        = "execute_schedule",
+        go_to_depot             = "go_to_depot",
+        go_to_cleaning_station  = "go_to_cleaning_station",
+        leaves_depot            = "leaves_depot",
+    },
     direction = {
-        left = 1,
-        right = 2,
+        left = "left",
+        right = "right",
     }
 }
 
