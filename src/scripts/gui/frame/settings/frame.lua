@@ -188,7 +188,7 @@ function public.dispatch(event, action)
         { target = FRAME.NAME, event = mod.defines.events.on_gui_form_changed_mod, func = private.handle_form_changed },
     }
 
-    return mod_event.dispatch(handlers, event, action)
+    return mod_event.dispatch(handlers, event, action, FRAME.NAME)
 end
 
 ---@param event EventData

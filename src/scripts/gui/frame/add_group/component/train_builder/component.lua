@@ -332,7 +332,7 @@ function public.dispatch(event, action)
         { target = COMPONENT.NAME, action = mod.defines.gui.actions.delete_train_part,              func = private.handle_delete_train_part },
     }
 
-    local processed = mod_event.dispatch(event_handlers, event, action)
+    local processed = mod_event.dispatch(event_handlers, event, action, COMPONENT.NAME)
 
     if processed then
         script.raise_event(
@@ -351,7 +351,7 @@ function public.read_form(event)
 
     local train = {}
 
-    for i, el in pairs(train_parts) do
+    for _, el in pairs(train_parts) do
         local train_part = {}
         local part_chooser = el.refs.part_chooser
         local part_entity_type = part_chooser.elem_value

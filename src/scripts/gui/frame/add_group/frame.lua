@@ -140,7 +140,7 @@ function private.handle_save_form(event)
     local validation_errors = public.validate_form(event)
 
     if #validation_errors == 0 then
-        local train_group = persistence_storage.add_group(player, form_data)
+        local train_group = persistence_storage.add_train_group(player, form_data)
 
         script.raise_event(
                 mod.defines.events.on_group_saved_mod,
@@ -225,7 +225,7 @@ function public.dispatch(event, action)
         { target = FRAME.NAME, event = mod.defines.events.on_gui_form_changed_mod, func = private.handle_form_changed },
     }
 
-    return mod_event.dispatch(handlers, event, action)
+    return mod_event.dispatch(handlers, event, action, FRAME.NAME)
 end
 
 ---@param event EventData

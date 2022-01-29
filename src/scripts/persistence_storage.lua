@@ -74,7 +74,7 @@ end
 
 ---@param player LuaPlayer
 ---@param train_group atd.TrainGroup
-function public.add_group(player, train_group)
+function public.add_train_group(player, train_group)
     if global.groups[player.surface.name] == nil then
         global.groups[player.surface.name] = {}
     end

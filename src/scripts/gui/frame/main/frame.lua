@@ -276,15 +276,15 @@ end
 ---@param event EventData
 function public.dispatch(event, action)
     local handlers = {
+        { target = group_view_component.name(), action = mod.defines.gui.actions.any, func = group_view_component.dispatch },
         { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame, func = private.handle_close_frame },
         { target = FRAME.NAME, action = mod.defines.gui.actions.select_group, func = private.handle_select_group },
         { target = FRAME.NAME, action = mod.defines.gui.actions.delete_group, func = private.handle_delete_group },
-        { target = group_view_component.name(), action = mod.defines.gui.actions.enable_train_group, func = group_view_component.dispatch },
         -- todo
         { target = FRAME.NAME, event = mod.defines.events.on_group_saved_mod, func = private.handle_update_gui },
     }
 
-    return mod_event.dispatch(handlers, event, action)
+    return mod_event.dispatch(handlers, event, action, FRAME.NAME)
 end
 
 return public

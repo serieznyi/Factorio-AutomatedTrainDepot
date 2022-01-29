@@ -3,6 +3,7 @@ local flib_table = require("__flib__.table")
 
 local mod_event = require("scripts.util.event")
 local mod_gui = require("scripts.util.gui")
+local depot = require("scripts.depot.depot")
 
 local build_structure = require("scripts.gui.frame.main.component.group_view.build_structure")
 
@@ -67,26 +68,40 @@ function private.refresh_train_view(player, train_group)
 
     ---@param train_part atd.TrainPart
     for _, train_part in pairs(train_group.train) do
-
-    flib_gui.add(container, {
+        flib_gui.add(container, {
             type = "sprite-button",
             enabled = false,
             style = "flib_slot_default",
             sprite = mod_gui.image_path_for_item(train_part.entity),
         })
     end
+
+    refs.enable_button.enabled = not train_group.enabled
+    refs.disable_button.enabled = train_group.enabled
 end
 
 function private.handle_enable_train_group(e)
     local player = game.get_player(e.player_index)
+    local refs = storage.refs(player)
+    local tags = flib_gui.get_tags(refs.component)
+    local train_group_id = tags.train_group_id
+    local train_group = depot.enable_train_group(player, train_group_id)
 
-    player.print("enabled")
+    private.refresh_train_view(player, train_group)
+
+    return true
 end
 
 function private.handle_disable_train_group(e)
     local player = game.get_player(e.player_index)
+    local refs = storage.refs(player)
+    local tags = flib_gui.get_tags(refs.component)
+    local train_group_id = tags.train_group_id
+    local train_group = depot.disable_train_group(player, train_group_id)
 
-    player.print("disabled")
+    private.refresh_train_view(player, train_group)
+
+    return true
 end
 
 ---------------------------------------------------------------------------
@@ -129,7 +144,7 @@ function public.dispatch(event, action)
         { target = COMPONENT.NAME, action = mod.defines.gui.actions.disable_train_group, func = private.handle_disable_train_group },
     }
 
-    return mod_event.dispatch(event_handlers, event, action)
+    return mod_event.dispatch(event_handlers, event, action, COMPONENT.NAME)
 end
 
 return public

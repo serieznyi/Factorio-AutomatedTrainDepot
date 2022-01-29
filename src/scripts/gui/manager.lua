@@ -112,6 +112,14 @@ function manager.load()
     end
 end
 
+-- TODO use on user banned, deleted, logout, ...
+---@param player LuaPlayer
+function manager.clean(player)
+    for _, module in ipairs(FRAME_MODULES) do
+        module.clean(player)
+    end
+end
+
 ---@param event EventData
 function manager.dispatch(event)
     local processed = false
