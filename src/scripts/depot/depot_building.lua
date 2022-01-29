@@ -4,7 +4,7 @@ local FORCE_DEFAULT = "player"
 local DEPOT_RAILS_COUNT = 4
 local RAIL_ENTITY_LENGTH = 2
 
-local depot = {}
+local public = {}
 
 ---@param entity LuaEntity
 local function shadow_entity(entity)
@@ -49,13 +49,13 @@ local function build_straight_rails_for_station(station_entity, railsCount)
     return rails
 end
 
-function depot.init()
+function public.init()
     mod.util.logger.debug("depot was init")
 end
 
 ---@param entity LuaEntity
 ---@return void
-function depot.build(entity)
+function public.build(entity)
     local dependent_entities = {}
     ---@type LuaSurface
     local surface = entity.surface
@@ -123,7 +123,7 @@ end
 
 ---@param depot_entity LuaEntity
 ---@return void
-function depot.destroy(depot_entity)
+function public.destroy(depot_entity)
     local surface = depot_entity.surface
     local depot_entity_id = depot_entity.unit_number
     local depot_for_destroy = mod.depots[surface.name]
@@ -140,4 +140,4 @@ function depot.destroy(depot_entity)
     mod.util.logger.debug('Entity {1}[{2}] was destroy', {entity_name, depot_entity_id})
 end
 
-return depot
+return public

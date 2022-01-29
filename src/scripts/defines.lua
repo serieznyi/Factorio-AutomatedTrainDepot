@@ -34,6 +34,7 @@ defines.gui = {
         refresh_train_part = script.generate_event_name(),
         -- other
         trigger_form_changed = script.generate_event_name(),
+        start_build_train = script.generate_event_name(),
     },
     frames = {
         main = { name = "main_frame" },

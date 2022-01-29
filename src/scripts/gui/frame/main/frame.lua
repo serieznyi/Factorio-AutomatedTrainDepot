@@ -69,6 +69,15 @@ function private.handle_select_group(event)
 end
 
 ---@param event EventData
+function private.handle_start_build_train(event)
+    local player = game.get_player(event.player_index)
+
+    player.print("start build train")
+
+    return true
+end
+
+---@param event EventData
 function private.handle_delete_group(event)
     local player = game.get_player(event.player_index)
     local selected_group_element = private.get_selected_group_element(player)
@@ -219,7 +228,7 @@ function private.create_for(player)
     return storage.get_gui(player)
 end
 
-function private.close_frame(event)
+function private.handle_close_frame(event)
     local player = game.get_player(event.player_index)
     local gui = storage.get_gui(player)
     local window = gui.refs.window
@@ -271,9 +280,10 @@ end
 ---@param event EventData
 function public.dispatch(event, action)
     local handlers = {
-        { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame,    func = private.close_frame },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.select_group,   func = private.handle_select_group },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.delete_group,   func = private.handle_delete_group },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame,        func = private.handle_close_frame },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.select_group,       func = private.handle_select_group },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.delete_group,       func = private.handle_delete_group },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.start_build_train,  func = private.handle_start_build_train },
         -- todo
         { target = FRAME.NAME, event = mod.defines.events.on_mod_group_saved,   func = private.handle_update_gui },
     }

@@ -1,4 +1,4 @@
-local depot = require("scripts.depot")
+local depot_building = require("scripts.depot.depot_building")
 local gui_main_frame = require("scripts.gui.frame.main.frame")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
@@ -19,7 +19,7 @@ function event_handler.build_depot_entity(event)
     end
 
     if entity.name == mod.defines.entity.depot_building.name then
-        depot.build(entity)
+        depot_building.build(entity)
     end
 end
 
@@ -32,7 +32,7 @@ function event_handler.destroy_depot_entity(event)
     end
 
     if entity.name == mod.defines.entity.depot_building.name then
-        depot.destroy(entity)
+        depot_building.destroy(entity)
     end
 end
 

@@ -112,7 +112,10 @@ function public.get(train_group)
                     caption = {"train-group-view.atd-start"},
                     ref = {"start_button"},
                     enabled = train_group.state ~= mod.defines.train_group.state.processed,
-                    actions = {},
+                    tags = { train_group_id = train_group.id },
+                    actions = {
+                        on_click = { target = mod.defines.gui.frames.main.name, action = mod.defines.gui.actions.start_build_train}
+                    },
                 },
             }
         },

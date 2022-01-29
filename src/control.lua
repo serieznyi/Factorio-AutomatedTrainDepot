@@ -7,7 +7,7 @@ mod = require("scripts.mod")
 
 local mod_table = require("scripts.util.table")
 local event_handler = require("scripts.event_handler")
-local depot = require("scripts.depot")
+local depot_building = require("scripts.depot.depot_building")
 local gui_index = require("scripts.gui.manager")
 local console = require("scripts.console")
 local repository = require("scripts.repository")
@@ -42,7 +42,7 @@ flib_event.on_init(function()
     gui_index.init()
 
     -- Initialize `global` table
-    depot.init()
+    depot_building.init()
     console.init()
     repository.init()
 end)
