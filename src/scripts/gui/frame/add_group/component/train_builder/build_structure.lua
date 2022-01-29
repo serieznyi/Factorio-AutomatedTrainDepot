@@ -1,7 +1,6 @@
 local constants = require("scripts.gui.frame.add_group.component.train_builder.constants")
 
 local COMPONENT = constants.COMPONENT
-local LOCOMOTIVE_DIRECTION = constants.LOCOMOTIVE_DIRECTION
 
 local build_structure = {}
 
@@ -48,7 +47,7 @@ function build_structure.get(train_part_id)
             {
                 type = "sprite-button",
                 visible = false,
-                tags = { train_part_id = train_part_id, direction = LOCOMOTIVE_DIRECTION.LEFT, current_direction = LOCOMOTIVE_DIRECTION.LEFT },
+                tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.left, current_direction = mod.defines.train.direction.left },
                 ref = {"locomotive_direction_left_button"},
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_left",
@@ -58,7 +57,7 @@ function build_structure.get(train_part_id)
             },
             {
                 type = "sprite-button",
-                tags = { train_part_id = train_part_id, direction = LOCOMOTIVE_DIRECTION.RIGHT, current_direction = LOCOMOTIVE_DIRECTION.LEFT },
+                tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.right, current_direction = mod.defines.train.direction.left },
                 ref = {"locomotive_direction_right_button"},
                 visible = false,
                 style = "flib_slot_button_default",

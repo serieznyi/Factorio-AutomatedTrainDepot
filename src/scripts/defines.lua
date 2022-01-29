@@ -15,6 +15,13 @@ defines.train_group = {
     }
 }
 
+defines.train = {
+    direction = {
+        left = 1,
+        right = 2,
+    }
+}
+
 defines.entity = require("prototypes.defines.entity")
 
 defines.gui = {

@@ -8,7 +8,6 @@ local build_structure = require("scripts.gui.frame.add_group.component.train_bui
 local validator = require("scripts.gui.validator")
 
 local COMPONENT = constants.COMPONENT
-local LOCOMOTIVE_DIRECTION = constants.LOCOMOTIVE_DIRECTION
 local TRAIN_PART_TYPE = {
     LOCOMOTIVE = "locomotive",
     CARGO = "cargo",
@@ -125,7 +124,7 @@ function private.handle_change_locomotive_direction(event)
     local player = game.get_player(event.player_index)
     local tags = flib_gui.get_tags(event.element)
     local train_part_id = private.get_train_part_id(event.element)
-    local direction = tags.direction == LOCOMOTIVE_DIRECTION.RIGHT and LOCOMOTIVE_DIRECTION.LEFT or LOCOMOTIVE_DIRECTION.RIGHT
+    local direction = tags.direction == mod.defines.train.direction.right and mod.defines.train.direction.left or mod.defines.train.direction.right
 
     private.set_locomotive_direction(train_part_id, player, direction)
 
@@ -180,8 +179,8 @@ function private.update_train_part(player, train_part_id)
     delete_button.visible = true
 
     if locomotive_part then
-        locomotive_direction_left_button.visible = (current_locomotive_direction == LOCOMOTIVE_DIRECTION.LEFT)
-        locomotive_direction_right_button.visible = (current_locomotive_direction == LOCOMOTIVE_DIRECTION.RIGHT)
+        locomotive_direction_left_button.visible = (current_locomotive_direction == mod.defines.train.direction.left)
+        locomotive_direction_right_button.visible = (current_locomotive_direction == mod.defines.train.direction.right)
 
     end
 end
