@@ -102,7 +102,8 @@ function public.get(train_template)
                     {
                         type = "button",
                         style = "button",
-                        caption = {"train-template-view.atd-disable"},
+                        caption = {"train-template-view-component.atd-disable-button"},
+                        tooltip = {"train-template-view-component.atd-disable-button-tooltip"},
                         ref = {"disable_button"},
                         enabled = train_template.enabled,
                         actions = {
@@ -112,7 +113,8 @@ function public.get(train_template)
                     {
                         type = "button",
                         style = "button",
-                        caption = {"train-template-view.atd-enable"},
+                        caption = {"train-template-view-component.atd-enable-button"},
+                        tooltip = {"train-template-view-component.atd-enable-button-tooltip"},
                         ref = {"enable_button"},
                         enabled = not train_template.enabled,
                         tags = { train_template_id = train_template.id },
