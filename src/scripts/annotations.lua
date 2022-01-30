@@ -25,28 +25,6 @@ TrainTemplate.enabled = false
 TrainTemplate.amount = nil
 
 ---------------------------------------------------------------------------
--- -- -- Train
----------------------------------------------------------------------------
-
----@class atd.Train
-local Train = {}
-
----@type uint
-Train.id = nil
-
----@type uint
-Train.train_template_id = nil
-
----@type bool
-Train.uncontrolled_train = nil
-
----@type uint
-Train.state = nil
-
----@type LuaTrain
-Train.train = nil
-
----------------------------------------------------------------------------
 -- -- -- TrainPart
 ---------------------------------------------------------------------------
 

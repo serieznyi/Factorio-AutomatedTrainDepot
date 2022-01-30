@@ -66,12 +66,6 @@ function event_handler.bring_to_front_current_window()
     gui_manager.bring_to_front_current_window()
 end
 
-function event_handler.on_train_created(e)
-    local player = e.get_player
-
-    depot.register_trains()
-end
-
 ---@param event EventData
 function event_handler.pass_to_gui(event)
     gui_manager.dispatch(event)

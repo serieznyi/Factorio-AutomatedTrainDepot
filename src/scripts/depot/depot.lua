@@ -1,3 +1,4 @@
+local Train = require("lib.entity.Train")
 local persistence_storage = require("scripts.persistence_storage")
 
 local public = {}
@@ -10,20 +11,12 @@ local private = {}
 ---@param player LuaPlayer
 ---@param lua_train LuaTrain
 function private.register_train(player, lua_train)
-    ---@type atd.Train
+    ---@type lib.entity.Train
     local train = persistence_storage.get_train(player, lua_train.id)
 
     if train == nil then
-        train = {}
-        train.id = lua_train.id
-        train.train = lua_train
-        train.uncontrolled_train = true
-    else
-        train.uncontrolled_train = false
+        train = Train.new(lua_train.id, lua_train, true)
     end
-
-    -- todo register state
-    --train.state = mod.defines.train.state.execute_schedule
 
     return persistence_storage.add_train(player, train)
 end
@@ -33,7 +26,6 @@ end
 ---------------------------------------------------------------------------
 
 function public.init()
-    public.register_trains(game.player)
 end
 
 function public.load()

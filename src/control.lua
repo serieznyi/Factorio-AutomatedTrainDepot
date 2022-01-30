@@ -98,8 +98,6 @@ flib_event.register(defines.events.on_runtime_mod_setting_changed, event_handler
 
 flib_event.register(mod_table.array_values(mod.defines.events), event_handler.pass_to_gui)
 
-flib_event.register(defines.events.on_train_created, event_handler.on_train_created)
-
 ---------------------------------------------------------------------------
 -- -- -- REGISTER GUI EVENTS
 ---------------------------------------------------------------------------

@@ -1,8 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
 local mod_event = require("scripts.util.event")
-local mod_gui = require("scripts.util.gui")
-local depot = require("scripts.depot.depot")
 
 local build_structure = require("scripts.gui.frame.main.component.trains_view.build_structure")
 
@@ -66,9 +64,9 @@ function private.refresh_component(player, trains)
 
     trains_table.clear()
 
-    -----@param train atd.Train
+    -----@param train lib.entity.Train
     for _, train in ipairs(trains) do
-        local locomotive = train.train.locomotives.front_movers[1]
+        local locomotive = train:getMainLocomotive()
 
         flib_gui.add(trains_table, {
             type = "frame",

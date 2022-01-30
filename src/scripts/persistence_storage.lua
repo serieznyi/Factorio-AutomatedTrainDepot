@@ -1,5 +1,6 @@
 local flib_table = require("__flib__.table")
 
+local Train = require("lib.entity.Train")
 local Sequence = require("scripts.lib.Sequence")
 
 local public = {}
@@ -118,8 +119,8 @@ function public.delete_train_template(player, train_template_id)
 end
 
 --- @param player LuaPlayer
---- @param train atd.Train
---- @return atd.Train
+--- @param train lib.entity.Train
+--- @return lib.entity.Train
 function public.add_train(player, train)
     ---@type LuaSurface
     local surface = player.surface
@@ -134,7 +135,7 @@ function public.add_train(player, train)
         global.trains[surface.name][force.name] = {}
     end
 
-    global.trains[surface.name][force.name][train.id] = train
+    global.trains[surface.name][force.name][train.id] = train:toTable()
 
     return train
 end
@@ -154,21 +155,33 @@ function public.find_uncontrolled_trains(player)
         return {}
     end
 
-    return flib_table.filter(
+    local uncontrolled_trains = flib_table.filter(
             global.trains[player.surface.name][player.force.name],
             function(t) return t.uncontrolled_train end,
             true
     )
+
+    return flib_table.map(uncontrolled_trains, function(v)
+        return Train.fromTable(v)
+    end)
 end
 
 ---@param player LuaPlayer
 ---@param train_id uint
 function public.get_train(player, train_id)
-    if global.trains[player.surface.name] == nil or global.trains[player.surface.name][player.force.name] == nil then
+    if global.trains[player.surface.name] == nil or
+       global.trains[player.surface.name][player.force.name] == nil
+    then
         return nil
     end
 
-    return global.trains[player.surface.name][player.force.name][train_id]
+    local data = global.trains[player.surface.name][player.force.name][train_id]
+
+    if data == nil then
+        return nil
+    end
+
+    return Train.fromTable(global.trains[player.surface.name][player.force.name][train_id])
 end
 
 return public
