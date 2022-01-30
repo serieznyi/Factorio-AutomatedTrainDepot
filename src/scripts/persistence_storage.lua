@@ -1,3 +1,5 @@
+local flib_table = require("__flib__.table")
+
 local Sequence = require("scripts.lib.Sequence")
 
 local public = {}
@@ -127,11 +129,7 @@ function public.add_train(player, train)
         global.trains[player.surface.name][player.force.name] = {}
     end
 
-    if global.trains[player.surface.name][player.force.name][train.id] == nil then
-        table.insert(global.trains[player.surface.name][player.force.name], train.id, train)
-    else
-        global.trains[player.surface.name][player.force.name][train.id] = train
-    end
+    global.trains[player.surface.name][player.force.name][train.id] = train
 
     return train
 end
@@ -151,16 +149,11 @@ function public.find_uncontrolled_trains(player)
         return {}
     end
 
-    local uncontrolled_trains = {}
-
-    ---@param train atd.Train
-    for _, train in pairs(global.trains[player.surface.name][player.force.name]) do
-        if train.uncontrolled_train == true then
-            table.insert(uncontrolled_trains, train)
-        end
-    end
-
-    return uncontrolled_trains
+    return flib_table.filter(
+            global.trains[player.surface.name][player.force.name],
+            function(t) return t.uncontrolled_train end,
+            true
+    )
 end
 
 ---@param player LuaPlayer

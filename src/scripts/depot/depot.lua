@@ -33,7 +33,7 @@ end
 ---------------------------------------------------------------------------
 
 function public.init()
-
+    public.register_trains(game.player)
 end
 
 function public.load()

@@ -59,11 +59,7 @@ end
 ---@param train_part_id int
 ---@param refs table
 function storage.add_train_part(player, train_part_id, refs)
-    table.insert(
-            global.gui.component[COMPONENT.NAME][player.index].train_parts,
-            train_part_id,
-            { refs = refs }
-    )
+    global.gui.component[COMPONENT.NAME][player.index].train_parts[train_part_id] = { refs = refs }
 end
 
 ---@param player LuaPlayer
