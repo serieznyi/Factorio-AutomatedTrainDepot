@@ -62,9 +62,10 @@ end
 ---@param train_template atd.TrainTemplate
 function private.refresh_component(player, train_template)
     local refs = storage.refs(player)
+    ---@type LuaGuiElement
     local container = refs.train_view
 
-    mod_gui.clear_children(container)
+    container.clear()
 
     ---@param train_part atd.TrainPart
     for _, train_part in pairs(train_template.train) do

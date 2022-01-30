@@ -69,7 +69,7 @@ function private.handle_open_uncontrolled_trains_view(event)
     local refs = storage.refs(player)
     local trains = persistence_storage.find_uncontrolled_trains(player)
 
-    mod_gui.clear_children(refs.content_frame)
+    refs.content_frame.clear()
     trains_view_component.create(refs.content_frame, player, trains)
 end
 
@@ -84,7 +84,7 @@ function private.handle_select_train_template(event)
     local train_template_id = private.get_selected_train_template_id(player)
     local train_template = persistence_storage.get_train_template(player, train_template_id)
 
-    mod_gui.clear_children(refs.content_frame)
+    refs.content_frame.clear()
 
     train_template_view_component.create(refs.content_frame, player, train_template)
 
@@ -165,7 +165,7 @@ function private.refresh_trains_templates_list(player, container)
     local trains_templates = persistence_storage.find_all_train_templates(player)
     local selected_train_template_id = private.get_selected_train_template_id(player)
 
-    mod_gui.clear_children(container)
+    container.clear()
 
     ---@param train_template atd.TrainTemplate
     for i, train_template in pairs(trains_templates) do

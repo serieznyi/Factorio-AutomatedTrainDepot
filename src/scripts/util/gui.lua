@@ -10,15 +10,6 @@ local function init()
     end
 end
 
----@param element
----@deprecated use element.clean()
-function gui.clear_children(element)
-    ---@param child LuaGuiElement
-    for _, child in ipairs(element.children) do
-        child.destroy()
-    end
-end
-
 ---@param item_name string
 function gui.image_path_for_item(item_name)
     local icon_path = "item/" .. item_name

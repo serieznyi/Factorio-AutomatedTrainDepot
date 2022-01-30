@@ -61,10 +61,10 @@ end
 ---@param trains table
 function private.refresh_component(player, trains)
     local refs = storage.refs(player)
+    ---@type LuaGuiElement
     local trains_table = refs.trains_table
 
-    -- todo replace on .clean()
-    mod_gui.clear_children(trains_table)
+    trains_table.clear()
 
     -----@param train atd.Train
     for _, train in ipairs(trains) do

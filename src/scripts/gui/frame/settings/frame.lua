@@ -60,11 +60,12 @@ end
 function private.handle_form_changed(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
+    ---@type LuaGuiElement
     local validation_errors_container = refs.validation_errors_container
     local submit_button = refs.submit_button
     local validation_errors = public.validate_form(event)
 
-    mod_gui.clear_children(validation_errors_container)
+    validation_errors_container.clear()
 
     if #validation_errors == 0 then
         submit_button.enabled = true
