@@ -67,8 +67,7 @@ function build_structure.get()
                         type = "flow",
                         direction = "vertical",
                         style_mods = {
-                            minimal_width = FRAME.WIDTH * 0.25,
-                            maximal_width = FRAME.WIDTH * 0.25,
+                            natural_width = FRAME.WIDTH * 0.25,
                         },
                         children = {
                             {
@@ -143,8 +142,7 @@ function build_structure.get()
                     {
                         type = "flow",
                         style_mods = {
-                            minimal_width = FRAME.WIDTH - (FRAME.WIDTH * 0.25),
-                            maximal_width = FRAME.WIDTH - (FRAME.WIDTH * 0.25),
+                            natural_width = FRAME.WIDTH - (FRAME.WIDTH * 0.25),
                         },
                         direction = "vertical",
                         children = {
