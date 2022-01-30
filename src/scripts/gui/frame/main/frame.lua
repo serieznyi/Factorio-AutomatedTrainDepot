@@ -7,6 +7,7 @@ local persistence_storage = require("scripts.persistence_storage")
 local constants = require("scripts.gui.frame.main.constants")
 local build_structure = require("scripts.gui.frame.main.build_structure")
 local train_template_view_component = require("scripts.gui.frame.main.component.train_template_view.component")
+local trains_view_component = require("scripts.gui.frame.main.component.trains_view.component")
 
 local FRAME = constants.FRAME
 
@@ -63,11 +64,31 @@ function private.handle_update_gui(event)
     return true
 end
 
+function private.handle_open_uncontrolled_trains_view(event)
+    local player = game.get_player(event.player_index)
+    local refs = storage.refs(player)
+    local trains = persistence_storage.find_uncontrolled_trains(player)
+
+    mod_gui.clear_children(refs.content_frame)
+    trains_view_component.create(refs.content_frame, player, trains)
+end
+
 ---@param event EventData
 function private.handle_select_train_template(event)
     local player = game.get_player(event.player_index)
 
-    private.select_train_template(player, event.element)
+    local refs = storage.refs(player)
+
+    private.mark_selected_train_template_button(event.element, refs)
+
+    local train_template_id = private.get_selected_train_template_id(player)
+    local train_template = persistence_storage.get_train_template(player, train_template_id)
+
+    mod_gui.clear_children(refs.content_frame)
+
+    train_template_view_component.create(refs.content_frame, player, train_template)
+
+    private.refresh_gui(player)
 
     return true
 end
@@ -90,22 +111,23 @@ function private.handle_delete_train_template(event)
     return true
 end
 
----@param player LuaPlayer
----@param train_template_button_element LuaGuiElement
-function private.select_train_template(player, train_template_button_element)
+---@param event EventData
+function private.handle_close_frame(event)
+    local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
+    local window = refs.window
 
-    private.mark_selected_train_template_button(train_template_button_element, refs)
+    window.visible = false
 
-    local train_template_id = private.get_selected_train_template_id(player)
-    local train_template = persistence_storage.get_train_template(player, train_template_id)
+    if player.opened == refs.window then
+        player.opened = nil
+    end
 
-    mod_gui.clear_children(refs.content_frame)
+    window.destroy()
 
-    train_template_view_component.create(refs.content_frame, player, train_template)
+    storage.clean(player)
 
-    ---
-    private.refresh_gui(player)
+    return true
 end
 
 ---@param player LuaPlayer
@@ -140,7 +162,7 @@ end
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
 function private.refresh_trains_templates_list(player, container)
-    local trains_templates = persistence_storage.find_all(player)
+    local trains_templates = persistence_storage.find_all_train_templates(player)
     local selected_train_template_id = private.get_selected_train_template_id(player)
 
     mod_gui.clear_children(container)
@@ -171,9 +193,11 @@ function private.refresh_control_buttons(player)
     local refs = storage.refs(player)
     local selected_train_template_id = private.get_selected_train_template_id(player)
     local train_template_selected = selected_train_template_id ~= nil
+    local has_uncontrolled_trains = persistence_storage.count_uncontrolled_trains(player) > 0
 
     refs.edit_button.enabled = train_template_selected
     refs.delete_button.enabled = train_template_selected
+    refs.show_uncontrolled_trains_button.enabled = has_uncontrolled_trains
 
     if train_template_selected then
         -- todo сделать так же для delete
@@ -223,24 +247,6 @@ function private.create_for(player)
     return storage.refs(player)
 end
 
-function private.handle_close_frame(event)
-    local player = game.get_player(event.player_index)
-    local refs = storage.refs(player)
-    local window = refs.window
-
-    window.visible = false
-
-    if player.opened == refs.window then
-        player.opened = nil
-    end
-
-    window.destroy()
-
-    storage.clean(player)
-
-    return true
-end
-
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
@@ -253,10 +259,12 @@ end
 function public.init()
     storage.init()
     train_template_view_component.init()
+    trains_view_component.init()
 end
 
 function public.load()
     train_template_view_component.load()
+    trains_view_component.load()
 end
 
 ---@param player LuaPlayer
@@ -279,6 +287,7 @@ function public.dispatch(event, action)
         { target = train_template_view_component.name(), action = mod.defines.gui.actions.any, func = train_template_view_component.dispatch },
         { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame, func = private.handle_close_frame },
         { target = FRAME.NAME, action = mod.defines.gui.actions.select_train_template, func = private.handle_select_train_template },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.open_uncontrolled_trains_view, func = private.handle_open_uncontrolled_trains_view },
         { target = FRAME.NAME, action = mod.defines.gui.actions.delete_train_template, func = private.handle_delete_train_template },
         -- todo
         { target = FRAME.NAME, event = mod.defines.events.on_train_template_saved_mod, func = private.handle_update_gui },

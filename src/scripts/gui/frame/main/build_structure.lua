@@ -112,6 +112,17 @@ function build_structure.get()
                                                     on_click = { target = mod.defines.gui.frames.main.name, action = mod.defines.gui.actions.delete_train_template }
                                                 },
                                             },
+                                            {
+                                                type = "sprite-button",
+                                                style = "tool_button",
+                                                tooltip = {"main-frame.atd-show-uncontrolled-trains"},
+                                                ref = {"show_uncontrolled_trains_button"},
+                                                sprite = "item/locomotive",
+                                                enabled = false,
+                                                actions = {
+                                                    on_click = { target = mod.defines.gui.frames.main.name, action = mod.defines.gui.actions.open_uncontrolled_trains_view }
+                                                },
+                                            },
                                         }
                                     },
                                 }

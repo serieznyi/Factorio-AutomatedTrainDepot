@@ -20,7 +20,6 @@ defines.train = {
         execute_schedule        = "execute_schedule",
         go_to_depot             = "go_to_depot",
         go_to_cleaning_station  = "go_to_cleaning_station",
-        leaves_depot            = "leaves_depot",
     },
     direction = {
         left = "left",
@@ -49,6 +48,7 @@ defines.gui = {
         trigger_form_changed = script.generate_event_name(),
         enable_train_template = script.generate_event_name(),
         disable_train_template = script.generate_event_name(),
+        open_uncontrolled_trains_view = script.generate_event_name(),
     },
     frames = {
         main = { name = "main_frame" },
@@ -57,7 +57,8 @@ defines.gui = {
     },
     components = {
         train_builder = { name = "train_builder_component" },
-        template_view = { name = "template_view_component" },
+        train_template_view = { name = "train_template_view_component" },
+        trains_view = { name = "trains_view_component" },
     },
     mod_frame_marker_name = "atd_frame",
 }

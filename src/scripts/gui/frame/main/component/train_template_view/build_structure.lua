@@ -27,32 +27,35 @@ function public.get(train_template)
         direction = "vertical",
         ref = { "component" },
         tags = { train_template_id = train_template.id },
+        style_mods = {
+            vertically_stretchable = true,
+            horizontally_stretchable = true,
+        },
         children = {
             -- Titlebar
             {
                 type = "flow",
+                direction = "vertical",
+                children = {
+                    {
+                        type = "label",
+                        caption = train_template_name,
+                    },
+                    {
+                        type = "line",
+                    },
+                }
             },
             -- Content
             {
                 type = "flow",
+                ref = { "content" },
                 direction = "vertical",
                 style_mods = {
                     vertically_stretchable = true,
                     horizontally_stretchable = true,
                 },
                 children = {
-                    {
-                        type = "flow",
-                        children = {
-                            {
-                                type = "label",
-                                caption = train_template_name,
-                            },
-                        }
-                    },
-                    {
-                        type = "line",
-                    },
                     {
                         type = "flow",
                         direction = "horizontal",
@@ -82,8 +85,7 @@ function public.get(train_template)
                             },
                         }
                     },
-
-                },
+                }
             },
             -- Bottom control bar
             {
@@ -107,7 +109,7 @@ function public.get(train_template)
                         ref = {"disable_button"},
                         enabled = train_template.enabled,
                         actions = {
-                            on_click = { target = mod.defines.gui.components.template_view.name, action = mod.defines.gui.actions.disable_train_template }
+                            on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.disable_train_template }
                         },
                     },
                     {
@@ -119,7 +121,7 @@ function public.get(train_template)
                         enabled = not train_template.enabled,
                         tags = { train_template_id = train_template.id },
                         actions = {
-                            on_click = { target = mod.defines.gui.components.template_view.name, action = mod.defines.gui.actions.enable_train_template }
+                            on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.enable_train_template }
                         },
                     },
                 }

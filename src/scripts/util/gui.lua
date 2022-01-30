@@ -11,6 +11,7 @@ local function init()
 end
 
 ---@param element
+---@deprecated use element.clean()
 function gui.clear_children(element)
     ---@param child LuaGuiElement
     for _, child in ipairs(element.children) do

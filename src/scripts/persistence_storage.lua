@@ -36,7 +36,9 @@ function public.init()
         global.sequence.train_template = value
     end)
 
+    -- All user created templates
     global.trains_templates = {}
+    global.trains = {}
 end
 
 function public.load()
@@ -66,7 +68,7 @@ end
 
 ---@param player LuaPlayer
 ---@return table set of train templates
-function public.find_all(player)
+function public.find_all_train_templates(player)
     if global.trains_templates[player.surface.name] == nil then
         return {}
     end
@@ -111,6 +113,64 @@ function public.delete_train_template(player, train_template_id)
             return table.remove(global.trains_templates[player.surface.name][player.force.name], i)
         end
     end
+end
+
+--- @param player LuaPlayer
+--- @param train atd.Train
+--- @return atd.Train
+function public.add_train(player, train)
+    if global.trains[player.surface.name] == nil then
+        global.trains[player.surface.name] = {}
+    end
+
+    if global.trains[player.surface.name][player.force.name] == nil then
+        global.trains[player.surface.name][player.force.name] = {}
+    end
+
+    if global.trains[player.surface.name][player.force.name][train.id] == nil then
+        table.insert(global.trains[player.surface.name][player.force.name], train.id, train)
+    else
+        global.trains[player.surface.name][player.force.name][train.id] = train
+    end
+
+    return train
+end
+
+---@param player LuaPlayer
+function public.count_uncontrolled_trains(player)
+    local uncontrolled_trains = public.find_uncontrolled_trains(player)
+
+    return #uncontrolled_trains
+end
+
+---@param player LuaPlayer
+function public.find_uncontrolled_trains(player)
+    if global.trains[player.surface.name] == nil or
+       global.trains[player.surface.name][player.force.name] == nil
+    then
+        return {}
+    end
+
+    local uncontrolled_trains = {}
+
+    ---@param train atd.Train
+    for _, train in pairs(global.trains[player.surface.name][player.force.name]) do
+        if train.uncontrolled_train == true then
+            table.insert(uncontrolled_trains, train)
+        end
+    end
+
+    return uncontrolled_trains
+end
+
+---@param player LuaPlayer
+---@param train_id uint
+function public.get_train(player, train_id)
+    if global.trains[player.surface.name] == nil or global.trains[player.surface.name][player.force.name] == nil then
+        return nil
+    end
+
+    return global.trains[player.surface.name][player.force.name][train_id]
 end
 
 return public

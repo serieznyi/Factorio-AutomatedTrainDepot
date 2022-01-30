@@ -1,14 +1,13 @@
 local flib_gui = require("__flib__.gui")
-local flib_table = require("__flib__.table")
 
 local mod_event = require("scripts.util.event")
 local mod_gui = require("scripts.util.gui")
 local depot = require("scripts.depot.depot")
 
-local build_structure = require("scripts.gui.frame.main.component.train_template_view.build_structure")
+local build_structure = require("scripts.gui.frame.main.component.trains_view.build_structure")
 
 local COMPONENT = {
-    NAME = mod.defines.gui.components.train_template_view.name
+    NAME = mod.defines.gui.components.trains_view.name
 }
 
 local public = {}
@@ -59,49 +58,29 @@ end
 ---------------------------------------------------------------------------
 
 ---@param player LuaPlayer
----@param train_template atd.TrainTemplate
-function private.refresh_component(player, train_template)
+---@param trains table
+function private.refresh_component(player, trains)
     local refs = storage.refs(player)
-    local container = refs.train_view
+    local trains_table = refs.trains_table
 
-    mod_gui.clear_children(container)
+    -- todo replace on .clean()
+    mod_gui.clear_children(trains_table)
 
-    ---@param train_part atd.TrainPart
-    for _, train_part in pairs(train_template.train) do
-        flib_gui.add(container, {
-            type = "sprite-button",
-            enabled = false,
-            style = "flib_slot_default",
-            sprite = mod_gui.image_path_for_item(train_part.entity),
+    -----@param train atd.Train
+    for _, train in ipairs(trains) do
+        local locomotive = train.train.locomotives.front_movers[1]
+
+        flib_gui.add(trains_table, {
+            type = "frame",
+            style = "train_with_minimap_frame",
+            children = {
+                {
+                    type = "minimap",
+                    entity = locomotive,
+                }
+            }
         })
     end
-
-    refs.enable_button.enabled = not train_template.enabled
-    refs.disable_button.enabled = train_template.enabled
-end
-
-function private.handle_enable_train_template(e)
-    local player = game.get_player(e.player_index)
-    local refs = storage.refs(player)
-    local tags = flib_gui.get_tags(refs.component)
-    local train_template_id = tags.train_group_id
-    local train_template = depot.enable_train_template(player, train_template_id)
-
-    private.refresh_component(player, train_template)
-
-    return true
-end
-
-function private.handle_disable_train_template(e)
-    local player = game.get_player(e.player_index)
-    local refs = storage.refs(player)
-    local tags = flib_gui.get_tags(refs.component)
-    local train_template_id = tags.train_template_id
-    local train_template = depot.disable_train_template(player, train_template_id)
-
-    private.refresh_component(player, train_template)
-
-    return true
 end
 
 ---------------------------------------------------------------------------
@@ -126,22 +105,23 @@ function public.name()
 end
 
 ---@param container LuaGuiElement
----@param train_template atd.TrainTemplate
+---@param trains table
 ---@param player LuaPlayer
-function public.create(container, player, train_template)
-    local refs = flib_gui.build(container, {build_structure.get(train_template)})
+function public.create(container, player, trains)
+    -- todo add real caption
+    local caption = {"train-view.some-caption"}
+    local refs = flib_gui.build(container, {build_structure.get(caption)})
 
     storage.set(player, container, refs)
 
-    private.refresh_component(player, train_template)
+    private.refresh_component(player, trains)
 end
 
 ---@param action table
 ---@param event EventData
 function public.dispatch(event, action)
     local event_handlers = {
-        { target = COMPONENT.NAME, action = mod.defines.gui.actions.enable_train_template, func = private.handle_enable_train_template },
-        { target = COMPONENT.NAME, action = mod.defines.gui.actions.disable_train_template, func = private.handle_disable_train_template },
+        --{ target = COMPONENT.NAME, action = mod.defines.gui.actions.enable_train_template, func = private.handle_enable_train_template },
     }
 
     return mod_event.dispatch(event_handlers, event, action, COMPONENT.NAME)

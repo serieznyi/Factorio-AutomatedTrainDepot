@@ -17,10 +17,10 @@ local persistence_storage = require("scripts.persistence_storage")
 -- -- -- CONSOLE COMMANDS
 ---------------------------------------------------------------------------
 
-commands.add_command("atd-register-unmanaged-trains", {"command.atd-register-unmanaged-trains-help"}, function(command)
+commands.add_command("atd-register-trains", {"command.atd-register-trains-help"}, function(command)
     local player = game.get_player(command.player_index)
 
-    depot.register_all_unmanaged_trains(player)
+    depot.register_trains(player)
 end)
 
 
