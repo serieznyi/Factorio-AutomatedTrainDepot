@@ -67,4 +67,10 @@ function public.register_trains(player)
     end
 end
 
+---@param player LuaPlayer
+---@param train LuaTrain
+function public.register_train(player, train)
+    private.register_train(player, train)
+end
+
 return public

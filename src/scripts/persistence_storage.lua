@@ -121,15 +121,20 @@ end
 --- @param train atd.Train
 --- @return atd.Train
 function public.add_train(player, train)
-    if global.trains[player.surface.name] == nil then
-        global.trains[player.surface.name] = {}
+    ---@type LuaSurface
+    local surface = player.surface
+    ---@type LuaForce
+    local force = player.force
+
+    if global.trains[surface.name] == nil then
+        global.trains[surface.name] = {}
     end
 
-    if global.trains[player.surface.name][player.force.name] == nil then
-        global.trains[player.surface.name][player.force.name] = {}
+    if global.trains[surface.name][force.name] == nil then
+        global.trains[surface.name][force.name] = {}
     end
 
-    global.trains[player.surface.name][player.force.name][train.id] = train
+    global.trains[surface.name][force.name][train.id] = train
 
     return train
 end

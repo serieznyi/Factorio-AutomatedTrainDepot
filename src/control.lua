@@ -19,7 +19,6 @@ local persistence_storage = require("scripts.persistence_storage")
 
 commands.add_command("atd-register-trains", {"command.atd-register-trains-help"}, function(command)
     local player = game.get_player(command.player_index)
-
     depot.register_trains(player)
 end)
 
@@ -98,6 +97,8 @@ flib_event.register(
 flib_event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
 
 flib_event.register(mod_table.array_values(mod.defines.events), event_handler.pass_to_gui)
+
+flib_event.register(defines.events.on_train_created, event_handler.on_train_created)
 
 ---------------------------------------------------------------------------
 -- -- -- REGISTER GUI EVENTS

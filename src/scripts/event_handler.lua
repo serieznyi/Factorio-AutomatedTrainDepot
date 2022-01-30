@@ -1,4 +1,5 @@
 local depot_building = require("scripts.depot.depot_building")
+local depot = require("scripts.depot.depot")
 local gui_main_frame = require("scripts.gui.frame.main.frame")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
@@ -63,6 +64,12 @@ end
 
 function event_handler.bring_to_front_current_window()
     gui_manager.bring_to_front_current_window()
+end
+
+function event_handler.on_train_created(e)
+    local player = e.get_player
+
+    depot.register_trains()
 end
 
 ---@param event EventData
