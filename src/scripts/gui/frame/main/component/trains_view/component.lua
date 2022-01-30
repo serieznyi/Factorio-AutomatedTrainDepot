@@ -66,7 +66,7 @@ function private.refresh_component(player, trains)
 
     -----@param train lib.entity.Train
     for _, train in ipairs(trains) do
-        local locomotive = train:getMainLocomotive()
+        local locomotive = train:get_main_locomotive()
 
         flib_gui.add(trains_table, {
             type = "frame",

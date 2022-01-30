@@ -3,33 +3,33 @@ local Train = {
     ---@type uint
     id = nil,
     ---@type uint
-    trainTemplateId = nil,
+    train_template_id = nil,
     ---@type bool
-    uncontrolledTrain = nil,
+    uncontrolled_train = nil,
     ---@type uint
     state = nil,
     ---@type LuaTrain
-    luaTrain = nil,
+    lua_train = nil,
 }
 
 ---@return LuaEntity
-function Train:getMainLocomotive()
-    return self.luaTrain.locomotives.front_movers[1]
+function Train:get_main_locomotive()
+    return self.lua_train.locomotives.front_movers[1]
 end
 
 ---@return table
-function Train:toTable()
+function Train:to_table()
     return {
         id = self.id,
-        lua_train = self.luaTrain,
-        uncontrolled_train = self.uncontrolledTrain,
+        lua_train = self.lua_train,
+        uncontrolled_train = self.uncontrolled_train,
         state = self.state,
-        train_template_id = self.trainTemplateId,
+        train_template_id = self.train_template_id,
     }
 end
 
 ---@param data table
-function Train.fromTable(data)
+function Train.from_table(data)
     return Train.new(
             data.id,
             data.lua_train,
@@ -39,19 +39,20 @@ function Train.fromTable(data)
     )
 end
 
----@param luaTrain LuaEntity
+---@param lua_train LuaEntity
 ---@param id uint
----@param trainTemplateId uint
----@param uncontrolledTrain bool
-function Train.new(id, luaTrain, uncontrolledTrain, state, trainTemplateId)
+---@param train_template_id uint
+---@param uncontrolled_train bool
+function Train.new(id, lua_train, uncontrolled_train, state, train_template_id)
+    ---@type lib.entity.Train
     local self = {}
     setmetatable(self, { __index = Train })
 
     self.id = id
-    self.luaTrain = luaTrain
-    self.uncontrolledTrain = uncontrolledTrain
+    self.lua_train = lua_train
+    self.uncontrolled_train = uncontrolled_train
     self.state = state
-    self.trainTemplateId = trainTemplateId
+    self.train_template_id = train_template_id
 
     return self
 end

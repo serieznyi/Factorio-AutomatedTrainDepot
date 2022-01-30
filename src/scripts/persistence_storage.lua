@@ -135,7 +135,7 @@ function public.add_train(player, train)
         global.trains[surface.name][force.name] = {}
     end
 
-    global.trains[surface.name][force.name][train.id] = train:toTable()
+    global.trains[surface.name][force.name][train.id] = train:to_table()
 
     return train
 end
@@ -162,7 +162,7 @@ function public.find_uncontrolled_trains(player)
     )
 
     return flib_table.map(uncontrolled_trains, function(v)
-        return Train.fromTable(v)
+        return Train.from_table(v)
     end)
 end
 
@@ -181,7 +181,7 @@ function public.get_train(player, train_id)
         return nil
     end
 
-    return Train.fromTable(global.trains[player.surface.name][player.force.name][train_id])
+    return Train.from_table(global.trains[player.surface.name][player.force.name][train_id])
 end
 
 return public
