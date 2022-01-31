@@ -3,7 +3,7 @@ local TrainPart = {
     ---@type string
     type = nil,
     ---@type string
-    entity = nil,
+    item_name = nil,
     ---@type uint
     direction = nil,
     ---@type bool
@@ -19,7 +19,7 @@ TrainPart.TYPE = {
 function TrainPart:to_table()
     return {
         type = self.type,
-        entity = self.entity,
+        entity = self.item_name,
         direction = self.direction,
         use_any_fuel = self.use_any_fuel,
     }
@@ -29,7 +29,7 @@ end
 function TrainPart.from_table(data)
     local object = TrainPart.new(data.type)
 
-    object.entity = data.entity
+    object.item_name = data.entity
     object.direction = data.direction
     object.use_any_fuel = data.use_any_fuel
 
@@ -37,12 +37,13 @@ function TrainPart.from_table(data)
 end
 
 ---@param type string
-function TrainPart.new(type)
+function TrainPart.new(type, item_name)
     ---@type lib.entity.TrainPart
     local self = {}
     setmetatable(self, { __index = TrainPart })
 
     self.type = type
+    self.item_name = item_name
 
     return self
 end

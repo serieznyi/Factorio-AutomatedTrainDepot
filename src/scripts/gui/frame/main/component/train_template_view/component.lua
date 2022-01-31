@@ -75,7 +75,7 @@ function private.refresh_component(player, train_template)
             type = "sprite-button",
             enabled = false,
             style = "flib_slot_default",
-            sprite = mod_gui.image_path_for_item(train_part.entity),
+            sprite = mod_gui.image_path_for_item(train_part.item_name),
         })
     end
 

@@ -281,21 +281,22 @@ function public.destroy(player)
     storage.clean(player)
 end
 
-function private.write_form(player, refs, train_part_data)
-    refs.part_chooser.elem_value = train_part_data.entity
+---@param train_part lib.entity.TrainPart
+function private.write_form(player, refs, train_part)
+    refs.part_chooser.elem_value = train_part.item_name
 
-    if train_part_data.type == TrainPart.TYPE.LOCOMOTIVE then
+    if train_part.type == TrainPart.TYPE.LOCOMOTIVE then
         local train_part_id = private.get_train_part_id(refs.part_chooser)
 
-        private.set_locomotive_direction(train_part_id, player, train_part_data.direction)
-    elseif train_part_data.type == TrainPart.TYPE.CARGO then
+        private.set_locomotive_direction(train_part_id, player, train_part.direction)
+    elseif train_part.type == TrainPart.TYPE.CARGO then
         -- todo
     end
 end
 
 ---@param container_element LuaGuiElement
 ---@param player LuaPlayer
----@param train_part atd.TrainPart
+---@param train_part lib.entity.TrainPart
 function public.add_train_part(container_element, player, train_part)
     -- todo use math rand
     local train_part_id = script.generate_event_name()
@@ -347,15 +348,13 @@ function public.read_form(event)
 
     for _, el in pairs(train_parts) do
         local part_chooser = el.refs.part_chooser
-        local part_entity_type = part_chooser.elem_value
+        local item_name = part_chooser.elem_value
 
-        if part_entity_type ~= nil then
-            local locomotive = private.is_locomotive_selected(part_entity_type)
+        if item_name ~= nil then
+            local locomotive = private.is_locomotive_selected(item_name)
             local type = locomotive and TrainPart.TYPE.LOCOMOTIVE or TrainPart.TYPE.CARGO
             ---@type lib.entity.TrainPart
-            local train_part = TrainPart.new(type)
-
-            train_part.entity = part_entity_type
+            local train_part = TrainPart.new(type, item_name)
 
             if locomotive then
                 train_part.direction = private.get_locomotive_direction(part_chooser, player)
