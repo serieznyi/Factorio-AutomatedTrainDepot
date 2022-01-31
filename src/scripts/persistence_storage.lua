@@ -1,6 +1,7 @@
 local flib_table = require("__flib__.table")
 
 local Train = require("lib.entity.Train")
+local TrainTemplate = require("lib.entity.TrainTemplate")
 local Sequence = require("scripts.lib.Sequence")
 
 local public = {}
@@ -52,7 +53,7 @@ end
 
 ---@param player LuaPlayer
 ---@param id uint
----@return atd.TrainTemplate
+---@return lib.entity.TrainTemplate
 function public.get_train_template(player, id)
     if global.trains_templates[player.surface.name] == nil or
        global.trains_templates[player.surface.name][player.force.name] == nil
@@ -62,7 +63,7 @@ function public.get_train_template(player, id)
 
     for _, v in pairs(global.trains_templates[player.surface.name][player.force.name]) do
         if v.id == id then
-            return v
+            return TrainTemplate.from_table(v)
         end
     end
 
@@ -72,15 +73,19 @@ end
 ---@param player LuaPlayer
 ---@return table set of train templates
 function public.find_all_train_templates(player)
-    if global.trains_templates[player.surface.name] == nil then
+    if global.trains_templates[player.surface.name] == nil or
+       global.trains_templates[player.surface.name][player.force.name] == nil
+    then
         return {}
     end
 
-    return global.trains_templates[player.surface.name][player.force.name] or {}
+    return flib_table.map(global.trains_templates[player.surface.name][player.force.name], function(v)
+        return TrainTemplate.from_table(v)
+    end)
 end
 
 ---@param player LuaPlayer
----@param train_template atd.TrainTemplate
+---@param train_template lib.entity.TrainTemplate
 function public.add_train_template(player, train_template)
     if global.trains_templates[player.surface.name] == nil then
         global.trains_templates[player.surface.name] = {}
@@ -92,10 +97,10 @@ function public.add_train_template(player, train_template)
 
     if train_template.id == nil then
         train_template.id = train_template_sequence:next()
-        table.insert(global.trains_templates[player.surface.name][player.force.name], train_template)
+        table.insert(global.trains_templates[player.surface.name][player.force.name], train_template:to_table())
     else
         local index = private.get_train_template_index(player, train_template.id)
-        global.trains_templates[player.surface.name][player.force.name][index] = train_template
+        global.trains_templates[player.surface.name][player.force.name][index] = train_template:to_table()
     end
 
     return train_template

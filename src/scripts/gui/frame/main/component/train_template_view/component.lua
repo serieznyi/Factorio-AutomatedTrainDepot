@@ -59,7 +59,7 @@ end
 ---------------------------------------------------------------------------
 
 ---@param player LuaPlayer
----@param train_template atd.TrainTemplate
+---@param train_template lib.entity.TrainTemplate
 function private.refresh_component(player, train_template)
     local refs = storage.refs(player)
     ---@type LuaGuiElement
@@ -67,7 +67,9 @@ function private.refresh_component(player, train_template)
 
     container.clear()
 
-    ---@param train_part atd.TrainPart
+    mod.util.logger.debug(mod.util.table.to_string(train_template))
+
+    ---@param train_part lib.entity.TrainPart
     for _, train_part in pairs(train_template.train) do
         flib_gui.add(container, {
             type = "sprite-button",
@@ -85,7 +87,7 @@ function private.handle_enable_train_template(e)
     local player = game.get_player(e.player_index)
     local refs = storage.refs(player)
     local tags = flib_gui.get_tags(refs.component)
-    local train_template_id = tags.train_group_id
+    local train_template_id = tags.train_template_id
     local train_template = depot.enable_train_template(player, train_template_id)
 
     private.refresh_component(player, train_template)
@@ -127,7 +129,7 @@ function public.name()
 end
 
 ---@param container LuaGuiElement
----@param train_template atd.TrainTemplate
+---@param train_template lib.entity.TrainTemplate
 ---@param player LuaPlayer
 function public.create(container, player, train_template)
     local refs = flib_gui.build(container, {build_structure.get(train_template)})

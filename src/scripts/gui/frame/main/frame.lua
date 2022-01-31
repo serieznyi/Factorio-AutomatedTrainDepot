@@ -167,7 +167,7 @@ function private.refresh_trains_templates_list(player, container)
 
     container.clear()
 
-    ---@param train_template atd.TrainTemplate
+    ---@param train_template lib.entity.TrainTemplate
     for i, train_template in pairs(trains_templates) do
         local icon = mod_gui.image_for_item(train_template.icon)
         local selected_train_template = train_template.id == selected_train_template_id

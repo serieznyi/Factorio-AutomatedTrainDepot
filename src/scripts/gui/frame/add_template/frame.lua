@@ -159,7 +159,7 @@ function private.handle_save_form(event)
 end
 
 ---@param player LuaPlayer
----@param train_template atd.TrainTemplate
+---@param train_template lib.entity.TrainTemplate
 function private.write_form(player, refs, train_template)
 
     refs.icon_input.elem_value = train_template.icon
@@ -231,16 +231,15 @@ function public.dispatch(event, action)
 end
 
 ---@param event EventData
----@return atd.TrainTemplate form data
+---@return lib.entity.TrainTemplate form data
 function public.read_form(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
     local window_tags = flib_gui.get_tags(refs.window)
 
-    ---@type atd.TrainTemplate
-    local train_template = {}
+    ---@type lib.entity.TrainTemplate
+    local train_template = TrainTemplate.new(window_tags.train_template_id)
 
-    train_template.id = window_tags.train_template_id
     train_template.name = refs.name_input.text or mod_table.NIL
     train_template.icon = refs.icon_input.elem_value or mod_table.NIL
     -- TODO add chooser
