@@ -26,6 +26,21 @@ end
 ---------------------------------------------------------------------------
 
 function public.init()
+    mod.util.logger.info("Register all exists trains")
+    ---@param force LuaForce
+    for force_name, force in pairs(game.forces) do
+        mod.util.logger.info("Try register trains for force {1}", {force_name})
+
+        ---@param lua_train LuaTrain
+        for _, lua_train in pairs(force.get_trains()) do
+            local locomotive = Train.new(0, lua_train):get_main_locomotive()
+            local surface = locomotive.surface
+
+            mod.util.logger.debug("force name: " .. tostring(force.name))
+            mod.util.logger.debug("surface name" .. tostring(surface.name or nil))
+            -- todo register train
+        end
+    end
 end
 
 function public.load()

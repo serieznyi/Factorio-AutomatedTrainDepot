@@ -43,7 +43,6 @@ end)
 
 -- BOOTSTRAP
 
--- Save file created ;  Loaded save file what don`t contain mod ;  Can write in `global` and read `game`
 flib_event.on_init(function()
     -- Initialize libraries
     flib_dictionary.init()

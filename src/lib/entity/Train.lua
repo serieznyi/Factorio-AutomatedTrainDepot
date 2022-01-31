@@ -43,6 +43,7 @@ end
 ---@param id uint
 ---@param train_template_id uint
 ---@param uncontrolled_train bool
+---@return lib.entity.Train
 function Train.new(id, lua_train, uncontrolled_train, state, train_template_id)
     ---@type lib.entity.Train
     local self = {}
