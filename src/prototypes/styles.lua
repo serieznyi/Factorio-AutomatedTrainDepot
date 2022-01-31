@@ -36,7 +36,7 @@ styles["atd_button_list_box_item"] = {
 -- The active style needs to be separate so the selected sub factory can still be clicked
 styles["atd_button_list_box_item_active"] = {
     type = "button_style",
-    parent = "fp_button_fake_listbox_item",
+    parent = "atd_button_list_box_item",
     default_graphical_set = styles.button.selected_graphical_set,
     hovered_graphical_set = styles.button.selected_hovered_graphical_set,
     clicked_graphical_set = styles.button.selected_clicked_graphical_set,
