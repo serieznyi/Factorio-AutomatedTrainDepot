@@ -1,6 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
+local TrainTemplate = require("lib.entity.TrainTemplate")
 local mod_event = require("scripts.util.event")
 local mod_table = require("scripts.util.table")
 local mod_gui = require("scripts.util.gui")
