@@ -55,13 +55,16 @@ end
 ---@param id uint
 ---@return lib.entity.TrainTemplate
 function public.get_train_template(player, id)
-    if global.trains_templates[player.surface.name] == nil or
-       global.trains_templates[player.surface.name][player.force.name] == nil
+    local force = player.force.name
+    local surface = player.surface.name
+
+    if global.trains_templates[surface] == nil or
+       global.trains_templates[surface][force] == nil
     then
         return nil
     end
 
-    for _, v in pairs(global.trains_templates[player.surface.name][player.force.name]) do
+    for _, v in pairs(global.trains_templates[surface][force]) do
         if v.id == id then
             return TrainTemplate.from_table(v)
         end
@@ -73,13 +76,16 @@ end
 ---@param player LuaPlayer
 ---@return table set of train templates
 function public.find_all_train_templates(player)
-    if global.trains_templates[player.surface.name] == nil or
-       global.trains_templates[player.surface.name][player.force.name] == nil
+    local force = player.force.name
+    local surface = player.surface.name
+
+    if global.trains_templates[surface] == nil or
+       global.trains_templates[surface][force] == nil
     then
         return {}
     end
 
-    return flib_table.map(global.trains_templates[player.surface.name][player.force.name], function(v)
+    return flib_table.map(global.trains_templates[surface][force], function(v)
         return TrainTemplate.from_table(v)
     end)
 end
@@ -87,20 +93,23 @@ end
 ---@param player LuaPlayer
 ---@param train_template lib.entity.TrainTemplate
 function public.add_train_template(player, train_template)
-    if global.trains_templates[player.surface.name] == nil then
-        global.trains_templates[player.surface.name] = {}
+    local force = player.force.name
+    local surface = player.surface.name
+
+    if global.trains_templates[surface] == nil then
+        global.trains_templates[surface] = {}
     end
 
-    if global.trains_templates[player.surface.name][player.force.name] == nil then
-        global.trains_templates[player.surface.name][player.force.name] = {}
+    if global.trains_templates[surface][force] == nil then
+        global.trains_templates[surface][force] = {}
     end
 
     if train_template.id == nil then
         train_template.id = train_template_sequence:next()
-        table.insert(global.trains_templates[player.surface.name][player.force.name], train_template:to_table())
+        table.insert(global.trains_templates[surface][force], train_template:to_table())
     else
         local index = private.get_train_template_index(player, train_template.id)
-        global.trains_templates[player.surface.name][player.force.name][index] = train_template:to_table()
+        global.trains_templates[surface][force][index] = train_template:to_table()
     end
 
     return train_template
@@ -109,16 +118,18 @@ end
 ---@param player LuaPlayer
 ---@param train_template_id uint
 function public.delete_train_template(player, train_template_id)
+    local force = player.force.name
+    local surface = player.surface.name
 
-    if global.trains_templates[player.surface.name] == nil or
-       global.trains_templates[player.surface.name][player.force.name] == nil
+    if global.trains_templates[surface] == nil or
+       global.trains_templates[surface][force] == nil
     then
         return
     end
 
-    for i, v in pairs(global.trains_templates[player.surface.name][player.force.name]) do
+    for i, v in pairs(global.trains_templates[surface][force]) do
         if v.id == train_template_id then
-            return table.remove(global.trains_templates[player.surface.name][player.force.name], i)
+            return table.remove(global.trains_templates[surface][force], i)
         end
     end
 end
@@ -127,20 +138,18 @@ end
 --- @param train lib.entity.Train
 --- @return lib.entity.Train
 function public.add_train(player, train)
-    ---@type LuaSurface
-    local surface = player.surface
-    ---@type LuaForce
-    local force = player.force
+    local surface = player.surface.name
+    local force = player.force.name
 
-    if global.trains[surface.name] == nil then
-        global.trains[surface.name] = {}
+    if global.trains[surface] == nil then
+        global.trains[surface] = {}
     end
 
-    if global.trains[surface.name][force.name] == nil then
-        global.trains[surface.name][force.name] = {}
+    if global.trains[surface][force] == nil then
+        global.trains[surface][force] = {}
     end
 
-    global.trains[surface.name][force.name][train.id] = train:to_table()
+    global.trains[surface][force][train.id] = train:to_table()
 
     return train
 end
@@ -154,14 +163,17 @@ end
 
 ---@param player LuaPlayer
 function public.find_uncontrolled_trains(player)
-    if global.trains[player.surface.name] == nil or
-       global.trains[player.surface.name][player.force.name] == nil
+    local force = player.force.name
+    local surface = player.surface.name
+
+    if global.trains[surface] == nil or
+       global.trains[surface][force] == nil
     then
         return {}
     end
 
     local uncontrolled_trains = flib_table.filter(
-            global.trains[player.surface.name][player.force.name],
+            global.trains[surface][force],
             function(t) return t.uncontrolled_train end,
             true
     )
@@ -174,19 +186,22 @@ end
 ---@param player LuaPlayer
 ---@param train_id uint
 function public.get_train(player, train_id)
-    if global.trains[player.surface.name] == nil or
-       global.trains[player.surface.name][player.force.name] == nil
+    local force = player.force.name
+    local surface = player.surface.name
+
+    if global.trains[surface] == nil or
+       global.trains[surface][force] == nil
     then
         return nil
     end
 
-    local data = global.trains[player.surface.name][player.force.name][train_id]
+    local data = global.trains[surface][force][train_id]
 
     if data == nil then
         return nil
     end
 
-    return Train.from_table(global.trains[player.surface.name][player.force.name][train_id])
+    return Train.from_table(global.trains[surface][force][train_id])
 end
 
 return public
