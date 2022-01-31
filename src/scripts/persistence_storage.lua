@@ -2,12 +2,12 @@ local flib_table = require("__flib__.table")
 
 local Train = require("lib.entity.Train")
 local TrainTemplate = require("lib.entity.TrainTemplate")
-local Sequence = require("scripts.lib.Sequence")
+local Sequence = require("lib.Sequence")
 
 local public = {}
 local private = {}
 
----@type scripts.lib.Sequence
+---@type lib.Sequence
 local train_template_sequence
 
 ---------------------------------------------------------------------------
