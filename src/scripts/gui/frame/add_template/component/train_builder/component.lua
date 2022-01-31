@@ -228,7 +228,7 @@ function private.is_last_train_part_empty(player_index)
     ---@type LuaGuiElement
     local last_train_part = container.children[#container.children]
 
-    -- TODO
+    -- TODO make this part more clearly
     return last_train_part.children[1].elem_value == nil
 end
 
