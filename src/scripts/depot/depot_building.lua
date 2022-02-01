@@ -50,7 +50,7 @@ local function build_straight_rails_for_station(station_entity, railsCount)
 end
 
 function public.init()
-    mod.util.logger.debug("depot was init")
+    mod.log.debug("depot was init")
 end
 
 ---@param entity LuaEntity
@@ -118,7 +118,7 @@ function public.build(entity)
         dependent_entities = dependent_entities
     }
 
-    mod.util.logger.debug('Entity {1}[{2}] was build', {entity.name, entity.unit_number})
+    mod.log.debug('Entity {1}[{2}] was build', {entity.name, entity.unit_number})
 end
 
 ---@param depot_entity LuaEntity
@@ -137,7 +137,7 @@ function public.destroy(depot_entity)
 
     mod.depots[surface.name] = nil
 
-    mod.util.logger.debug('Entity {1}[{2}] was destroy', {entity_name, depot_entity_id})
+    mod.log.debug('Entity {1}[{2}] was destroy', {entity_name, depot_entity_id})
 end
 
 return public

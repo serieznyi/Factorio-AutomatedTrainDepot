@@ -67,7 +67,7 @@ function private.refresh_component(player, train_template)
 
     container.clear()
 
-    mod.util.logger.debug(mod.util.table.to_string(train_template))
+    mod.log.debug(mod.util.table.to_string(train_template))
 
     ---@param train_part lib.entity.TrainPart
     for _, train_part in pairs(train_template.train) do

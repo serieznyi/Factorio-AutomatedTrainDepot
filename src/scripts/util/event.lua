@@ -43,7 +43,7 @@ function event.dispatch(handlers, event_arg, event_data, mediator_name)
     local event_data_event_name = event_data.event and event.event_name(event_data.event) or nil
 
     -- todo remove later
-    mod.util.logger.debug(
+    mod.log.debug(
             "Caught event `{1} ({2}:{3})`",
             {
                 event_name,
@@ -67,7 +67,7 @@ function event.dispatch(handlers, event_arg, event_data, mediator_name)
                         action_name = mod_gui.action_name(h.action)
                     end
 
-                    mod.util.logger.debug(
+                    mod.log.debug(
                             "Handled event `{1} ({2}:{3})`",
                             { event_name, h.target, action_name},
                             "event.dispatcher:" .. mediator_name

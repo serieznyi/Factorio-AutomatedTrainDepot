@@ -1,10 +1,11 @@
 local mod = {}
 
 mod.defines = require("scripts.defines")
+mod.log = require("scripts.logger")
+mod.console = require("scripts.console")
+
 mod.util = {
     table = require("scripts.util.table"),
-    console = require("scripts.console"),
-    logger = require("scripts.logger"),
 }
 
 mod.depots = {} -- todo remove me

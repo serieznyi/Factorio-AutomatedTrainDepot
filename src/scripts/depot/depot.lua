@@ -18,7 +18,7 @@ function private.register_train(lua_train)
         train = Train.new(lua_train.id, lua_train, true)
     end
 
-    mod.util.logger.debug("Try register train {1}", {train.id}, "depot.register_train")
+    mod.log.debug("Try register train {1}", {train.id}, "depot.register_train")
 
     return persistence_storage.add_train(train)
 end
@@ -52,7 +52,7 @@ function public.disable_train_template(player, train_template_id)
 end
 
 function public.register_trains()
-    mod.util.logger.info("Try register all exists trains", {}, "depot.register_trains")
+    mod.log.info("Try register all exists trains", {}, "depot.register_trains")
 
     ---@param train LuaTrain
     for _, train in ipairs(mod_game.get_trains()) do

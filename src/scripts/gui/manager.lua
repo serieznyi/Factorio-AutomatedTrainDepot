@@ -71,7 +71,7 @@ local function is_event_blocked(event)
     local player = game.get_player(event.player_index)
 
     if player.opened ~= nil and player.opened ~= element_frame then
-        mod.util.logger.debug(
+        mod.log.debug(
                 "Event `{1}` for gui element `{2}` is blocked",
                 {
                     mod_event.event_name(event.name),
