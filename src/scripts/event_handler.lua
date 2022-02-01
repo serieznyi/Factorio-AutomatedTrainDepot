@@ -71,4 +71,12 @@ function event_handler.pass_to_gui(event)
     gui_manager.dispatch(event)
 end
 
+---@param event EventData
+function event_handler.register_trains(event)
+    ---@type LuaTrain
+    local train = event.train
+
+    depot.register_train(train)
+end
+
 return event_handler

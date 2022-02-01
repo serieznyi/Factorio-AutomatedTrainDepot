@@ -17,9 +17,8 @@ local persistence_storage = require("scripts.persistence_storage")
 -- -- -- CONSOLE COMMANDS
 ---------------------------------------------------------------------------
 
-commands.add_command("atd-register-trains", {"command.atd-register-trains-help"}, function(command)
-    local player = game.get_player(command.player_index)
-    depot.register_trains(player)
+commands.add_command("atd-register-trains", {"command.atd-register-trains-help"}, function(_)
+    depot.register_trains()
 end)
 
 
@@ -52,10 +51,10 @@ flib_event.on_init(function()
     gui_index.init()
 
     -- Initialize `global` table
-    depot_building.init()
-    depot.init()
     console.init()
     persistence_storage.init()
+    depot_building.init()
+    depot.init()
 end)
 
 -- Loaded save file what contains mod ; Cant write in global
@@ -68,6 +67,13 @@ end)
 ---------------------------------------------------------------------------
 -- -- -- REGISTER ENTITY EVENTS
 ---------------------------------------------------------------------------
+
+flib_event.register(
+        {
+            defines.events.on_train_created
+        },
+        event_handler.register_trains
+)
 
 flib_event.register(
         {

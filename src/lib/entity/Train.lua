@@ -1,3 +1,23 @@
+local private = {}
+
+---------------------------------------------------------------------------
+-- -- -- PRIVATE
+---------------------------------------------------------------------------
+
+---@param lua_train LuaTrain
+---@return LuaEntity
+function private.get_any_entity(lua_train)
+    local front_locomotive = lua_train.locomotives.front_movers[1]
+    local back_locomotive = lua_train.locomotives.back_movers[1]
+    local wagon = lua_train.cargo_wagons[1]
+
+    return front_locomotive or back_locomotive or wagon
+end
+
+---------------------------------------------------------------------------
+-- -- -- PUBLIC
+---------------------------------------------------------------------------
+
 --- @module lib.entity.Train
 local Train = {
     ---@type uint
@@ -15,6 +35,20 @@ local Train = {
 ---@return LuaEntity
 function Train:get_main_locomotive()
     return self.lua_train.locomotives.front_movers[1]
+end
+
+---@return LuaForce
+function Train:force()
+    local entity = private.get_any_entity(self.lua_train)
+
+    return entity.force
+end
+
+---@return LuaSurface
+function Train:surface()
+    local entity = private.get_any_entity(self.lua_train)
+
+    return entity.surface
 end
 
 ---@return table
@@ -37,6 +71,12 @@ function Train.from_table(data)
             data.state,
             data.train_template_id
     )
+end
+
+---@param lua_train LuaTrain
+---@return lib.entity.Train
+function Train.from_lua_train(lua_train)
+    return Train.new(lua_train.id, lua_train, true)
 end
 
 ---@param lua_train LuaEntity

@@ -1,5 +1,6 @@
 local Train = require("lib.entity.Train")
 local persistence_storage = require("scripts.persistence_storage")
+local mod_game = require("scripts.util.game")
 
 local public = {}
 local private = {}
@@ -8,17 +9,18 @@ local private = {}
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
----@param player LuaPlayer
 ---@param lua_train LuaTrain
-function private.register_train(player, lua_train)
+function private.register_train(lua_train)
     ---@type lib.entity.Train
-    local train = persistence_storage.get_train(player, lua_train.id)
+    local train = persistence_storage.get_train(lua_train.id)
 
     if train == nil then
         train = Train.new(lua_train.id, lua_train, true)
     end
 
-    return persistence_storage.add_train(player, train)
+    mod.util.logger.debug("Try register train {1}", {train.id}, "depot.register_train")
+
+    return persistence_storage.add_train(train)
 end
 
 ---------------------------------------------------------------------------
@@ -26,21 +28,7 @@ end
 ---------------------------------------------------------------------------
 
 function public.init()
-    mod.util.logger.info("Register all exists trains")
-    ---@param force LuaForce
-    for force_name, force in pairs(game.forces) do
-        mod.util.logger.info("Try register trains for force {1}", {force_name})
-
-        ---@param lua_train LuaTrain
-        for _, lua_train in pairs(force.get_trains()) do
-            local locomotive = Train.new(0, lua_train):get_main_locomotive()
-            local surface = locomotive.surface
-
-            mod.util.logger.debug("force name: " .. tostring(force.name))
-            mod.util.logger.debug("surface name" .. tostring(surface.name or nil))
-            -- todo register train
-        end
-    end
+    public.register_trains()
 end
 
 function public.load()
@@ -63,15 +51,18 @@ function public.disable_train_template(player, train_template_id)
     return persistence_storage.add_train_template(player, train_template)
 end
 
----@param player LuaPlayer
-function public.register_trains(player)
-    ---@type LuaForce
-    local force = player.force
+function public.register_trains()
+    mod.util.logger.info("Try register all exists trains", {}, "depot.register_trains")
 
-    ---@param lua_train LuaTrain
-    for _, lua_train in pairs(force.get_trains()) do
-        private.register_train(player, lua_train)
+    ---@param train LuaTrain
+    for _, train in ipairs(mod_game.get_trains()) do
+        private.register_train(train)
     end
+end
+
+---@param lua_train LuaTrain
+function public.register_train(lua_train)
+    private.register_train(lua_train)
 end
 
 return public

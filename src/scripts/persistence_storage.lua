@@ -1,5 +1,6 @@
 local flib_table = require("__flib__.table")
 
+local mod_game = require("scripts.util.game")
 local Train = require("lib.entity.Train")
 local TrainTemplate = require("lib.entity.TrainTemplate")
 local Sequence = require("lib.Sequence")
@@ -134,12 +135,11 @@ function public.delete_train_template(player, train_template_id)
     end
 end
 
---- @param player LuaPlayer
---- @param train lib.entity.Train
---- @return lib.entity.Train
-function public.add_train(player, train)
-    local surface = player.surface.name
-    local force = player.force.name
+---@param train lib.entity.Train
+---@return lib.entity.Train
+function public.add_train(train)
+    local surface = train:surface().name
+    local force = train:force().name
 
     if global.trains[surface] == nil then
         global.trains[surface] = {}
@@ -154,7 +154,6 @@ function public.add_train(player, train)
     return train
 end
 
----@param player LuaPlayer
 function public.count_uncontrolled_trains(player)
     local uncontrolled_trains = public.find_uncontrolled_trains(player)
 
@@ -183,11 +182,12 @@ function public.find_uncontrolled_trains(player)
     end)
 end
 
----@param player LuaPlayer
 ---@param train_id uint
-function public.get_train(player, train_id)
-    local force = player.force.name
-    local surface = player.surface.name
+function public.get_train(train_id)
+    local lua_train = mod_game.get_train(train_id)
+    local train = Train.from_lua_train(lua_train)
+    local surface = train:surface().name
+    local force = train:force().name
 
     if global.trains[surface] == nil or
        global.trains[surface][force] == nil
