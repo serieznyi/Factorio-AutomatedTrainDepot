@@ -2,8 +2,6 @@ local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
 local mod_event = require("scripts.util.event")
-local mod_table = require("scripts.util.table")
-local mod_gui = require("scripts.util.gui")
 
 local constants = require("scripts.gui.frame.settings.constants")
 local build_structure = require("scripts.gui.frame.settings.build_structure")
@@ -199,8 +197,8 @@ function public.read_form(event)
     local refs = storage.refs(player)
 
     return {
-        use_any_fuel = mod_table.NIL,
-        --icon = gui.refs.icon_input.elem_value or mod_table.NIL,
+        use_any_fuel = mod.util.table.NIL,
+        --icon = gui.refs.icon_input.elem_value or mod.util.table.NIL,
         --train_color = {255, 255, 255}, -- TODO use chooser
     }
 end

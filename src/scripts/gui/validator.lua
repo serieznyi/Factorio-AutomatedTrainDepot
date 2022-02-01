@@ -1,5 +1,3 @@
-local mod_table = require("scripts.util.table")
-
 local validator = {}
 
 function validator.match_by_name(name_for_equals)
@@ -21,7 +19,7 @@ function validator.rule_empty(value_data, message_arg)
     local value = value_data.v
     local message = message_arg or {"validation-message.empty", name}
 
-    if value == nil or value == "" or value == {}  or value == mod_table.NIL  then
+    if value == nil or value == "" or value == {}  or value == mod.util.table.NIL  then
         return message
     end
 

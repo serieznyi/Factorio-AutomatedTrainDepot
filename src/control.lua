@@ -5,7 +5,6 @@ local flib_gui = require("__flib__.gui")
 
 mod = require("scripts.mod")
 
-local mod_table = require("scripts.util.table")
 local event_handler = require("scripts.event_handler")
 local depot_building = require("scripts.depot.depot_building")
 local depot = require("scripts.depot.depot")
@@ -101,7 +100,7 @@ flib_event.register(
 
 flib_event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
 
-flib_event.register(mod_table.array_values(mod.defines.events), event_handler.pass_to_gui)
+flib_event.register(mod.util.table.array_values(mod.defines.events), event_handler.pass_to_gui)
 
 ---------------------------------------------------------------------------
 -- -- -- REGISTER GUI EVENTS

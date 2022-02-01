@@ -3,8 +3,6 @@ local flib_table = require("__flib__.table")
 
 local TrainTemplate = require("lib.entity.TrainTemplate")
 local mod_event = require("scripts.util.event")
-local mod_table = require("scripts.util.table")
-local mod_gui = require("scripts.util.gui")
 
 local constants = require("scripts.gui.frame.add_template.constants")
 local build_structure = require("scripts.gui.frame.add_template.build_structure")
@@ -241,8 +239,8 @@ function public.read_form(event)
     ---@type lib.entity.TrainTemplate
     local train_template = TrainTemplate.new(window_tags.train_template_id)
 
-    train_template.name = refs.name_input.text or mod_table.NIL
-    train_template.icon = refs.icon_input.elem_value or mod_table.NIL
+    train_template.name = refs.name_input.text or mod.util.table.NIL
+    train_template.icon = refs.icon_input.elem_value or mod.util.table.NIL
     -- TODO add chooser
     train_template.train_color = { 255, 255, 255}
     train_template.train =  train_builder_component.read_form(event)
