@@ -1,3 +1,5 @@
+local flib_train = require("__flib__.train")
+
 local private = {}
 
 ---------------------------------------------------------------------------
@@ -34,7 +36,7 @@ local Train = {
 
 ---@return LuaEntity
 function Train:get_main_locomotive()
-    return self.lua_train.locomotives.front_movers[1]
+    return flib_train. get_main_locomotive(self.lua_train)
 end
 
 ---@return LuaForce
