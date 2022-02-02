@@ -64,7 +64,7 @@ function private.refresh_component(player, trains)
 
     trains_table.clear()
 
-    -----@param train lib.entity.Train
+    -----@param train lib.domain.Train
     for _, train in ipairs(trains) do
         local locomotive = train:get_main_locomotive()
 

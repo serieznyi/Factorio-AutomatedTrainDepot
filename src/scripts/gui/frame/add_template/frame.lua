@@ -1,8 +1,8 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
-local TrainTemplate = require("lib.entity.TrainTemplate")
-local Context = require("lib.entity.Context")
+local TrainTemplate = require("lib.domain.TrainTemplate")
+local Context = require("lib.domain.Context")
 local mod_event = require("scripts.util.event")
 
 local constants = require("scripts.gui.frame.add_template.constants")
@@ -158,7 +158,7 @@ function private.handle_save_form(event)
 end
 
 ---@param player LuaPlayer
----@param train_template lib.entity.TrainTemplate
+---@param train_template lib.domain.TrainTemplate
 function private.write_form(player, refs, train_template)
 
     refs.icon_input.elem_value = train_template.icon
@@ -230,13 +230,13 @@ function public.dispatch(event, action)
 end
 
 ---@param event EventData
----@return lib.entity.TrainTemplate form data
+---@return lib.domain.TrainTemplate form data
 function public.read_form(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
     local window_tags = flib_gui.get_tags(refs.window)
     local context = Context.from_player(player)
-    ---@type lib.entity.TrainTemplate
+    ---@type lib.domain.TrainTemplate
     local train_template = TrainTemplate.from_context(window_tags.train_template_id, context)
 
     train_template.name = refs.name_input.text or mod.util.table.NIL

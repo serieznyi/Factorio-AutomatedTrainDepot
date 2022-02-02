@@ -1,4 +1,4 @@
---- @module lib.entity.TrainPart
+--- @module lib.domain.TrainPart
 local TrainPart = {
     ---@type string
     type = nil,
@@ -38,7 +38,7 @@ end
 
 ---@param type string
 function TrainPart.new(type, item_name)
-    ---@type lib.entity.TrainPart
+    ---@type lib.domain.TrainPart
     local self = {}
     setmetatable(self, { __index = TrainPart })
 

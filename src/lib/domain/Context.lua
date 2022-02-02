@@ -1,4 +1,4 @@
---- @module lib.entity.Context
+--- @module lib.domain.Context
 local public = {
     ---@type LuaForce
     force = nil,
@@ -37,9 +37,9 @@ end
 ---@param player LuaPlayer
 ---@param lua_surface LuaSurface
 ---@param lua_force LuaForce
----@return lib.entity.Context
+---@return lib.domain.Context
 function public.new(player, lua_surface, lua_force)
-    ---@type lib.entity.Context
+    ---@type lib.domain.Context
     local self = {}
     setmetatable(self, { __index = public })
 

@@ -1,7 +1,7 @@
 local flib_table = require("__flib__.table")
 
-local Train = require("lib.entity.Train")
-local TrainTemplate = require("lib.entity.TrainTemplate")
+local Train = require("lib.domain.Train")
+local TrainTemplate = require("lib.domain.TrainTemplate")
 local Sequence = require("lib.Sequence")
 
 local public = {}
@@ -122,7 +122,7 @@ function public.load()
 end
 
 ---@param id uint
----@return lib.entity.TrainTemplate
+---@return lib.domain.TrainTemplate
 function public.get_train_template(id)
     local template = global.trains_templates[id]
 
@@ -144,7 +144,7 @@ function public.find_all_train_templates()
     end)
 end
 
----@param train_template lib.entity.TrainTemplate
+---@param train_template lib.domain.TrainTemplate
 function public.add_train_template(train_template)
     if train_template.id == nil then
         train_template.id = train_template_sequence:next()
@@ -162,8 +162,8 @@ function public.delete_train_template(train_template_id)
     global.trains_templates[train_template_id] = nil
 end
 
----@param train lib.entity.Train
----@return lib.entity.Train
+---@param train lib.domain.Train
+---@return lib.domain.Train
 function public.add_train(train)
     local data = train:to_table()
 
@@ -196,7 +196,7 @@ function public.find_uncontrolled_trains()
 end
 
 ---@param train_id uint
----@return lib.entity.Train
+---@return lib.domain.Train
 function public.get_train(train_id)
     local data = global.trains[train_id]
 

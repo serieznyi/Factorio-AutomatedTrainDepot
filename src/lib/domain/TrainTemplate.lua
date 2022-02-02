@@ -1,9 +1,9 @@
 local flib_table = require("__flib__.table")
 
-local TrainPart = require("lib.entity.TrainPart")
-local Context = require("lib.entity.Context")
+local TrainPart = require("lib.domain.TrainPart")
+local Context = require("lib.domain.Context")
 
---- @module lib.entity.TrainTemplate
+--- @module lib.domain.TrainTemplate
 local TrainTemplate = {
     ---@type uint
     id = nil,
@@ -32,7 +32,7 @@ function TrainTemplate:to_table()
         name = self.name,
         icon = self.icon,
         train_color = self.train_color,
-        ---@param train_part lib.entity.TrainPart
+        ---@param train_part lib.domain.TrainPart
         train = flib_table.map(self.train or {}, function(train_part)
             return train_part:to_table()
         end),
@@ -50,7 +50,7 @@ function TrainTemplate.from_table(data)
     object.name = data.name
     object.icon = data.icon
     object.train_color = data.train_color
-    ---@param train_part lib.entity.TrainPart
+    ---@param train_part lib.domain.TrainPart
     object.train = flib_table.map(data.train or {}, function(train_part)
         return TrainPart.from_table(train_part)
     end)
@@ -62,8 +62,8 @@ function TrainTemplate.from_table(data)
     return object
 end
 
----@return lib.entity.TrainTemplate
----@param context lib.entity.Context
+---@return lib.domain.TrainTemplate
+---@param context lib.domain.Context
 function TrainTemplate.from_context(id, context)
     return TrainTemplate.new(id, context.surface_name, context.force_name)
 end
@@ -72,7 +72,7 @@ end
 ---@param surface_name string
 ---@param force_name string
 function TrainTemplate.new(id, surface_name, force_name)
-    ---@type lib.entity.TrainTemplate
+    ---@type lib.domain.TrainTemplate
     local self = {}
     setmetatable(self, { __index = TrainTemplate })
 

@@ -20,7 +20,7 @@ end
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
 
---- @module lib.entity.Train
+--- @module lib.domain.Train
 local Train = {
     ---@type uint
     id = nil,
@@ -77,7 +77,7 @@ function Train:to_table()
 end
 
 ---@param new_lua_train LuaTrain
----@return lib.entity.Train
+---@return lib.domain.Train
 function Train:copy(new_lua_train)
     local copy = Train.from_lua_train(new_lua_train)
 
@@ -104,7 +104,7 @@ function Train.from_table(data)
 end
 
 ---@param lua_train LuaTrain
----@return lib.entity.Train
+---@return lib.domain.Train
 function Train.from_lua_train(lua_train)
     local train = Train.new()
 
@@ -113,9 +113,9 @@ function Train.from_lua_train(lua_train)
     return train
 end
 
----@return lib.entity.Train
+---@return lib.domain.Train
 function Train.new()
-    ---@type lib.entity.Train
+    ---@type lib.domain.Train
     local self = {}
     setmetatable(self, { __index = Train })
 

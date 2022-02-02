@@ -1,7 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
-local TrainPart = require("lib.entity.TrainPart")
+local TrainPart = require("lib.domain.TrainPart")
 
 local mod_event = require("scripts.util.event")
 
@@ -281,7 +281,7 @@ function public.destroy(player)
     storage.clean(player)
 end
 
----@param train_part lib.entity.TrainPart
+---@param train_part lib.domain.TrainPart
 function private.write_form(player, refs, train_part)
     refs.part_chooser.elem_value = train_part.item_name
 
@@ -296,7 +296,7 @@ end
 
 ---@param container_element LuaGuiElement
 ---@param player LuaPlayer
----@param train_part lib.entity.TrainPart
+---@param train_part lib.domain.TrainPart
 function public.add_train_part(container_element, player, train_part)
     -- todo use math rand
     local train_part_id = script.generate_event_name()
@@ -353,7 +353,7 @@ function public.read_form(event)
         if item_name ~= nil then
             local locomotive = private.is_locomotive_selected(item_name)
             local type = locomotive and TrainPart.TYPE.LOCOMOTIVE or TrainPart.TYPE.CARGO
-            ---@type lib.entity.TrainPart
+            ---@type lib.domain.TrainPart
             local train_part = TrainPart.new(type, item_name)
 
             if locomotive then

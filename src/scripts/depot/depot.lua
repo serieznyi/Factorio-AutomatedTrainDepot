@@ -1,7 +1,7 @@
 local flib_train = require("__flib__.train")
 local flib_table = require("__flib__.table")
 
-local Train = require("lib.entity.Train")
+local Train = require("lib.domain.Train")
 local persistence_storage = require("scripts.persistence_storage")
 local mod_game = require("scripts.util.game")
 
@@ -38,7 +38,7 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
     end
 
     if create_new_locomotive then
-        ---@type lib.entity.Train
+        ---@type lib.domain.Train
         local train = Train.from_lua_train(lua_train)
 
         mod.log.debug("Try register new train {1}", {train.id}, "depot.register_train")
