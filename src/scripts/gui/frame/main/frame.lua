@@ -67,7 +67,8 @@ end
 function private.handle_open_uncontrolled_trains_view(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
-    local trains = persistence_storage.find_uncontrolled_trains(player)
+    -- todo use context for get surface/force trains
+    local trains = persistence_storage.find_uncontrolled_trains()
 
     refs.content_frame.clear()
     trains_view_component.create(refs.content_frame, player, trains)
@@ -76,13 +77,12 @@ end
 ---@param event EventData
 function private.handle_select_train_template(event)
     local player = game.get_player(event.player_index)
-
     local refs = storage.refs(player)
 
     private.mark_selected_train_template_button(event.element, refs)
 
     local train_template_id = private.get_selected_train_template_id(player)
-    local train_template = persistence_storage.get_train_template(player, train_template_id)
+    local train_template = persistence_storage.get_train_template(train_template_id)
 
     refs.content_frame.clear()
 
@@ -101,7 +101,7 @@ function private.handle_delete_train_template(event)
     if selected_train_template_element ~= nil then
         local train_template_id = private.get_selected_train_template_id(player)
 
-        persistence_storage.delete_train_template(player, train_template_id)
+        persistence_storage.delete_train_template(train_template_id)
 
         selected_train_template_element.destroy()
     end
@@ -162,7 +162,8 @@ end
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
 function private.refresh_trains_templates_list(player, container)
-    local trains_templates = persistence_storage.find_all_train_templates(player)
+    -- TODO use context for getting trains for surface/force
+    local trains_templates = persistence_storage.find_all_train_templates()
     local selected_train_template_id = private.get_selected_train_template_id(player)
 
     container.clear()

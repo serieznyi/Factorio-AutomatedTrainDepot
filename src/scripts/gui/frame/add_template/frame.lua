@@ -2,6 +2,7 @@ local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
 local TrainTemplate = require("lib.entity.TrainTemplate")
+local Context = require("lib.entity.Context")
 local mod_event = require("scripts.util.event")
 
 local constants = require("scripts.gui.frame.add_template.constants")
@@ -135,12 +136,11 @@ end
 
 ---@param event EventData
 function private.handle_save_form(event)
-    local player = game.get_player(event.player_index)
     local form_data = public.read_form(event)
     local validation_errors = public.validate_form(event)
 
     if #validation_errors == 0 then
-        local train_template = persistence_storage.add_train_template(player, form_data)
+        local train_template = persistence_storage.add_train_template(form_data)
 
         script.raise_event(
                 mod.defines.events.on_train_template_saved_mod,
@@ -175,7 +175,7 @@ end
 ---@param train_template_id uint
 ---@return table
 function private.create_for(player, train_template_id)
-    local train_template = persistence_storage.get_train_template(player, train_template_id)
+    local train_template = persistence_storage.get_train_template(train_template_id)
 
     local refs = flib_gui.build(player.gui.screen, {build_structure.get(train_template)})
 
@@ -235,9 +235,9 @@ function public.read_form(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
     local window_tags = flib_gui.get_tags(refs.window)
-
+    local context = Context.from_player(player)
     ---@type lib.entity.TrainTemplate
-    local train_template = TrainTemplate.new(window_tags.train_template_id)
+    local train_template = TrainTemplate.from_context(window_tags.train_template_id, context)
 
     train_template.name = refs.name_input.text or mod.util.table.NIL
     train_template.icon = refs.icon_input.elem_value or mod.util.table.NIL

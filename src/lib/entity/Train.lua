@@ -37,6 +37,10 @@ local Train = {
     state = STATE.EXISTS,
     ---@type LuaTrain
     lua_train = nil,
+    ---@type string
+    force_name = nil,
+    ---@type string
+    surface_name = nil,
 }
 
 ---@return LuaEntity
@@ -46,16 +50,12 @@ end
 
 ---@return LuaForce
 function Train:force()
-    local entity = private.get_any_entity(self.lua_train)
-
-    return entity.force
+    return self:get_main_locomotive().force
 end
 
 ---@return LuaSurface
 function Train:surface()
-    local entity = private.get_any_entity(self.lua_train)
-
-    return entity.surface
+    return self:get_main_locomotive().surface
 end
 
 --- Mark train as deleted
@@ -71,23 +71,26 @@ function Train:to_table()
         uncontrolled_train = self.uncontrolled_train,
         state = self.state,
         train_template_id = self.train_template_id,
+        surface_name = self:surface().name,
+        force_name = self:force().name,
     }
 end
 
+---@param new_lua_train LuaTrain
 ---@return lib.entity.Train
-function Train:clone()
-    local clone = Train:new(self.id, self.lua_train)
+function Train:copy(new_lua_train)
+    local copy = Train.from_lua_train(new_lua_train)
 
-    clone.state = self.state
-    clone.uncontrolled_train = self.uncontrolled_train
-    clone.train_template_id = self.train_template_id
+    copy.state = self.state
+    copy.uncontrolled_train = self.uncontrolled_train
+    copy.train_template_id = self.train_template_id
 
-    return clone
+    return copy
 end
 
 ---@param data table
 function Train.from_table(data)
-    local train = Train.new(data.id, data.lua_train)
+    local train = Train.from_lua_train(data.lua_train)
 
     train.uncontrolled_train = data.uncontrolled_train
     train.state = data.state
@@ -99,24 +102,24 @@ end
 ---@param lua_train LuaTrain
 ---@return lib.entity.Train
 function Train.from_lua_train(lua_train)
-    return Train.new(lua_train.id, lua_train)
+    return Train.new(lua_train)
 end
 
 ---@param lua_train LuaEntity
----@param id uint
----@param train_template_id uint
 ---@param uncontrolled_train bool
 ---@return lib.entity.Train
-function Train.new(id, lua_train, uncontrolled_train, state, train_template_id)
+function Train.new(lua_train, uncontrolled_train)
     ---@type lib.entity.Train
     local self = {}
     setmetatable(self, { __index = Train })
 
-    self.id = id
+    self.id = lua_train.id
     self.lua_train = lua_train
     self.uncontrolled_train = uncontrolled_train
     self.state = state
     self.train_template_id = train_template_id
+    self.force_name = self:force().name
+    self.surface_name = self:surface().name
 
     return self
 end

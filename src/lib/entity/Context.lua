@@ -1,11 +1,11 @@
---- @module lib.entity.Identificator
+--- @module lib.entity.Context
 local public = {
     ---@type LuaForce
     force = nil,
-    ---@type LuaSurface
-    surface = nil,
-    ---@type LuaPlayer
-    player = nil,
+    ---@type string
+    surface_name = nil,
+    ---@type string
+    force_name = nil,
 }
 
 local private = {}
@@ -37,19 +37,19 @@ end
 ---@param player LuaPlayer
 ---@param lua_surface LuaSurface
 ---@param lua_force LuaForce
----@return lib.entity.Identificator
+---@return lib.entity.Context
 function public.new(player, lua_surface, lua_force)
-    ---@type lib.entity.Identificator
+    ---@type lib.entity.Context
     local self = {}
     setmetatable(self, { __index = public })
 
     self.player_index = player ~= nil and player.index or nil
 
-    self.lua_surface_name = lua_surface ~= nil and lua_surface.name or nil
-    private.not_nil(self.lua_surface_name, "surface_name")
+    self.surface_name = lua_surface ~= nil and lua_surface.name or nil
+    private.not_nil(self.surface_name, "surface_name")
 
-    self.lua_force_name = lua_force ~= nil and lua_force.name or nil
-    private.not_nil(self.lua_surface_name, "force_name")
+    self.force_name = lua_force ~= nil and lua_force.name or nil
+    private.not_nil(self.surface_name, "force_name")
 
     return self
 end

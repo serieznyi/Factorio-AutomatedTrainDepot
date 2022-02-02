@@ -15,7 +15,7 @@ function private.register_train(lua_train)
     local train = persistence_storage.get_train(lua_train.id)
 
     if train == nil then
-        train = Train.new(lua_train.id, lua_train, true)
+        train = Train.from_lua_train(lua_train, true)
     end
 
     mod.log.debug("Try register train {1}", {train.id}, "depot.register_train")
@@ -36,19 +36,19 @@ function public.load()
 end
 
 function public.enable_train_template(player, train_template_id)
-    local train_template = persistence_storage.get_train_template(player, train_template_id)
+    local train_template = persistence_storage.get_train_template(train_template_id)
 
     train_template.enabled = true
 
-    return persistence_storage.add_train_template(player, train_template)
+    return persistence_storage.add_train_template(train_template)
 end
 
 function public.disable_train_template(player, train_template_id)
-    local train_template = persistence_storage.get_train_template(player, train_template_id)
+    local train_template = persistence_storage.get_train_template(train_template_id)
 
     train_template.enabled = false
 
-    return persistence_storage.add_train_template(player, train_template)
+    return persistence_storage.add_train_template(train_template)
 end
 
 function public.register_trains()
