@@ -73,11 +73,17 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
         local oldest_train_id = math.min(old_train_id_1, old_train_id_2);
         local oldest_train = persistence_storage.get_train(oldest_train_id);
 
-        local new_train_entity = oldest_train:copy(lua_train)
+        local new_train_entity
 
-        oldest_train:delete()
-        persistence_storage.add_train(oldest_train)
-        mod.log.debug("Train {1} mark as deleted", {oldest_train_id}, "depot.register_train")
+        if oldest_train ~= nil then
+            new_train_entity = oldest_train:copy(lua_train)
+
+            oldest_train:delete()
+            persistence_storage.add_train(oldest_train)
+            mod.log.debug("Train {1} mark as deleted", {oldest_train_id}, "depot.register_train")
+        else
+            new_train_entity = Train.from_lua_train(lua_train)
+        end
 
         mod.log.debug(
                 "Try register new train {1} as merge trains {2} and {3}",
