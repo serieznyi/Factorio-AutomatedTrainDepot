@@ -1,18 +1,34 @@
+local flib_table = require("__flib__.table")
+
 local depot_building = require("scripts.depot.depot_building")
 local depot = require("scripts.depot.depot")
 local gui_main_frame = require("scripts.gui.frame.main.frame")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 
-local event_handler = {}
+local private = {}
+local public = {}
+
+---------------------------------------------------------------------------
+-- -- -- PRIVATE
+---------------------------------------------------------------------------
+
+---@param entity LuaEntity
+function private.is_rolling_stock(entity)
+    return entity.type == "locomotive" or entity.type == "cargo-wagon"
+end
+
+---------------------------------------------------------------------------
+-- -- -- PUBLIC
+---------------------------------------------------------------------------
 
 ---@param event EventData
-function event_handler.reload_settings(event)
+function public.reload_settings(event)
     console.load(event.player_index)
 end
 
 ---@param event EventData
-function event_handler.build_depot_entity(event)
+function public.entity_build(event)
     local entity = event.created_entity
 
     if not entity or not entity.valid then
@@ -25,7 +41,7 @@ function event_handler.build_depot_entity(event)
 end
 
 ---@param event EventData
-function event_handler.destroy_depot_entity(event)
+function public.entity_dismantled(event)
     local entity = event.entity
 
     if not entity or not entity.valid then
@@ -34,18 +50,32 @@ function event_handler.destroy_depot_entity(event)
 
     if entity.name == mod.defines.entity.depot_building.name then
         depot_building.destroy(entity)
+    elseif private.is_rolling_stock(entity) then
+        local left_carriages = flib_table.filter(entity.train.carriages, function(e)
+            return e.unit_number ~= entity.unit_number
+        end, true)
+
+        mod.log.debug(mod.util.table.to_string({
+            type = entity.type,
+            carriages_left_count = #left_carriages,
+            train_id = entity.train.id,
+        }), {}, "entity deleted")
+
+        if #left_carriages == 0 then
+            depot.delete_train(entity.train.id)
+        end
     end
 end
 
 ---@param event EventData
-function event_handler.handle_gui_event(event)
+function public.handle_gui_event(event)
     return gui_manager.dispatch(event)
 end
 
 ---@param event EventData
-function event_handler.open_gui(event)
+function public.open_gui(event)
     if
-        event_handler.handle_gui_event(event) == true
+        public.handle_gui_event(event) == true
         or not event.entity
         or not event.entity.valid
     then
@@ -62,21 +92,18 @@ function event_handler.open_gui(event)
     end
 end
 
-function event_handler.bring_to_front_current_window()
+function public.bring_to_front_current_window()
     gui_manager.bring_to_front_current_window()
 end
 
 ---@param event EventData
-function event_handler.pass_to_gui(event)
+function public.pass_to_gui(event)
     gui_manager.dispatch(event)
 end
 
----@param event EventData
-function event_handler.register_trains(event)
-    ---@type LuaTrain
-    local train = event.train
-
-    depot.register_train(train)
+-----@param event EventData
+function public.train_create(event)
+    depot.register_train(event.train, event.old_train_id_1, event.old_train_id_2)
 end
 
-return event_handler
+return public

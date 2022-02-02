@@ -2,18 +2,13 @@ local flib_train = require("__flib__.train")
 
 local private = {}
 
-local STATE = {
-    EXISTS = 1,
-    DELETED = 2,
-}
-
 ---------------------------------------------------------------------------
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
 ---@param lua_train LuaTrain
 ---@return LuaEntity
-function private.get_any_entity(lua_train)
+function private.get_any_carrier(lua_train)
     local front_locomotive = lua_train.locomotives.front_movers[1]
     local back_locomotive = lua_train.locomotives.back_movers[1]
     local wagon = lua_train.cargo_wagons[1]
@@ -33,8 +28,8 @@ local Train = {
     train_template_id = nil,
     ---@type bool
     uncontrolled_train = true,
-    ---@type uint
-    state = STATE.EXISTS,
+    ---@type bool
+    deleted = false,
     ---@type LuaTrain
     lua_train = nil,
     ---@type string
@@ -43,24 +38,29 @@ local Train = {
     surface_name = nil,
 }
 
----@return LuaEntity
+---@return LuaEntity|nil
 function Train:get_main_locomotive()
-    return flib_train. get_main_locomotive(self.lua_train)
+    return flib_train.get_main_locomotive(self.lua_train)
 end
 
----@return LuaForce
-function Train:force()
-    return self:get_main_locomotive().force
-end
 
----@return LuaSurface
-function Train:surface()
-    return self:get_main_locomotive().surface
+---@param lua_train LuaTrain
+function Train:set_lua_train(lua_train)
+    assert(lua_train, "lua train is nil")
+    assert(lua_train.valid, "lua train is invalid")
+
+    self.lua_train = lua_train
+    self.id = lua_train.id
+
+    local locomotive = self:get_main_locomotive()
+
+    self.force_name = locomotive.force.name
+    self.surface_name = locomotive.surface.name
 end
 
 --- Mark train as deleted
 function Train:delete()
-    self.state = STATE.DELETED
+    self.deleted = true
 end
 
 ---@return table
@@ -68,11 +68,11 @@ function Train:to_table()
     return {
         id = self.id,
         lua_train = self.lua_train,
+        surface_name = self.surface_name,
+        force_name = self.force_name,
         uncontrolled_train = self.uncontrolled_train,
-        state = self.state,
+        deleted = self.deleted,
         train_template_id = self.train_template_id,
-        surface_name = self:surface().name,
-        force_name = self:force().name,
     }
 end
 
@@ -90,10 +90,14 @@ end
 
 ---@param data table
 function Train.from_table(data)
-    local train = Train.from_lua_train(data.lua_train)
+    local train = Train.new()
 
+    train.id = data.id
+    train.lua_train = data.lua_train
+    train.force_name = data.force_name
+    train.surface_name = data.surface_name
     train.uncontrolled_train = data.uncontrolled_train
-    train.state = data.state
+    train.deleted = data.deleted
     train.train_template_id = data.train_template_id
 
     return train
@@ -102,24 +106,18 @@ end
 ---@param lua_train LuaTrain
 ---@return lib.entity.Train
 function Train.from_lua_train(lua_train)
-    return Train.new(lua_train)
+    local train = Train.new()
+
+    train:set_lua_train(lua_train)
+
+    return train
 end
 
----@param lua_train LuaEntity
----@param uncontrolled_train bool
 ---@return lib.entity.Train
-function Train.new(lua_train, uncontrolled_train)
+function Train.new()
     ---@type lib.entity.Train
     local self = {}
     setmetatable(self, { __index = Train })
-
-    self.id = lua_train.id
-    self.lua_train = lua_train
-    self.uncontrolled_train = uncontrolled_train
-    self.state = state
-    self.train_template_id = train_template_id
-    self.force_name = self:force().name
-    self.surface_name = self:surface().name
 
     return self
 end

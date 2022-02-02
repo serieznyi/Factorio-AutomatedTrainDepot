@@ -63,4 +63,8 @@ defines.gui = {
     mod_frame_marker_name = "atd_frame",
 }
 
+defines.persistence = {
+    GARBAGE_TTL = 18000, -- every 5 minute
+}
+
 return defines

@@ -71,7 +71,7 @@ flib_event.register(
         {
             defines.events.on_train_created
         },
-        event_handler.register_trains
+        event_handler.train_create
 )
 
 flib_event.register(
@@ -83,8 +83,10 @@ flib_event.register(
             defines.events.script_raised_revive,
             defines.events.on_entity_cloned
         },
-        event_handler.build_depot_entity,
-        {{ filter="name", name= mod.defines.entity.depot_building.name }}
+        event_handler.entity_build,
+        {
+            { filter="name", name= mod.defines.entity.depot_building.name },
+        }
 )
 
 flib_event.register(
@@ -94,8 +96,11 @@ flib_event.register(
             defines.events.on_entity_died,
             defines.events.script_raised_destroy,
         },
-        event_handler.destroy_depot_entity,
-        {{ filter="name", name= mod.defines.entity.depot_building.name }}
+        event_handler.entity_dismantled,
+        {
+            { filter="name", name= mod.defines.entity.depot_building.name },
+            { filter="rolling-stock" },
+        }
 )
 
 flib_event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
@@ -112,6 +117,9 @@ flib_event.register(defines.events.on_gui_opened, event_handler.open_gui)
 
 -- todo регистрировать только если окно открыто
 flib_event.on_nth_tick(1, event_handler.bring_to_front_current_window)
+
+-- todo check performance
+flib_event.on_nth_tick(mod.defines.persistence.GARBAGE_TTL, persistence_storage.collect_garbage)
 
 ---------------------------------------------------------------------------
 -- -- -- OTHER
