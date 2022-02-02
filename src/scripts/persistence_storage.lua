@@ -133,10 +133,14 @@ function public.get_train_template(id)
     return TrainTemplate.from_table(template)
 end
 
+---@param context lib.domain.Context
 ---@return table set of train templates
-function public.find_all_train_templates()
+function public.find_all_train_templates(context)
+    assert(context, "context is nil")
+
+    ---@param v lib.domain.TrainTemplate
     local filtered = flib_table.filter(global.trains_templates, function(v)
-        return v
+        return v.deleted == false and context.is_same(v.surface_name, v.force_name)
     end)
 
     return flib_table.map(filtered, function(v)
@@ -172,19 +176,22 @@ function public.add_train(train)
     return train
 end
 
-function public.count_uncontrolled_trains()
-    -- todo use context for get surface/force trains
-    local uncontrolled_trains = public.find_uncontrolled_trains()
+---@param context lib.domain.Context
+function public.count_uncontrolled_trains(context)
+    local uncontrolled_trains = public.find_uncontrolled_trains(context)
 
     return #uncontrolled_trains
 end
 
-function public.find_uncontrolled_trains()
-    local uncontrolled_trains = flib_table.filter(
-            global.trains,
-            function(v) return v.deleted == false and v.uncontrolled_train end,
-            true
-    )
+---@param context lib.domain.Context
+function public.find_uncontrolled_trains(context)
+    assert(context, "context is nil")
+
+    local uncontrolled_trains = flib_table.filter(global.trains, function(v)
+        return v.deleted == false and
+               v.uncontrolled_train and
+               context:is_same(v.surface_name, v.force_name)
+    end, true)
 
     return flib_table.map(uncontrolled_trains, function(v)
         return Train.from_table(v)

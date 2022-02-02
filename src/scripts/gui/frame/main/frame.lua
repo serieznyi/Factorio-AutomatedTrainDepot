@@ -1,6 +1,7 @@
 local flib_gui = require("__flib__.gui")
 
 local mod_gui = require("scripts.util.gui")
+local Context = require("lib.domain.Context")
 local mod_event = require("scripts.util.event")
 local persistence_storage = require("scripts.persistence_storage")
 
@@ -67,8 +68,8 @@ end
 function private.handle_open_uncontrolled_trains_view(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
-    -- todo use context for get surface/force trains
-    local trains = persistence_storage.find_uncontrolled_trains()
+    local context = Context.from_player(player)
+    local trains = persistence_storage.find_uncontrolled_trains(context)
 
     refs.content_frame.clear()
     trains_view_component.create(refs.content_frame, player, trains)
@@ -162,8 +163,8 @@ end
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
 function private.refresh_trains_templates_list(player, container)
-    -- TODO use context for getting trains for surface/force
-    local trains_templates = persistence_storage.find_all_train_templates()
+    local context = Context.from_player(player)
+    local trains_templates = persistence_storage.find_all_train_templates(context)
     local selected_train_template_id = private.get_selected_train_template_id(player)
 
     container.clear()
@@ -194,7 +195,8 @@ function private.refresh_control_buttons(player)
     local refs = storage.refs(player)
     local selected_train_template_id = private.get_selected_train_template_id(player)
     local train_template_selected = selected_train_template_id ~= nil
-    local has_uncontrolled_trains = persistence_storage.count_uncontrolled_trains(player) > 0
+    local context = Context.from_player(player)
+    local has_uncontrolled_trains = persistence_storage.count_uncontrolled_trains(context) > 0
 
     refs.edit_button.enabled = train_template_selected
     refs.delete_button.enabled = train_template_selected

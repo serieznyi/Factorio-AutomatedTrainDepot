@@ -8,7 +8,11 @@ local public = {
     force_name = nil,
 }
 
-local private = {}
+---@param surface_name string
+---@param force_name string
+function public:is_same(surface_name, force_name)
+    return surface_name == self.surface_name and force_name == self.force_name
+end
 
 ---@param lua_entity LuaEntity
 function public.from_entity(lua_entity)
