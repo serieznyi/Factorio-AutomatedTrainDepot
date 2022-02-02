@@ -21,17 +21,6 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
     local change_exists_train = old_train_id_1 ~= nil and old_train_id_2 == nil
     local merge_exists_train = old_train_id_1 ~= nil and old_train_id_2 ~= nil
 
-    mod.log.debug(mod.util.table.to_string({
-        train_id = lua_train.id,
-        old_train_id_1 = old_train_id_1 or "none",
-        old_train_id_2 = old_train_id_2 or "none",
-        train_locomotive_count = train_has_locomotive,
-        create_new_locomotive = create_new_locomotive,
-        change_exists_train = change_exists_train,
-        merge_exists_train = merge_exists_train,
-        merge_exists_train = merge_exists_train,
-    }), {}, "on_train_create")
-
     if not train_has_locomotive then
         mod.log.debug("Ignore train without locomotive: Train id {1}", {lua_train.id}, "depot.register_train")
         return
@@ -92,8 +81,6 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
         )
 
         return persistence_storage.add_train(new_train_entity)
-    else
-        mod.log.debug("NOPE")
     end
 end
 

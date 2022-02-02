@@ -55,12 +55,6 @@ function public.entity_dismantled(event)
             return e.unit_number ~= entity.unit_number
         end, true)
 
-        mod.log.debug(mod.util.table.to_string({
-            type = entity.type,
-            carriages_left_count = #left_carriages,
-            train_id = entity.train.id,
-        }), {}, "entity deleted")
-
         if #left_carriages == 0 then
             depot.delete_train(entity.train.id)
         end

@@ -169,10 +169,6 @@ function public.add_train(train)
 
     global.trains[train.id] = gc.with_updated_at(data)
 
-    mod.log.debug(mod.util.table.to_string(flib_table.map(global.trains, function(t) return {
-        id = t.id, deleted = t.deleted,
-    } end)), {}, "trains")
-
     return train
 end
 
