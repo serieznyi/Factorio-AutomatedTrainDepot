@@ -10,12 +10,6 @@ local public = {
 
 local private = {}
 
-function private.not_nil(value, value_name)
-    if value == nil then
-        error("Value " .. value_name .. " is nil")
-    end
-end
-
 ---@param lua_entity LuaEntity
 function public.from_entity(lua_entity)
     return public.new(
@@ -46,10 +40,10 @@ function public.new(player, lua_surface, lua_force)
     self.player_index = player ~= nil and player.index or nil
 
     self.surface_name = lua_surface ~= nil and lua_surface.name or nil
-    private.not_nil(self.surface_name, "surface_name")
+    assert(self.surface_name, "surface_name is nil")
 
     self.force_name = lua_force ~= nil and lua_force.name or nil
-    private.not_nil(self.surface_name, "force_name")
+    assert(self.force_name, "force_name is nil")
 
     return self
 end
