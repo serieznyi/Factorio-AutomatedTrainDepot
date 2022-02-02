@@ -2,6 +2,11 @@ local flib_train = require("__flib__.train")
 
 local private = {}
 
+local STATE = {
+    EXISTS = 1,
+    DELETED = 2,
+}
+
 ---------------------------------------------------------------------------
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
@@ -27,9 +32,9 @@ local Train = {
     ---@type uint
     train_template_id = nil,
     ---@type bool
-    uncontrolled_train = nil,
+    uncontrolled_train = true,
     ---@type uint
-    state = nil,
+    state = STATE.EXISTS,
     ---@type LuaTrain
     lua_train = nil,
 }
@@ -53,6 +58,11 @@ function Train:surface()
     return entity.surface
 end
 
+--- Mark train as deleted
+function Train:delete()
+    self.state = STATE.DELETED
+end
+
 ---@return table
 function Train:to_table()
     return {
@@ -64,21 +74,32 @@ function Train:to_table()
     }
 end
 
+---@return lib.entity.Train
+function Train:clone()
+    local clone = Train:new(self.id, self.lua_train)
+
+    clone.state = self.state
+    clone.uncontrolled_train = self.uncontrolled_train
+    clone.train_template_id = self.train_template_id
+
+    return clone
+end
+
 ---@param data table
 function Train.from_table(data)
-    return Train.new(
-            data.id,
-            data.lua_train,
-            data.uncontrolled_train,
-            data.state,
-            data.train_template_id
-    )
+    local train = Train.new(data.id, data.lua_train)
+
+    train.uncontrolled_train = data.uncontrolled_train
+    train.state = data.state
+    train.train_template_id = data.train_template_id
+
+    return train
 end
 
 ---@param lua_train LuaTrain
 ---@return lib.entity.Train
 function Train.from_lua_train(lua_train)
-    return Train.new(lua_train.id, lua_train, true)
+    return Train.new(lua_train.id, lua_train)
 end
 
 ---@param lua_train LuaEntity
