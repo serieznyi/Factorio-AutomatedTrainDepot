@@ -84,8 +84,6 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
     end
 end
 
-
-
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
@@ -143,13 +141,6 @@ end
 ---@param old_train_id_2 uint
 function public.register_train(lua_train, old_train_id_1, old_train_id_2)
     private.register_train(lua_train, old_train_id_1, old_train_id_2)
-end
-
---- Permanent deleted all that market as deleted
-function public.garbage_collect()
-    local current_tick = game.tick
-
-
 end
 
 return public
