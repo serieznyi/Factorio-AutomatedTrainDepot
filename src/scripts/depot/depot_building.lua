@@ -154,12 +154,6 @@ function public.build(player, entity)
     local output_rail_signal = private.build_rail_signal(lastOutputRail, depot_station_output.direction)
     table.insert(dependent_entities, output_rail_signal)
 
-    mod.depots[surface.name] = {
-        depot_entity = entity,
-        surface_name = surface.name,
-        dependent_entities = dependent_entities
-    }
-
     local context = Context.from_player(player)
     private.save_depot(context, {
         depot_entity = entity,

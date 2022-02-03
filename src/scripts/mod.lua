@@ -12,6 +12,4 @@ mod.util = {
     game = require("scripts.util.game"),
 }
 
-mod.depots = {} -- todo remove me
-
 return mod
