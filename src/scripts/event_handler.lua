@@ -36,7 +36,8 @@ function public.entity_build(event)
     end
 
     if entity.name == mod.defines.entity.depot_building.name then
-        depot_building.build(entity)
+        local player = game.get_player(event.player_index)
+        depot_building.build(player, entity)
     end
 end
 
@@ -49,7 +50,8 @@ function public.entity_dismantled(event)
     end
 
     if entity.name == mod.defines.entity.depot_building.name then
-        depot_building.destroy(entity)
+        local player = game.get_player(event.player_index)
+        depot_building.destroy(player, entity)
     elseif private.is_rolling_stock(entity) then
         local left_carriages = flib_table.filter(entity.train.carriages, function(e)
             return e.unit_number ~= entity.unit_number

@@ -1,13 +1,20 @@
 local flib_direction = require('__flib__.direction')
 
+local Context = require('lib.domain.Context')
+
 local FORCE_DEFAULT = "player"
 local DEPOT_RAILS_COUNT = 4
 local RAIL_ENTITY_LENGTH = 2
 
+local private = {}
 local public = {}
 
+---------------------------------------------------------------------------
+-- -- -- PRIVATE
+---------------------------------------------------------------------------
+
 ---@param entity LuaEntity
-local function shadow_entity(entity)
+function private.shadow_entity(entity)
     entity.force = FORCE_DEFAULT
     entity.operable = false
     entity.minable = false
@@ -17,7 +24,7 @@ end
 
 ---@param rail_entity LuaEntity
 ---@param station_direction int
-local function build_rail_signal(rail_entity, station_direction)
+function private.build_rail_signal(rail_entity, station_direction)
     local offset
     if station_direction == defines.direction.south then offset = -1.5 else offset = 1.5 end
     local rail_signal = rail_entity.surface.create_entity({
@@ -25,7 +32,7 @@ local function build_rail_signal(rail_entity, station_direction)
         position = { rail_entity.position.x + offset, rail_entity.position.y },
         direction = flib_direction.opposite(station_direction)
     })
-    shadow_entity(rail_signal)
+    private.shadow_entity(rail_signal)
     rail_signal.operable = true
     return rail_signal
 end
@@ -33,7 +40,7 @@ end
 ---@param station_entity LuaEntity
 ---@param railsCount int
 ---@return table list of build rails
-local function build_straight_rails_for_station(station_entity, railsCount)
+function private.build_straight_rails_for_station(station_entity, railsCount)
     local offset
     if station_entity.direction == defines.direction.south then offset = -1.5 else offset = 1.5 end
     local railX = station_entity.position.x - offset
@@ -42,20 +49,55 @@ local function build_straight_rails_for_station(station_entity, railsCount)
     for y = station_entity.position.y, (station_entity.position.y + (RAIL_ENTITY_LENGTH * railsCount)), RAIL_ENTITY_LENGTH do
         rail = nil
         rail = station_entity.surface.create_entity({ name = "straight-rail",  position = { railX, y}})
-        shadow_entity(rail)
+        private.shadow_entity(rail)
         table.insert(rails, rail)
     end
 
     return rails
 end
 
+---@param context lib.domain.Context
+---@param depot table
+function private.save_depot(context, depot)
+    if global.depot[context.surface_name] == nil then
+        global.depot[context.surface_name] = {}
+    end
+
+    global.depot[context.surface_name][context.force_name] = depot
+end
+
+---@param context lib.domain.Context
+---@return table
+function private.get_depot(context)
+    if global.depot[context.surface_name] == nil then
+        return nil
+    end
+
+    return global.depot[context.surface_name][context.force_name]
+end
+
+---@param context lib.domain.Context
+---@return table
+function private.delete_depot(context)
+    if global.depot[context.surface_name] == nil then
+        return
+    end
+
+    global.depot[context.surface_name][context.force_name] = nil
+end
+
+---------------------------------------------------------------------------
+-- -- -- PUBLIC
+---------------------------------------------------------------------------
+
 function public.init()
-    mod.log.debug("depot was init")
+    global.depot = {}
 end
 
 ---@param entity LuaEntity
 ---@return void
-function public.build(entity)
+---@param player LuaPlayer
+function public.build(player, entity)
     local dependent_entities = {}
     ---@type LuaSurface
     local surface = entity.surface
@@ -68,14 +110,14 @@ function public.build(entity)
         name = mod.defines.entity.depot_building_input.name,
         position = {entity.position.x + 2, SIGNALS_POS_Y}
     })
-    shadow_entity(depot_signals_input)
+    private.shadow_entity(depot_signals_input)
     table.insert(dependent_entities, depot_signals_input)
 
     local depot_signals_output = surface.create_entity({
         name = mod.defines.entity.depot_building_output.name,
         position = {entity.position.x - 1, SIGNALS_POS_Y}
     })
-    shadow_entity(depot_signals_output)
+    private.shadow_entity(depot_signals_output)
     table.insert(dependent_entities, depot_signals_output)
 
     -- Input station, rails and signals
@@ -84,14 +126,14 @@ function public.build(entity)
         name = mod.defines.entity.depot_building_train_stop_input.name,
         position = {entity.position.x + 6.5, entity.position.y - 4.5}
     })
-    shadow_entity(depot_station_input)
+    private.shadow_entity(depot_station_input)
     table.insert(dependent_entities, depot_station_input)
 
-    local input_rails = build_straight_rails_for_station(depot_station_input, DEPOT_RAILS_COUNT)
+    local input_rails = private.build_straight_rails_for_station(depot_station_input, DEPOT_RAILS_COUNT)
     for _,v in ipairs(input_rails) do table.insert(dependent_entities, v) end
     local last_input_rail = input_rails[#input_rails]
 
-    local input_rail_signal = build_rail_signal(last_input_rail, depot_station_input.direction)
+    local input_rail_signal = private.build_rail_signal(last_input_rail, depot_station_input.direction)
     table.insert(dependent_entities, input_rail_signal)
 
     ---- Output station, rails and signals
@@ -102,14 +144,14 @@ function public.build(entity)
         direction = defines.direction.south
     })
     depot_station_output.rotatable = true
-    shadow_entity(depot_station_output)
+    private.shadow_entity(depot_station_output)
     table.insert(dependent_entities, depot_station_output)
 
-    local output_rails = build_straight_rails_for_station(depot_station_output, DEPOT_RAILS_COUNT)
+    local output_rails = private.build_straight_rails_for_station(depot_station_output, DEPOT_RAILS_COUNT)
     for _,v in ipairs(output_rails) do table.insert(dependent_entities, v) end
     local lastOutputRail = output_rails[#output_rails]
 
-    local output_rail_signal = build_rail_signal(lastOutputRail, depot_station_output.direction)
+    local output_rail_signal = private.build_rail_signal(lastOutputRail, depot_station_output.direction)
     table.insert(dependent_entities, output_rail_signal)
 
     mod.depots[surface.name] = {
@@ -118,26 +160,35 @@ function public.build(entity)
         dependent_entities = dependent_entities
     }
 
-    mod.log.debug('Entity {1}[{2}] was build', {entity.name, entity.unit_number})
+    local context = Context.from_player(player)
+    private.save_depot(context, {
+        depot_entity = entity,
+        surface_name = surface.name,
+        dependent_entities = dependent_entities
+    })
+
+    mod.log.debug('Depot {1}:{2} was build', {context.surface_name, context.force_name})
 end
 
----@param depot_entity LuaEntity
+---@param player LuaPlayer
 ---@return void
-function public.destroy(depot_entity)
-    local surface = depot_entity.surface
-    local depot_entity_id = depot_entity.unit_number
-    local depot_for_destroy = mod.depots[surface.name]
-    local entity_name = depot_for_destroy.depot_entity.name;
+function public.destroy(player)
+    local context = Context.from_player(player)
+    local depot = private.get_depot(context)
 
-    for _,e in ipairs(depot_for_destroy.dependent_entities) do
+    if depot == nil then
+        return
+    end
+
+    for _,e in ipairs(depot.dependent_entities) do
         e.destroy()
     end
 
-    depot_for_destroy.depot_entity.destroy()
+    depot.depot_entity.destroy()
 
-    mod.depots[surface.name] = nil
+    private.delete_depot(context)
 
-    mod.log.debug('Entity {1}[{2}] was destroy', {entity_name, depot_entity_id})
+    mod.log.debug('Depot {1}:{2} was destroy', {context.surface_name, context.force_name})
 end
 
 return public
