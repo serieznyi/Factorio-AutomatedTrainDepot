@@ -167,7 +167,7 @@ function public.build(player, entity)
         dependent_entities = dependent_entities
     })
 
-    mod.log.debug('Depot {1}:{2} was build', {context.surface_name, context.force_name})
+    mod.log.debug('Depot on surface {1} for force {2} was build', {context.surface_name, context.force_name})
 end
 
 ---@param player LuaPlayer
@@ -188,7 +188,7 @@ function public.destroy(player)
 
     private.delete_depot(context)
 
-    mod.log.debug('Depot {1}:{2} was destroy', {context.surface_name, context.force_name})
+    mod.log.debug('Depot on surface {1} for {2} was destroy', {context.surface_name, context.force_name})
 end
 
 return public
