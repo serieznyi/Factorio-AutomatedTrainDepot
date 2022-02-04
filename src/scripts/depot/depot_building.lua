@@ -3,8 +3,12 @@ local flib_direction = require('__flib__.direction')
 local Context = require('lib.domain.Context')
 
 local FORCE_DEFAULT = "player"
-local DEPOT_RAILS_COUNT = 4
+local DEPOT_RAILS_COUNT = 5
 local RAIL_ENTITY_LENGTH = 2
+local SIGNAL_TYPE = {
+    NORMAL = "rail-signal",
+    CHAIN = "rail-chain-signal",
+}
 
 local private = {}
 local public = {}
@@ -24,17 +28,38 @@ end
 
 ---@param rail_entity LuaEntity
 ---@param station_direction int
-function private.build_rail_signal(rail_entity, station_direction)
+function private.build_rail_signal(rail_entity, signal_type, station_direction)
     local offset
     if station_direction == defines.direction.south then offset = -1.5 else offset = 1.5 end
     local rail_signal = rail_entity.surface.create_entity({
-        name = "rail-signal",
+        name = signal_type,
         position = { rail_entity.position.x + offset, rail_entity.position.y },
         direction = flib_direction.opposite(station_direction)
     })
     private.shadow_entity(rail_signal)
     rail_signal.operable = true
     return rail_signal
+end
+
+---@param surface LuaSurface
+---@param position Position
+---@param direction uint
+---@param rails_count int
+---@return table list of build rails
+function private.build_straight_rails(surface, position, direction, rails_count)
+    local offset
+    if direction == defines.direction.south then offset = -1.5 else offset = 1.5 end
+    local railX = position.x - offset
+    local rails = {}
+    local rail
+    for y = position.y, (position.y + (RAIL_ENTITY_LENGTH * rails_count)), RAIL_ENTITY_LENGTH do
+        rail = nil
+        rail = surface.create_entity({ name = "straight-rail",  position = { railX, y}})
+        private.shadow_entity(rail)
+        table.insert(rails, rail)
+    end
+
+    return rails
 end
 
 ---@param station_entity LuaEntity
@@ -129,29 +154,39 @@ function public.build(player, entity)
     private.shadow_entity(depot_station_input)
     table.insert(dependent_entities, depot_station_input)
 
-    local input_rails = private.build_straight_rails_for_station(depot_station_input, DEPOT_RAILS_COUNT)
+    local input_rails = private.build_straight_rails(
+            surface,
+            depot_station_input.position,
+            depot_station_input.direction,
+            DEPOT_RAILS_COUNT
+    )
     for _,v in ipairs(input_rails) do table.insert(dependent_entities, v) end
     local last_input_rail = input_rails[#input_rails]
 
-    local input_rail_signal = private.build_rail_signal(last_input_rail, depot_station_input.direction)
+    local input_rail_signal = private.build_rail_signal(last_input_rail, SIGNAL_TYPE.NORMAL, depot_station_input.direction)
     table.insert(dependent_entities, input_rail_signal)
 
-    ---- Output station, rails and signals
+    -- Output station, rails and signals
 
     local depot_station_output = surface.create_entity({
         name = mod.defines.entity.depot_building_train_stop_output.name,
-        position = {entity.position.x - 5.5, entity.position.y - 4.5},
+        position = {entity.position.x - 6, entity.position.y + 4},
         direction = defines.direction.south
     })
     depot_station_output.rotatable = true
     private.shadow_entity(depot_station_output)
     table.insert(dependent_entities, depot_station_output)
 
-    local output_rails = private.build_straight_rails_for_station(depot_station_output, DEPOT_RAILS_COUNT)
+    local output_rails = private.build_straight_rails(
+            surface,
+            {x = entity.position.x - 5.5, y = entity.position.y - 4.5},
+            depot_station_output.direction,
+            DEPOT_RAILS_COUNT
+    )
     for _,v in ipairs(output_rails) do table.insert(dependent_entities, v) end
-    local lastOutputRail = output_rails[#output_rails]
+    local last_output_rail = output_rails[#output_rails]
 
-    local output_rail_signal = private.build_rail_signal(lastOutputRail, depot_station_output.direction)
+    local output_rail_signal = private.build_rail_signal(last_output_rail, SIGNAL_TYPE.CHAIN, depot_station_output.direction)
     table.insert(dependent_entities, output_rail_signal)
 
     local context = Context.from_player(player)
