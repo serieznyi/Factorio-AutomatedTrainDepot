@@ -43,3 +43,10 @@ styles["atd_button_list_box_item_active"] = {
     default_font_color = styles.button.selected_font_color,
     default_vertical_offset = styles.button.selected_vertical_offset
 }
+
+-- The active style needs to be separate so the selected sub factory can still be clicked
+styles["error_label"] = {
+    type = "label_style",
+    font = "default-semibold",
+    font_color = { r = 227, g = 44, b = 44 },
+}

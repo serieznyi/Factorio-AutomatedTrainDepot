@@ -32,6 +32,20 @@ function validator.rule_empty(value_data, message_arg)
     return nil
 end
 
+---@param container LuaGuiElement
+---@param errors table
+function validator.render_errors(container, errors)
+    container.clear()
+
+    for _, error in ipairs(errors) do
+        container.add{
+            type="label",
+            caption=error,
+            style="error_label"
+        }
+    end
+end
+
 ---@param rules table
 ---@param data table
 ---@return table
