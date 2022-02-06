@@ -101,16 +101,6 @@ function private.handle_frame_close(event)
 end
 
 ---@param event EventData
-function private.handle_trigger_form_changed(event)
-    script.raise_event(
-            mod.defines.events.on_gui_form_changed_mod,
-            { target = FRAME.NAME,  player_index = event.player_index}
-    )
-
-    return true
-end
-
----@param event EventData
 function private.handle_form_changed(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
@@ -196,24 +186,23 @@ end
 function public.init()
     storage.init()
     train_builder_component.init()
+    train_builder_component.on_changed(private.handle_form_changed)
 end
 
 function public.load()
-    train_builder_component.load()
+    train_builder_component.on_changed(private.handle_form_changed)
 end
 
 ---@param action table
 ---@param event EventData
 function public.dispatch(event, action)
     local handlers = {
-        { target = FRAME.NAME,                      action = mod.defines.gui.actions.trigger_form_changed,  func = private.handle_trigger_form_changed },
+        { target = FRAME.NAME,                      action = mod.defines.gui.actions.touch_form,            func = private.handle_form_changed },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.close_frame,           func = private.handle_frame_close },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.open_frame,            func = private.handle_frame_open },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.edit_train_template,   func = private.handle_frame_open },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.save_form,             func = private.handle_save_form },
-        { target = train_builder_component.name(),  action = mod.defines.gui.actions.any,                   func = train_builder_component.dispatch},
-        -- todo
-        { target = FRAME.NAME, event = mod.defines.events.on_gui_form_changed_mod, func = private.handle_form_changed },
+        { target = train_builder_component.name(),  action = mod.defines.gui.actions.any,                   func = train_builder_component.dispatch },
     }
 
     return mod_event.dispatch(handlers, event, action, FRAME.NAME)

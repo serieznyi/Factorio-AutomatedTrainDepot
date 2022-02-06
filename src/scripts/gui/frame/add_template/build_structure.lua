@@ -65,7 +65,7 @@ function build_structure.get(train_template)
                                 ref = {"icon_input"},
                                 elem_type = "item",
                                 actions = {
-                                    on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed }
+                                    on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }
                                 }
                             },
                             {
@@ -76,8 +76,8 @@ function build_structure.get(train_template)
                                 type = "textfield",
                                 ref = {"name_input"},
                                 actions = {
-                                    on_text_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed },
-                                    on_confirmed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed },
+                                    on_text_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form },
+                                    on_confirmed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form },
                                 }
                             },
                             {

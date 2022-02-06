@@ -163,7 +163,7 @@ function private.create_for(player)
             player.surface,
             player.force,
             { on_selection_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form } },
-            depot_settings.default_clean_station,
+            depot_settings and depot_settings.default_clean_station or nil,
             true
     )
     clean_train_station_dropdown_component:build(refs.clean_train_station_dropdown_wrapper)
@@ -172,7 +172,7 @@ function private.create_for(player)
             player.surface,
             player.force,
             { on_selection_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }},
-            depot_settings.default_destination_station,
+            depot_settings and depot_settings.default_destination_station or nil,
             true
     )
     target_train_station_dropdown_component:build(refs.target_train_station_dropdown_wrapper)

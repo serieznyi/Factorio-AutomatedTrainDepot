@@ -10,7 +10,7 @@ local build_structure = require("scripts.gui.frame.add_template.component.train_
 local validator = require("scripts.gui.validator")
 
 local COMPONENT = constants.COMPONENT
-
+local on_changed_callback = function()  end
 local public = {}
 local private = {}
 local storage = {}
@@ -330,10 +330,7 @@ function public.dispatch(event, action)
     local processed = mod_event.dispatch(event_handlers, event, action, COMPONENT.NAME)
 
     if processed then
-        script.raise_event(
-                mod.defines.events.on_gui_form_changed_mod,
-                { player_index = event.player_index, target = mod.defines.gui.frames.add_template.name }
-        )
+        on_changed_callback(event)
     end
 
     return processed
@@ -377,6 +374,10 @@ function public.read_form(event)
     end
 
     return train
+end
+
+function public.on_changed(callback)
+    on_changed_callback = callback
 end
 
 ---@param event EventData

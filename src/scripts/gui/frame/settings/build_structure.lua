@@ -60,7 +60,7 @@ function build_structure.get()
                                 state = false,
                                 ref = { "use_any_fuel_checkbox" },
                                 actions = {
-                                    on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed }
+                                    on_checked_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }
                                 }
                             },
                             {

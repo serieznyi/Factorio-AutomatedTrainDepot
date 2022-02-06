@@ -7,7 +7,6 @@ defines.events = {
     -- other
     on_train_template_saved_mod = script.generate_event_name(),
     -- gui events
-    on_gui_form_changed_mod = script.generate_event_name(),
     on_gui_train_template_selected_mod = script.generate_event_name(),
     on_gui_type_of_train_part_changed_mod = script.generate_event_name(),
 }
