@@ -1,7 +1,6 @@
 local flib_table = require("__flib__.table")
 
 local TrainPart = require("lib.domain.TrainPart")
-local Context = require("lib.domain.Context")
 
 --- @module lib.domain.TrainTemplate
 local TrainTemplate = {
@@ -19,6 +18,10 @@ local TrainTemplate = {
     enabled = nil,
     ---@type uint
     amount = nil,
+    ---@type string
+    clean_station = nil,
+    ---@type string
+    destination_station = nil,
     ---@type string
     force_name = nil,
     ---@type string
@@ -40,6 +43,8 @@ function TrainTemplate:to_table()
         amount = self.amount,
         force_name = self.force_name,
         surface_name = self.surface_name,
+        clean_station = self.clean_station,
+        destination_station = self.destination_station,
     }
 end
 
@@ -58,6 +63,8 @@ function TrainTemplate.from_table(data)
     object.amount = data.amount
     object.force_name = data.force_name
     object.surface_name = data.surface_name
+    object.clean_station = data.clean_station
+    object.destination_station = data.destination_station
 
     return object
 end

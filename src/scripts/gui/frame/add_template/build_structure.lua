@@ -88,7 +88,57 @@ function build_structure.get(train_template)
                                 type = "frame",
                                 direction = "horizontal",
                                 ref  =  {"train_builder_container"},
-                            }
+                            },
+                            {
+                                type = "flow",
+                                direction = "horizontal",
+                                style_mods = {
+                                    vertically_squashable = true,
+                                    horizontally_squashable = true,
+                                },
+                                children = {
+                                    {
+                                        type = "label",
+                                        caption = { "add-train-template-frame.atd-clean-train-station" },
+                                        tooltip = { "add-train-template-frame-description.atd-clean-train-station" },
+                                    },
+                                    {
+                                        type = "sprite",
+                                        sprite = "atd_sprite_info",
+                                        resize_to_sprite = false,
+                                        style_mods = { natural_width = 15, natural_height = 15},
+                                    },
+                                }
+                            },
+                            {
+                                type = "flow",
+                                ref  =  {"clean_train_station_dropdown_wrapper"},
+                            },
+                            {
+                                type = "flow",
+                                direction = "horizontal",
+                                style_mods = {
+                                    vertically_squashable = true,
+                                    horizontally_squashable = true,
+                                },
+                                children = {
+                                    {
+                                        type = "label",
+                                        caption = { "add-train-template-frame.atd-destination-train-station" },
+                                        tooltip = { "add-train-template-frame-description.atd-destination-train-station" },
+                                    },
+                                    {
+                                        type = "sprite",
+                                        sprite = "atd_sprite_info",
+                                        resize_to_sprite = false,
+                                        style_mods = { natural_width = 15, natural_height = 15},
+                                    },
+                                }
+                            },
+                            {
+                                type = "flow",
+                                ref  =  {"target_train_station_dropdown_wrapper"},
+                            },
                         }
                     },
                     {

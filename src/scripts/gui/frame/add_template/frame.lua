@@ -1,10 +1,10 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
+local mod_event = require("scripts.util.event")
 local TrainTemplate = require("lib.domain.TrainTemplate")
 local Context = require("lib.domain.Context")
-local mod_event = require("scripts.util.event")
-
+local TrainStationSelector = require("scripts.gui.component.train_station_selector.component")
 local constants = require("scripts.gui.frame.add_template.constants")
 local build_structure = require("scripts.gui.frame.add_template.build_structure")
 local train_builder_component = require("scripts.gui.frame.add_template.component.train_builder.component")
@@ -22,6 +22,11 @@ local VALIDATION_RULES = {
         rules = { validator.rule_empty },
     },
 }
+
+---@type gui.component.TrainStationSelector
+local clean_train_station_dropdown_component
+---@type gui.component.TrainStationSelector
+local destination_train_station_dropdown_component
 
 local public = {}
 local private = {}
@@ -159,6 +164,24 @@ function private.create_for(player, train_template_id)
 
     local refs = flib_gui.build(player.gui.screen, {build_structure.get(train_template)})
 
+    clean_train_station_dropdown_component = TrainStationSelector.new(
+            player.surface,
+            player.force,
+            { on_selection_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form } },
+            train_template and train_template.clean_station or nil,
+            true
+    )
+    clean_train_station_dropdown_component:build(refs.clean_train_station_dropdown_wrapper)
+
+    destination_train_station_dropdown_component = TrainStationSelector.new(
+            player.surface,
+            player.force,
+            { on_selection_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }},
+            train_template and train_template.destination_station or nil,
+            true
+    )
+    destination_train_station_dropdown_component:build(refs.target_train_station_dropdown_wrapper)
+
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
     refs.footerbar_flow.drag_target = refs.window
@@ -224,6 +247,8 @@ function public.read_form(event)
     train_template.train_color = { 255, 255, 255}
     train_template.train =  train_builder_component.read_form(event)
     train_template.enabled = false
+    train_template.clean_station = clean_train_station_dropdown_component:read_form()
+    train_template.destination_station = destination_train_station_dropdown_component:read_form()
     train_template.amount = 0
 
     return train_template

@@ -159,7 +159,7 @@ function public.add_train_template(train_template)
     local data = train_template:to_table()
 
     global.trains_templates[train_template.id] = gc.with_updated_at(data)
-
+    mod.log.debug(mod.util.table.to_string(global.trains_templates))
     return train_template
 end
 
