@@ -14,11 +14,11 @@ local persistence_storage = require("scripts.persistence_storage")
 local FRAME = constants.FRAME
 local VALIDATION_RULES = {
     {
-        match = validator.match_by_name("name"),
+        match = validator.match_by_name({"name"}),
         rules = { validator.rule_empty },
     },
     {
-        match = validator.match_by_name("icon"),
+        match = validator.match_by_name({"icon"}),
         rules = { validator.rule_empty },
     },
 }

@@ -1,8 +1,14 @@
 local validator = {}
 
-function validator.match_by_name(name_for_equals)
-    return function(name)
-        return name == name_for_equals
+function validator.match_by_name(names_for_compare)
+    return function(name_for_check)
+        for _, name in ipairs(names_for_compare) do
+            if name_for_check == name then
+                return true
+            end
+        end
+
+        return false
     end
 end
 

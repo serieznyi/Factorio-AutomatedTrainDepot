@@ -384,7 +384,7 @@ function public.validate_form(event)
     local form_data = public.read_form(event)
     local validator_rules = {
         {
-            match = validator.match_by_name("train"),
+            match = validator.match_by_name({"train"}),
             rules = { private.validator_rule_has_locomotive },
         },
     }
