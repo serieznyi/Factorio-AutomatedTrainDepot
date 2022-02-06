@@ -1,3 +1,5 @@
+local flib_table = require("__flib__.table")
+
 local validator = {}
 
 function validator.match_by_name(names_for_compare)
@@ -18,12 +20,12 @@ function validator.match_any()
     end
 end
 
----@param value_data table
+---@param field_name string
+---@param form table
 ---@param message_arg string
-function validator.rule_empty(value_data, message_arg)
-    local name = value_data.k
-    local value = value_data.v
-    local message = message_arg or {"validation-message.empty", name}
+function validator.rule_empty(field_name, form, message_arg)
+    local value = form[field_name]
+    local message = message_arg or {"validation-message.empty", field_name}
 
     if value == nil or value == "" or value == {}  or value == mod.util.table.NIL  then
         return message
@@ -47,16 +49,17 @@ function validator.render_errors(container, errors)
 end
 
 ---@param rules table
----@param data table
+---@param data_arg table
 ---@return table
-function validator.validate(rules, data)
+function validator.validate(rules, data_arg)
     local validation_errors = {}
+    local data = flib_table. deep_copy(data_arg)
 
-    for form_field_name, form_value in pairs(data) do
+    for form_field_name, _ in pairs(data) do
         for _, validator_data_element in ipairs(rules) do
             if validator_data_element.match(form_field_name, data[form_field_name]) then
                 for _, validator_rule in ipairs(validator_data_element.rules) do
-                    local error = validator_rule({k = form_field_name, v = form_value})
+                    local error = validator_rule(form_field_name, data)
 
                     if error ~= nil then
                         table.insert(validation_errors, error)

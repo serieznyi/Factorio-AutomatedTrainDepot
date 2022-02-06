@@ -181,8 +181,8 @@ function private.update_train_part(player, train_part_id)
     end
 end
 
-function private.validator_rule_has_locomotive(data)
-    for _, train_part in pairs(data.v) do
+function private.validator_rule_has_locomotive(field_name, form)
+    for _, train_part in pairs(form[field_name]) do
         if train_part.type == TrainPart.TYPE.LOCOMOTIVE then
             return nil
         end

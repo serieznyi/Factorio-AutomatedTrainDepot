@@ -5,6 +5,10 @@ local validator = require("scripts.gui.validator")
 
 local private = {}
 
+---------------------------------------------------------------------------
+-- -- -- PRIVATE
+---------------------------------------------------------------------------
+
 ---@param values table
 ---@param actions table
 function private.build_structure(values, actions)
@@ -40,6 +44,10 @@ function private.get_train_stations(surface, force, selected_station_name)
         train_stations_names,
     })
 end
+
+---------------------------------------------------------------------------
+-- -- -- PUBLIC
+---------------------------------------------------------------------------
 
 --- @module gui.component.TrainStationSelector
 local TrainStationSelector = {

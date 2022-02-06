@@ -11,14 +11,6 @@ local build_structure = require("scripts.gui.frame.settings.build_structure")
 local validator = require("scripts.gui.validator")
 
 local FRAME = constants.FRAME
-local VALIDATION_RULES = {
-    name = {
-        function(value) return validator.rule_empty(value) end,
-    },
-    icon = {
-        function(value) return validator.rule_empty(value) end,
-    },
-}
 ---@type gui.component.TrainStationSelector
 local clean_train_station_dropdown_component
 ---@type gui.component.TrainStationSelector
@@ -114,6 +106,30 @@ function private.handle_frame_destroy(event)
     return true
 end
 
+---@param field_name string
+---@param form table
+function private.validation_not_same(field_name, form)
+    local value1 = form["default_clean_station"]
+    local value2 = form["default_destination_station"]
+
+    if value1 ~= nil and value1 ~= "" and value1 == value2 then
+        return {"validation-message.cant-be-equals", "default_clean_station", "default_destination_station"}
+    end
+
+    return nil
+end
+
+function private.validation_rules()
+    return {
+        {
+            match = validator.match_by_name({"default_clean_station"}),
+            rules = {
+                private.validation_not_same
+            },
+        },
+    }
+end
+
 function private.destroy_frame(player)
     local refs = storage.refs(player)
 
@@ -134,8 +150,6 @@ end
 ---@param depot_settings lib.domain.DepotSettings
 function private.write_form(player, refs, depot_settings)
     refs.use_any_fuel_checkbox.state = depot_settings.use_any_fuel
-
-
 end
 
 ---@param player LuaPlayer
@@ -226,7 +240,7 @@ function public.validate_form(event)
     return flib_table.array_merge({
         clean_train_station_dropdown_component:validate_form(event),
         target_train_station_dropdown_component:validate_form(event),
-        validator.validate(VALIDATION_RULES, form_data)
+        validator.validate(private.validation_rules(), form_data)
     })
 end
 
