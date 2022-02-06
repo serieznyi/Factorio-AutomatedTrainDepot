@@ -209,7 +209,7 @@ function public.dispatch(event, action)
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.trigger_form_changed,  func = private.handle_trigger_form_changed },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.close_frame,           func = private.handle_frame_close },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.open_frame,            func = private.handle_frame_open },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.edit_train_template, func = private.handle_frame_open },
+        { target = FRAME.NAME,                      action = mod.defines.gui.actions.edit_train_template,   func = private.handle_frame_open },
         { target = FRAME.NAME,                      action = mod.defines.gui.actions.save_form,             func = private.handle_save_form },
         { target = train_builder_component.name(),  action = mod.defines.gui.actions.any,                   func = train_builder_component.dispatch},
         -- todo
@@ -240,6 +240,7 @@ function public.read_form(event)
     return train_template
 end
 
+-- todo make private
 function public.validate_form(event)
     local form_data = public.read_form(event)
 

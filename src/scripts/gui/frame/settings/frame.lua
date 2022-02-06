@@ -2,7 +2,10 @@ local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
 local mod_event = require("scripts.util.event")
-
+local Context = require("lib.domain.Context")
+local TrainStationSelector = require("scripts.gui.component.train_station_selector.component")
+local DepotSettings = require("lib.domain.DepotSettings")
+local persistence_storage = require("scripts.persistence_storage")
 local constants = require("scripts.gui.frame.settings.constants")
 local build_structure = require("scripts.gui.frame.settings.build_structure")
 local validator = require("scripts.gui.validator")
@@ -16,6 +19,10 @@ local VALIDATION_RULES = {
         function(value) return validator.rule_empty(value) end,
     },
 }
+---@type gui.component.TrainStationSelector
+local clean_train_station_dropdown_component
+---@type gui.component.TrainStationSelector
+local target_train_station_dropdown_component
 
 local public = {}
 local private = {}
@@ -69,20 +76,15 @@ end
 
 ---@param event EventData
 function private.handle_save_form(event)
+    local player = game.get_player(event.player_index)
     local form_data = public.read_form(event)
     local validation_errors = public.validate_form(event)
 
-    public.handle_frame_destroy(event)
+    if #validation_errors == 0 then
+        persistence_storage.set_depot_settings(DepotSettings.from_table(form_data))
+    end
 
-    return true
-end
-
----@param event EventData
-function private.handle_trigger_form_changed(event)
-    script.raise_event(
-            mod.defines.events.on_gui_form_changed_mod,
-            { target = FRAME.NAME,  player_index = event.player_index}
-    )
+    private.destroy_frame(player)
 
     return true
 end
@@ -106,6 +108,13 @@ end
 ---@param event EventData
 function private.handle_frame_destroy(event)
     local player = game.get_player(event.player_index)
+
+    private.destroy_frame(player)
+
+    return true
+end
+
+function private.destroy_frame(player)
     local refs = storage.refs(player)
 
     if refs == nil then
@@ -118,26 +127,45 @@ function private.handle_frame_destroy(event)
     window.destroy()
 
     storage.clean(player)
-
-    return true
 end
 
-function private.get_surface_train_stations(player)
-    local surface = player.surface
-    local train_stations = game.get_train_stops({surface = surface})
+---@param player LuaPlayer
+---@param refs table
+---@param depot_settings lib.domain.DepotSettings
+function private.write_form(player, refs, depot_settings)
+    refs.use_any_fuel_checkbox.state = depot_settings.use_any_fuel
 
-    return flib_table.map(train_stations, function(el) return el.backer_name  end)
+
 end
 
 ---@param player LuaPlayer
 ---@return table
 function private.create_for(player)
-    local train_stations_list = flib_table.array_merge({
-        {""},
-        private.get_surface_train_stations(player),
-    })
+    local refs = flib_gui.build(player.gui.screen, { build_structure.get() })
+    local context = Context.from_player(player)
+    local depot_settings = persistence_storage.get_depot_settings(context)
 
-    local refs = flib_gui.build(player.gui.screen, { build_structure.get(train_stations_list) })
+    clean_train_station_dropdown_component = TrainStationSelector.new(
+            player.surface,
+            player.force,
+            { on_selection_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form } },
+            depot_settings.default_clean_station,
+            true
+    )
+    clean_train_station_dropdown_component:build(refs.clean_train_station_dropdown_wrapper)
+
+    target_train_station_dropdown_component = TrainStationSelector.new(
+            player.surface,
+            player.force,
+            { on_selection_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }},
+            depot_settings.default_destination_station,
+            true
+    )
+    target_train_station_dropdown_component:build(refs.target_train_station_dropdown_wrapper)
+
+    if depot_settings ~= nil then
+        private.write_form(player, refs, depot_settings)
+    end
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
@@ -169,11 +197,9 @@ end
 function public.dispatch(event, action)
     local handlers = {
         { target = FRAME.NAME, action = mod.defines.gui.actions.open_frame,             func = private.handle_open_frame },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed,   func = private.handle_trigger_form_changed },
+        { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form,             func = private.handle_form_changed },
         { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame,            func = private.handle_frame_destroy },
         { target = FRAME.NAME, action = mod.defines.gui.actions.save_form,              func = private.handle_save_form },
-        -- todo
-        { target = FRAME.NAME, event = mod.defines.events.on_gui_form_changed_mod, func = private.handle_form_changed },
     }
 
     return mod_event.dispatch(handlers, event, action, FRAME.NAME)
@@ -186,16 +212,22 @@ function public.read_form(event)
     local refs = storage.refs(player)
 
     return {
-        use_any_fuel = mod.util.table.NIL,
-        --icon = gui.refs.icon_input.elem_value or mod.util.table.NIL,
-        --train_color = {255, 255, 255}, -- TODO use chooser
+        use_any_fuel = refs.use_any_fuel_checkbox.state,
+        default_clean_station = clean_train_station_dropdown_component:read_form(),
+        default_destination_station = target_train_station_dropdown_component:read_form(),
+        force_name = player.force.name,
+        surface_name = player.surface.name,
     }
 end
 
 function public.validate_form(event)
     local form_data = public.read_form(event)
 
-    return validator.validate(VALIDATION_RULES, form_data)
+    return flib_table.array_merge({
+        clean_train_station_dropdown_component:validate_form(event),
+        target_train_station_dropdown_component:validate_form(event),
+        validator.validate(VALIDATION_RULES, form_data)
+    })
 end
 
 return public

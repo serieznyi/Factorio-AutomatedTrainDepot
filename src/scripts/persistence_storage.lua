@@ -1,6 +1,7 @@
 local flib_table = require("__flib__.table")
 
 local Train = require("lib.domain.Train")
+local DepotSettings = require("lib.domain.DepotSettings")
 local TrainTemplate = require("lib.domain.TrainTemplate")
 local Sequence = require("lib.Sequence")
 
@@ -113,6 +114,7 @@ function public.init()
     -- All user created templates
     global.trains_templates = {}
     global.trains = {}
+    global.depot_settings = {}
 end
 
 function public.load()
@@ -159,6 +161,29 @@ function public.add_train_template(train_template)
     global.trains_templates[train_template.id] = gc.with_updated_at(data)
 
     return train_template
+end
+
+---@param settings lib.domain.DepotSettings
+function public.set_depot_settings(settings)
+    if global.depot_settings[settings.surface_name] == nil then
+        global.depot_settings[settings.surface_name] = {}
+    end
+
+    global.depot_settings[settings.surface_name][settings.force_name] = settings:to_table()
+
+    return settings
+end
+
+---@param context lib.domain.Context
+---@return lib.domain.DepotSettings
+function public.get_depot_settings(context)
+    if global.depot_settings[context.surface_name] == nil then
+        return nil
+    end
+
+    local settings = global.depot_settings[context.surface_name][context.force_name]
+
+    return settings and DepotSettings.from_table(settings) or nil
 end
 
 ---@param train_template_id uint

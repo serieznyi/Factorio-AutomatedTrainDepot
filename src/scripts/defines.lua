@@ -46,6 +46,7 @@ defines.gui = {
         refresh_train_part = script.generate_event_name(),
         -- other
         trigger_form_changed = script.generate_event_name(),
+        touch_form = script.generate_event_name(),
         enable_train_template = script.generate_event_name(),
         disable_train_template = script.generate_event_name(),
         open_uncontrolled_trains_view = script.generate_event_name(),

@@ -4,8 +4,7 @@ local FRAME = constants.FRAME
 
 local build_structure = {}
 
----@param surface_train_stations_list table
-function build_structure.get(surface_train_stations_list)
+function build_structure.get()
     return {
         type = "frame",
         name = FRAME.NAME,
@@ -59,6 +58,7 @@ function build_structure.get(surface_train_stations_list)
                             {
                                 type = "checkbox",
                                 state = false,
+                                ref = { "use_any_fuel_checkbox" },
                                 actions = {
                                     on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed }
                                 }
@@ -68,22 +68,16 @@ function build_structure.get(surface_train_stations_list)
                                 caption = {"settings-frame.atd-default-clean-train-station"},
                             },
                             {
-                                type = "drop-down",
-                                items = surface_train_stations_list,
-                                actions = {
-                                    on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed }
-                                }
+                                type = "flow",
+                                ref = { "clean_train_station_dropdown_wrapper" },
                             },
                             {
                                 type = "label",
                                 caption = {"settings-frame.atd-default-target-train-station"},
                             },
                             {
-                                type = "drop-down",
-                                items = surface_train_stations_list,
-                                actions = {
-                                    on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.trigger_form_changed }
-                                }
+                                type = "flow",
+                                ref = { "target_train_station_dropdown_wrapper" },
                             },
                         }
                     },
