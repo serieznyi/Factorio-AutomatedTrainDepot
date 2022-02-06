@@ -56,9 +56,17 @@ end
 ---@param event EventData
 function private.handle_form_changed(event)
     local player = game.get_player(event.player_index)
+
+    private.update_form(player)
+
+    return true
+end
+
+---@param player LuaPlayer
+function private.update_form(player)
     local refs = storage.refs(player)
     local submit_button = refs.submit_button
-    local validation_errors = public.validate_form(event)
+    local validation_errors = private.validate_form(player)
 
     submit_button.enabled = #validation_errors == 0
     validator.render_errors(refs.validation_errors_container, validation_errors)
@@ -69,8 +77,8 @@ end
 ---@param event EventData
 function private.handle_save_form(event)
     local player = game.get_player(event.player_index)
-    local form_data = public.read_form(event)
-    local validation_errors = public.validate_form(event)
+    local form_data = private.read_form(player)
+    local validation_errors = private.validate_form(player)
 
     if #validation_errors == 0 then
         persistence_storage.set_depot_settings(DepotSettings.from_table(form_data))
@@ -89,6 +97,8 @@ function private.handle_open_frame(event)
     if refs == nil then
         refs = private.create_for(player)
     end
+
+    private.update_form(player)
 
     refs.window.bring_to_front()
     refs.window.visible = true
@@ -190,6 +200,31 @@ function private.create_for(player)
     return refs
 end
 
+---@param player LuaPlayer
+function private.validate_form(player)
+    local form_data = private.read_form(player)
+
+    return flib_table.array_merge({
+        clean_train_station_dropdown_component:validate_form(),
+        target_train_station_dropdown_component:validate_form(),
+        validator.validate(private.validation_rules(), form_data)
+    })
+end
+
+---@param player LuaPlayer
+---@return table form data
+function private.read_form(player)
+    local refs = storage.refs(player)
+
+    return {
+        use_any_fuel = refs.use_any_fuel_checkbox.state,
+        default_clean_station = clean_train_station_dropdown_component:read_form(),
+        default_destination_station = target_train_station_dropdown_component:read_form(),
+        force_name = player.force.name,
+        surface_name = player.surface.name,
+    }
+end
+
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
@@ -217,31 +252,6 @@ function public.dispatch(event, action)
     }
 
     return mod_event.dispatch(handlers, event, action, FRAME.NAME)
-end
-
----@param event EventData
----@return table form data
-function public.read_form(event)
-    local player = game.get_player(event.player_index)
-    local refs = storage.refs(player)
-
-    return {
-        use_any_fuel = refs.use_any_fuel_checkbox.state,
-        default_clean_station = clean_train_station_dropdown_component:read_form(),
-        default_destination_station = target_train_station_dropdown_component:read_form(),
-        force_name = player.force.name,
-        surface_name = player.surface.name,
-    }
-end
-
-function public.validate_form(event)
-    local form_data = public.read_form(event)
-
-    return flib_table.array_merge({
-        clean_train_station_dropdown_component:validate_form(event),
-        target_train_station_dropdown_component:validate_form(event),
-        validator.validate(private.validation_rules(), form_data)
-    })
 end
 
 return public

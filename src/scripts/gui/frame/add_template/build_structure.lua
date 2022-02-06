@@ -2,6 +2,11 @@ local constants = require("scripts.gui.frame.add_template.constants")
 
 local FRAME = constants.FRAME
 
+local label_info_sprite_style = {
+    natural_width = 15,
+    natural_height = 15,
+}
+
 local build_structure = {}
 
 ---@param train_template lib.domain.TrainTemplate
@@ -61,11 +66,24 @@ function build_structure.get(train_template)
                                 caption = { "add-train-template-frame.atd-icon" },
                             },
                             {
-                                type = "choose-elem-button",
-                                ref = {"icon_input"},
-                                elem_type = "item",
-                                actions = {
-                                    on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }
+                                type = "flow",
+                                style_mods = {
+                                    bottom_padding = 15,
+                                },
+                                children = {
+                                    {
+                                        type = "choose-elem-button",
+                                        ref = {"icon_input"},
+                                        elem_type = "item",
+                                        actions = {
+                                            on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }
+                                        }
+                                    },
+                                    {
+                                        type = "flow",
+                                        direction = "vertical",
+                                        tags = {validation_errors_container = true},
+                                    }
                                 }
                             },
                             {
@@ -73,11 +91,24 @@ function build_structure.get(train_template)
                                 caption = { "add-train-template-frame.atd-name" },
                             },
                             {
-                                type = "textfield",
-                                ref = {"name_input"},
-                                actions = {
-                                    on_text_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form },
-                                    on_confirmed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form },
+                                type = "flow",
+                                style_mods = {
+                                    bottom_padding = 15,
+                                },
+                                children = {
+                                    {
+                                        type = "textfield",
+                                        ref = {"name_input"},
+                                        actions = {
+                                            on_text_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form },
+                                            on_confirmed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form },
+                                        }
+                                    },
+                                    {
+                                        type = "flow",
+                                        direction = "vertical",
+                                        tags = {validation_errors_container = true},
+                                    }
                                 }
                             },
                             {
@@ -85,9 +116,22 @@ function build_structure.get(train_template)
                                 caption = { "add-train-template-frame.atd-train" },
                             },
                             {
-                                type = "frame",
-                                direction = "horizontal",
-                                ref  =  {"train_builder_container"},
+                                type = "flow",
+                                style_mods = {
+                                    bottom_padding = 15,
+                                },
+                                children = {
+                                    {
+                                        type = "frame",
+                                        direction = "horizontal",
+                                        ref  =  {"train_builder_container"},
+                                    },
+                                    {
+                                        type = "flow",
+                                        direction = "vertical",
+                                        tags = {validation_errors_container = true},
+                                    }
+                                }
                             },
                             {
                                 type = "flow",
@@ -106,13 +150,26 @@ function build_structure.get(train_template)
                                         type = "sprite",
                                         sprite = "atd_sprite_info",
                                         resize_to_sprite = false,
-                                        style_mods = { natural_width = 15, natural_height = 15},
+                                        style_mods = label_info_sprite_style,
                                     },
                                 }
                             },
                             {
                                 type = "flow",
-                                ref  =  {"clean_train_station_dropdown_wrapper"},
+                                style_mods = {
+                                    bottom_padding = 15,
+                                },
+                                children = {
+                                    {
+                                        type = "flow",
+                                        ref  =  {"clean_train_station_dropdown_wrapper"},
+                                    },
+                                    {
+                                        type = "flow",
+                                        direction = "vertical",
+                                        tags = {validation_errors_container = true},
+                                    }
+                                }
                             },
                             {
                                 type = "flow",
@@ -131,13 +188,26 @@ function build_structure.get(train_template)
                                         type = "sprite",
                                         sprite = "atd_sprite_info",
                                         resize_to_sprite = false,
-                                        style_mods = { natural_width = 15, natural_height = 15},
+                                        style_mods = label_info_sprite_style,
                                     },
                                 }
                             },
                             {
                                 type = "flow",
-                                ref  =  {"target_train_station_dropdown_wrapper"},
+                                style_mods = {
+                                    bottom_padding = 15,
+                                },
+                                children = {
+                                    {
+                                        type = "flow",
+                                        ref  =  {"target_train_station_dropdown_wrapper"},
+                                    },
+                                    {
+                                        type = "flow",
+                                        direction = "vertical",
+                                        tags = {validation_errors_container = true},
+                                    }
+                                }
                             },
                         }
                     },

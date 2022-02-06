@@ -39,10 +39,12 @@ end
 function validator.render_errors(container, errors)
     container.clear()
 
+    mod.log.debug(mod.util.table.to_string(errors))
+
     for _, error in ipairs(errors) do
         container.add{
             type="label",
-            caption=error,
+            caption=error.error,
             style="error_label"
         }
     end
@@ -62,7 +64,7 @@ function validator.validate(rules, data_arg)
                     local error = validator_rule(form_field_name, data)
 
                     if error ~= nil then
-                        table.insert(validation_errors, error)
+                        table.insert(validation_errors, {field = form_field_name, error = error})
                     end
                 end
             end
