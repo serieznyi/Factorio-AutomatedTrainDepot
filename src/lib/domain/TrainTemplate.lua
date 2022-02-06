@@ -50,7 +50,7 @@ end
 
 ---@param data table
 function TrainTemplate.from_table(data)
-    local object = TrainTemplate.new(data.id, context)
+    local object = TrainTemplate.new(data.id)
 
     object.name = data.name
     object.icon = data.icon
