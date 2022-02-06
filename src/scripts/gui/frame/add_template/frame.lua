@@ -12,16 +12,6 @@ local validator = require("scripts.gui.validator")
 local persistence_storage = require("scripts.persistence_storage")
 
 local FRAME = constants.FRAME
-local VALIDATION_RULES = {
-    {
-        match = validator.match_by_name({"name"}),
-        rules = { validator.rule_empty },
-    },
-    {
-        match = validator.match_by_name({"icon"}),
-        rules = { validator.rule_empty },
-    },
-}
 
 ---@type gui.component.TrainStationSelector
 local clean_train_station_dropdown_component
@@ -77,6 +67,8 @@ function private.handle_frame_open(event)
         refs = private.create_for(player, tags.train_template_id)
     end
 
+    private.update_form(player)
+
     refs.window.bring_to_front()
     refs.window.visible = true
     player.opened = refs.window
@@ -110,7 +102,7 @@ function private.handle_form_changed(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
     local submit_button = refs.submit_button
-    local validation_errors = public.validate_form(event)
+    local validation_errors = private.validate_form(player)
 
     validator.render_errors(refs.validation_errors_container, validation_errors)
 
@@ -121,8 +113,9 @@ end
 
 ---@param event EventData
 function private.handle_save_form(event)
-    local form_data = public.read_form(event)
-    local validation_errors = public.validate_form(event)
+    local player = game.get_player(event.player_index)
+    local form_data = public.read_form(player)
+    local validation_errors = private.validate_form(player)
 
     if #validation_errors == 0 then
         local train_template = persistence_storage.add_train_template(form_data)
@@ -197,6 +190,61 @@ function private.create_for(player, train_template_id)
     return refs
 end
 
+---@param player LuaPlayer
+function private.update_form(player)
+    local refs = storage.refs(player)
+    local submit_button = refs.submit_button
+    local validation_errors = private.validate_form(player)
+
+    validator.render_errors(refs.validation_errors_container, validation_errors)
+
+    submit_button.enabled = #validation_errors == 0
+
+    return true
+end
+
+function private.validation_rules()
+    return {
+        {
+            match = validator.match_by_name({"name"}),
+            rules = { validator.rule_empty },
+        },
+        {
+            match = validator.match_by_name({"icon"}),
+            rules = { validator.rule_empty },
+        },
+        {
+            match = validator.match_by_name({"clean_station"}),
+            rules = { private.validation_not_same },
+        },
+    }
+end
+
+---@param field_name string
+---@param form table
+function private.validation_not_same(field_name, form)
+    local value1 = form["clean_station"]
+    local value2 = form["destination_station"]
+
+    if value1 ~= nil and value1 ~= "" and value1 == value2 then
+        return {"validation-message.cant-be-equals", "default_clean_station", "default_destination_station"}
+    end
+
+    return nil
+end
+
+---@param player LuaPlayer
+function private.validate_form(player)
+    local form_data = public.read_form(player)
+
+    return flib_table.array_merge({
+        train_builder_component.validate_form(player),
+        clean_train_station_dropdown_component:validate_form(),
+        destination_train_station_dropdown_component:validate_form(),
+        validator.validate(private.validation_rules(), form_data)
+    })
+end
+
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
@@ -231,10 +279,9 @@ function public.dispatch(event, action)
     return mod_event.dispatch(handlers, event, action, FRAME.NAME)
 end
 
----@param event EventData
+---@param player LuaPlayer
 ---@return lib.domain.TrainTemplate form data
-function public.read_form(event)
-    local player = game.get_player(event.player_index)
+function public.read_form(player)
     local refs = storage.refs(player)
     local window_tags = flib_gui.get_tags(refs.window)
     local context = Context.from_player(player)
@@ -245,23 +292,13 @@ function public.read_form(event)
     train_template.icon = refs.icon_input.elem_value or mod.util.table.NIL
     -- TODO add chooser
     train_template.train_color = { 255, 255, 255}
-    train_template.train =  train_builder_component.read_form(event)
+    train_template.train =  train_builder_component.read_form(player)
     train_template.enabled = false
     train_template.clean_station = clean_train_station_dropdown_component:read_form()
     train_template.destination_station = destination_train_station_dropdown_component:read_form()
     train_template.amount = 0
 
     return train_template
-end
-
--- todo make private
-function public.validate_form(event)
-    local form_data = public.read_form(event)
-
-    return flib_table.array_merge({
-        train_builder_component.validate_form(event),
-        validator.validate(VALIDATION_RULES, form_data)
-    })
 end
 
 return public

@@ -336,9 +336,8 @@ function public.dispatch(event, action)
     return processed
 end
 
----@param event EventData
-function public.read_form(event)
-    local player = game.get_player(event.player_index)
+---@param player LuaPlayer
+function public.read_form(player)
     local train_parts = storage.get_train_parts(player)
 
     local train = {}
@@ -380,9 +379,9 @@ function public.on_changed(callback)
     on_changed_callback = callback
 end
 
----@param event EventData
-function public.validate_form(event)
-    local form_data = public.read_form(event)
+---@param player LuaPlayer
+function public.validate_form(player)
+    local form_data = public.read_form(player)
     local validator_rules = {
         {
             match = validator.match_by_name({"train"}),
