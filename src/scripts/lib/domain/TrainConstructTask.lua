@@ -1,3 +1,5 @@
+local flib_table = require("__flib__.table")
+
 local constants = {
     type = "construct",
     state = {
@@ -13,12 +15,10 @@ local constants = {
 local public = {
     ---@type uint
     type = constants.type,
-    ---@type scripts.lib.domain.TrainTemplate
-    train_template,
     ---@type string
     state = constants.state.created,
     ---@type bool
-    deleted = nil,
+    deleted = false,
     ---@type string
     force_name = nil,
     ---@type string
@@ -42,7 +42,9 @@ public.defines = constants
 function public:to_table()
     return {
         type = self.type,
-        train_template = self.train_template,
+        train_template_id = self.train_template_id,
+        state = self.state,
+        deleted = self.deleted,
         force_name = self.force_name,
         surface_name = self.surface_name,
     }
@@ -53,11 +55,14 @@ function public:delete()
     self.deleted = true
 end
 
+---@param tick uint
 ---@return table
-function public:state_constructing()
-    assert(self.state == constants.state.created or self.state ==constants.state.paused, "wrong state")
+function public:state_constructing(tick)
+    assert(tick, "tick is nil")
 
-    self.start_constructing_at = game.tick
+    assert(self.state == constants.state.created or self.state == constants.state.paused, "wrong state")
+
+    self.start_constructing_at = tick
 end
 
 ---@param data table
@@ -65,9 +70,11 @@ function public.from_table(data)
     local object = public.new()
 
     object.type = data.type
-    object.train_template = data.train_template
+    object.train_template_id = data.train_template_id
     object.force_name = data.force_name
     object.surface_name = data.surface_name
+    object.state = data.state
+    object.deleted = data.deleted
 
     return object
 end
@@ -79,7 +86,7 @@ function public.from_train_template(train_template)
 
     local task = public.new(train_template.surface_name, train_template.force_name)
 
-    task.train_template = train_template
+    task.train_template_id = train_template.id
 
     return task
 end

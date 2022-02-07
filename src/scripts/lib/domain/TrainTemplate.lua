@@ -1,4 +1,5 @@
 local flib_table = require("__flib__.table")
+local mod_table = require("scripts.util.table")
 
 local TrainPart = require("scripts.lib.domain.TrainPart")
 
@@ -27,6 +28,26 @@ local TrainTemplate = {
     ---@type string
     surface_name = nil,
 }
+local private = {}
+
+---------------------------------------------------------------------------
+-- -- -- PRIVATE
+---------------------------------------------------------------------------
+
+---@param lua_train LuaTrain
+---@return int
+function private.lua_train_hash_code(lua_train)
+    local data = {
+        color = nil,
+        carriages = {},
+    }
+
+    return mod_table.hash_code(data)
+end
+
+---------------------------------------------------------------------------
+-- -- -- PUBLIC
+---------------------------------------------------------------------------
 
 ---@return table
 function TrainTemplate:to_table()
@@ -48,8 +69,23 @@ function TrainTemplate:to_table()
     }
 end
 
+function TrainTemplate:train_structure_hash_code()
+    local data = {
+        color = nil,
+        carriages = {},
+    }
+
+    return mod_table.hash_code(data)
+end
+
 function TrainTemplate:increase_trains_quantity()
     self.trains_quantity = self.trains_quantity + 1
+end
+
+---@param lua_train LuaTrain
+---@return int
+function TrainTemplate:is_equal_train_structure(lua_train)
+    return private.lua_train_hash_code(lua_train) == self.train_structure_hash_code()
 end
 
 function TrainTemplate:decrease_trains_quantity()

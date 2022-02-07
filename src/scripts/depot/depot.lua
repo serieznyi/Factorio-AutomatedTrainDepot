@@ -195,16 +195,14 @@ function public.check_trains(context)
         local count = #trains + #trains_tasks
         local diff = t.trains_quantity - count
 
-        game.get_player(1).print(t.name)
-        game.get_player(1).print("diff " .. diff)
-
         if diff ~= 0 then
+            local construct_task
             for _ = 1, diff do
-                local construct_task = TrainConstructTask.from_train_template(t)
+                construct_task = TrainConstructTask.from_train_template(t)
 
                 persistence_storage.add_train_task(construct_task)
 
-                mod.log.debug("Add new construct task for {1}", {t.name}, "depot")
+                mod.log.debug("Add new construct task for template `{1}`", {t.name}, "depot")
             end
         end
     end
