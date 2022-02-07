@@ -10,6 +10,8 @@ local constants = {
 
 --- @module scripts.lib.domain.TrainDeconstructTask
 local public = {
+    ---@type uint
+    id = nil,
     ---@type string
     type = constants.type,
     ---@type string
@@ -27,6 +29,7 @@ public.defines = constants
 ---@return table
 function public:to_table()
     return {
+        id = self.id,
         type = self.type,
         force_name = self.force_name,
         surface_name = self.surface_name,
@@ -42,6 +45,7 @@ end
 function public.from_table(data)
     local object = public.new()
 
+    object.id = data.id
     object.type = data.type
     object.force_name = data.force_name
     object.surface_name = data.surface_name

@@ -41,6 +41,7 @@ public.defines = constants
 ---@return table
 function public:to_table()
     return {
+        id = self.id,
         type = self.type,
         train_template_id = self.train_template_id,
         state = self.state,
@@ -66,9 +67,11 @@ function public:state_constructing(tick)
 end
 
 ---@param data table
+---@return scripts.lib.domain.TrainConstructTask
 function public.from_table(data)
     local object = public.new()
 
+    object.id = data.id
     object.type = data.type
     object.train_template_id = data.train_template_id
     object.force_name = data.force_name

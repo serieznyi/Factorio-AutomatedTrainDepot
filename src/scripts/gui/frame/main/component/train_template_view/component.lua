@@ -67,6 +67,14 @@ function private.get_train_id(player)
     return tags.train_template_id
 end
 
+---@param event EventData
+---@return uint
+function private.get_train_quantity_change_value(event)
+    local action = flib_gui.read_action(event)
+
+    return action.count
+end
+
 ---@param player LuaPlayer
 ---@param train_template scripts.lib.domain.TrainTemplate
 function private.refresh_component(player, train_template)
@@ -112,20 +120,11 @@ function private.handle_disable_train_template(e)
     return true
 end
 
-function private.handle_increase_trains_quantity(e)
+function private.handle_change_trains_quantity(e)
     local player = game.get_player(e.player_index)
     local train_template_id = private.get_train_id(player)
-    local train_template = depot.increase_trains_quantity(train_template_id)
-
-    private.refresh_component(player, train_template)
-
-    return true
-end
-
-function private.handle_decrease_trains_quantity(e)
-    local player = game.get_player(e.player_index)
-    local train_template_id = private.get_train_id(player)
-    local train_template = depot.decrease_trains_quantity(train_template_id)
+    local count = private.get_train_quantity_change_value(e)
+    local train_template = depot.change_trains_quantity(train_template_id, count)
 
     private.refresh_component(player, train_template)
 
@@ -170,8 +169,7 @@ function public.dispatch(event, action)
     local event_handlers = {
         { target = COMPONENT.NAME, action = mod.defines.gui.actions.enable_train_template, func = private.handle_enable_train_template },
         { target = COMPONENT.NAME, action = mod.defines.gui.actions.disable_train_template, func = private.handle_disable_train_template },
-        { target = COMPONENT.NAME, action = mod.defines.gui.actions.increase_trains_quantity, func = private.handle_increase_trains_quantity },
-        { target = COMPONENT.NAME, action = mod.defines.gui.actions.decrease_trains_quantity, func = private.handle_decrease_trains_quantity },
+        { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_trains_quantity, func = private.handle_change_trains_quantity },
     }
 
     return mod_event.dispatch(event_handlers, event, action, COMPONENT.NAME)

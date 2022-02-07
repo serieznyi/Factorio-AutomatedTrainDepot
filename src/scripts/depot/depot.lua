@@ -107,7 +107,7 @@ function public.enable_train_template(train_template_id)
 
     train_template = persistence_storage.add_train_template(train_template)
 
-    public.check_trains(context)
+    public.synchronize_trains_count(context)
 
     return train_template
 end
@@ -121,31 +121,17 @@ function public.disable_train_template(train_template_id)
     return train_template
 end
 
-function public.increase_trains_quantity(train_template_id)
+---@param train_template_id uint
+---@param count int
+function public.change_trains_quantity(train_template_id, count)
     local train_template = persistence_storage.get_train_template(train_template_id)
     local context = Context.from_model(train_template)
 
-    train_template:increase_trains_quantity()
-
+    train_template:change_trains_quantity(count)
     persistence_storage.add_train_template(train_template)
 
     if train_template.enabled then
-        public.check_trains(context)
-    end
-
-    return train_template
-end
-
-function public.decrease_trains_quantity(train_template_id)
-    local train_template = persistence_storage.get_train_template(train_template_id)
-    local context = Context.from_model(train_template)
-
-    train_template:decrease_trains_quantity()
-
-    persistence_storage.add_train_template(train_template)
-
-    if train_template.enabled then
-        public.check_trains(context)
+        public.synchronize_trains_count(context)
     end
 
     return train_template
@@ -181,31 +167,56 @@ end
 function public.register_train(lua_train, old_train_id_1, old_train_id_2)
     private.register_train(lua_train, old_train_id_1, old_train_id_2)
 
-    public.check_trains(Context.from_train(lua_train))
+    public.synchronize_trains_count(Context.from_train(lua_train))
 end
 
 ---@param context scripts.lib.domain.Context
-function public.check_trains(context)
+function public.synchronize_trains_count(context)
     local train_templates = persistence_storage.find_enabled_train_templates(context)
 
-    ---@param t scripts.lib.domain.TrainTemplate
-    for _, t in ipairs(train_templates) do
-        local trains = persistence_storage.find_controlled_trains_for_template(context, t.id)
-        local trains_tasks = persistence_storage.find_constructing_train_tasks_for_template(context, t.id)
+    ---@param train_template scripts.lib.domain.TrainTemplate
+    for _, train_template in ipairs(train_templates) do
+        local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
+        local trains_tasks = persistence_storage.find_constructing_train_tasks_for_template(context, train_template.id)
         local count = #trains + #trains_tasks
-        local diff = t.trains_quantity - count
+        local diff = train_template.trains_quantity - count
 
-        if diff ~= 0 then
+        if diff > 0 then
             local construct_task
             for _ = 1, diff do
-                construct_task = TrainConstructTask.from_train_template(t)
+                construct_task = TrainConstructTask.from_train_template(train_template)
 
                 persistence_storage.add_train_task(construct_task)
 
-                mod.log.debug("Add new construct task for template `{1}`", {t.name}, "depot")
+                mod.log.debug("Add new construct task for template `{1}`", { train_template.name}, "depot")
+            end
+        elseif diff < 0 then
+            local count_for_delete = diff * -1
+            local not_processed_trains_tasks = persistence_storage.find_constructing_train_tasks_for_template(
+                    context,
+                    train_template.id,
+                    TrainConstructTask.defines.state.created
+            )
+
+            ---@param task scripts.lib.domain.TrainConstructTask
+            for _, task in ipairs(not_processed_trains_tasks) do
+                if count_for_delete > 0 then
+                    task:delete()
+                    persistence_storage.add_train_task(task)
+                    mod.log.debug("Discard train construct task for template `{1}`", { train_template.name}, "depot")
+                    count_for_delete = count_for_delete - 1
+                end
+            end
+
+            if count_for_delete > 0 then
+                -- todo delete train
+                mod.log.debug("want delete train")
             end
         end
     end
+
+    mod.log.debug(mod.util.table.to_string(global.trains_templates))
+    mod.log.debug(mod.util.table.to_string(global.trains_tasks))
 end
 
 return public

@@ -210,14 +210,14 @@ end
 
 -- -- -- TRAIN TASK
 
----@param train_task scripts.lib.domain.TrainConstructTask|lib.domain.TrainDeconstructTask
----@return scripts.lib.domain.TrainConstructTask|lib.domain.TrainDeconstructTask
+---@param train_task scripts.lib.domain.TrainConstructTask|scripts.lib.domain.TrainDeconstructTask
+---@return scripts.lib.domain.TrainConstructTask|scripts.lib.domain.TrainDeconstructTask
 function public.add_train_task(train_task)
-    local data = train_task:to_table()
-
     if train_task.id == nil then
         train_task.id = train_task_sequence:next()
     end
+
+    local data = train_task:to_table()
 
     global.trains_tasks[train_task.id] = gc.with_updated_at(data)
 
@@ -225,14 +225,15 @@ function public.add_train_task(train_task)
 end
 
 ---@param context scripts.lib.domain.Context
-function public.find_constructing_train_tasks_for_template(context, train_template_id)
+function public.find_constructing_train_tasks_for_template(context, train_template_id, state)
     assert(context, "context is nil")
     assert(train_template_id, "train_template_id is nil")
 
     local trains = flib_table.filter(global.trains_tasks, function(v)
         return v.deleted == false and
                 context:is_same(v.surface_name, v.force_name) and
-                (train_template_id ~= nil and v.train_template_id == train_template_id or true)
+                (train_template_id ~= nil and v.train_template_id == train_template_id or true) and
+                (state ~= nil and v.state == state or true)
     end, true)
 
     return flib_table.map(trains, Train.from_table)

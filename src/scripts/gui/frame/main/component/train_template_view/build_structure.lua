@@ -68,9 +68,17 @@ function public.get(train_template)
                             {
                                 type = "button",
                                 style = "tool_button",
-                                caption = "-",
+                                caption = "-1",
                                 actions = {
-                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.decrease_trains_quantity }
+                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = -1 }
+                                },
+                            },
+                            {
+                                type = "button",
+                                style = "tool_button",
+                                caption = "-5",
+                                actions = {
+                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = -5 }
                                 },
                             },
                             {
@@ -85,9 +93,17 @@ function public.get(train_template)
                             {
                                 type = "button",
                                 style = "tool_button",
-                                caption = "+",
+                                caption = "+5",
                                 actions = {
-                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.increase_trains_quantity }
+                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = 5 }
+                                },
+                            },
+                            {
+                                type = "button",
+                                style = "tool_button",
+                                caption = "+1",
+                                actions = {
+                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = 1 }
                                 },
                             },
                         }

@@ -78,22 +78,20 @@ function TrainTemplate:train_structure_hash_code()
     return mod_table.hash_code(data)
 end
 
-function TrainTemplate:increase_trains_quantity()
-    self.trains_quantity = self.trains_quantity + 1
+---@param value int
+function TrainTemplate:change_trains_quantity(value)
+    if (self.trains_quantity + value) < 0 then
+        self.trains_quantity = 0
+        return
+    end
+
+    self.trains_quantity = self.trains_quantity + value
 end
 
 ---@param lua_train LuaTrain
 ---@return int
 function TrainTemplate:is_equal_train_structure(lua_train)
     return private.lua_train_hash_code(lua_train) == self.train_structure_hash_code()
-end
-
-function TrainTemplate:decrease_trains_quantity()
-    if self.trains_quantity == 0 then
-        return
-    end
-
-    self.trains_quantity = self.trains_quantity - 1
 end
 
 ---@param data table

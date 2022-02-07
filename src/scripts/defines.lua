@@ -47,8 +47,7 @@ defines.gui = {
         delete_train_template = script.generate_event_name(),
         select_train_template = script.generate_event_name(),
         edit_train_template = script.generate_event_name(),
-        increase_trains_quantity = script.generate_event_name(),
-        decrease_trains_quantity = script.generate_event_name(),
+        change_trains_quantity = script.generate_event_name(),
         -- train gui
         delete_train_part = script.generate_event_name(),
         change_locomotive_direction = script.generate_event_name(),
