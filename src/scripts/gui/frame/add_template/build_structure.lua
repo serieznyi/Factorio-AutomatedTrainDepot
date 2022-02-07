@@ -9,7 +9,7 @@ local label_info_sprite_style = {
 
 local build_structure = {}
 
----@param train_template lib.domain.TrainTemplate
+---@param train_template scripts.lib.domain.TrainTemplate
 function build_structure.get(train_template)
     local train_template_name = train_template ~= nil and train_template.name or nil
     local new = train_template_name == nil

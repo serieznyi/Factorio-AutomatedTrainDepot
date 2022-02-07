@@ -8,7 +8,7 @@ local constants = {
     }
 }
 
---- @module lib.domain.TrainDeconstructTask
+--- @module scripts.lib.domain.TrainDeconstructTask
 local public = {
     ---@type string
     type = constants.type,
@@ -49,8 +49,8 @@ function public.from_table(data)
     return object
 end
 
----@return lib.domain.TrainConstructTask
----@param context lib.domain.Context
+---@return scripts.lib.domain.TrainConstructTask
+---@param context scripts.lib.domain.Context
 function public.create_deconstruct(context)
     assert(context, "context is nil")
 
@@ -59,9 +59,9 @@ end
 
 ---@param surface_name string
 ---@param force_name string
----@return lib.domain.TrainConstructTask
+---@return scripts.lib.domain.TrainConstructTask
 function public.new(surface_name, force_name)
-    ---@type lib.domain.TrainConstructTask
+    ---@type scripts.lib.domain.TrainConstructTask
     local self = {}
     setmetatable(self, { __index = public })
 

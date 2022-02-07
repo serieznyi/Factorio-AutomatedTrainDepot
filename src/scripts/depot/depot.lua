@@ -1,9 +1,9 @@
 local flib_train = require("__flib__.train")
 local flib_table = require("__flib__.table")
 
-local Train = require("lib.domain.Train")
-local Context = require("lib.domain.Context")
-local TrainConstructTask = require("lib.domain.TrainConstructTask")
+local Train = require("scripts.lib.domain.Train")
+local Context = require("scripts.lib.domain.Context")
+local TrainConstructTask = require("scripts.lib.domain.TrainConstructTask")
 local persistence_storage = require("scripts.persistence_storage")
 local mod_game = require("scripts.util.game")
 
@@ -29,7 +29,7 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
     end
 
     if create_new_locomotive then
-        ---@type lib.domain.Train
+        ---@type scripts.lib.domain.Train
         local train = Train.from_lua_train(lua_train)
 
         mod.log.debug("Try register new train {1}", {train.id}, "depot.register_train")
@@ -175,11 +175,11 @@ function public.register_train(lua_train, old_train_id_1, old_train_id_2)
     public.check_trains(Context.from_train(lua_train))
 end
 
----@param context lib.domain.Context
+---@param context scripts.lib.domain.Context
 function public.check_trains(context)
     local train_templates = persistence_storage.find_enabled_train_templates(context)
 
-    ---@param t lib.domain.TrainTemplate
+    ---@param t scripts.lib.domain.TrainTemplate
     for _, t in ipairs(train_templates) do
         local trains = persistence_storage.find_controlled_trains_for_template(context, t.id)
         local trains_tasks = persistence_storage.find_constructing_train_tasks_for_template(context, t.id)

@@ -7,7 +7,7 @@ local private = {}
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
----@param train_template lib.domain.TrainTemplate
+---@param train_template scripts.lib.domain.TrainTemplate
 function private.build_train_template_name(train_template)
     local icon = mod_gui.image_for_item(train_template.icon)
 
@@ -18,7 +18,7 @@ end
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
 
----@param train_template lib.domain.TrainTemplate
+---@param train_template scripts.lib.domain.TrainTemplate
 function public.get(train_template)
     local train_template_name = private.build_train_template_name(train_template)
 

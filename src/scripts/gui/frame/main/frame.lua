@@ -1,7 +1,7 @@
 local flib_gui = require("__flib__.gui")
 
 local mod_gui = require("scripts.util.gui")
-local Context = require("lib.domain.Context")
+local Context = require("scripts.lib.domain.Context")
 local mod_event = require("scripts.util.event")
 local persistence_storage = require("scripts.persistence_storage")
 
@@ -169,7 +169,7 @@ function private.refresh_trains_templates_list(player, container)
 
     container.clear()
 
-    ---@param train_template lib.domain.TrainTemplate
+    ---@param train_template scripts.lib.domain.TrainTemplate
     for i, train_template in pairs(trains_templates) do
         local icon = mod_gui.image_for_item(train_template.icon)
         local selected_train_template = train_template.id == selected_train_template_id

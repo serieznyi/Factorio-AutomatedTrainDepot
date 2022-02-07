@@ -9,11 +9,11 @@ local constants = {
     }
 }
 
---- @module lib.domain.TrainConstructTask
+--- @module scripts.lib.domain.TrainConstructTask
 local public = {
     ---@type uint
     type = constants.type,
-    ---@type lib.domain.TrainTemplate
+    ---@type scripts.lib.domain.TrainTemplate
     train_template,
     ---@type string
     state = constants.state.created,
@@ -72,8 +72,8 @@ function public.from_table(data)
     return object
 end
 
----@return lib.domain.TrainConstructTask
----@param train_template lib.domain.TrainTemplate
+---@return scripts.lib.domain.TrainConstructTask
+---@param train_template scripts.lib.domain.TrainTemplate
 function public.from_train_template(train_template)
     assert(train_template, "train_template is nil")
 
@@ -86,9 +86,9 @@ end
 
 ---@param surface_name string
 ---@param force_name string
----@return lib.domain.TrainConstructTask
+---@return scripts.lib.domain.TrainConstructTask
 function public.new(surface_name, force_name)
-    ---@type lib.domain.TrainConstructTask
+    ---@type scripts.lib.domain.TrainConstructTask
     local self = {}
     setmetatable(self, { __index = public })
 

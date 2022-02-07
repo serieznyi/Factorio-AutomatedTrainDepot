@@ -1,9 +1,9 @@
 local flib_table = require("__flib__.table")
 
-local Train = require("lib.domain.Train")
-local DepotSettings = require("lib.domain.DepotSettings")
-local TrainTemplate = require("lib.domain.TrainTemplate")
-local Sequence = require("lib.Sequence")
+local Train = require("scripts.lib.domain.Train")
+local DepotSettings = require("scripts.lib.domain.DepotSettings")
+local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
+local Sequence = require("scripts.lib.Sequence")
 
 local public = {}
 local private = {}
@@ -11,9 +11,9 @@ local gc = {
     data = {},
 }
 
----@type lib.Sequence
+---@type scripts.lib.Sequence
 local train_template_sequence
----@type lib.Sequence
+---@type scripts.lib.Sequence
 local train_task_sequence
 
 ---------------------------------------------------------------------------
@@ -96,7 +96,7 @@ end
 ---------------------------------------------------------------------------
 
 ---@param uncontrolled bool
----@param context lib.domain.Context
+---@param context scripts.lib.domain.Context
 function private.find_trains(context, uncontrolled, train_template_id)
     assert(context, "context is nil")
 
@@ -149,7 +149,7 @@ end
 -- -- -- TRAIN TEMPLATE
 
 ---@param id uint
----@return lib.domain.TrainTemplate
+---@return scripts.lib.domain.TrainTemplate
 function public.get_train_template(id)
     local template = global.trains_templates[id]
 
@@ -160,12 +160,12 @@ function public.get_train_template(id)
     return TrainTemplate.from_table(template)
 end
 
----@param context lib.domain.Context
+---@param context scripts.lib.domain.Context
 ---@return table set of train templates
 function public.find_all_train_templates(context)
     assert(context, "context is nil")
 
-    ---@param v lib.domain.TrainTemplate
+    ---@param v scripts.lib.domain.TrainTemplate
     local filtered = flib_table.filter(global.trains_templates, function(v)
         return context:is_same(v.surface_name, v.force_name)
     end)
@@ -175,12 +175,12 @@ function public.find_all_train_templates(context)
     end)
 end
 
----@param context lib.domain.Context
+---@param context scripts.lib.domain.Context
 ---@return table set of train templates
 function public.find_enabled_train_templates(context)
     assert(context, "context is nil")
 
-    ---@param v lib.domain.TrainTemplate
+    ---@param v scripts.lib.domain.TrainTemplate
     local filtered = flib_table.filter(global.trains_templates, function(v)
         return context:is_same(v.surface_name, v.force_name) and v.enabled == true
     end)
@@ -190,7 +190,7 @@ function public.find_enabled_train_templates(context)
     end)
 end
 
----@param train_template lib.domain.TrainTemplate
+---@param train_template scripts.lib.domain.TrainTemplate
 function public.add_train_template(train_template)
     if train_template.id == nil then
         train_template.id = train_template_sequence:next()
@@ -210,8 +210,8 @@ end
 
 -- -- -- TRAIN TASK
 
----@param train_task lib.domain.TrainConstructTask|lib.domain.TrainDeconstructTask
----@return lib.domain.TrainConstructTask|lib.domain.TrainDeconstructTask
+---@param train_task scripts.lib.domain.TrainConstructTask|lib.domain.TrainDeconstructTask
+---@return scripts.lib.domain.TrainConstructTask|lib.domain.TrainDeconstructTask
 function public.add_train_task(train_task)
     local data = train_task:to_table()
 
@@ -224,7 +224,7 @@ function public.add_train_task(train_task)
     return train_task
 end
 
----@param context lib.domain.Context
+---@param context scripts.lib.domain.Context
 function public.find_constructing_train_tasks_for_template(context, train_template_id)
     assert(context, "context is nil")
     assert(train_template_id, "train_template_id is nil")
@@ -240,8 +240,8 @@ end
 
 -- -- -- TRAIN
 
----@param train lib.domain.Train
----@return lib.domain.Train
+---@param train scripts.lib.domain.Train
+---@return scripts.lib.domain.Train
 function public.add_train(train)
     local data = train:to_table()
 
@@ -250,26 +250,26 @@ function public.add_train(train)
     return train
 end
 
----@param context lib.domain.Context
+---@param context scripts.lib.domain.Context
 function public.count_uncontrolled_trains(context)
     local uncontrolled_trains = public.find_uncontrolled_trains(context)
 
     return #uncontrolled_trains
 end
 
----@param context lib.domain.Context
+---@param context scripts.lib.domain.Context
 function public.find_uncontrolled_trains(context)
     return private.find_trains(context, true)
 end
 
----@param context lib.domain.Context
+---@param context scripts.lib.domain.Context
 ---@param train_template_id uint
 function public.find_controlled_trains_for_template(context, train_template_id)
     return private.find_trains(context, false, train_template_id)
 end
 
 ---@param train_id uint
----@return lib.domain.Train
+---@return scripts.lib.domain.Train
 function public.get_train(train_id)
     local data = global.trains[train_id]
 
@@ -282,7 +282,7 @@ end
 
 -- -- -- OTHER
 
----@param settings lib.domain.DepotSettings
+---@param settings scripts.lib.domain.DepotSettings
 function public.set_depot_settings(settings)
     if global.depot_settings[settings.surface_name] == nil then
         global.depot_settings[settings.surface_name] = {}
@@ -293,8 +293,8 @@ function public.set_depot_settings(settings)
     return settings
 end
 
----@param context lib.domain.Context
----@return lib.domain.DepotSettings
+---@param context scripts.lib.domain.Context
+---@return scripts.lib.domain.DepotSettings
 function public.get_depot_settings(context)
     if global.depot_settings[context.surface_name] == nil then
         return nil

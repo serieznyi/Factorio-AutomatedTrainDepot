@@ -107,7 +107,7 @@ end
 ---@param surface LuaSurface
 ---@param actions table
 ---@param selected_station_name string
----@return lib.domain.Train
+---@return scripts.lib.domain.Train
 function TrainStationSelector.new(surface, force, actions, selected_station_name, required)
     ---@type gui.component.TrainStationSelector
     local self = {}

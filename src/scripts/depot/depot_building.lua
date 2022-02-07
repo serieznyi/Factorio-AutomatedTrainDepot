@@ -1,6 +1,6 @@
 local flib_direction = require('__flib__.direction')
 
-local Context = require('lib.domain.Context')
+local Context = require('scripts.lib.domain.Context')
 
 local FORCE_DEFAULT = "player"
 local DEPOT_RAILS_COUNT = 5
@@ -22,7 +22,7 @@ function storage.init()
     global.depot = {}
 end
 
----@param context lib.domain.Context
+---@param context scripts.lib.domain.Context
 ---@param depot table
 function storage.save_depot(context, depot)
     if global.depot[context.surface_name] == nil then
@@ -32,7 +32,7 @@ function storage.save_depot(context, depot)
     global.depot[context.surface_name][context.force_name] = depot
 end
 
----@param context lib.domain.Context
+---@param context scripts.lib.domain.Context
 ---@return table
 function storage.get_depot(context)
     if global.depot[context.surface_name] == nil then
@@ -42,7 +42,7 @@ function storage.get_depot(context)
     return global.depot[context.surface_name][context.force_name]
 end
 
----@param context lib.domain.Context
+---@param context scripts.lib.domain.Context
 ---@return table
 function storage.delete_depot(context)
     if global.depot[context.surface_name] == nil then

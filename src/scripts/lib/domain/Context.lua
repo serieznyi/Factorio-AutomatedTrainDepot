@@ -1,6 +1,6 @@
 local Train = require("Train")
 
---- @module lib.domain.Context
+--- @module scripts.lib.domain.Context
 local public = {
     ---@type LuaForce
     force = nil,
@@ -53,9 +53,9 @@ end
 ---@param player LuaPlayer
 ---@param surface_name string
 ---@param force_name string
----@return lib.domain.Context
+---@return scripts.lib.domain.Context
 function public.new(player, surface_name, force_name)
-    ---@type lib.domain.Context
+    ---@type scripts.lib.domain.Context
     local self = {}
     setmetatable(self, { __index = public })
 

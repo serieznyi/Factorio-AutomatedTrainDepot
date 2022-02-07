@@ -2,9 +2,9 @@ local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
 local mod_event = require("scripts.util.event")
-local Context = require("lib.domain.Context")
+local Context = require("scripts.lib.domain.Context")
 local TrainStationSelector = require("scripts.gui.component.train_station_selector.component")
-local DepotSettings = require("lib.domain.DepotSettings")
+local DepotSettings = require("scripts.lib.domain.DepotSettings")
 local persistence_storage = require("scripts.persistence_storage")
 local constants = require("scripts.gui.frame.settings.constants")
 local build_structure = require("scripts.gui.frame.settings.build_structure")
@@ -157,7 +157,7 @@ end
 
 ---@param player LuaPlayer
 ---@param refs table
----@param depot_settings lib.domain.DepotSettings
+---@param depot_settings scripts.lib.domain.DepotSettings
 function private.write_form(player, refs, depot_settings)
     refs.use_any_fuel_checkbox.state = depot_settings.use_any_fuel
 end

@@ -9,7 +9,7 @@ local private = {}
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
 
---- @module lib.domain.DepotSettings
+--- @module scripts.lib.domain.DepotSettings
 local DepotSettings = {
     ---@type bool
     use_any_fuel = false,
@@ -47,7 +47,7 @@ function DepotSettings.from_table(data)
     return settings
 end
 
----@param context lib.domain.Context
+---@param context scripts.lib.domain.Context
 function DepotSettings.from_context(context)
     local settings = DepotSettings.new()
 
@@ -57,9 +57,9 @@ function DepotSettings.from_context(context)
     return settings
 end
 
----@return lib.domain.DepotSettings
+---@return scripts.lib.domain.DepotSettings
 function DepotSettings.new()
-    ---@type lib.domain.DepotSettings
+    ---@type scripts.lib.domain.DepotSettings
     local self = {}
     setmetatable(self, { __index = DepotSettings })
 

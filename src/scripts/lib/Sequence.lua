@@ -1,4 +1,4 @@
---- @module lib.Sequence
+--- @module scripts.lib.Sequence
 local Sequence = {
     value = 1,
     on_next_callback = function(value)  end,
