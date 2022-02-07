@@ -6,16 +6,6 @@ local private = {}
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
----@param lua_train LuaTrain
----@return LuaEntity
-function private.get_any_carrier(lua_train)
-    local front_locomotive = lua_train.locomotives.front_movers[1]
-    local back_locomotive = lua_train.locomotives.back_movers[1]
-    local wagon = lua_train.cargo_wagons[1]
-
-    return front_locomotive or back_locomotive or wagon
-end
-
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
@@ -111,6 +101,16 @@ function Train.from_lua_train(lua_train)
     train:set_lua_train(lua_train)
 
     return train
+end
+
+---@param lua_train LuaTrain
+---@return LuaEntity
+function Train.get_any_carrier(lua_train)
+    local front_locomotive = lua_train.locomotives.front_movers[1]
+    local back_locomotive = lua_train.locomotives.back_movers[1]
+    local wagon = lua_train.cargo_wagons[1]
+
+    return front_locomotive or back_locomotive or wagon
 end
 
 ---@return lib.domain.Train

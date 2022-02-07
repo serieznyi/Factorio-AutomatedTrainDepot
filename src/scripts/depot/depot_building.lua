@@ -12,6 +12,45 @@ local SIGNAL_TYPE = {
 
 local private = {}
 local public = {}
+local storage = {}
+
+---------------------------------------------------------------------------
+-- -- -- STORAGE
+---------------------------------------------------------------------------
+
+function storage.init()
+    global.depot = {}
+end
+
+---@param context lib.domain.Context
+---@param depot table
+function storage.save_depot(context, depot)
+    if global.depot[context.surface_name] == nil then
+        global.depot[context.surface_name] = {}
+    end
+
+    global.depot[context.surface_name][context.force_name] = depot
+end
+
+---@param context lib.domain.Context
+---@return table
+function storage.get_depot(context)
+    if global.depot[context.surface_name] == nil then
+        return nil
+    end
+
+    return global.depot[context.surface_name][context.force_name]
+end
+
+---@param context lib.domain.Context
+---@return table
+function storage.delete_depot(context)
+    if global.depot[context.surface_name] == nil then
+        return
+    end
+
+    global.depot[context.surface_name][context.force_name] = nil
+end
 
 ---------------------------------------------------------------------------
 -- -- -- PRIVATE
@@ -81,42 +120,12 @@ function private.build_straight_rails_for_station(station_entity, railsCount)
     return rails
 end
 
----@param context lib.domain.Context
----@param depot table
-function private.save_depot(context, depot)
-    if global.depot[context.surface_name] == nil then
-        global.depot[context.surface_name] = {}
-    end
-
-    global.depot[context.surface_name][context.force_name] = depot
-end
-
----@param context lib.domain.Context
----@return table
-function private.get_depot(context)
-    if global.depot[context.surface_name] == nil then
-        return nil
-    end
-
-    return global.depot[context.surface_name][context.force_name]
-end
-
----@param context lib.domain.Context
----@return table
-function private.delete_depot(context)
-    if global.depot[context.surface_name] == nil then
-        return
-    end
-
-    global.depot[context.surface_name][context.force_name] = nil
-end
-
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
 
 function public.init()
-    global.depot = {}
+    storage.init()
 end
 
 ---@param entity LuaEntity
@@ -190,9 +199,8 @@ function public.build(player, entity)
     table.insert(dependent_entities, output_rail_signal)
 
     local context = Context.from_player(player)
-    private.save_depot(context, {
+    storage.save_depot(context, {
         depot_entity = entity,
-        surface_name = surface.name,
         dependent_entities = dependent_entities
     })
 
@@ -270,7 +278,7 @@ end
 ---@return void
 function public.destroy(player)
     local context = Context.from_player(player)
-    local depot = private.get_depot(context)
+    local depot = storage.get_depot(context)
 
     if depot == nil then
         return
@@ -282,7 +290,7 @@ function public.destroy(player)
 
     depot.depot_entity.destroy()
 
-    private.delete_depot(context)
+    storage.delete_depot(context)
 
     mod.log.debug('Depot on surface {1} for {2} was destroy', {context.surface_name, context.force_name})
 end

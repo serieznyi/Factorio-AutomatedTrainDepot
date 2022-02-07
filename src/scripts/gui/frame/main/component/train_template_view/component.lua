@@ -59,6 +59,15 @@ end
 ---------------------------------------------------------------------------
 
 ---@param player LuaPlayer
+---@return uint
+function private.get_train_id(player)
+    local refs = storage.refs(player)
+    local tags = flib_gui.get_tags(refs.component)
+
+    return tags.train_template_id
+end
+
+---@param player LuaPlayer
 ---@param train_template lib.domain.TrainTemplate
 function private.refresh_component(player, train_template)
     local refs = storage.refs(player)
@@ -66,8 +75,6 @@ function private.refresh_component(player, train_template)
     local container = refs.train_view
 
     container.clear()
-
-    mod.log.debug(mod.util.table.to_string(train_template))
 
     ---@param train_part lib.domain.TrainPart
     for _, train_part in pairs(train_template.train) do
@@ -79,16 +86,16 @@ function private.refresh_component(player, train_template)
         })
     end
 
+    refs.trains_quantity.text = tostring(train_template.trains_quantity)
+
     refs.enable_button.enabled = not train_template.enabled
     refs.disable_button.enabled = train_template.enabled
 end
 
 function private.handle_enable_train_template(e)
     local player = game.get_player(e.player_index)
-    local refs = storage.refs(player)
-    local tags = flib_gui.get_tags(refs.component)
-    local train_template_id = tags.train_template_id
-    local train_template = depot.enable_train_template(player, train_template_id)
+    local train_template_id = private.get_train_id(player)
+    local train_template = depot.enable_train_template(train_template_id)
 
     private.refresh_component(player, train_template)
 
@@ -97,10 +104,28 @@ end
 
 function private.handle_disable_train_template(e)
     local player = game.get_player(e.player_index)
-    local refs = storage.refs(player)
-    local tags = flib_gui.get_tags(refs.component)
-    local train_template_id = tags.train_template_id
-    local train_template = depot.disable_train_template(player, train_template_id)
+    local train_template_id = private.get_train_id(player)
+    local train_template = depot.disable_train_template(train_template_id)
+
+    private.refresh_component(player, train_template)
+
+    return true
+end
+
+function private.handle_increase_trains_quantity(e)
+    local player = game.get_player(e.player_index)
+    local train_template_id = private.get_train_id(player)
+    local train_template = depot.increase_trains_quantity(train_template_id)
+
+    private.refresh_component(player, train_template)
+
+    return true
+end
+
+function private.handle_decrease_trains_quantity(e)
+    local player = game.get_player(e.player_index)
+    local train_template_id = private.get_train_id(player)
+    local train_template = depot.decrease_trains_quantity(train_template_id)
 
     private.refresh_component(player, train_template)
 
@@ -145,6 +170,8 @@ function public.dispatch(event, action)
     local event_handlers = {
         { target = COMPONENT.NAME, action = mod.defines.gui.actions.enable_train_template, func = private.handle_enable_train_template },
         { target = COMPONENT.NAME, action = mod.defines.gui.actions.disable_train_template, func = private.handle_disable_train_template },
+        { target = COMPONENT.NAME, action = mod.defines.gui.actions.increase_trains_quantity, func = private.handle_increase_trains_quantity },
+        { target = COMPONENT.NAME, action = mod.defines.gui.actions.decrease_trains_quantity, func = private.handle_decrease_trains_quantity },
     }
 
     return mod_event.dispatch(event_handlers, event, action, COMPONENT.NAME)

@@ -296,7 +296,7 @@ function public.read_form(player)
     train_template.enabled = false
     train_template.clean_station = clean_train_station_dropdown_component:read_form()
     train_template.destination_station = destination_train_station_dropdown_component:read_form()
-    train_template.amount = 0
+    train_template.trains_quantity = 0
 
     return train_template
 end

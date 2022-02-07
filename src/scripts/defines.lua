@@ -1,14 +1,22 @@
 local defines = {}
 
+defines.task = {
+    construct = {
+        id = 1,
+        state = {
+
+        }
+    },
+}
+
+defines.on_nth_tick = {
+    persistence_storage_gc = 18000, -- every 5 minute
+    gui_pop_up = 1, -- every 1 second
+}
+
 defines.events = {
-    -- persistence
-    on_template_added_persistence_mod = script.generate_event_name(),
-    on_template_deleted_persistence_mod = script.generate_event_name(),
     -- other
     on_train_template_saved_mod = script.generate_event_name(),
-    -- gui events
-    on_gui_train_template_selected_mod = script.generate_event_name(),
-    on_gui_type_of_train_part_changed_mod = script.generate_event_name(),
 }
 
 defines.train_template = {
@@ -39,6 +47,8 @@ defines.gui = {
         delete_train_template = script.generate_event_name(),
         select_train_template = script.generate_event_name(),
         edit_train_template = script.generate_event_name(),
+        increase_trains_quantity = script.generate_event_name(),
+        decrease_trains_quantity = script.generate_event_name(),
         -- train gui
         delete_train_part = script.generate_event_name(),
         change_locomotive_direction = script.generate_event_name(),
@@ -64,7 +74,7 @@ defines.gui = {
 }
 
 defines.persistence = {
-    GARBAGE_TTL = 18000, -- every 5 minute
+    garbage_ttl = defines.on_nth_tick.persistence_storage_gc,
 }
 
 return defines

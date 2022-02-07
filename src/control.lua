@@ -105,6 +105,7 @@ flib_event.register(
 
 flib_event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
 
+-- todo remove it
 flib_event.register(mod.util.table.array_values(mod.defines.events), event_handler.pass_to_gui)
 
 ---------------------------------------------------------------------------
@@ -115,11 +116,12 @@ flib_gui.hook_events(event_handler.handle_gui_event)
 
 flib_event.register(defines.events.on_gui_opened, event_handler.open_gui)
 
+-- todo try bring to from inside frame
 -- todo регистрировать только если окно открыто
 flib_event.on_nth_tick(1, event_handler.bring_to_front_current_window)
 
 -- todo check performance
-flib_event.on_nth_tick(mod.defines.persistence.GARBAGE_TTL, persistence_storage.collect_garbage)
+flib_event.on_nth_tick(mod.defines.on_nth_tick.persistence_storage_gc, persistence_storage.collect_garbage)
 
 ---------------------------------------------------------------------------
 -- -- -- OTHER

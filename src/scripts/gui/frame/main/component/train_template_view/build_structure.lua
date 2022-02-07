@@ -7,7 +7,7 @@ local private = {}
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
----@param train_template atd.TrainTemplate
+---@param train_template lib.domain.TrainTemplate
 function private.build_train_template_name(train_template)
     local icon = mod_gui.image_for_item(train_template.icon)
 
@@ -18,7 +18,7 @@ end
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
 
----@param train_template atd.TrainTemplate
+---@param train_template lib.domain.TrainTemplate
 function public.get(train_template)
     local train_template_name = private.build_train_template_name(train_template)
 
@@ -69,6 +69,9 @@ function public.get(train_template)
                                 type = "button",
                                 style = "tool_button",
                                 caption = "-",
+                                actions = {
+                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.decrease_trains_quantity }
+                                },
                             },
                             {
                                 type = "textfield",
@@ -76,12 +79,16 @@ function public.get(train_template)
                                 lose_focus_on_confirm = true,
                                 allow_decimal = false,
                                 allow_negative = false,
-                                text = train_template.amount,
+                                text = train_template.trains_quantity,
+                                ref = {"trains_quantity"},
                             },
                             {
                                 type = "button",
                                 style = "tool_button",
                                 caption = "+",
+                                actions = {
+                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.increase_trains_quantity }
+                                },
                             },
                         }
                     },

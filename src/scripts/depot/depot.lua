@@ -2,6 +2,8 @@ local flib_train = require("__flib__.train")
 local flib_table = require("__flib__.table")
 
 local Train = require("lib.domain.Train")
+local Context = require("lib.domain.Context")
+local TrainConstructTask = require("lib.domain.TrainConstructTask")
 local persistence_storage = require("scripts.persistence_storage")
 local mod_game = require("scripts.util.game")
 
@@ -96,7 +98,8 @@ function public.load()
 
 end
 
-function public.enable_train_template(player, train_template_id)
+---@param train_template_id uint
+function public.enable_train_template(train_template_id)
     local train_template = persistence_storage.get_train_template(train_template_id)
 
     train_template.enabled = true
@@ -104,12 +107,39 @@ function public.enable_train_template(player, train_template_id)
     return persistence_storage.add_train_template(train_template)
 end
 
-function public.disable_train_template(player, train_template_id)
+function public.disable_train_template(train_template_id)
     local train_template = persistence_storage.get_train_template(train_template_id)
 
     train_template.enabled = false
 
     return persistence_storage.add_train_template(train_template)
+end
+
+function public.increase_trains_quantity(train_template_id)
+    local train_template = persistence_storage.get_train_template(train_template_id)
+    mod.log.debug(mod.util.table.to_string(train_template))
+    local context = Context.from_model(train_template)
+
+    train_template:increase_trains_quantity()
+
+    persistence_storage.add_train_template(train_template)
+
+    public.check_trains(context)
+
+    return train_template
+end
+
+function public.decrease_trains_quantity(train_template_id)
+    local train_template = persistence_storage.get_train_template(train_template_id)
+    local context = Context.from_model(train_template)
+
+    train_template:decrease_trains_quantity()
+
+    persistence_storage.add_train_template(train_template)
+
+    public.check_trains(context)
+
+    return train_template
 end
 
 ---@param train_id uint
@@ -141,6 +171,34 @@ end
 ---@param old_train_id_2 uint
 function public.register_train(lua_train, old_train_id_1, old_train_id_2)
     private.register_train(lua_train, old_train_id_1, old_train_id_2)
+
+    public.check_trains(Context.from_train(lua_train))
+end
+
+---@param context lib.domain.Context
+function public.check_trains(context)
+    local train_templates = persistence_storage.find_enabled_train_templates(context)
+
+    ---@param t lib.domain.TrainTemplate
+    for _, t in ipairs(train_templates) do
+        local trains = persistence_storage.find_controlled_trains_for_template(context, t.id)
+        local trains_tasks = persistence_storage.find_constructing_train_tasks_for_template(context, t.id)
+        local count = #trains + #trains_tasks
+        local diff = t.trains_quantity - count
+
+        game.get_player(1).print(t.name)
+        game.get_player(1).print("diff " .. diff)
+
+        if diff ~= 0 then
+            for _ = 1, diff do
+                local construct_task = TrainConstructTask.from_train_template(t)
+
+                persistence_storage.add_train_task(construct_task)
+
+                mod.log.debug("Add new construct task for {1}", {t.name}, "depot")
+            end
+        end
+    end
 end
 
 return public

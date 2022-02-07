@@ -17,7 +17,7 @@ local TrainTemplate = {
     ---@type bool
     enabled = nil,
     ---@type uint
-    amount = nil,
+    trains_quantity = nil,
     ---@type string
     clean_station = nil,
     ---@type string
@@ -40,12 +40,24 @@ function TrainTemplate:to_table()
             return train_part:to_table()
         end),
         enabled = self.enabled,
-        amount = self.amount,
+        trains_quantity = self.trains_quantity,
         force_name = self.force_name,
         surface_name = self.surface_name,
         clean_station = self.clean_station,
         destination_station = self.destination_station,
     }
+end
+
+function TrainTemplate:increase_trains_quantity()
+    self.trains_quantity = self.trains_quantity + 1
+end
+
+function TrainTemplate:decrease_trains_quantity()
+    if self.trains_quantity == 0 then
+        return
+    end
+
+    self.trains_quantity = self.trains_quantity - 1
 end
 
 ---@param data table
@@ -60,7 +72,7 @@ function TrainTemplate.from_table(data)
         return TrainPart.from_table(train_part)
     end)
     object.enabled = data.enabled
-    object.amount = data.amount
+    object.trains_quantity = data.trains_quantity
     object.force_name = data.force_name
     object.surface_name = data.surface_name
     object.clean_station = data.clean_station

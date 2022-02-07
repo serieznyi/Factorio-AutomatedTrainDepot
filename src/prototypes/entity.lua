@@ -21,10 +21,19 @@ local automated_train_depot_building_train_stop_output = table.deepcopy(data.raw
 automated_train_depot_building_train_stop_output.name = entity.depot_building_train_stop_output.name
 --automated_train_depot_building_output.flags = {"hidden"} TODO make hidden
 
+local depot_train_driver = table.deepcopy(data.raw["character"]["character"])
+depot_train_driver.name = "depot-train-driver"
+depot_train_driver.collision_mask = { "ghost-layer"}
+
+local depot_locomotive = table.deepcopy(data.raw["train"]["locomotive"])
+depot_locomotive.name = "depot-locomotive"
+depot_locomotive.collision_mask = { "ghost-layer"}
+
 data:extend({
     automated_train_depot_building,
     automated_train_depot_building_input,
     automated_train_depot_building_output,
     automated_train_depot_building_train_stop_input,
     automated_train_depot_building_train_stop_output,
+    depot_train_driver,
 })

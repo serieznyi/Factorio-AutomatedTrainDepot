@@ -39,8 +39,6 @@ end
 function validator.render_errors(container, errors)
     container.clear()
 
-    mod.log.debug(mod.util.table.to_string(errors))
-
     for _, error in ipairs(errors) do
         container.add{
             type="label",

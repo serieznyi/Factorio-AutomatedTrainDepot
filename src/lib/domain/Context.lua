@@ -1,3 +1,5 @@
+local Train = require("Train")
+
 --- @module lib.domain.Context
 local public = {
     ---@type LuaForce
@@ -17,9 +19,18 @@ end
 ---@param lua_entity LuaEntity
 function public.from_entity(lua_entity)
     return public.new(
-            lua_entity.player,
-            player.surface,
-            player.force
+            nil,
+            lua_entity.surface.name,
+            lua_entity.force.name
+    )
+end
+
+---@param entity table
+function public.from_model(entity)
+    return public.new(
+            nil,
+            entity.surface_name,
+            entity.force_name
     )
 end
 
@@ -27,26 +38,33 @@ end
 function public.from_player(player)
     return public.new(
         player,
-        player.surface,
-        player.force
+        player.surface.name,
+        player.force.name
     )
 end
 
+---@param lua_train LuaTrain
+function public.from_train(lua_train)
+    local carrier = Train.get_any_carrier(lua_train)
+
+    return public.from_entity(carrier)
+end
+
 ---@param player LuaPlayer
----@param lua_surface LuaSurface
----@param lua_force LuaForce
+---@param surface_name string
+---@param force_name string
 ---@return lib.domain.Context
-function public.new(player, lua_surface, lua_force)
+function public.new(player, surface_name, force_name)
     ---@type lib.domain.Context
     local self = {}
     setmetatable(self, { __index = public })
 
     self.player_index = player ~= nil and player.index or nil
 
-    self.surface_name = lua_surface ~= nil and lua_surface.name or nil
+    self.surface_name = surface_name ~= nil and surface_name or nil
     assert(self.surface_name, "surface_name is nil")
 
-    self.force_name = lua_force ~= nil and lua_force.name or nil
+    self.force_name = force_name ~= nil and force_name or nil
     assert(self.force_name, "force_name is nil")
 
     return self
