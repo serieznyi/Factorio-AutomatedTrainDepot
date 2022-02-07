@@ -114,13 +114,9 @@ end
 
 function public.disable_train_template(train_template_id)
     local train_template = persistence_storage.get_train_template(train_template_id)
-    local context = Context.from_model(train_template)
-
     train_template.enabled = false
 
     train_template = persistence_storage.add_train_template(train_template)
-
-    public.check_trains(context)
 
     return train_template
 end
@@ -133,7 +129,9 @@ function public.increase_trains_quantity(train_template_id)
 
     persistence_storage.add_train_template(train_template)
 
-    public.check_trains(context)
+    if train_template.enabled then
+        public.check_trains(context)
+    end
 
     return train_template
 end
@@ -146,7 +144,9 @@ function public.decrease_trains_quantity(train_template_id)
 
     persistence_storage.add_train_template(train_template)
 
-    public.check_trains(context)
+    if train_template.enabled then
+        public.check_trains(context)
+    end
 
     return train_template
 end
