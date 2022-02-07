@@ -23,9 +23,20 @@ local public = {
     force_name = nil,
     ---@type string
     surface_name = nil,
+    ---@type uint
+    start_constructing_at = nil
 }
+local private = {}
 
 public.defines = constants
+
+---------------------------------------------------------------------------
+-- -- -- PRIVATE
+---------------------------------------------------------------------------
+
+---------------------------------------------------------------------------
+-- -- -- PUBLIC
+---------------------------------------------------------------------------
 
 ---@return table
 function public:to_table()
@@ -40,6 +51,13 @@ end
 ---@return table
 function public:delete()
     self.deleted = true
+end
+
+---@return table
+function public:state_constructing()
+    assert(self.state == constants.state.created or self.state ==constants.state.paused, "wrong state")
+
+    self.start_constructing_at = game.tick
 end
 
 ---@param data table
