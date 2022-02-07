@@ -25,7 +25,7 @@ local depot_train_driver = table.deepcopy(data.raw["character"]["character"])
 depot_train_driver.name = "depot-train-driver"
 depot_train_driver.collision_mask = { "ghost-layer"}
 
-local depot_locomotive = table.deepcopy(data.raw["train"]["locomotive"])
+local depot_locomotive = table.deepcopy(data.raw["locomotive"]["locomotive"])
 depot_locomotive.name = "depot-locomotive"
 depot_locomotive.collision_mask = { "ghost-layer"}
 

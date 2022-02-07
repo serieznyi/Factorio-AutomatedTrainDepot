@@ -12,7 +12,6 @@ Download: https://mods.factorio.com/mods/serieznyi/AutomatedTrainDepo
 
 ## Other
 - [Lua Code Style](https://github.com/luarocks/lua-style-guide)
-- [Structure of project](docs/project-structure.md)
 - Useful links
     - [Factorio API](https://lua-api.factorio.com/latest/index.html)
     - [FLib API](https://factoriolib.github.io/flib/index.html)
