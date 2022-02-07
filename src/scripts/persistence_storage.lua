@@ -57,21 +57,16 @@ end
 
 ---@param tick uint
 function gc.collect_garbage(tick)
+    local names = {"trains", "train_template", "trains_in_queue"}
+
     gc.init({"trains", "train_template"})
 
-    -- trains
-    for i, v in pairs(global.trains) do
-        if gc.is_expired(v, tick) then
-            global.trains[i] = nil
-            gc.increase("trains")
-        end
-    end
-
-    -- train templates
-    for i, v in pairs(global.trains_templates) do
-        if gc.is_expired(v, tick) then
-            global.trains_templates[i] = nil
-            gc.increase("trains_templates")
+    for _, name in ipairs(names) do
+        for i, v in pairs(global[name]) do
+            if gc.is_expired(v, tick) then
+                global[name][i] = nil
+                gc.increase(name)
+            end
         end
     end
 
