@@ -39,19 +39,6 @@ end
 function event.dispatch(handlers, event_arg, event_data, mediator_name)
     local processed = false
     local event_name = event.event_name(event_arg.name)
-    local event_data_action_name = event_data.action and mod_gui.action_name(event_data.action) or nil
-    local event_data_event_name = event_data.event and event.event_name(event_data.event) or nil
-
-    -- todo remove later
-    mod.log.debug(
-            "Caught event `{1} ({2}:{3})`",
-            {
-                event_name,
-                event_data.target ~= nil and event_data.target or "none",
-                event_data_action_name ~= nil and event_data_action_name or (event_data_event_name ~= nil and event_data_event_name or "none"),
-            },
-            "event.dispatcher:" .. mediator_name
-    )
 
     for _, h in ipairs(handlers) do
         if event_data.target == h.target then
