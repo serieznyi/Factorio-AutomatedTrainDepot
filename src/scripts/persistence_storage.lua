@@ -1,6 +1,8 @@
 local flib_table = require("__flib__.table")
 
 local Train = require("scripts.lib.domain.Train")
+local TrainConstructTask = require("scripts.lib.domain.TrainConstructTask")
+local TrainDeconstructTask = require("scripts.lib.domain.TrainDeconstructTask")
 local DepotSettings = require("scripts.lib.domain.DepotSettings")
 local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Sequence = require("scripts.lib.Sequence")
@@ -108,6 +110,25 @@ function private.find_trains(context, uncontrolled, train_template_id)
     end, true)
 
     return flib_table.map(trains, Train.from_table)
+end
+
+---@param context scripts.lib.domain.Context
+---@param type string
+---@param train_template_id uint
+---@param state string
+function private.find_trains_tasks(context, type, train_template_id, state)
+    assert(context, "context is nil")
+    assert(type, "type is nil")
+
+    local rows = flib_table.filter(global.trains_tasks, function(v)
+        return v.deleted == false and
+                v.type == type and
+                context:is_same(v.surface_name, v.force_name) and
+                (train_template_id ~= nil and v.train_template_id == train_template_id or true) and
+                (state ~= nil and v.state == state or true)
+    end, true)
+
+    return rows
 end
 
 ---------------------------------------------------------------------------
@@ -226,17 +247,60 @@ end
 
 ---@param context scripts.lib.domain.Context
 function public.find_constructing_train_tasks_for_template(context, train_template_id, state)
-    assert(context, "context is nil")
-    assert(train_template_id, "train_template_id is nil")
+    local rows = private.find_trains_tasks(
+            context,
+            TrainConstructTask.defines.type,
+            train_template_id,
+            state
+    )
 
-    local trains = flib_table.filter(global.trains_tasks, function(v)
+    return flib_table.map(rows, TrainConstructTask.from_table)
+end
+
+---@return uint
+function public.count_active_trains_tasks()
+    local tasks = flib_table.filter(global.trains_tasks, function(v)
         return v.deleted == false and
-                context:is_same(v.surface_name, v.force_name) and
-                (train_template_id ~= nil and v.train_template_id == train_template_id or true) and
-                (state ~= nil and v.state == state or true)
+                (
+                    (v.type == TrainConstructTask.defines.type and v.state ~= TrainConstructTask.defines.state.done) or
+                    (v.type == TrainDeconstructTask.defines.type and v.state ~= TrainDeconstructTask.defines.state.done)
+                )
     end, true)
 
-    return flib_table.map(trains, Train.from_table)
+    return #tasks
+end
+
+---@return uint
+function public.find_grouped_new_forming_train_tasks()
+    local tasks = flib_table.filter(global.trains_tasks, function(v)
+        return v.deleted == false and
+               v.type == TrainConstructTask.defines.type and
+               v.state ~= TrainConstructTask.defines.state.created
+    end, true)
+
+    local result = {}
+
+    ---@param task scripts.lib.domain.TrainConstructTask
+    for _, task in ipairs(tasks) do
+        if result[task.surface_name] == nil then
+            result[task.surface_name] = {}
+        end
+
+        if result[task.surface_name][task.force_name] == nil then
+            result[task.surface_name][task.force_name] = {}
+        end
+
+        if result[task.surface_name][task.force_name][task.train_template_id] == nil then
+            result[task.surface_name][task.force_name][task.train_template_id] = {}
+        end
+
+        table.insert(
+                result[task.surface_name][task.force_name][task.train_template_id],
+                TrainConstructTask.from_table(task)
+        )
+    end
+
+    return result
 end
 
 -- -- -- TRAIN

@@ -11,7 +11,8 @@ defines.task = {
 
 defines.on_nth_tick = {
     persistence_storage_gc = 18000, -- every 5 minute
-    gui_pop_up = 1, -- every 1 second
+    gui_pop_up = 1, -- every tick
+    tasks_processor = 5, -- every 5 ticks
 }
 
 defines.events = {

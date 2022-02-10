@@ -86,6 +86,152 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
     end
 end
 
+function private.get_forming_slots_count()
+    return 2 -- todo depend from technologies
+end
+
+function private.get_disband_slots_count()
+    return 1 -- todo depend from technologies
+end
+
+---@param task scripts.lib.domain.TrainConstructTask
+---@param tick uint
+function private.try_build_train(task, tick)
+    local context = Context.from_model(task)
+    local depot_station_output = remote.call("atd", "depot_get_output_station", context)
+    local force = game.forces[task.force_name]
+    local surface = game.surfaces[task.surface_name]
+
+    task:state_start()
+
+    persistence_storage.add_train_task(task)
+
+    local rotate_relative_position = {
+        [defines.direction.north] = function(x, y)
+            return x, y
+        end,
+        [defines.direction.east] = function(x, y)
+            return y * -1, x
+        end,
+        [defines.direction.south] = function(x, y)
+            return x * -1, y * -1
+        end,
+        [defines.direction.west] = function(x, y)
+            return y, x * -1
+        end,
+    }
+
+    local opposite = {
+        [defines.direction.north] = defines.direction.south,
+        [defines.direction.east] = defines.direction.west,
+        [defines.direction.south] = defines.direction.north,
+        [defines.direction.west] = defines.direction.east,
+    }
+
+    local station_entity = depot_station_output
+    local x_train, y_train = rotate_relative_position[station_entity.direction](-2, 3)
+    local train_position = {
+        x = station_entity.position.x + x_train,
+        y = station_entity.position.y + y_train,
+    }
+    --local direction = opposite[station_entity.direction]
+    local direction = station_entity.direction
+
+    local entity_data = {
+        name = "locomotive",
+        position = train_position,
+        direction = direction,
+        force = force,
+    };
+
+    if surface.can_place_entity(entity_data) then
+        local locomotive = surface.create_entity(entity_data)
+
+        local inventory = locomotive.get_inventory(defines.inventory.fuel)
+
+        inventory.insert({
+            name = "coal",
+            count = 10,
+        })
+
+        local driver = surface.create_entity({
+            name = "depot-train-driver",
+            position = train_position,
+            force = force,
+        })
+        locomotive.set_driver(driver)
+
+        driver.riding_state = {
+            acceleration = defines.riding.acceleration.accelerating,
+            direction = defines.riding.direction.straight,
+        }
+    else
+        player.print("cant place locomotive")
+    end
+end
+
+function private.get_depot_multiplier()
+    return 1.0 -- todo depended from technologies
+end
+
+---@param task scripts.lib.domain.TrainConstructTask
+function private.discard_task(task)
+    --todo
+end
+
+---@param task scripts.lib.domain.TrainConstructTask
+---@param tick uint
+function private.process_task(task, tick)
+    local multiplier = private.get_depot_multiplier()
+
+    if task:is_state_paused() or task:is_state_done() then
+        return
+    end
+
+    if task:is_state_created() then
+        local train_template = persistence_storage.get_train_template(task.train_template_id)
+
+        task:start_forming_train(tick, multiplier, train_template)
+    end
+
+    task:progress_step()
+
+    if task:is_progress_done() then
+        task:state_done()
+    end
+
+    mod.log.debug(mod.util.table.to_string(task))
+
+    --persistence_storage.add_train_task(task)
+end
+
+---@param data NthTickEventData
+function private.process_queue(data)
+    local tick = data.tick
+    local forming_slots_count = private.get_forming_slots_count()
+    local tasks = persistence_storage.find_grouped_new_forming_train_tasks()
+
+    for _, surface_tasks in pairs(tasks) do
+        for _, force_tasks in pairs(surface_tasks) do
+            for _, template_tasks in ipairs(force_tasks) do
+                ---@param task scripts.lib.domain.TrainConstructTask
+                for _, task in ipairs(template_tasks) do
+                    private.process_task(task, tick)
+                end
+            end
+        end
+    end
+
+    if #tasks == 0 then
+        script.on_nth_tick(mod.defines.on_nth_tick.tasks_processor, nil)
+    end
+end
+
+---@param train_template scripts.lib.domain.TrainTemplate
+function private.try_add_train_task_for_template(train_template)
+
+end
+
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
@@ -209,14 +355,15 @@ function public.synchronize_trains_count(context)
             end
 
             if count_for_delete > 0 then
-                -- todo delete train
+                -- todo delete train task
                 mod.log.debug("want delete train")
             end
         end
     end
 
-    mod.log.debug(mod.util.table.to_string(global.trains_templates))
-    mod.log.debug(mod.util.table.to_string(global.trains_tasks))
+    if persistence_storage.count_active_trains_tasks() > 0 then
+        script.on_nth_tick(5, private.process_queue)
+    end
 end
 
 return public

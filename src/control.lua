@@ -13,11 +13,39 @@ local console = require("scripts.console")
 local persistence_storage = require("scripts.persistence_storage")
 
 ---------------------------------------------------------------------------
+-- -- -- INTERFACES
+---------------------------------------------------------------------------
+
+remote.add_interface('atd', {
+    depot_get_output_station = depot.get_depot_output_station
+})
+
+---------------------------------------------------------------------------
 -- -- -- CONSOLE COMMANDS
 ---------------------------------------------------------------------------
 
 commands.add_command("atd-register-trains", {"command.atd-register-trains-help"}, function(_)
     depot.register_trains()
+end)
+
+---@param command CustomCommandData
+commands.add_command("atd-global-print", nil, function(command)
+    local player = game.get_player(command.player_index)
+    local data = global[command.parameter]
+
+    player.print(mod.util.table.to_string(data))
+end)
+
+---@param command CustomCommandData
+commands.add_command("atd-global-keys", nil, function(command)
+    local player = game.get_player(command.player_index)
+    local keys = {}
+
+    for i, _ in pairs(global) do
+        table.insert(keys, i)
+    end
+
+    player.print(mod.util.table.to_string(keys))
 end)
 
 

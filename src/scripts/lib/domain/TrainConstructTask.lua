@@ -4,10 +4,9 @@ local constants = {
     type = "construct",
     state = {
         created = "created", -- from(nil)
-        wait = "wait", -- from(1)
-        constructing = "constructing", -- from(1, 2, 5)
-        done = "done", -- from(3)
-        paused = "paused", -- from(3)
+        forming = "forming", -- from(created, paused)
+        deploying = "deploying", -- from(constructing)
+        done = "done", -- from(deploying)
     }
 }
 
@@ -24,7 +23,11 @@ local public = {
     ---@type string
     surface_name = nil,
     ---@type uint
-    start_constructing_at = nil
+    start_forming_at = nil,
+    ---@type uint
+    train_template_id = nil,
+    ---@type scripts.lib.domain.TrainTemplate snapshot of train template
+    train_template = nil,
 }
 local private = {}
 
@@ -57,25 +60,62 @@ function public:delete()
 end
 
 ---@param tick uint
+---@param multiplier double
+---@param train_template scripts.lib.domain.TrainTemplate
 ---@return table
-function public:state_constructing(tick)
+function public:start_forming_train(tick, multiplier, train_template)
     assert(tick, "tick is nil")
 
     assert(self.state == constants.state.created or self.state == constants.state.paused, "wrong state")
 
-    self.start_constructing_at = tick
+    self.start_forming_at = tick
+
+    local forming_time = train_template:get_forming_time()
+
+    self.progress_ticks = 0 -- todo calc from recipies
+end
+
+function public:progress_step()
+
+end
+
+function public:is_progress_done()
+    return false
+end
+
+---@return bool
+function public:is_state_created()
+    return self.state == constants.state.created
+end
+
+---@return bool
+function public:is_state_done()
+    return self.state == constants.state.done
+end
+
+---@return bool
+function public:is_state_paused()
+    return self.state == constants.state.paused
+end
+
+---@return bool
+function public:is_state_constructing()
+    return self.state == constants.state.forming
+end
+
+---@return bool
+function public:is_state_deploying()
+    return self.state == constants.state.deploying
 end
 
 ---@param data table
 ---@return scripts.lib.domain.TrainConstructTask
 function public.from_table(data)
-    local object = public.new()
+    local object = public.new(data.surface_name, data.force_name)
 
     object.id = data.id
     object.type = data.type
     object.train_template_id = data.train_template_id
-    object.force_name = data.force_name
-    object.surface_name = data.surface_name
     object.state = data.state
     object.deleted = data.deleted
 

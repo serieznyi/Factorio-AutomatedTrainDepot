@@ -13,7 +13,8 @@ local TrainTemplate = {
     icon = nil,
     ---@type table
     train_color = {255, 255, 255},
-    ---@type table
+    ---@type table array of train parts
+    ---@see scripts.lib.domain.TrainPart
     train = nil,
     ---@type bool
     enabled = nil,
@@ -48,6 +49,18 @@ end
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
+
+---@return uint train forming time in seconds (without multiplier)
+function TrainTemplate:get_forming_time()
+    local time = 0
+
+    ---@param part scripts.lib.domain.TrainPart
+    for _, part in ipairs(self.train) do
+        time = time + part:get_forming_time()
+    end
+
+    return time
+end
 
 ---@return table
 function TrainTemplate:to_table()

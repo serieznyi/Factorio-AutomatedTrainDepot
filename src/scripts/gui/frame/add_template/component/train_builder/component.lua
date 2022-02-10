@@ -283,7 +283,7 @@ end
 
 ---@param train_part scripts.lib.domain.TrainPart
 function private.write_form(player, refs, train_part)
-    refs.part_chooser.elem_value = train_part.item_name
+    refs.part_chooser.elem_value = train_part.prototype_name
 
     if train_part.type == TrainPart.TYPE.LOCOMOTIVE then
         local train_part_id = private.get_train_part_id(refs.part_chooser)
