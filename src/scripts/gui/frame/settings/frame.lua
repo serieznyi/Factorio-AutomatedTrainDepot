@@ -53,7 +53,7 @@ end
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_form_changed(event)
     local player = game.get_player(event.player_index)
 
@@ -74,7 +74,7 @@ function private.update_form(player)
     return true
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_save_form(event)
     local player = game.get_player(event.player_index)
     local form_data = private.read_form(player)
@@ -89,7 +89,7 @@ function private.handle_save_form(event)
     return true
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_open_frame(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
@@ -107,7 +107,7 @@ function private.handle_open_frame(event)
     return true
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_frame_destroy(event)
     local player = game.get_player(event.player_index)
 
@@ -241,17 +241,28 @@ end
 function public.load()
 end
 
----@param action table
----@param event EventData
-function public.dispatch(event, action)
+---@param event scripts.lib.decorator.Event
+function public.dispatch(event)
     local handlers = {
-        { target = FRAME.NAME, action = mod.defines.gui.actions.open_frame,             func = private.handle_open_frame },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form,             func = private.handle_form_changed },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame,            func = private.handle_frame_destroy },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.save_form,              func = private.handle_save_form },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.open_frame),
+            func = private.handle_open_frame
+        },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.touch_form),
+            func = private.handle_form_changed
+        },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.close_frame),
+            func = private.handle_frame_destroy
+        },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.save_form),
+            func = private.handle_save_form
+        },
     }
 
-    return event_dispatcher.dispatch(handlers, event, action, FRAME.NAME)
+    return event_dispatcher.dispatch(handlers, event,  FRAME.NAME)
 end
 
 return public

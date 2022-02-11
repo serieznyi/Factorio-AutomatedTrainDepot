@@ -66,10 +66,10 @@ function private.get_train_id(player)
     return tags.train_template_id
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 ---@return uint
 function private.get_train_quantity_change_value(event)
-    local action = flib_gui.read_action(event)
+    local action = flib_gui.read_action(event.original_event)
 
     return action.count
 end
@@ -162,16 +162,24 @@ function public.create(container, player, train_template)
     private.refresh_component(player, train_template)
 end
 
----@param action table
----@param event EventData
-function public.dispatch(event, action)
+---@param event scripts.lib.decorator.Event
+function public.dispatch(event)
     local event_handlers = {
-        { target = COMPONENT.NAME, action = mod.defines.gui.actions.enable_train_template,  func = private.handle_enable_train_template },
-        { target = COMPONENT.NAME, action = mod.defines.gui.actions.disable_train_template, func = private.handle_disable_train_template },
-        { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_trains_quantity, func = private.handle_change_trains_quantity },
+        {
+            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.enable_train_template),
+            func = private.handle_enable_train_template
+        },
+        {
+            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.disable_train_template),
+            func = private.handle_disable_train_template
+        },
+        {
+            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.change_trains_quantity),
+            func = private.handle_change_trains_quantity
+        },
     }
 
-    return event_dispatcher.dispatch(event_handlers, event, action, COMPONENT.NAME)
+    return event_dispatcher.dispatch(event_handlers, event, COMPONENT.NAME)
 end
 
 return public

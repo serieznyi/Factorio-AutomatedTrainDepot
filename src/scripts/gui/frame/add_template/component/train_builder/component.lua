@@ -77,21 +77,21 @@ end
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_update_train_part(event)
     local player = game.get_player(event.player_index)
-    local train_part_id = private.get_train_part_id(event.element)
+    local train_part_id = private.get_train_part_id(event.gui_element)
 
     private.update_train_part(player, train_part_id)
 
     return true
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_delete_train_part(event)
     local player = game.get_player(event.player_index)
     ---@type int
-    local train_part_id = private.get_train_part_id(event.element)
+    local train_part_id = private.get_train_part_id(event.gui_element)
     local train_part = storage.get_train_part(player, train_part_id)
 
     train_part.refs.element.destroy()
@@ -100,11 +100,11 @@ function private.handle_delete_train_part(event)
     return true
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_add_new_train_part(event)
     local player = game.get_player(event.player_index)
     ---@type LuaGuiElement
-    local item_chooser = event.element
+    local item_chooser = event.gui_element
     ---@type LuaGuiElement
     local container = storage.get_container(player)
 
@@ -115,11 +115,11 @@ function private.handle_add_new_train_part(event)
     return true
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_change_locomotive_direction(event)
     local player = game.get_player(event.player_index)
-    local tags = flib_gui.get_tags(event.element)
-    local train_part_id = private.get_train_part_id(event.element)
+    local tags = flib_gui.get_tags(event.gui_element)
+    local train_part_id = private.get_train_part_id(event.gui_element)
     local direction = tags.direction == mod.defines.train.direction.right and mod.defines.train.direction.left or mod.defines.train.direction.right
 
     private.set_locomotive_direction(train_part_id, player, direction)
@@ -317,20 +317,31 @@ function public.name()
     return COMPONENT.NAME
 end
 
----@param action table
----@param event EventData
-function public.dispatch(event, action)
+---@param event scripts.lib.decorator.Event
+function public.dispatch(event)
     local event_handlers = {
-        { target = COMPONENT.NAME, action = mod.defines.gui.actions.refresh_train_part,             func = private.handle_add_new_train_part },
-        { target = COMPONENT.NAME, action = mod.defines.gui.actions.refresh_train_part,             func = private.handle_update_train_part },
-        { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_locomotive_direction,    func = private.handle_change_locomotive_direction },
-        { target = COMPONENT.NAME, action = mod.defines.gui.actions.delete_train_part,              func = private.handle_delete_train_part },
+        {
+            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.refresh_train_part),
+            func = private.handle_add_new_train_part
+        },
+        {
+            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.refresh_train_part),
+            func = private.handle_update_train_part
+        },
+        {
+            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.change_locomotive_direction),
+            func = private.handle_change_locomotive_direction
+        },
+        {
+            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.delete_train_part),
+            func = private.handle_delete_train_part
+        },
     }
 
-    local processed = event_dispatcher.dispatch(event_handlers, event, action, COMPONENT.NAME)
+    local processed = event_dispatcher.dispatch(event_handlers, event, COMPONENT.NAME)
 
     if processed then
-        on_changed_callback(event)
+        on_changed_callback(event) -- todo use event ?
     end
 
     return processed

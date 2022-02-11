@@ -1,7 +1,5 @@
 local flib_gui = require("__flib__.gui")
 
-local event_dispatcher = require("scripts.util.event_dispatcher")
-
 local manager = {}
 
 local FRAME_MODULES = {
@@ -25,23 +23,6 @@ local function is_mod_frame(element)
     return false
 end
 
----@param event_arg EventData
-local function read_event_data(event_arg)
-    local event_data = flib_gui.read_action(event_arg)
-
-    if event_data == nil then
-        event_data = {}
-    end
-
-    event_data.name = event_dispatcher.event_name(event_arg.name)
-
-    if event_data.target == nil then
-        event_data.target = event_arg.target
-    end
-
-    return event_data
-end
-
 ---@param element LuaGuiElement
 local function get_element_mod_frame(element)
     if element.type == "frame" and is_mod_frame(element) then
@@ -55,13 +36,13 @@ local function get_element_mod_frame(element)
     return get_element_mod_frame(element.parent)
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 local function is_event_blocked(event)
-    if not event_dispatcher.is_gui_event(event) then
+    if not event:is_gui_event() then
         return false
     end
 
-    local element = event.element
+    local element = event.gui_element
     local element_frame = get_element_mod_frame(element)
 
     if element_frame == nil then
@@ -74,8 +55,8 @@ local function is_event_blocked(event)
         mod.log.debug(
                 "Event `{1}` for gui element `{2}` is blocked",
                 {
-                    event_dispatcher.event_name(event.name),
-                    event.element.name
+                    event:name(),
+                    element.name
                 }
         )
 
@@ -120,22 +101,21 @@ function manager.clean(player)
     end
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function manager.dispatch(event)
     local processed = false
-    local event_data = read_event_data(event)
 
     -- todo frame move not blocked
     if is_event_blocked(event) then
         return true
     end
 
-    if event_data == {} then
+    if not event:is_gui_event() then
         return false
     end
 
     for _, module in ipairs(FRAME_MODULES) do
-        if module.dispatch(event, event_data) then
+        if module.dispatch(event) then
             processed = true
         end
     end

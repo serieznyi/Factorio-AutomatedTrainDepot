@@ -56,7 +56,7 @@ end
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_update_gui(event)
     local player = game.get_player(event.player_index)
 
@@ -65,6 +65,7 @@ function private.handle_update_gui(event)
     return true
 end
 
+---@param event scripts.lib.decorator.Event
 function private.handle_open_uncontrolled_trains_view(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
@@ -75,12 +76,12 @@ function private.handle_open_uncontrolled_trains_view(event)
     trains_view_component.create(refs.content_frame, player, trains)
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_select_train_template(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
 
-    private.mark_selected_train_template_button(event.element, refs)
+    private.mark_selected_train_template_button(event.gui_element, refs)
 
     local train_template_id = private.get_selected_train_template_id(player)
     local train_template = persistence_storage.get_train_template(train_template_id)
@@ -94,7 +95,7 @@ function private.handle_select_train_template(event)
     return true
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_delete_train_template(event)
     local player = game.get_player(event.player_index)
     local selected_train_template_element = private.get_selected_train_template_element(player)
@@ -112,7 +113,7 @@ function private.handle_delete_train_template(event)
     return true
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_close_frame(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
@@ -283,20 +284,36 @@ function public.open(player)
     player.opened = window
 end
 
----@param action table
----@param event EventData
-function public.dispatch(event, action)
+---@param event scripts.lib.decorator.Event
+function public.dispatch(event)
     local handlers = {
-        { target = train_template_view_component.name(), action = mod.defines.gui.actions.any, func = train_template_view_component.dispatch },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame, func = private.handle_close_frame },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.select_train_template, func = private.handle_select_train_template },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.open_uncontrolled_trains_view, func = private.handle_open_uncontrolled_trains_view },
-        { target = FRAME.NAME, action = mod.defines.gui.actions.delete_train_template, func = private.handle_delete_train_template },
-        -- todo
-        { target = FRAME.NAME, event = mod.defines.events.on_train_template_saved_mod, func = private.handle_update_gui },
+        {
+            match = event_dispatcher.match_target(train_template_view_component.name()),
+            func = train_template_view_component.dispatch
+        },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.close_frame),
+            func = private.handle_close_frame
+        },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.select_train_template),
+            func = private.handle_select_train_template
+        },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.open_uncontrolled_trains_view),
+            func = private.handle_open_uncontrolled_trains_view
+        },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.delete_train_template),
+            func = private.handle_delete_train_template
+        },
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_train_template_saved_mod),
+            func = private.handle_update_gui,
+        },
     }
 
-    return event_dispatcher.dispatch(handlers, event, action, FRAME.NAME)
+    return event_dispatcher.dispatch(handlers, event, FRAME.NAME)
 end
 
 return public

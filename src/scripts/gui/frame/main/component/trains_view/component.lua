@@ -115,14 +115,13 @@ function public.create(container, player, trains)
     private.refresh_component(player, trains)
 end
 
----@param action table
----@param event EventData
-function public.dispatch(event, action)
+---@param event scripts.lib.decorator.Event
+function public.dispatch(event)
     local event_handlers = {
-        --{ target = COMPONENT.NAME, action = mod.defines.gui.actions.enable_train_template, func = private.handle_enable_train_template },
+
     }
 
-    return event_dispatcher.dispatch(event_handlers, event, action, COMPONENT.NAME)
+    return event_dispatcher.dispatch(event_handlers, event, COMPONENT.NAME)
 end
 
 return public

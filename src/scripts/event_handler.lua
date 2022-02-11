@@ -5,6 +5,7 @@ local depot = require("scripts.depot.depot")
 local gui_main_frame = require("scripts.gui.frame.main.frame")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
+local Event = require("scripts.lib.decorator.Event")
 
 local private = {}
 local public = {}
@@ -65,7 +66,7 @@ end
 
 ---@param event EventData
 function public.handle_gui_event(event)
-    return gui_manager.dispatch(event)
+    return gui_manager.dispatch(Event.new(event))
 end
 
 ---@param event EventData
@@ -94,7 +95,7 @@ end
 
 ---@param event EventData
 function public.pass_to_gui(event)
-    gui_manager.dispatch(event)
+    gui_manager.dispatch(Event.new(event))
 end
 
 -----@param event EventData

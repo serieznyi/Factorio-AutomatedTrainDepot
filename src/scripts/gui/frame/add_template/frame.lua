@@ -57,11 +57,11 @@ end
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_frame_open(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
-    local tags = flib_gui.get_tags(event.element)
+    local tags = flib_gui.get_tags(event.gui_element)
 
     if refs == nil then
         refs = private.create_for(player, tags.train_template_id)
@@ -76,7 +76,7 @@ function private.handle_frame_open(event)
     return true
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_frame_close(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
@@ -97,7 +97,7 @@ function private.handle_frame_close(event)
     return true
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_form_changed(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
@@ -111,7 +111,7 @@ function private.handle_form_changed(event)
     return true
 end
 
----@param event EventData
+---@param event scripts.lib.decorator.Event
 function private.handle_save_form(event)
     local player = game.get_player(event.player_index)
     local form_data = public.read_form(player)
@@ -264,19 +264,36 @@ function public.load()
     train_builder_component.on_changed(private.handle_form_changed)
 end
 
----@param action table
----@param event EventData
-function public.dispatch(event, action)
+---@param event scripts.lib.decorator.Event
+function public.dispatch(event)
     local handlers = {
-        { target = FRAME.NAME,                      action = mod.defines.gui.actions.touch_form,            func = private.handle_form_changed },
-        { target = FRAME.NAME,                      action = mod.defines.gui.actions.close_frame,           func = private.handle_frame_close },
-        { target = FRAME.NAME,                      action = mod.defines.gui.actions.open_frame,            func = private.handle_frame_open },
-        { target = FRAME.NAME,                      action = mod.defines.gui.actions.edit_train_template,   func = private.handle_frame_open },
-        { target = FRAME.NAME,                      action = mod.defines.gui.actions.save_form,             func = private.handle_save_form },
-        { target = train_builder_component.name(),  action = mod.defines.gui.actions.any,                   func = train_builder_component.dispatch },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.touch_form),
+            func = private.handle_form_changed
+        },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.close_frame),
+            func = private.handle_frame_close
+        },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.open_frame),
+            func = private.handle_frame_open
+        },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.edit_train_template),
+            func = private.handle_frame_open
+        },
+        {
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.save_form),
+            func = private.handle_save_form
+        },
+        {
+            match = event_dispatcher.match_target(train_builder_component.name()),
+            func = train_builder_component.dispatch
+        },
     }
 
-    return event_dispatcher.dispatch(handlers, event, action, FRAME.NAME)
+    return event_dispatcher.dispatch(handlers, event, FRAME.NAME)
 end
 
 ---@param player LuaPlayer
