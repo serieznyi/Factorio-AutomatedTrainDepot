@@ -1,6 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
-local mod_event = require("scripts.util.event")
+local event_dispatcher = require("scripts.util.event_dispatcher")
 
 local manager = {}
 
@@ -33,7 +33,7 @@ local function read_event_data(event_arg)
         event_data = {}
     end
 
-    event_data.name = mod_event.event_name(event_arg.name)
+    event_data.name = event_dispatcher.event_name(event_arg.name)
 
     if event_data.target == nil then
         event_data.target = event_arg.target
@@ -57,7 +57,7 @@ end
 
 ---@param event EventData
 local function is_event_blocked(event)
-    if not mod_event.is_gui_event(event) then
+    if not event_dispatcher.is_gui_event(event) then
         return false
     end
 
@@ -74,7 +74,7 @@ local function is_event_blocked(event)
         mod.log.debug(
                 "Event `{1}` for gui element `{2}` is blocked",
                 {
-                    mod_event.event_name(event.name),
+                    event_dispatcher.event_name(event.name),
                     event.element.name
                 }
         )

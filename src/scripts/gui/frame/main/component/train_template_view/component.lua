@@ -1,7 +1,6 @@
 local flib_gui = require("__flib__.gui")
-local flib_table = require("__flib__.table")
 
-local mod_event = require("scripts.util.event")
+local event_dispatcher = require("scripts.util.event_dispatcher")
 local mod_gui = require("scripts.util.gui")
 local depot = require("scripts.depot.depot")
 
@@ -172,7 +171,7 @@ function public.dispatch(event, action)
         { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_trains_quantity, func = private.handle_change_trains_quantity },
     }
 
-    return mod_event.dispatch(event_handlers, event, action, COMPONENT.NAME)
+    return event_dispatcher.dispatch(event_handlers, event, action, COMPONENT.NAME)
 end
 
 return public

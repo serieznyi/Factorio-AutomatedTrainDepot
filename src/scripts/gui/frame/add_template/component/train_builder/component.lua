@@ -3,7 +3,7 @@ local flib_table = require("__flib__.table")
 
 local TrainPart = require("scripts.lib.domain.TrainPart")
 
-local mod_event = require("scripts.util.event")
+local event_dispatcher = require("scripts.util.event_dispatcher")
 
 local constants = require("scripts.gui.frame.add_template.component.train_builder.constants")
 local build_structure = require("scripts.gui.frame.add_template.component.train_builder.build_structure")
@@ -327,7 +327,7 @@ function public.dispatch(event, action)
         { target = COMPONENT.NAME, action = mod.defines.gui.actions.delete_train_part,              func = private.handle_delete_train_part },
     }
 
-    local processed = mod_event.dispatch(event_handlers, event, action, COMPONENT.NAME)
+    local processed = event_dispatcher.dispatch(event_handlers, event, action, COMPONENT.NAME)
 
     if processed then
         on_changed_callback(event)

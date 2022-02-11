@@ -1,7 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
-local mod_event = require("scripts.util.event")
+local event_dispatcher = require("scripts.util.event_dispatcher")
 local Context = require("scripts.lib.domain.Context")
 local TrainStationSelector = require("scripts.gui.component.train_station_selector.component")
 local DepotSettings = require("scripts.lib.domain.DepotSettings")
@@ -251,7 +251,7 @@ function public.dispatch(event, action)
         { target = FRAME.NAME, action = mod.defines.gui.actions.save_form,              func = private.handle_save_form },
     }
 
-    return mod_event.dispatch(handlers, event, action, FRAME.NAME)
+    return event_dispatcher.dispatch(handlers, event, action, FRAME.NAME)
 end
 
 return public

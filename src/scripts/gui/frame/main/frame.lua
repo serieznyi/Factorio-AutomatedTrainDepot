@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 
 local mod_gui = require("scripts.util.gui")
 local Context = require("scripts.lib.domain.Context")
-local mod_event = require("scripts.util.event")
+local event_dispatcher = require("scripts.util.event_dispatcher")
 local persistence_storage = require("scripts.persistence_storage")
 
 local constants = require("scripts.gui.frame.main.constants")
@@ -296,7 +296,7 @@ function public.dispatch(event, action)
         { target = FRAME.NAME, event = mod.defines.events.on_train_template_saved_mod, func = private.handle_update_gui },
     }
 
-    return mod_event.dispatch(handlers, event, action, FRAME.NAME)
+    return event_dispatcher.dispatch(handlers, event, action, FRAME.NAME)
 end
 
 return public

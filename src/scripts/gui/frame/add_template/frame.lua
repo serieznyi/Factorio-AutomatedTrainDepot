@@ -1,7 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
-local mod_event = require("scripts.util.event")
+local event_dispatcher = require("scripts.util.event_dispatcher")
 local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Context = require("scripts.lib.domain.Context")
 local TrainStationSelector = require("scripts.gui.component.train_station_selector.component")
@@ -276,7 +276,7 @@ function public.dispatch(event, action)
         { target = train_builder_component.name(),  action = mod.defines.gui.actions.any,                   func = train_builder_component.dispatch },
     }
 
-    return mod_event.dispatch(handlers, event, action, FRAME.NAME)
+    return event_dispatcher.dispatch(handlers, event, action, FRAME.NAME)
 end
 
 ---@param player LuaPlayer

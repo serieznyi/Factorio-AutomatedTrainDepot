@@ -1,6 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
-local mod_event = require("scripts.util.event")
+local event_dispatcher = require("scripts.util.event_dispatcher")
 
 local build_structure = require("scripts.gui.frame.main.component.trains_view.build_structure")
 
@@ -122,7 +122,7 @@ function public.dispatch(event, action)
         --{ target = COMPONENT.NAME, action = mod.defines.gui.actions.enable_train_template, func = private.handle_enable_train_template },
     }
 
-    return mod_event.dispatch(event_handlers, event, action, COMPONENT.NAME)
+    return event_dispatcher.dispatch(event_handlers, event, action, COMPONENT.NAME)
 end
 
 return public
