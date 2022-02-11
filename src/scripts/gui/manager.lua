@@ -110,10 +110,6 @@ function manager.dispatch(event)
         return true
     end
 
-    if not event:is_gui_event() then
-        return false
-    end
-
     for _, module in ipairs(FRAME_MODULES) do
         if module.dispatch(event) then
             processed = true

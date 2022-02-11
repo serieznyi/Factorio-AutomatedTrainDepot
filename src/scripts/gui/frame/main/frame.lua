@@ -308,7 +308,7 @@ function public.dispatch(event)
             func = private.handle_delete_train_template
         },
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_train_template_saved_mod),
+            match = event_dispatcher.match_event(mod.defines.events.on_train_template_changed_mod),
             func = private.handle_update_gui,
         },
     }

@@ -79,20 +79,8 @@ end
 ---@param event scripts.lib.decorator.Event
 function private.handle_frame_close(event)
     local player = game.get_player(event.player_index)
-    local refs = storage.refs(player)
 
-    if refs == nil then
-        return
-    end
-
-    local window = refs.window
-
-    window.visible = false
-    window.destroy()
-
-    storage.clean(player)
-
-    train_builder_component.destroy(player)
+    private.close_frame(player)
 
     return true
 end
@@ -121,16 +109,15 @@ function private.handle_save_form(event)
         local train_template = persistence_storage.add_train_template(form_data)
 
         script.raise_event(
-                mod.defines.events.on_train_template_saved_mod,
+                mod.defines.events.on_train_template_changed_mod,
                 {
                     player_index = event.player_index,
-                    target = mod.defines.gui.frames.main.name,
                     train_template_id = train_template.id
                 }
         )
     end
 
-    private.handle_frame_close(event)
+    private.close_frame(player)
 
     return true
 end
@@ -243,6 +230,24 @@ function private.validate_form(player)
         destination_train_station_dropdown_component:validate_form(),
         validator.validate(private.validation_rules(), form_data)
     })
+end
+
+---@param player LuaPlayer
+function private.close_frame(player)
+    local refs = storage.refs(player)
+
+    if refs == nil then
+        return
+    end
+
+    local window = refs.window
+
+    window.visible = false
+    window.destroy()
+
+    storage.clean(player)
+
+    train_builder_component.destroy(player)
 end
 
 ---------------------------------------------------------------------------
