@@ -12,12 +12,14 @@ defines.task = {
 defines.on_nth_tick = {
     persistence_storage_gc = 18000, -- every 5 minute
     gui_pop_up = 1, -- every tick
-    tasks_processor = 5, -- every 5 ticks
+    tasks_processor = 60, -- every second
+    train_deploy = 5, -- every 5 tick
 }
 
 defines.events = {
     -- other
     on_train_template_saved_mod = script.generate_event_name(),
+    on_train_task_changed_mod = script.generate_event_name(),
 }
 
 defines.train_template = {

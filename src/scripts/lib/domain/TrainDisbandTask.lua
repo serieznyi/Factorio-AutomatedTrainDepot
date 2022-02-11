@@ -1,14 +1,13 @@
 local constants = {
-    type = "deconstruct",
+    type = "disband",
     state = {
         created = "created", -- from(nil)
-        deconstructing = "deconstructing", -- from(1, 4)
+        disbanding = "disbanding", -- from(1, 4)
         done = "done", -- from(2)
-        paused = "paused", -- from(2)
     }
 }
 
---- @module scripts.lib.domain.TrainDeconstructTask
+--- @module scripts.lib.domain.TrainDisbandTask
 local public = {
     ---@type uint
     id = nil,
@@ -53,7 +52,7 @@ function public.from_table(data)
     return object
 end
 
----@return scripts.lib.domain.TrainConstructTask
+---@return scripts.lib.domain.TrainFormingTask
 ---@param context scripts.lib.domain.Context
 function public.create_deconstruct(context)
     assert(context, "context is nil")
@@ -63,9 +62,9 @@ end
 
 ---@param surface_name string
 ---@param force_name string
----@return scripts.lib.domain.TrainConstructTask
+---@return scripts.lib.domain.TrainFormingTask
 function public.new(surface_name, force_name)
-    ---@type scripts.lib.domain.TrainConstructTask
+    ---@type scripts.lib.domain.TrainFormingTask
     local self = {}
     setmetatable(self, { __index = public })
 

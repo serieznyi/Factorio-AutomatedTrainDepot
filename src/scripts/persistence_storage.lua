@@ -1,8 +1,7 @@
 local flib_table = require("__flib__.table")
 
 local Train = require("scripts.lib.domain.Train")
-local TrainConstructTask = require("scripts.lib.domain.TrainConstructTask")
-local TrainDeconstructTask = require("scripts.lib.domain.TrainDeconstructTask")
+local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
 local DepotSettings = require("scripts.lib.domain.DepotSettings")
 local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Sequence = require("scripts.lib.Sequence")
@@ -183,7 +182,7 @@ end
 
 ---@param context scripts.lib.domain.Context
 ---@return table set of train templates
-function public.find_all_train_templates(context)
+function public.find_train_templates(context)
     assert(context, "context is nil")
 
     ---@param v scripts.lib.domain.TrainTemplate
@@ -231,8 +230,8 @@ end
 
 -- -- -- TRAIN TASK
 
----@param train_task scripts.lib.domain.TrainConstructTask|scripts.lib.domain.TrainDeconstructTask
----@return scripts.lib.domain.TrainConstructTask|scripts.lib.domain.TrainDeconstructTask
+---@param train_task scripts.lib.domain.TrainFormingTask|scripts.lib.domain.TrainDisbandTask
+---@return scripts.lib.domain.TrainFormingTask|scripts.lib.domain.TrainDisbandTask
 function public.add_train_task(train_task)
     if train_task.id == nil then
         train_task.id = train_task_sequence:next()
@@ -242,45 +241,60 @@ function public.add_train_task(train_task)
 
     global.trains_tasks[train_task.id] = gc.with_updated_at(data)
 
+    -- todo remove me
+    mod.log.debug(mod.util.table.to_string(global.trains_tasks[train_task.id]), {})
+
+    script.raise_event(mod.defines.events.on_train_task_changed_mod, { train_task = train_task })
+
     return train_task
 end
 
+---@param train_template_id uint
 ---@param context scripts.lib.domain.Context
-function public.find_constructing_train_tasks_for_template(context, train_template_id, state)
+function public.find_forming_train_tasks(context, train_template_id)
     local rows = private.find_trains_tasks(
             context,
-            TrainConstructTask.defines.type,
+            TrainFormingTask.defines.type,
             train_template_id,
-            state
+            nil
     )
 
-    return flib_table.map(rows, TrainConstructTask.from_table)
+    return flib_table.map(rows, TrainFormingTask.from_table)
 end
 
+---@param context scripts.lib.domain.Context
+---@param train_template_id uint
 ---@return uint
-function public.count_active_trains_tasks()
+function public.count_forming_trains_tasks(context, train_template_id)
+    local tasks = public.find_forming_train_tasks(
+            context,
+            TrainFormingTask.defines.type,
+            train_template_id,
+            nil
+    )
+
+    return #tasks
+end
+
+function public.total_count_forming_train_tasks()
     local tasks = flib_table.filter(global.trains_tasks, function(v)
         return v.deleted == false and
-                (
-                    (v.type == TrainConstructTask.defines.type and v.state ~= TrainConstructTask.defines.state.done) or
-                    (v.type == TrainDeconstructTask.defines.type and v.state ~= TrainDeconstructTask.defines.state.done)
-                )
+                v.type == TrainFormingTask.defines.type
     end, true)
 
     return #tasks
 end
 
 ---@return uint
-function public.find_grouped_new_forming_train_tasks()
+function public.find_grouped_forming_train_tasks()
     local tasks = flib_table.filter(global.trains_tasks, function(v)
         return v.deleted == false and
-               v.type == TrainConstructTask.defines.type and
-               v.state ~= TrainConstructTask.defines.state.created
+               v.type == TrainFormingTask.defines.type
     end, true)
 
     local result = {}
 
-    ---@param task scripts.lib.domain.TrainConstructTask
+    ---@param task scripts.lib.domain.TrainFormingTask
     for _, task in ipairs(tasks) do
         if result[task.surface_name] == nil then
             result[task.surface_name] = {}
@@ -296,7 +310,7 @@ function public.find_grouped_new_forming_train_tasks()
 
         table.insert(
                 result[task.surface_name][task.force_name][task.train_template_id],
-                TrainConstructTask.from_table(task)
+                TrainFormingTask.from_table(task)
         )
     end
 

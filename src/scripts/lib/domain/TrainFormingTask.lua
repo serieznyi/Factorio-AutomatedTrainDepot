@@ -1,16 +1,17 @@
 local flib_table = require("__flib__.table")
 
 local constants = {
-    type = "construct",
+    type = "forming",
     state = {
         created = "created", -- from(nil)
-        forming = "forming", -- from(created, paused)
-        deploying = "deploying", -- from(constructing)
+        forming = "forming", -- from(created)
+        formed = "formed", -- from(forming)
+        deploying = "deploying", -- from(formed)
         done = "done", -- from(deploying)
     }
 }
 
---- @module scripts.lib.domain.TrainConstructTask
+--- @module scripts.lib.domain.TrainFormingTask
 local public = {
     ---@type uint
     type = constants.type,
@@ -28,6 +29,10 @@ local public = {
     train_template_id = nil,
     ---@type scripts.lib.domain.TrainTemplate snapshot of train template
     train_template = nil,
+    ---@type uint ticks needed to forming train
+    required_forming_ticks = nil,
+    ---@type uint ticks left to forming train
+    forming_end_at = nil,
 }
 local private = {}
 
@@ -51,12 +56,19 @@ function public:to_table()
         deleted = self.deleted,
         force_name = self.force_name,
         surface_name = self.surface_name,
+        required_forming_ticks = self.required_forming_ticks,
+        forming_end_at = self.forming_end_at,
     }
 end
 
 ---@return table
 function public:delete()
     self.deleted = true
+end
+
+---@return table
+function public:state_formed()
+    self.state = constants.state.formed
 end
 
 ---@param tick uint
@@ -68,19 +80,18 @@ function public:start_forming_train(tick, multiplier, train_template)
 
     assert(self.state == constants.state.created or self.state == constants.state.paused, "wrong state")
 
+    self.state = constants.state.forming
+
     self.start_forming_at = tick
 
-    local forming_time = train_template:get_forming_time()
+    self.required_forming_ticks = train_template:get_forming_time() * 60 * multiplier
 
-    self.progress_ticks = 0 -- todo calc from recipies
+    self.forming_end_at = tick + self.required_forming_ticks
 end
 
-function public:progress_step()
-
-end
-
-function public:is_progress_done()
-    return false
+---@param tick uint
+function public:is_forming_time_left(tick)
+    return tick > self.forming_end_at
 end
 
 ---@return bool
@@ -94,12 +105,12 @@ function public:is_state_done()
 end
 
 ---@return bool
-function public:is_state_paused()
-    return self.state == constants.state.paused
+function public:is_state_formed()
+    return self.state == constants.state.formed
 end
 
 ---@return bool
-function public:is_state_constructing()
+function public:is_state_forming()
     return self.state == constants.state.forming
 end
 
@@ -108,21 +119,24 @@ function public:is_state_deploying()
     return self.state == constants.state.deploying
 end
 
----@param data table
----@return scripts.lib.domain.TrainConstructTask
+---@param data table|scripts.lib.domain.TrainFormingTask
+---@return scripts.lib.domain.TrainFormingTask
 function public.from_table(data)
     local object = public.new(data.surface_name, data.force_name)
 
     object.id = data.id
     object.type = data.type
     object.train_template_id = data.train_template_id
+    object.train_template = data.train_template
     object.state = data.state
     object.deleted = data.deleted
+    object.required_forming_ticks = data.required_forming_ticks
+    object.forming_end_at = data.forming_end_at
 
     return object
 end
 
----@return scripts.lib.domain.TrainConstructTask
+---@return scripts.lib.domain.TrainFormingTask
 ---@param train_template scripts.lib.domain.TrainTemplate
 function public.from_train_template(train_template)
     assert(train_template, "train_template is nil")
@@ -136,9 +150,9 @@ end
 
 ---@param surface_name string
 ---@param force_name string
----@return scripts.lib.domain.TrainConstructTask
+---@return scripts.lib.domain.TrainFormingTask
 function public.new(surface_name, force_name)
-    ---@type scripts.lib.domain.TrainConstructTask
+    ---@type scripts.lib.domain.TrainFormingTask
     local self = {}
     setmetatable(self, { __index = public })
 

@@ -167,7 +167,7 @@ end
 ---@param event EventData
 function public.dispatch(event, action)
     local event_handlers = {
-        { target = COMPONENT.NAME, action = mod.defines.gui.actions.enable_train_template, func = private.handle_enable_train_template },
+        { target = COMPONENT.NAME, action = mod.defines.gui.actions.enable_train_template,  func = private.handle_enable_train_template },
         { target = COMPONENT.NAME, action = mod.defines.gui.actions.disable_train_template, func = private.handle_disable_train_template },
         { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_trains_quantity, func = private.handle_change_trains_quantity },
     }

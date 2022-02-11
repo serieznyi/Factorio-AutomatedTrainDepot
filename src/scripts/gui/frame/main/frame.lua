@@ -164,7 +164,7 @@ end
 ---@param container LuaGuiElement
 function private.refresh_trains_templates_list(player, container)
     local context = Context.from_player(player)
-    local trains_templates = persistence_storage.find_all_train_templates(context)
+    local trains_templates = persistence_storage.find_train_templates(context)
     local selected_train_template_id = private.get_selected_train_template_id(player)
 
     container.clear()
