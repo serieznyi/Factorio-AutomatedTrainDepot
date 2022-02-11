@@ -120,7 +120,7 @@ function build_structure.get()
                                                 sprite = "item/locomotive",
                                                 enabled = false,
                                                 actions = {
-                                                    on_click = { target = mod.defines.gui.frames.main.name, action = mod.defines.gui.actions.open_uncontrolled_trains_view }
+                                                    on_click = { target = mod.defines.gui.frames.main.name, action = mod.defines.gui.actions.open_uncontrolled_trains_map }
                                                 },
                                             },
                                         }

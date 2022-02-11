@@ -2,10 +2,10 @@ local flib_gui = require("__flib__.gui")
 
 local event_dispatcher = require("scripts.util.event_dispatcher")
 
-local build_structure = require("scripts.gui.frame.main.component.trains_view.build_structure")
+local build_structure = require("scripts.gui.frame.main.component.trains_map.build_structure")
 
 local COMPONENT = {
-    NAME = mod.defines.gui.components.trains_view.name
+    NAME = mod.defines.gui.components.trains_map.name
 }
 
 local public = {}

@@ -59,7 +59,7 @@ defines.gui = {
         touch_form = script.generate_event_name(),
         enable_train_template = script.generate_event_name(),
         disable_train_template = script.generate_event_name(),
-        open_uncontrolled_trains_view = script.generate_event_name(),
+        open_uncontrolled_trains_map = script.generate_event_name(),
     },
     frames = {
         main = { name = "main_frame" },
@@ -69,7 +69,7 @@ defines.gui = {
     components = {
         train_builder = { name = "train_builder_component" },
         train_template_view = { name = "train_template_view_component" },
-        trains_view = { name = "trains_view_component" },
+        trains_map = { name = "trains_map_component" },
     },
     mod_frame_marker_name = "atd_frame",
 }

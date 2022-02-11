@@ -8,7 +8,7 @@ local persistence_storage = require("scripts.persistence_storage")
 local constants = require("scripts.gui.frame.main.constants")
 local build_structure = require("scripts.gui.frame.main.build_structure")
 local train_template_view_component = require("scripts.gui.frame.main.component.train_template_view.component")
-local trains_view_component = require("scripts.gui.frame.main.component.trains_view.component")
+local trains_map_component = require("scripts.gui.frame.main.component.trains_map.component")
 
 local FRAME = constants.FRAME
 
@@ -66,14 +66,14 @@ function private.handle_update_gui(event)
 end
 
 ---@param event scripts.lib.decorator.Event
-function private.handle_open_uncontrolled_trains_view(event)
+function private.handle_open_uncontrolled_trains_map(event)
     local player = game.get_player(event.player_index)
     local refs = storage.refs(player)
     local context = Context.from_player(player)
     local trains = persistence_storage.find_uncontrolled_trains(context)
 
     refs.content_frame.clear()
-    trains_view_component.create(refs.content_frame, player, trains)
+    trains_map_component.create(refs.content_frame, player, trains)
 end
 
 ---@param event scripts.lib.decorator.Event
@@ -263,12 +263,12 @@ end
 function public.init()
     storage.init()
     train_template_view_component.init()
-    trains_view_component.init()
+    trains_map_component.init()
 end
 
 function public.load()
     train_template_view_component.load()
-    trains_view_component.load()
+    trains_map_component.load()
 end
 
 ---@param player LuaPlayer
@@ -300,8 +300,8 @@ function public.dispatch(event)
             func = private.handle_select_train_template
         },
         {
-            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.open_uncontrolled_trains_view),
-            func = private.handle_open_uncontrolled_trains_view
+            match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.open_uncontrolled_trains_map),
+            func = private.handle_open_uncontrolled_trains_map
         },
         {
             match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.delete_train_template),
