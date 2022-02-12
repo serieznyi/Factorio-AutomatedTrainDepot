@@ -76,6 +76,7 @@ function public.get(train_template)
                                 type = "textfield",
                                 numeric = true,
                                 lose_focus_on_confirm = true,
+                                enabled = false,
                                 allow_decimal = false,
                                 allow_negative = false,
                                 text = train_template.trains_quantity,
