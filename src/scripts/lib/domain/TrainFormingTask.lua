@@ -24,8 +24,6 @@ local public = {
     ---@type string
     surface_name = nil,
     ---@type uint
-    start_forming_at = nil,
-    ---@type uint
     train_template_id = nil,
     ---@type scripts.lib.domain.TrainTemplate snapshot of train template
     train_template = nil,
@@ -82,11 +80,21 @@ function public:start_forming_train(tick, multiplier, train_template)
 
     self.state = constants.state.forming
 
-    self.start_forming_at = tick
-
     self.required_forming_ticks = train_template:get_forming_time() * 60 * multiplier
 
     self.forming_end_at = tick + self.required_forming_ticks
+end
+
+---@type uint progress in percent
+function public:progress()
+    if self.state == constants.state.created then
+        return 0
+    end
+
+    local left_ticks = self.forming_end_at - game.tick
+    local diff = self.required_forming_ticks - left_ticks
+
+    return (diff * 100) / self.required_forming_ticks
 end
 
 ---@param tick uint

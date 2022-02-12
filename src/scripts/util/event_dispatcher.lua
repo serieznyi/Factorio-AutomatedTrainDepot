@@ -50,6 +50,17 @@ function public.match_target(target)
     end
 end
 
+function public.match_all_non_gui_events()
+    ---@param e scripts.lib.decorator.Event
+    return function(e)
+        if not e:is_gui_event() then
+            return true
+        end
+
+        return false
+    end
+end
+
 ---@param target string
 ---@param action string
 function public.match_target_and_action(target, action)

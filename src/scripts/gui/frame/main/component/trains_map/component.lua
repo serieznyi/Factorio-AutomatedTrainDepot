@@ -106,6 +106,9 @@ end
 ---@param trains table
 ---@param player LuaPlayer
 function public.create(container, player, trains)
+    assert(container, "container is nil")
+    assert(player, "player is nil")
+
     -- todo add real caption
     local caption = {"train-view.some-caption"}
     local refs = flib_gui.build(container, {build_structure.get(caption)})

@@ -79,18 +79,9 @@ end
 ---@param event scripts.lib.decorator.Event
 function private.handle_select_train_template(event)
     local player = game.get_player(event.player_index)
-    local refs = storage.refs(player)
+    local element = event.gui_element
 
-    private.mark_selected_train_template_button(event.gui_element, refs)
-
-    local train_template_id = private.get_selected_train_template_id(player)
-    local train_template = persistence_storage.get_train_template(train_template_id)
-
-    refs.content_frame.clear()
-
-    train_template_view_component.create(refs.content_frame, player, train_template)
-
-    private.refresh_gui(player)
+    private.select_train_template(player, element.get_index_in_parent())
 
     return true
 end
@@ -106,6 +97,10 @@ function private.handle_delete_train_template(event)
         persistence_storage.delete_train_template(train_template_id)
 
         selected_train_template_element.destroy()
+
+        train_template_view_component.destroy(player)
+
+        private.select_train_template(player, 1)
     end
 
     private.refresh_gui(player)
@@ -130,6 +125,26 @@ function private.handle_close_frame(event)
     storage.clean(player)
 
     return true
+end
+
+---@param player LuaPlayer
+function private.select_train_template(player, element_index)
+    local refs = storage.refs(player)
+
+    private.mark_selected_train_template_button(element_index, refs)
+
+    local train_template_id = private.get_selected_train_template_id(player)
+    local train_template = persistence_storage.get_train_template(train_template_id)
+
+    if train_template == nil then
+        return
+    end
+
+    refs.content_frame.clear()
+
+    train_template_view_component.create(refs.content_frame, player, train_template)
+
+    private.refresh_gui(player)
 end
 
 ---@param player LuaPlayer
@@ -218,11 +233,9 @@ function private.refresh_gui(player)
     private.refresh_control_buttons(player)
 end
 
----@param selected_element LuaGuiElement
+---@param element_index uint
 ---@param refs table
-function private.mark_selected_train_template_button(selected_element, refs)
-    local element_index = selected_element.get_index_in_parent()
-
+function private.mark_selected_train_template_button(element_index, refs)
     ---@param child LuaGuiElement
     for i, child in ipairs(refs.trains_templates_container.children) do
         if i ~= element_index then
@@ -288,10 +301,6 @@ end
 function public.dispatch(event)
     local handlers = {
         {
-            match = event_dispatcher.match_target(train_template_view_component.name()),
-            func = train_template_view_component.dispatch
-        },
-        {
             match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.close_frame),
             func = private.handle_close_frame
         },
@@ -310,6 +319,14 @@ function public.dispatch(event)
         {
             match = event_dispatcher.match_event(mod.defines.events.on_train_template_changed_mod),
             func = private.handle_update_gui,
+        },
+        {
+            match = event_dispatcher.match_target(train_template_view_component.name()),
+            func = train_template_view_component.dispatch
+        },
+        {
+            match = event_dispatcher.match_all_non_gui_events(),
+            func = train_template_view_component.dispatch
         },
     }
 

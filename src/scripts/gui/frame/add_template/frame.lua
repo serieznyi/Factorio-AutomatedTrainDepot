@@ -140,15 +140,16 @@ end
 ---@param train_template_id uint
 ---@return table
 function private.create_for(player, train_template_id)
+    local context = Context.from_player(player)
     local train_template = persistence_storage.get_train_template(train_template_id)
-
+    local depot_settings = persistence_storage.get_depot_settings(context)
     local refs = flib_gui.build(player.gui.screen, {build_structure.get(train_template)})
 
     clean_train_station_dropdown_component = TrainStationSelector.new(
             player.surface,
             player.force,
             { on_selection_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form } },
-            train_template and train_template.clean_station or nil,
+            train_template and train_template.clean_station or (depot_settings and depot_settings.default_clean_station or nil),
             true
     )
     clean_train_station_dropdown_component:build(refs.clean_train_station_dropdown_wrapper)
@@ -157,7 +158,7 @@ function private.create_for(player, train_template_id)
             player.surface,
             player.force,
             { on_selection_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }},
-            train_template and train_template.destination_station or nil,
+            train_template and train_template.destination_station or (depot_settings and depot_settings.default_destination_station or nil),
             true
     )
     destination_train_station_dropdown_component:build(refs.target_train_station_dropdown_wrapper)

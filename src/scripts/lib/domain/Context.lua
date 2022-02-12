@@ -59,12 +59,12 @@ function public.new(player, surface_name, force_name)
     local self = {}
     setmetatable(self, { __index = public })
 
-    self.player_index = player ~= nil and player.index or nil
+    self.player_index = player and player.index or nil
 
-    self.surface_name = surface_name ~= nil and surface_name or nil
+    self.surface_name = surface_name or nil
     assert(self.surface_name, "surface_name is nil")
 
-    self.force_name = force_name ~= nil and force_name or nil
+    self.force_name = force_name or nil
     assert(self.force_name, "force_name is nil")
 
     return self

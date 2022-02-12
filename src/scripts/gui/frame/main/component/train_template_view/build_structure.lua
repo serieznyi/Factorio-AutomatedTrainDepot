@@ -7,21 +7,12 @@ local private = {}
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
----@param train_template scripts.lib.domain.TrainTemplate
-function private.build_train_template_name(train_template)
-    local icon = mod_gui.image_for_item(train_template.icon)
-
-    return icon .. " " .. train_template.name
-end
-
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
 
 ---@param train_template scripts.lib.domain.TrainTemplate
 function public.get(train_template)
-    local train_template_name = private.build_train_template_name(train_template)
-
     return {
         type = "frame",
         direction = "vertical",
@@ -39,7 +30,7 @@ function public.get(train_template)
                 children = {
                     {
                         type = "label",
-                        caption = train_template_name,
+                        ref = { "component_title_label" }
                     },
                     {
                         type = "line",
@@ -108,6 +99,11 @@ function public.get(train_template)
                             },
                         }
                     },
+                    {
+                        type = "flow",
+                        direction = "horizontal",
+                        ref = { "tasks_progress_container" },
+                    }
                 }
             },
             -- Bottom control bar

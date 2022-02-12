@@ -165,9 +165,9 @@ end
 ---@param player LuaPlayer
 ---@return table
 function private.create_for(player)
-    local refs = flib_gui.build(player.gui.screen, { build_structure.get() })
     local context = Context.from_player(player)
     local depot_settings = persistence_storage.get_depot_settings(context)
+    local refs = flib_gui.build(player.gui.screen, { build_structure.get(depot_settings) })
 
     clean_train_station_dropdown_component = TrainStationSelector.new(
             player.surface,

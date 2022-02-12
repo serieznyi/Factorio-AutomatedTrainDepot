@@ -14,6 +14,20 @@ local private = {}
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
+---@param train_task scripts.lib.domain.TrainFormingTask|scripts.lib.domain.TrainDisbandTask
+function private.raise_task_changed_event(train_task)
+    ---@type LuaForce
+    local force = game.forces[train_task.force_name]
+
+    for _, player in ipairs(force.players) do
+        script.raise_event(
+                mod.defines.events.on_train_task_changed_mod,
+                { train_task_id = train_task.id, player_index = player.index }
+        )
+    end
+
+end
+
 ---@param lua_train LuaTrain
 ---@param old_train_id_1 uint
 ---@param old_train_id_2 uint
@@ -102,10 +116,6 @@ function private.try_build_train(task, tick)
     local force = game.forces[task.force_name]
     local surface = game.surfaces[task.surface_name]
 
-    task:state_start()
-
-    persistence_storage.add_train_task(task)
-
     local rotate_relative_position = {
         [defines.direction.north] = function(x, y)
             return x, y
@@ -180,7 +190,7 @@ function private.process_task(task, tick)
     local multiplier = private.get_depot_multiplier()
 
     if not task:is_state_created() and not task:is_state_forming() then
-        return
+        return false
     end
 
     if task:is_state_created() then
@@ -194,6 +204,8 @@ function private.process_task(task, tick)
     end
 
     persistence_storage.add_train_task(task)
+
+    return true
 end
 
 ---@param data NthTickEventData
@@ -206,7 +218,9 @@ function private.process_queue(data)
             for _, template_tasks in ipairs(force_tasks) do
                 ---@param task scripts.lib.domain.TrainFormingTask
                 for _, task in ipairs(template_tasks) do
-                    private.process_task(task, tick)
+                    if private.process_task(task, tick) then
+                        private.raise_task_changed_event(task)
+                    end
                 end
             end
         end
@@ -251,6 +265,9 @@ function private.discard_forming_task(task)
     -- todo discard reserved inventory items
 
     persistence_storage.add_train_task(task)
+
+    private.raise_task_changed_event(task)
+
     mod.log.debug("Discard train forming task for template `{1}`", { task.train_template_id}, "depot")
 end
 

@@ -80,14 +80,14 @@ end
 function public:target_name()
     local data = self:get_gui_event_data()
 
-    return data ~= nil and data.target or nil
+    return data and data.target or nil
 end
 
 ---@return string|nil
 function public:action_name()
     local data = self:get_gui_event_data()
 
-    return data ~= nil and data.action or nil
+    return data and data.action or nil
 end
 
 ---@return bool

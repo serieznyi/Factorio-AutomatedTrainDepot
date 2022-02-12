@@ -18,6 +18,7 @@ defines.on_nth_tick = {
 
 defines.events = {
     on_train_task_changed_mod = script.generate_event_name(),
+    on_train_template_deleted_mod = script.generate_event_name(),
     on_train_template_changed_mod = script.generate_event_name(),
 }
 

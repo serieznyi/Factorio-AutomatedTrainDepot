@@ -4,7 +4,9 @@ local FRAME = constants.FRAME
 
 local build_structure = {}
 
-function build_structure.get()
+function build_structure.get(settings)
+    local new = settings == nil and true or false
+
     return {
         type = "frame",
         name = FRAME.NAME,
@@ -110,7 +112,7 @@ function build_structure.get()
                     {
                         type = "button",
                         style = "confirm_button",
-                        caption = { "gui.atd-create" },
+                        caption = new and {"gui.atd-create"} or {"gui.atd-update"},
                         ref = {"submit_button"},
                         enabled = false,
                         actions = {

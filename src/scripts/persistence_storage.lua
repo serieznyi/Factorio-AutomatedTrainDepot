@@ -119,13 +119,30 @@ function private.find_trains_tasks(context, type, train_template_id, state)
     assert(context, "context is nil")
     assert(type, "type is nil")
 
+    local function same_train_template_id(v, id)
+        if id == nil then
+            return true
+        end
+
+        return v.train_template_id == id
+    end
+
+    local function same_state(v, state_local)
+        if state_local == nil then
+            return true
+        end
+
+        return v.state == state_local
+    end
+
+    ---@param v scripts.lib.domain.TrainDisbandTask|scripts.lib.domain.TrainDisbandTask
     local rows = flib_table.filter(global.trains_tasks, function(v)
         return v.deleted == false and
-                v.type == type and
-                context:is_same(v.surface_name, v.force_name) and
-                (train_template_id ~= nil and v.train_template_id == train_template_id or true) and
-                (state ~= nil and v.state == state or true)
-    end, true)
+               v.type == type and
+               context:is_same(v.surface_name, v.force_name) and
+               same_train_template_id(v, train_template_id) and
+               same_state(v, state)
+    end)
 
     return rows
 end
@@ -241,11 +258,6 @@ function public.add_train_task(train_task)
 
     global.trains_tasks[train_task.id] = gc.with_updated_at(data)
 
-    -- todo remove me
-    mod.log.debug(mod.util.table.to_string(global.trains_tasks[train_task.id]), {})
-
-    script.raise_event(mod.defines.events.on_train_task_changed_mod, { train_task = train_task })
-
     return train_task
 end
 
@@ -266,7 +278,7 @@ end
 ---@param train_template_id uint
 ---@return uint
 function public.count_forming_trains_tasks(context, train_template_id)
-    local tasks = public.find_forming_train_tasks(
+    local tasks = private.find_trains_tasks(
             context,
             TrainFormingTask.defines.type,
             train_template_id,
