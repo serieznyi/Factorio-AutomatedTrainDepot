@@ -199,48 +199,11 @@ function private.try_build_train(context, task, tick)
         x = depot_station_output.position.x + x_train,
         y = depot_station_output.position.y + y_train,
     }
-    local depot_locomotive = task:get_depot_locomotive()
-    local result_train_length = depot_locomotive ~= nil and #depot_locomotive.train.carriages or 0
-    local target_train_length = #train_template.train + 1
-    --local direction = opposite[station_entity.direction]
-    local direction = depot_station_output.direction
+    local main_locomotive = task:get_main_locomotive()
+    local result_train_length = main_locomotive ~= nil and #main_locomotive.train.carriages or 0
+    local target_train_length = #train_template.train
 
-    if task:is_state_deploying() and task.depot_locomotive == nil then
-        -- try deploy depot train
-
-        local depot_locomotive_entity_data = {
-            name = mod.defines.entity.depot_locomotive.name,
-            position = train_position,
-            direction = direction,
-            force = force,
-        };
-
-        if surface.can_place_entity(depot_locomotive_entity_data) then
-            local locomotive = surface.create_entity(depot_locomotive_entity_data)
-
-            local inventory = locomotive.get_inventory(defines.inventory.fuel)
-
-            inventory.insert({name = "coal", count = 50})
-
-            --local driver = surface.create_entity({
-            --    name = mod.defines.entity.depot_driver.name,
-            --    position = train_position,
-            --    force = force,
-            --})
-            --locomotive.set_driver(driver)
-            --
-            --driver.riding_state = {
-            --    acceleration = defines.riding.acceleration.accelerating,
-            --    direction = defines.riding.direction.straight,
-            --}
-
-            private.add_train_schedule(locomotive.train, train_template)
-
-            task:set_depot_locomotive(locomotive)
-        end
-    elseif task:is_state_deploying() and  result_train_length ~= target_train_length then
-        --private.ride_train(depot_locomotive)
-
+    if task:is_state_deploying() and  result_train_length ~= target_train_length then
         -- try build next train part
         
         ---@type scripts.lib.domain.TrainPart
@@ -260,17 +223,28 @@ function private.try_build_train(context, task, tick)
             force = force,
         };
 
-        -- todo add inventory and fuel
-
         if surface.can_place_entity(entity_data) then
             local carrier = surface.create_entity(entity_data)
+
+            if train_part:is_locomotive() then
+                if task.deploying_cursor == 1 then
+                    private.add_train_schedule(carrier.train, train_template)
+
+                    task:set_main_locomotive(carrier)
+                end
+
+                -- add fuel
+                local inventory = carrier.get_inventory(defines.inventory.fuel)
+                inventory.insert({name = "coal", count = 50})
+
+                -- todo add inventory
+            end
 
             private.add_train_schedule(carrier.train, train_template)
 
             task:deploying_cursor_next()
         end
     elseif task:is_state_deploying() and result_train_length == target_train_length then
-        --private.ride_train(depot_locomotive)
 
         local cleaned_way = depot_station_signal.signal_state == defines.signal_state.open
 
@@ -278,8 +252,7 @@ function private.try_build_train(context, task, tick)
             task:deployed()
             task:delete()
 
-            --depot_locomotive.get_driver().destroy()
-            depot_locomotive.destroy()
+            main_locomotive.destroy()
         end
     end
 
@@ -321,7 +294,7 @@ function private.get_forming_tasks_contexts()
     local tasks = persistence_storage.trains_tasks.find_all_forming_tasks()
 
     ---@param task scripts.lib.domain.TrainFormingTask
-    for _, task in ipairs(tasks) do
+    for _, task in pairs(tasks) do
         table.insert(contexts, Context.from_model(task))
     end
 
@@ -367,7 +340,7 @@ function private.deploy_trains_for_context(context, data)
     local tasks = persistence_storage.trains_tasks.find_forming_tasks_ready_for_deploy(context)
 
     ---@param task scripts.lib.domain.TrainFormingTask
-    for _, task in ipairs(tasks) do
+    for _, task in pairs(tasks) do
         private.deploy_task(context, task, tick)
     end
 end
@@ -439,7 +412,7 @@ function private.try_discard_forming_train_task_for_template(train_template)
     )
 
     ---@param task scripts.lib.domain.TrainFormingTask
-    for _, task in ipairs(tasks) do
+    for _, task in pairs(tasks) do
         if task:is_state_forming() or task:is_state_created() then
             private.discard_forming_task(task)
 
@@ -460,6 +433,7 @@ end
 
 ---@param data NthTickEventData
 function private.balance_trains_count(data)
+    -- todo get surface/force from tasks
     for surface_name, _ in pairs(game.surfaces) do
         for force_name, _ in pairs(game.forces) do
             local context = Context.new(nil, surface_name, force_name)
@@ -475,7 +449,7 @@ function private.balance_trains_count_for_context(context, data)
     local train_templates = persistence_storage.find_enabled_train_templates(context)
 
     ---@param train_template scripts.lib.domain.TrainTemplate
-    for _, train_template in ipairs(train_templates) do
+    for _, train_template in pairs(train_templates) do
         local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
         local forming_train_tasks = persistence_storage.trains_tasks.find_forming_tasks(context, train_template.id)
         local count = #trains + #forming_train_tasks

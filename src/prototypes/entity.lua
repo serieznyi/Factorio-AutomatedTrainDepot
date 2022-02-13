@@ -21,29 +21,10 @@ local automated_train_depot_building_train_stop_output = table.deepcopy(data.raw
 automated_train_depot_building_train_stop_output.name = entity.depot_building_train_stop_output.name
 --automated_train_depot_building_output.flags = {"hidden"} TODO make hidden
 
-local depot_train_driver = table.deepcopy(data.raw["character"]["character"])
-depot_train_driver.name = entity.depot_driver.name
-depot_train_driver.collision_mask = { "ghost-layer"}
-
-local depot_locomotive = table.deepcopy(data.raw["locomotive"]["locomotive"])
-depot_locomotive.name = entity.depot_locomotive.name
-depot_locomotive.flags = {
-    "hidden",
-    "not-rotatable",
-    "not-on-map",
-    "hide-alt-info",
-    "not-selectable-in-game",
-    "not-in-kill-statistics",
-    "not-deconstructable",
-    "not-blueprintable",
-}
-
 data:extend({
     automated_train_depot_building,
     automated_train_depot_building_input,
     automated_train_depot_building_output,
     automated_train_depot_building_train_stop_input,
     automated_train_depot_building_train_stop_output,
-    depot_train_driver,
-    depot_locomotive,
 })

@@ -14,10 +14,4 @@ return {
     depot_building_train_stop_output = {
         name = "atd-building-train-stop-output",
     },
-    depot_driver = {
-        name = "depot-train-driver",
-    },
-    depot_locomotive = {
-        name = "depot-locomotive",
-    },
 }

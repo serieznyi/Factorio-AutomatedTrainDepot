@@ -32,7 +32,7 @@ local public = {
     ---@type uint
     deploying_cursor = 1,
     ---@type LuaEntity
-    depot_locomotive = nil,
+    main_locomotive = nil,
 }
 
 public.defines = constants
@@ -59,7 +59,7 @@ function public:to_table()
         required_forming_ticks = self.required_forming_ticks,
         forming_end_at = self.forming_end_at,
         deploying_cursor = self.deploying_cursor,
-        depot_locomotive = self.depot_locomotive,
+        main_locomotive = self.main_locomotive,
     }
 end
 
@@ -73,12 +73,12 @@ function public:state_formed()
     self.state = constants.state.formed
 end
 
-function public:get_depot_locomotive()
-    if self.depot_locomotive ~= nil and not self.depot_locomotive.valid then
+function public:get_main_locomotive()
+    if self.main_locomotive ~= nil and not self.main_locomotive.valid then
         return nil
     end
 
-    return self.depot_locomotive
+    return self.main_locomotive
 end
 
 ---@param tick uint
@@ -108,7 +108,7 @@ function public:deploying_cursor_next()
 end
 
 function public:deployed()
-    self.depot_locomotive = nil
+    self.main_locomotive = nil
     self.state = constants.state.deployed
 end
 
@@ -125,8 +125,8 @@ function public:progress()
 end
 
 ---@param entity LuaEntity
-function public:set_depot_locomotive(entity)
-    self.depot_locomotive = entity
+function public:set_main_locomotive(entity)
+    self.main_locomotive = entity
 end
 
 ---@param tick uint
@@ -168,7 +168,7 @@ function public.from_table(data)
     object.type = data.type
     object.train_template_id = data.train_template_id
     object.train_template = data.train_template
-    object.depot_locomotive = data.depot_locomotive
+    object.main_locomotive = data.main_locomotive
     object.state = data.state
     object.deleted = data.deleted
     object.required_forming_ticks = data.required_forming_ticks

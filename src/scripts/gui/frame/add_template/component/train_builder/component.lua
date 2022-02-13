@@ -220,6 +220,32 @@ function private.validator_rule_has_locomotive(field_name, form)
     return {"validation-message.locomotive-required"}
 end
 
+function private.validator_rule_has_main_locomotive(field_name, form)
+    ---@type scripts.lib.domain.TrainPart
+    local carrier = form[field_name][1]
+
+    if not carrier or carrier.type == TrainPart.TYPE.LOCOMOTIVE then
+        return
+    end
+
+    return {"validation-message.first-carrier-must-be-locomotive"}
+end
+
+function private.validator_rule_main_locomotive_wrong_direction(field_name, form)
+    ---@type scripts.lib.domain.TrainPart
+    local carrier = form[field_name][1]
+
+    if not carrier or carrier.type ~= TrainPart.TYPE.LOCOMOTIVE then
+        return
+    end
+
+    if carrier.direction == mod.defines.train.direction.in_direction then
+        return
+    end
+
+    return {"validation-message.locomotive-direction-in-station"}
+end
+
 ---@param element LuaGuiElement
 ---@return int
 function private.get_train_part_id(element)
@@ -284,6 +310,7 @@ function private.get_train_part_type_from_item_name(value)
         ["locomotive"] = TrainPart.TYPE.LOCOMOTIVE,
         ["artillery-wagon"] = TrainPart.TYPE.ARTILLERY,
         ["cargo-wagon"] = TrainPart.TYPE.CARGO,
+        ["fluid-wagon"] = TrainPart.TYPE.CARGO,
     }
 
     return map[prototype.type]
@@ -429,6 +456,14 @@ function public.validate_form(player)
         {
             match = validator.match_by_name({"train"}),
             rules = { private.validator_rule_has_locomotive },
+        },
+        {
+            match = validator.match_by_name({"train"}),
+            rules = { private.validator_rule_has_main_locomotive },
+        },
+        {
+            match = validator.match_by_name({"train"}),
+            rules = { private.validator_rule_main_locomotive_wrong_direction },
         },
     }
 

@@ -39,6 +39,11 @@ function TrainPart:to_table()
     }
 end
 
+---@type bool
+function TrainPart:is_locomotive()
+    return self.type == TrainPart.TYPE.LOCOMOTIVE
+end
+
 ---@return uint train part forming time in seconds (without multiplier)
 function TrainPart:get_forming_time()
     if self.type == TrainPart.TYPE.CARGO then
