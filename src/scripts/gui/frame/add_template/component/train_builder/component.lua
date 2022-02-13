@@ -81,9 +81,9 @@ end
 ---@return bool
 function private.can_handle_event(e)
     local player = game.get_player(e.player_index)
-    local refs = storage.refs(player)
+    local container = storage.get_container(player)
 
-    return refs ~= nil and refs.component ~= nil and refs.component.valid
+    return container ~= nil and container.valid
 end
 
 ---@param event scripts.lib.decorator.Event
