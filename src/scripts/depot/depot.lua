@@ -233,7 +233,7 @@ function private.deploy_trains_for_context(context, data)
 
     -- todo not process task if depot not exists
 
-    mod.log.debug(tasks, {}, "deploy_trains_for_context")
+    --mod.log.debug(tasks, {}, "deploy_trains_for_context")
 end
 
 ---@param data NthTickEventData

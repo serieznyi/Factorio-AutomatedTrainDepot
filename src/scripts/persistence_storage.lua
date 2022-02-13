@@ -6,91 +6,17 @@ local DepotSettings = require("scripts.lib.domain.DepotSettings")
 local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Sequence = require("scripts.lib.Sequence")
 
+local gc = require("scripts.persistence.gc")
+
 local public = {}
 local private = {}
-local gc = {
-    data = {},
-}
 
 ---@type scripts.lib.Sequence
 local train_template_sequence
 ---@type scripts.lib.Sequence
 local train_task_sequence
 
----------------------------------------------------------------------------
--- -- -- PRIVATE - GC
----------------------------------------------------------------------------
-
-function gc.increase(name)
-    gc.data[name] = gc.data[name] + 1
-end
-
-function gc.reset()
-    for i, _ in pairs(gc.data) do
-        gc.data[i] = 0
-    end
-end
-
----@param names table
-function gc.init(names)
-    for _, v in ipairs(names) do
-        gc.data[v] = 0
-    end
-end
-
-function gc.count()
-    local count = 0
-
-    for _, v in pairs(gc.data) do
-        count = count + v
-    end
-
-    return count
-end
-
-function gc.report()
-    if gc.count() > 0 then
-        for name, v in pairs(gc.data) do
-            mod.log.debug("Remove entries: {1} {2}", {name, v}, "persistence_storage.gc")
-        end
-
-        gc.reset()
-    end
-end
-
----@param tick uint
-function gc.collect_garbage(tick)
-    local names = {"trains", "train_template", "trains_tasks"}
-
-    gc.init(names)
-
-    for _, name in ipairs(names) do
-        for i, v in pairs(global[name] or {}) do
-            if gc.is_expired(v, tick) then
-                global[name][i] = nil
-                gc.increase(name)
-            end
-        end
-    end
-
-    gc.report()
-end
-
----@param entry table
----@param current_tick uint
-function gc.is_expired(entry, current_tick)
-    local ttl = entry.updated_at + mod.defines.persistence.garbage_ttl
-
-    return ttl >= current_tick and entry.deleted == true
-end
-
----@param data table
----@return table
-function gc.with_updated_at(data)
-    data.updated_at = game.tick
-
-    return data
-end
+local gc_storage_names = { "trains", "train_template", "trains_tasks"}
 
 ---------------------------------------------------------------------------
 -- -- -- PRIVATE
@@ -182,6 +108,8 @@ function public.init()
     global.trains_tasks = {}
 
     mod.log.debug("persistence storage was initialized")
+
+    gc.init(gc_storage_names, mod.defines.persistence.garbage_ttl)
 end
 
 function public.load()
@@ -192,6 +120,8 @@ function public.load()
     train_task_sequence = Sequence(global.sequence.train_task, function(value)
         global.sequence.train_task = value
     end)
+
+    gc.init(gc_storage_names, mod.defines.persistence.garbage_ttl)
 end
 
 -- -- -- TRAIN TEMPLATE
