@@ -59,6 +59,67 @@ end
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
+function private.handle_enable_train_template(e)
+    local player = game.get_player(e.player_index)
+
+    if not private.can_handle_event(e) then
+        return
+    end
+
+    local train_template_id = private.get_train_template_id(player)
+    local train_template = depot.enable_train_template(train_template_id)
+
+    private.refresh_component(player, train_template)
+
+    return true
+end
+
+function private.handle_disable_train_template(e)
+    local player = game.get_player(e.player_index)
+
+    if not private.can_handle_event(e) then
+        return
+    end
+
+    local train_template_id = private.get_train_template_id(player)
+    local train_template = depot.disable_train_template(train_template_id)
+
+    private.refresh_component(player, train_template)
+
+    return true
+end
+
+function private.handle_change_trains_quantity(e)
+    local player = game.get_player(e.player_index)
+
+    if not private.can_handle_event(e) then
+        return
+    end
+
+    local train_template_id = private.get_train_template_id(player)
+    local count = private.get_train_quantity_change_value(e)
+    local train_template = depot.change_trains_quantity(train_template_id, count)
+
+    private.refresh_component(player, train_template)
+
+    return true
+end
+
+function private.handle_refresh_component(e)
+    local player = game.get_player(e.player_index)
+
+    if not private.can_handle_event(e) then
+        return
+    end
+
+    local train_template_id = private.get_train_template_id(player)
+    local train_template = persistence_storage.get_train_template(train_template_id)
+
+    private.refresh_component(player, train_template)
+
+    return true
+end
+
 ---@param e scripts.lib.decorator.Event
 ---@return bool
 function private.can_handle_event(e)
@@ -142,67 +203,6 @@ function private.refresh_component(player, train_template)
             value = task:progress() * 0.01
         })
     end
-end
-
-function private.handle_enable_train_template(e)
-    local player = game.get_player(e.player_index)
-
-    if not private.can_handle_event(e) then
-        return
-    end
-
-    local train_template_id = private.get_train_template_id(player)
-    local train_template = depot.enable_train_template(train_template_id)
-
-    private.refresh_component(player, train_template)
-
-    return true
-end
-
-function private.handle_disable_train_template(e)
-    local player = game.get_player(e.player_index)
-
-    if not private.can_handle_event(e) then
-        return
-    end
-
-    local train_template_id = private.get_train_template_id(player)
-    local train_template = depot.disable_train_template(train_template_id)
-
-    private.refresh_component(player, train_template)
-
-    return true
-end
-
-function private.handle_change_trains_quantity(e)
-    local player = game.get_player(e.player_index)
-
-    if not private.can_handle_event(e) then
-        return
-    end
-
-    local train_template_id = private.get_train_template_id(player)
-    local count = private.get_train_quantity_change_value(e)
-    local train_template = depot.change_trains_quantity(train_template_id, count)
-
-    private.refresh_component(player, train_template)
-
-    return true
-end
-
-function private.handle_refresh_component(e)
-    local player = game.get_player(e.player_index)
-
-    if not private.can_handle_event(e) then
-        return
-    end
-
-    local train_template_id = private.get_train_template_id(player)
-    local train_template = persistence_storage.get_train_template(train_template_id)
-
-    private.refresh_component(player, train_template)
-
-    return true
 end
 
 ---------------------------------------------------------------------------
