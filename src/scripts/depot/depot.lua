@@ -158,6 +158,18 @@ function private.ride_train(depot_locomotive)
     end
 end
 
+---@param train_template scripts.lib.domain.TrainTemplate
+---@param train LuaTrain
+function private.add_train_schedule(train, train_template)
+    train.schedule = {
+        current = 1,
+        records = {
+            {station = train_template.destination_station},
+        }
+    }
+    train.manual_mode = false
+end
+
 ---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.TrainFormingTask
 ---@param tick uint
@@ -193,7 +205,7 @@ function private.try_build_train(context, task, tick)
     --local direction = opposite[station_entity.direction]
     local direction = depot_station_output.direction
 
-    if task.depot_locomotive == nil and not task:is_state_deployed() then
+    if task:is_state_deploying() and task.depot_locomotive == nil then
         -- try deploy depot train
 
         local depot_locomotive_entity_data = {
@@ -210,22 +222,24 @@ function private.try_build_train(context, task, tick)
 
             inventory.insert({name = "coal", count = 50})
 
-            local driver = surface.create_entity({
-                name = mod.defines.entity.depot_driver.name,
-                position = train_position,
-                force = force,
-            })
-            locomotive.set_driver(driver)
+            --local driver = surface.create_entity({
+            --    name = mod.defines.entity.depot_driver.name,
+            --    position = train_position,
+            --    force = force,
+            --})
+            --locomotive.set_driver(driver)
+            --
+            --driver.riding_state = {
+            --    acceleration = defines.riding.acceleration.accelerating,
+            --    direction = defines.riding.direction.straight,
+            --}
 
-            driver.riding_state = {
-                acceleration = defines.riding.acceleration.accelerating,
-                direction = defines.riding.direction.straight,
-            }
+            private.add_train_schedule(locomotive.train, train_template)
 
             task:set_depot_locomotive(locomotive)
         end
-    elseif result_train_length ~= target_train_length and not task:is_state_deployed() then
-        private.ride_train(depot_locomotive)
+    elseif task:is_state_deploying() and  result_train_length ~= target_train_length then
+        --private.ride_train(depot_locomotive)
 
         -- try build next train part
         
@@ -246,22 +260,25 @@ function private.try_build_train(context, task, tick)
             force = force,
         };
 
+        -- todo add inventory and fuel
+
         if surface.can_place_entity(entity_data) then
             local carrier = surface.create_entity(entity_data)
 
-            -- todo connect carrier ?
+            private.add_train_schedule(carrier.train, train_template)
 
             task:deploying_cursor_next()
         end
-    elseif result_train_length == target_train_length then
-        private.ride_train(depot_locomotive)
+    elseif task:is_state_deploying() and result_train_length == target_train_length then
+        --private.ride_train(depot_locomotive)
 
         local cleaned_way = depot_station_signal.signal_state == defines.signal_state.open
 
         if cleaned_way then
             task:deployed()
+            task:delete()
 
-            depot_locomotive.get_driver().destroy()
+            --depot_locomotive.get_driver().destroy()
             depot_locomotive.destroy()
         end
     end
