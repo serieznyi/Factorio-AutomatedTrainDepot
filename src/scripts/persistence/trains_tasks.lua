@@ -64,7 +64,7 @@ function private.find_trains_tasks(context, type, train_template_id, state)
                 private.match_context(v, context) and
                 private.match_train_template_id(v, train_template_id) and
                 private.match_state(v, state)
-    end)
+    end, true)
 
     return rows
 end

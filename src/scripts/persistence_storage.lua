@@ -113,7 +113,7 @@ function public.find_train_templates(context)
     ---@param v scripts.lib.domain.TrainTemplate
     local filtered = flib_table.filter(global.trains_templates, function(v)
         return context:is_same(v.surface_name, v.force_name)
-    end)
+    end, true)
 
     return flib_table.map(filtered, function(v)
         return TrainTemplate.from_table(v)
@@ -128,7 +128,7 @@ function public.find_enabled_train_templates(context)
     ---@param v scripts.lib.domain.TrainTemplate
     local filtered = flib_table.filter(global.trains_templates, function(v)
         return context:is_same(v.surface_name, v.force_name) and v.enabled == true
-    end)
+    end, true)
 
     return flib_table.map(filtered, function(v) return TrainTemplate.from_table(v) end)
 end

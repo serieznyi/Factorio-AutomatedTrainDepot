@@ -28,11 +28,21 @@ local Train = {
     surface_name = nil,
 }
 
+---@param train_template scripts.lib.domain.TrainTemplate
+function Train:set_train_template(train_template)
+    self.train_template_id = train_template.id
+    self.uncontrolled_train = false -- todo uncontrolled is train without template
+end
+
 ---@return LuaEntity|nil
 function Train:get_main_locomotive()
     return flib_train.get_main_locomotive(self.lua_train)
 end
 
+---@return bool
+function Train:is_uncontrolled()
+    return self.train_template_id == nil
+end
 
 ---@param lua_train LuaTrain
 function Train:set_lua_train(lua_train)

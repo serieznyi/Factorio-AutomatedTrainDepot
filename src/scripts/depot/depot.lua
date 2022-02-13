@@ -170,6 +170,16 @@ function private.add_train_schedule(train, train_template)
     train.manual_mode = false
 end
 
+---@param train_template scripts.lib.domain.TrainTemplate
+---@param lua_train LuaTrain
+function private.register_train_for_template(lua_train, train_template)
+    local train = persistence_storage.get_train(lua_train.id)
+
+    train:set_train_template(train_template)
+
+    persistence_storage.add_train(train)
+end
+
 ---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.TrainFormingTask
 ---@param tick uint
@@ -184,8 +194,6 @@ function private.try_build_train(context, task, tick)
 
     ---@type LuaEntity
     local depot_station_output = remote.call("atd", "depot_get_output_station", context)
-    ---@type LuaEntity
-    local depot_station_signal = remote.call("atd", "depot_get_output_signal", context)
 
     if depot_station_output == nil then
         mod.log.warning("Depot station for context {1} is nil", {tostring(context)}, "depot")
@@ -245,15 +253,9 @@ function private.try_build_train(context, task, tick)
             task:deploying_cursor_next()
         end
     elseif task:is_state_deploying() and result_train_length == target_train_length then
-
-        local cleaned_way = depot_station_signal.signal_state == defines.signal_state.open
-
-        if cleaned_way then
-            task:deployed()
-            task:delete()
-
-            main_locomotive.destroy()
-        end
+        task:deployed()
+        task:delete()
+        private.register_train_for_template(main_locomotive.train, train_template)
     end
 
     persistence_storage.trains_tasks.add(task)
@@ -366,18 +368,25 @@ function private.process_queue(data)
 end
 
 ---@param context scripts.lib.domain.Context
-function private.get_used_forming_slots_count(context)
-    return persistence_storage.trains_tasks.count_forming_tasks(context)
+---@return bool
+function private.has_free_forming_slot(context)
+    local tasks_count = persistence_storage.trains_tasks.count_forming_tasks(context)
+    local slots_count = private.get_forming_slots_total_count()
+
+    return slots_count > tasks_count
 end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
 function private.try_add_forming_train_task_for_template(train_template)
     -- todo balance tasks for different forces, surfaces and templates
-    local forming_slots_total_count = private.get_forming_slots_total_count()
     local context = Context.from_model(train_template)
-    local used_forming_slots_count = private.get_used_forming_slots_count(context)
 
-    if used_forming_slots_count == forming_slots_total_count then
+    mod.log.debug({
+        train_template_id = train_template.id,
+        has_free_slot = private.has_free_forming_slot(context),
+    }, {}, "try_add_forming_train_task_for_template")
+
+    if not private.has_free_forming_slot(context) then
         return false
     end
 
@@ -385,7 +394,11 @@ function private.try_add_forming_train_task_for_template(train_template)
 
     persistence_storage.trains_tasks.add(forming_task)
 
-    mod.log.debug("Add new forming task for template `{1}`", { train_template.name}, "depot")
+    mod.log.debug(
+            "Add new forming task `{1}` for template `{2}`",
+            { forming_task.id, train_template.name },
+            "depot"
+    )
 
     return true
 end
@@ -400,7 +413,11 @@ function private.discard_forming_task(task)
 
     private.raise_task_changed_event(task)
 
-    mod.log.debug("Discard train forming task for template `{1}`", { task.train_template_id}, "depot")
+    mod.log.debug(
+            "Discard train forming task `{1}` for template `{2}`",
+            { task.id, task.train_template_id},
+            "depot"
+    )
 end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
@@ -451,9 +468,18 @@ function private.balance_trains_count_for_context(context, data)
     ---@param train_template scripts.lib.domain.TrainTemplate
     for _, train_template in pairs(train_templates) do
         local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
-        local forming_train_tasks = persistence_storage.trains_tasks.find_forming_tasks(context, train_template.id)
-        local count = #trains + #forming_train_tasks
+        local forming_train_tasks_count = persistence_storage.trains_tasks.count_forming_tasks(context, train_template.id)
+        local count = #trains + forming_train_tasks_count
         local diff = train_template.trains_quantity - count
+
+        mod.log.debug({
+            template_id = train_template.id,
+            template_quantity = train_template.trains_quantity,
+            trains_count = #trains,
+            forming_train_tasks_count = forming_train_tasks_count,
+            trains_plus_tasks = count,
+            diff = diff,
+        }, {}, "balance_trains_count_for_context")
 
         if diff > 0 then
             for _ = 1, diff do
