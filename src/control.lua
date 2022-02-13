@@ -17,7 +17,8 @@ local persistence_storage = require("scripts.persistence_storage")
 ---------------------------------------------------------------------------
 
 remote.add_interface('atd', {
-    depot_get_output_station = depot_building.get_depot_output_station
+    depot_get_output_station = depot_building.get_depot_output_station,
+    depot_get_output_signal = depot_building.get_depot_output_signal,
 })
 
 ---------------------------------------------------------------------------

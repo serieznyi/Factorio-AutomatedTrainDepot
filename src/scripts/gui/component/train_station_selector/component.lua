@@ -1,6 +1,7 @@
 local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
+local mod_table = require("scripts.util.table")
 local validator = require("scripts.gui.validator")
 
 local private = {}
@@ -36,6 +37,8 @@ function private.get_train_stations(surface, force, selected_station_name)
     local train_stations_names = flib_table.map(train_stations, function(station)
         return station.backer_name
     end)
+
+    train_stations_names = mod_table.array_unique(train_stations_names)
 
     table.sort(train_stations_names)
 

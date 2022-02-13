@@ -130,6 +130,34 @@ function private.get_disband_slots_count()
     return 1 -- todo depend from technologies
 end
 
+---@param depot_locomotive LuaEntity
+function private.ride_train(depot_locomotive)
+    ---@type LuaTrain
+    local train = depot_locomotive.train
+    local speed = math.abs(train.speed)
+    local train_driver = depot_locomotive.get_driver()
+    local min_speed = 0.04
+    local max_speed = min_speed + 0.02
+
+    -- control train speed
+    if speed < min_speed then
+        train_driver.riding_state = {
+            acceleration = defines.riding.acceleration.accelerating,
+            direction = defines.riding.direction.straight,
+        }
+    elseif speed >= min_speed and speed <= max_speed then
+        train_driver.riding_state = {
+            acceleration = defines.riding.acceleration.nothing,
+            direction = defines.riding.direction.straight,
+        }
+    elseif speed >= max_speed then
+        train_driver.riding_state = {
+            acceleration = defines.riding.acceleration.braking,
+            direction = defines.riding.direction.straight,
+        }
+    end
+end
+
 ---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.TrainFormingTask
 ---@param tick uint
@@ -142,7 +170,10 @@ function private.try_build_train(context, task, tick)
         mod.log.debug("Try deploy train for template {1}", {task.train_template_id}, "depot")
     end
 
+    ---@type LuaEntity
     local depot_station_output = remote.call("atd", "depot_get_output_station", context)
+    ---@type LuaEntity
+    local depot_station_signal = remote.call("atd", "depot_get_output_signal", context)
 
     if depot_station_output == nil then
         mod.log.warning("Depot station for context {1} is nil", {tostring(context)}, "depot")
@@ -194,30 +225,7 @@ function private.try_build_train(context, task, tick)
             task:set_depot_locomotive(locomotive)
         end
     elseif result_train_length ~= target_train_length and not task:is_state_deployed() then
-        ---@type LuaTrain
-        local train = depot_locomotive.train
-        local speed = math.abs(train.speed)
-        local train_driver = depot_locomotive.get_driver()
-        local min_speed = 0.04
-        local max_speed = min_speed + 0.02
-
-        -- control train speed
-        if speed < min_speed then
-            train_driver.riding_state = {
-                acceleration = defines.riding.acceleration.accelerating,
-                direction = defines.riding.direction.straight,
-            }
-        elseif speed >= min_speed and speed <= max_speed then
-            train_driver.riding_state = {
-                acceleration = defines.riding.acceleration.nothing,
-                direction = defines.riding.direction.straight,
-            }
-        elseif speed >= max_speed then
-            train_driver.riding_state = {
-                acceleration = defines.riding.acceleration.braking,
-                direction = defines.riding.direction.straight,
-            }
-        end
+        private.ride_train(depot_locomotive)
 
         -- try build next train part
         
@@ -246,10 +254,16 @@ function private.try_build_train(context, task, tick)
             task:deploying_cursor_next()
         end
     elseif result_train_length == target_train_length then
-        task:deployed()
+        private.ride_train(depot_locomotive)
 
-        depot_locomotive.get_driver().destroy()
-        depot_locomotive.destroy()
+        local cleaned_way = depot_station_signal.signal_state == defines.signal_state.open
+
+        if cleaned_way then
+            task:deployed()
+
+            depot_locomotive.get_driver().destroy()
+            depot_locomotive.destroy()
+        end
     end
 
     persistence_storage.trains_tasks.add(task)

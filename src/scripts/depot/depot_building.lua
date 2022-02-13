@@ -195,13 +195,14 @@ function public.build(player, entity)
     for _,v in ipairs(output_rails) do table.insert(dependent_entities, v) end
     local last_output_rail = output_rails[#output_rails]
 
-    local output_rail_signal = private.build_rail_signal(last_output_rail, SIGNAL_TYPE.CHAIN, depot_station_output.direction)
+    local output_rail_signal = private.build_rail_signal(last_output_rail, SIGNAL_TYPE.NORMAL, depot_station_output.direction)
     table.insert(dependent_entities, output_rail_signal)
 
     local context = Context.from_player(player)
     storage.save_depot(context, {
         depot_entity = entity,
         output_station = depot_station_output,
+        output_signal = output_rail_signal,
         dependent_entities = dependent_entities
     })
 
@@ -218,6 +219,18 @@ function public.get_depot_output_station(context)
     end
 
     return depot.output_station
+end
+
+---@param context scripts.lib.domain.Context
+---@return LuaEntity
+function public.get_depot_output_signal(context)
+    local depot = storage.get_depot(context)
+
+    if depot == nil then
+        return
+    end
+
+    return depot.output_signal
 end
 
 ---@param player LuaPlayer
