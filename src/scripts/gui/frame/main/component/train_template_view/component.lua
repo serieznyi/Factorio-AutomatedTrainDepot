@@ -59,6 +59,15 @@ end
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
+---@param e scripts.lib.decorator.Event
+---@return bool
+function private.can_handle_event(e)
+    local player = game.get_player(e.player_index)
+    local refs = storage.refs(player)
+
+    return refs ~= nil and refs.component ~= nil and refs.component.valid
+end
+
 ---@param player LuaPlayer
 ---@return uint
 function private.get_train_template_id(player)
@@ -138,8 +147,8 @@ end
 function private.handle_enable_train_template(e)
     local player = game.get_player(e.player_index)
 
-    if not storage.refs(player) then
-        return false
+    if not private.can_handle_event(e) then
+        return
     end
 
     local train_template_id = private.get_train_template_id(player)
@@ -153,8 +162,8 @@ end
 function private.handle_disable_train_template(e)
     local player = game.get_player(e.player_index)
 
-    if not storage.refs(player) then
-        return false
+    if not private.can_handle_event(e) then
+        return
     end
 
     local train_template_id = private.get_train_template_id(player)
@@ -168,8 +177,8 @@ end
 function private.handle_change_trains_quantity(e)
     local player = game.get_player(e.player_index)
 
-    if not storage.refs(player) then
-        return false
+    if not private.can_handle_event(e) then
+        return
     end
 
     local train_template_id = private.get_train_template_id(player)
@@ -184,8 +193,8 @@ end
 function private.handle_refresh_component(e)
     local player = game.get_player(e.player_index)
 
-    if storage.refs(player) == nil then
-        return false
+    if not private.can_handle_event(e) then
+        return
     end
 
     local train_template_id = private.get_train_template_id(player)
@@ -253,7 +262,7 @@ function public.dispatch(event)
         },
     }
 
-    return event_dispatcher.dispatch(event_handlers, event, COMPONENT.NAME)
+    return event_dispatcher.dispatch(event_handlers, event, COMPONENT.NAME, private.can_handle_event)
 end
 
 return public

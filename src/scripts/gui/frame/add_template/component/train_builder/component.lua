@@ -77,9 +77,23 @@ end
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
+---@param e scripts.lib.decorator.Event
+---@return bool
+function private.can_handle_event(e)
+    local player = game.get_player(e.player_index)
+    local refs = storage.refs(player)
+
+    return refs ~= nil and refs.component ~= nil and refs.component.valid
+end
+
 ---@param event scripts.lib.decorator.Event
 function private.handle_update_train_part(event)
     local player = game.get_player(event.player_index)
+
+    if not private.can_handle_event(event) then
+        return
+    end
+
     local train_part_id = private.get_train_part_id(event.gui_element)
 
     private.update_train_part(player, train_part_id)
@@ -90,6 +104,11 @@ end
 ---@param event scripts.lib.decorator.Event
 function private.handle_delete_train_part(event)
     local player = game.get_player(event.player_index)
+
+    if not private.can_handle_event(event) then
+        return
+    end
+
     ---@type int
     local train_part_id = private.get_train_part_id(event.gui_element)
     local train_part = storage.get_train_part(player, train_part_id)
@@ -103,6 +122,11 @@ end
 ---@param event scripts.lib.decorator.Event
 function private.handle_add_new_train_part(event)
     local player = game.get_player(event.player_index)
+
+    if not private.can_handle_event(event) then
+        return
+    end
+
     ---@type LuaGuiElement
     local item_chooser = event.gui_element
     ---@type LuaGuiElement
@@ -118,6 +142,11 @@ end
 ---@param event scripts.lib.decorator.Event
 function private.handle_change_carrier_direction(event)
     local player = game.get_player(event.player_index)
+
+    if not private.can_handle_event(event) then
+        return
+    end
+
     local tags = flib_gui.get_tags(event.gui_element)
     local train_part_id = private.get_train_part_id(event.gui_element)
     local direction = tags.direction == mod.defines.train.direction.right and mod.defines.train.direction.left or mod.defines.train.direction.right
