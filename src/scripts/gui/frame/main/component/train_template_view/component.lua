@@ -121,7 +121,7 @@ function private.refresh_component(player, train_template)
 
     local tasks_progress_container = refs.tasks_progress_container
     local context = Context.from_player(player)
-    local tasks = persistence_storage.find_forming_train_tasks(context, train_template.id)
+    local tasks = persistence_storage.trains_tasks.find_forming_tasks(context, train_template.id)
     local total_trains_quantity = train_template.trains_quantity
 
     tasks_progress_container.clear()

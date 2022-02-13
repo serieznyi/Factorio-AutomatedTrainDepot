@@ -1,0 +1,176 @@
+local flib_table = require("__flib__.table")
+
+local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
+local Sequence = require("scripts.lib.Sequence")
+local gc = require("scripts.persistence.gc")
+
+local public = {}
+local private = {}
+
+---@type scripts.lib.Sequence
+local train_task_sequence
+
+---------------------------------------------------------------------------
+-- -- -- PRIVATE
+---------------------------------------------------------------------------
+
+---@param v table
+---@param context scripts.lib.domain.Context
+function private.match_context(v, context)
+    if context == nil then
+        return true
+    end
+
+    return context:is_same(v.surface_name, v.force_name)
+end
+
+---@param v table
+---@param train_template_id uint
+function private.match_train_template_id(v, train_template_id)
+    if train_template_id == nil then
+        return true
+    end
+
+    return v.train_template_id == train_template_id
+end
+
+---@param v table
+---@param state string
+function private.match_state(v, state)
+    if state == nil then
+        return true
+    end
+
+    return v.state == state
+end
+
+---@param context scripts.lib.domain.Context
+---@param type string
+---@param train_template_id uint
+---@param state table|string
+function private.find_trains_tasks(context, type, train_template_id, state)
+    assert(type, "type is nil")
+
+    ---@param v scripts.lib.domain.TrainDisbandTask|scripts.lib.domain.TrainDisbandTask
+    local rows = flib_table.filter(global.trains_tasks, function(v)
+        return v.deleted == false and
+                v.type == type and
+                private.match_context(v, context) and
+                private.match_train_template_id(v, train_template_id) and
+                private.match_state(v, state)
+    end)
+
+    return rows
+end
+
+---------------------------------------------------------------------------
+-- -- -- PUBLIC
+---------------------------------------------------------------------------
+
+function public.init()
+    global.sequence.train_task = 1
+
+    train_task_sequence = Sequence(global.sequence.train_task, function(value)
+        global.sequence.train_task = value
+    end)
+
+    global.trains_tasks = {}
+
+    mod.log.debug("trains_tasks was initialized")
+end
+
+function public.load()
+    train_task_sequence = Sequence(global.sequence.train_task, function(value)
+        global.sequence.train_task = value
+    end)
+end
+
+---@param train_task scripts.lib.domain.TrainFormingTask|scripts.lib.domain.TrainDisbandTask
+---@return scripts.lib.domain.TrainFormingTask|scripts.lib.domain.TrainDisbandTask
+function public.add(train_task)
+    assert(train_task, "train-task is nil")
+
+    if train_task.id == nil then
+        train_task.id = train_task_sequence:next()
+    end
+
+    local data = train_task:to_table()
+
+    global.trains_tasks[train_task.id] = gc.with_updated_at(data)
+
+    return train_task
+end
+
+---@param train_template_id uint
+---@param context scripts.lib.domain.Context
+function public.find_forming_tasks(context, train_template_id)
+    assert(context, "context is nil")
+
+    local rows = private.find_trains_tasks(
+            context,
+            TrainFormingTask.defines.type,
+            train_template_id,
+            nil
+    )
+
+    return flib_table.map(rows, TrainFormingTask.from_table)
+end
+
+---@param context scripts.lib.domain.Context
+---@param train_template_id uint
+---@return uint
+function public.count_forming_tasks(context, train_template_id)
+    assert(context, "context is nil")
+
+    local tasks = private.find_trains_tasks(
+            context,
+            TrainFormingTask.defines.type,
+            train_template_id,
+            nil
+    )
+
+    return #tasks
+end
+
+function public.total_count_forming_tasks()
+    local tasks = flib_table.filter(global.trains_tasks, function(v)
+        return v.deleted == false and
+                v.type == TrainFormingTask.defines.type
+    end, true)
+
+    return #tasks
+end
+
+---@return uint
+function public.find_all_forming_tasks()
+    local rows = flib_table.filter(global.trains_tasks, function(v)
+        return v.deleted == false and
+                v.type == TrainFormingTask.defines.type
+    end, true)
+
+    return flib_table.map(rows, TrainFormingTask.from_table)
+end
+
+function public.find_forming_tasks_ready_for_deploy()
+    local rows = private.find_trains_tasks(
+            nil,
+            TrainFormingTask.type,
+            nil,
+            {TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploying}
+    )
+
+    return flib_table.map(rows, TrainFormingTask.from_table)
+end
+
+function public.count_forming_tasks_ready_for_deploy()
+    local rows = private.find_trains_tasks(
+            nil,
+            TrainFormingTask.type,
+            nil,
+            {TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploying}
+    )
+
+    return #rows
+end
+
+return public

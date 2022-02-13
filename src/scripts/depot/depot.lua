@@ -203,7 +203,7 @@ function private.process_task(task, tick)
         task:state_formed()
     end
 
-    persistence_storage.add_train_task(task)
+    persistence_storage.trains_tasks.add(task)
 
     private.raise_task_changed_event(task)
 
@@ -220,7 +220,7 @@ function private.deploy_trains(data)
         end
     end
 
-    if persistence_storage.count_forming_trains_tasks_ready_for_deploy() == 0 then
+    if persistence_storage.trains_tasks.count_forming_tasks_ready_for_deploy() == 0 then
         script.on_nth_tick(mod.defines.on_nth_tick.train_deploy, nil)
     end
 end
@@ -229,7 +229,7 @@ end
 ---@param data NthTickEventData
 function private.deploy_trains_for_context(context, data)
     local tick = data.tick
-    local tasks = persistence_storage.find_forming_trains_tasks_ready_for_deploy(context)
+    local tasks = persistence_storage.trains_tasks.find_forming_tasks_ready_for_deploy(context)
 
     -- todo not process task if depot not exists
 
@@ -239,7 +239,7 @@ end
 ---@param data NthTickEventData
 function private.process_queue(data)
     local tick = data.tick
-    local tasks = persistence_storage.find_all_forming_train_tasks()
+    local tasks = persistence_storage.trains_tasks.find_all_forming_tasks()
 
     -- todo not process task if depot not exists
 
@@ -251,14 +251,14 @@ function private.process_queue(data)
         end
     end
 
-    if persistence_storage.total_count_forming_train_tasks() == 0 then
+    if persistence_storage.trains_tasks.total_count_forming_tasks() == 0 then
         script.on_nth_tick(mod.defines.on_nth_tick.tasks_processor, nil)
     end
 end
 
 ---@param context scripts.lib.domain.Context
 function private.get_used_forming_slots_count(context)
-    return persistence_storage.count_forming_trains_tasks(context)
+    return persistence_storage.trains_tasks.count_forming_tasks(context)
 end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
@@ -274,7 +274,7 @@ function private.try_add_forming_train_task_for_template(train_template)
 
     local forming_task = TrainFormingTask.from_train_template(train_template)
 
-    persistence_storage.add_train_task(forming_task)
+    persistence_storage.trains_tasks.add(forming_task)
 
     mod.log.debug("Add new forming task for template `{1}`", { train_template.name}, "depot")
 
@@ -287,7 +287,7 @@ function private.discard_forming_task(task)
 
     -- todo discard reserved inventory items
 
-    persistence_storage.add_train_task(task)
+    persistence_storage.trains_tasks.add(task)
 
     private.raise_task_changed_event(task)
 
@@ -297,7 +297,7 @@ end
 ---@param train_template scripts.lib.domain.TrainTemplate
 function private.try_discard_forming_train_task_for_template(train_template)
     local context = Context.from_model(train_template)
-    local tasks = persistence_storage.find_forming_train_tasks(
+    local tasks = persistence_storage.trains_tasks.find_forming_tasks(
             context,
             train_template.id
     )
@@ -341,7 +341,7 @@ function private.balance_trains_count_for_context(context, data)
     ---@param train_template scripts.lib.domain.TrainTemplate
     for _, train_template in ipairs(train_templates) do
         local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
-        local forming_train_tasks = persistence_storage.find_forming_train_tasks(context, train_template.id)
+        local forming_train_tasks = persistence_storage.trains_tasks.find_forming_tasks(context, train_template.id)
         local count = #trains + #forming_train_tasks
         local diff = train_template.trains_quantity - count
 
@@ -369,7 +369,7 @@ function private.balance_trains_count_for_context(context, data)
         end
     end
 
-    if persistence_storage.count_forming_trains_tasks(context) > 0 then
+    if persistence_storage.trains_tasks.count_forming_tasks(context) > 0 then
         private.on_ntd_register_queue_processor()
     end
 end
