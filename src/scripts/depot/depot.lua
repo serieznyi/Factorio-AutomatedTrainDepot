@@ -223,11 +223,18 @@ function private.try_build_train(context, task, tick)
         
         ---@type scripts.lib.domain.TrainPart
         local train_part = train_template.train[task.deploying_cursor]
-        
+
+        local carrier_direction
+        if train_part.direction == mod.defines.train.direction.in_direction then
+            carrier_direction = depot_station_output.direction
+        else
+            carrier_direction = opposite[depot_station_output.direction]
+        end
+
         local entity_data = {
             name = train_part.prototype_name,
             position = train_position,
-            direction = direction,
+            direction = carrier_direction,
             force = force,
         };
 

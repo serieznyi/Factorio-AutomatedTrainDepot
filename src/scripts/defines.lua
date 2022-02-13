@@ -33,8 +33,8 @@ public.train = {
         go_to_cleaning_station  = "go_to_cleaning_station",
     },
     direction = {
-        left = defines.direction.north,
-        right = defines.direction.south,
+        in_direction = "in_direction",
+        opposite_direction = "opposite",
     }
 }
 

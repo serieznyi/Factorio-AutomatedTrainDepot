@@ -38,7 +38,7 @@ function build_structure.get(train_part_id)
             {
                 type = "sprite-button",
                 visible = false,
-                tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.left, current_direction = mod.defines.train.direction.left },
+                tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.in_direction, current_direction = mod.defines.train.direction.in_direction },
                 ref = {"carrier_direction_left_button"},
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_left",
@@ -48,7 +48,7 @@ function build_structure.get(train_part_id)
             },
             {
                 type = "sprite-button",
-                tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.right, current_direction = mod.defines.train.direction.left },
+                tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.opposite_direction, current_direction = mod.defines.train.direction.in_direction },
                 ref = {"carrier_direction_right_button"},
                 visible = false,
                 style = "flib_slot_button_default",

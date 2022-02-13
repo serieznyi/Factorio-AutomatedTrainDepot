@@ -149,7 +149,7 @@ function private.handle_change_carrier_direction(event)
 
     local tags = flib_gui.get_tags(event.gui_element)
     local train_part_id = private.get_train_part_id(event.gui_element)
-    local direction = tags.direction == mod.defines.train.direction.right and mod.defines.train.direction.left or mod.defines.train.direction.right
+    local direction = tags.direction == mod.defines.train.direction.opposite_direction and mod.defines.train.direction.in_direction or mod.defines.train.direction.opposite_direction
 
     private.set_carrier_direction(train_part_id, player, direction)
 
@@ -205,8 +205,8 @@ function private.update_train_part(player, train_part_id)
     delete_button.visible = true
 
     if has_direction then
-        direction_left_button.visible = (current_carrier_direction == mod.defines.train.direction.left)
-        direction_right_button.visible = (current_carrier_direction == mod.defines.train.direction.right)
+        direction_left_button.visible = (current_carrier_direction == mod.defines.train.direction.in_direction)
+        direction_right_button.visible = (current_carrier_direction == mod.defines.train.direction.opposite_direction)
     end
 end
 
