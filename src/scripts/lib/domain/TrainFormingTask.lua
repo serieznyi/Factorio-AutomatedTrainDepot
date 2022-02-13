@@ -30,7 +30,9 @@ local public = {
     ---@type uint ticks left to forming train
     forming_end_at = nil,
     ---@type uint
-    deploying_cursor = 0
+    deploying_cursor = 1,
+    ---@type LuaEntity
+    depot_locomotive = nil,
 }
 
 public.defines = constants
@@ -57,6 +59,7 @@ function public:to_table()
         required_forming_ticks = self.required_forming_ticks,
         forming_end_at = self.forming_end_at,
         deploying_cursor = self.deploying_cursor,
+        depot_locomotive = self.depot_locomotive,
     }
 end
 
@@ -68,6 +71,14 @@ end
 ---@return table
 function public:state_formed()
     self.state = constants.state.formed
+end
+
+function public:get_depot_locomotive()
+    if self.depot_locomotive ~= nil and not self.depot_locomotive.valid then
+        return nil
+    end
+
+    return self.depot_locomotive
 end
 
 ---@param tick uint
@@ -96,6 +107,11 @@ function public:deploying_cursor_next()
     self.deploying_cursor = self.deploying_cursor + 1
 end
 
+function public:deployed()
+    self.depot_locomotive = nil
+    self.state = constants.state.deployed
+end
+
 ---@type uint progress in percent
 function public:progress()
     if self.state == constants.state.created then
@@ -106,6 +122,11 @@ function public:progress()
     local diff = self.required_forming_ticks - left_ticks
 
     return (diff * 100) / self.required_forming_ticks
+end
+
+---@param entity LuaEntity
+function public:set_depot_locomotive(entity)
+    self.depot_locomotive = entity
 end
 
 ---@param tick uint
@@ -147,6 +168,7 @@ function public.from_table(data)
     object.type = data.type
     object.train_template_id = data.train_template_id
     object.train_template = data.train_template
+    object.depot_locomotive = data.depot_locomotive
     object.state = data.state
     object.deleted = data.deleted
     object.required_forming_ticks = data.required_forming_ticks

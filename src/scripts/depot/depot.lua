@@ -149,21 +149,21 @@ function private.try_build_train(context, task, tick)
     end
 
     local train_template = task.train_template
-    local deploying_cursor = task.deploying_cursor
-    local train = train_template.train
     local force = game.forces[task.force_name]
     local surface = game.surfaces[task.surface_name]
+    local x_train, y_train = rotate_relative_position[depot_station_output.direction](-2, 3)
+    local train_position = {
+        x = depot_station_output.position.x + x_train,
+        y = depot_station_output.position.y + y_train,
+    }
+    local depot_locomotive = task:get_depot_locomotive()
+    local result_train_length = depot_locomotive ~= nil and #depot_locomotive.train.carriages or 0
+    local target_train_length = #train_template.train + 1
+    --local direction = opposite[station_entity.direction]
+    local direction = depot_station_output.direction
 
-    if deploying_cursor == 0 then
+    if task.depot_locomotive == nil and not task:is_state_deployed() then
         -- try deploy depot train
-
-        local x_train, y_train = rotate_relative_position[depot_station_output.direction](-2, 3)
-        local train_position = {
-            x = depot_station_output.position.x + x_train,
-            y = depot_station_output.position.y + y_train,
-        }
-        --local direction = opposite[station_entity.direction]
-        local direction = depot_station_output.direction
 
         local entity_data = {
             name = mod.defines.entity.depot_locomotive.name,
@@ -177,13 +177,10 @@ function private.try_build_train(context, task, tick)
 
             local inventory = locomotive.get_inventory(defines.inventory.fuel)
 
-            inventory.insert({
-                name = "coal",
-                count = 10,
-            })
+            inventory.insert({name = "coal", count = 50})
 
             local driver = surface.create_entity({
-                name = "depot-train-driver",
+                name = mod.defines.entity.depot_driver.name,
                 position = train_position,
                 force = force,
             })
@@ -194,13 +191,61 @@ function private.try_build_train(context, task, tick)
                 direction = defines.riding.direction.straight,
             }
 
-            task:deploying_cursor_next()
-        else
-            player.print("cant place locomotive")
+            task:set_depot_locomotive(locomotive)
+        end
+    elseif result_train_length ~= target_train_length and not task:is_state_deployed() then
+        ---@type LuaTrain
+        local train = depot_locomotive.train
+        local speed = math.abs(train.speed)
+        local train_driver = depot_locomotive.get_driver()
+        local min_speed = 0.04
+        local max_speed = min_speed + 0.02
+
+        -- control train speed
+        if speed < min_speed then
+            train_driver.riding_state = {
+                acceleration = defines.riding.acceleration.accelerating,
+                direction = defines.riding.direction.straight,
+            }
+        elseif speed >= min_speed and speed <= max_speed then
+            train_driver.riding_state = {
+                acceleration = defines.riding.acceleration.nothing,
+                direction = defines.riding.direction.straight,
+            }
+        elseif speed >= max_speed then
+            train_driver.riding_state = {
+                acceleration = defines.riding.acceleration.braking,
+                direction = defines.riding.direction.straight,
+            }
         end
 
-        persistence_storage.trains_tasks.add(task)
+        -- try build next train part
+        
+        ---@type scripts.lib.domain.TrainPart
+        local train_part = train_template.train[task.deploying_cursor]
+        
+        local entity_data = {
+            name = train_part.prototype_name,
+            position = train_position,
+            direction = direction,
+            force = force,
+        };
+
+        if surface.can_place_entity(entity_data) then
+            local carrier = surface.create_entity(entity_data)
+
+            -- todo connect carrier ?
+
+            task:deploying_cursor_next()
+        end
+    elseif result_train_length == target_train_length then
+        task:deployed()
+
+        depot_locomotive.get_driver().destroy()
+        depot_locomotive.destroy()
     end
+
+    persistence_storage.trains_tasks.add(task)
 end
 
 function private.get_depot_multiplier()
