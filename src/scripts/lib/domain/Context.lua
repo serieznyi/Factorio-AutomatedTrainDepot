@@ -10,6 +10,13 @@ local public = {
     force_name = nil,
 }
 
+local private = {}
+
+---@param obj scripts.lib.domain.Context
+function private.to_string(obj)
+    return obj.surface_name .. ":" .. obj.force_name
+end
+
 ---@param surface_name string
 ---@param force_name string
 function public:is_same(surface_name, force_name)
@@ -60,7 +67,7 @@ end
 function public.new(player, surface_name, force_name)
     ---@type scripts.lib.domain.Context
     local self = {}
-    setmetatable(self, { __index = public })
+    setmetatable(self, { __index = public, __tostring = private.to_string })
 
     self.player_index = player and player.index or nil
 

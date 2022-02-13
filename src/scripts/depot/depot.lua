@@ -10,6 +10,28 @@ local mod_game = require("scripts.util.game")
 local public = {}
 local private = {}
 
+local rotate_relative_position = {
+    [defines.direction.north] = function(x, y)
+        return x, y
+    end,
+    [defines.direction.east] = function(x, y)
+        return y * -1, x
+    end,
+    [defines.direction.south] = function(x, y)
+        return x * -1, y * -1
+    end,
+    [defines.direction.west] = function(x, y)
+        return y, x * -1
+    end,
+}
+
+local opposite = {
+    [defines.direction.north] = defines.direction.south,
+    [defines.direction.east] = defines.direction.west,
+    [defines.direction.south] = defines.direction.north,
+    [defines.direction.west] = defines.direction.east,
+}
+
 ---------------------------------------------------------------------------
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
@@ -108,75 +130,76 @@ function private.get_disband_slots_count()
     return 1 -- todo depend from technologies
 end
 
+---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.TrainFormingTask
 ---@param tick uint
-function private.try_build_train(task, tick)
-    local context = Context.from_model(task)
+function private.try_build_train(context, task, tick)
+    if task:is_state_formed() then
+        local train_template = persistence_storage.get_train_template(task.train_template_id)
+        task:start_deploy(train_template)
+        persistence_storage.trains_tasks.add(task)
+
+        mod.log.debug("Try deploy train for template {1}", {task.train_template_id}, "depot")
+    end
+
     local depot_station_output = remote.call("atd", "depot_get_output_station", context)
+
+    if depot_station_output == nil then
+        mod.log.warning("Depot station for context {1} is nil", {tostring(context)}, "depot")
+    end
+
+    local train_template = task.train_template
+    local deploying_cursor = task.deploying_cursor
+    local train = train_template.train
     local force = game.forces[task.force_name]
     local surface = game.surfaces[task.surface_name]
 
-    local rotate_relative_position = {
-        [defines.direction.north] = function(x, y)
-            return x, y
-        end,
-        [defines.direction.east] = function(x, y)
-            return y * -1, x
-        end,
-        [defines.direction.south] = function(x, y)
-            return x * -1, y * -1
-        end,
-        [defines.direction.west] = function(x, y)
-            return y, x * -1
-        end,
-    }
+    if deploying_cursor == 0 then
+        -- try deploy depot train
 
-    local opposite = {
-        [defines.direction.north] = defines.direction.south,
-        [defines.direction.east] = defines.direction.west,
-        [defines.direction.south] = defines.direction.north,
-        [defines.direction.west] = defines.direction.east,
-    }
-
-    local station_entity = depot_station_output
-    local x_train, y_train = rotate_relative_position[station_entity.direction](-2, 3)
-    local train_position = {
-        x = station_entity.position.x + x_train,
-        y = station_entity.position.y + y_train,
-    }
-    --local direction = opposite[station_entity.direction]
-    local direction = station_entity.direction
-
-    local entity_data = {
-        name = "locomotive",
-        position = train_position,
-        direction = direction,
-        force = force,
-    };
-
-    if surface.can_place_entity(entity_data) then
-        local locomotive = surface.create_entity(entity_data)
-
-        local inventory = locomotive.get_inventory(defines.inventory.fuel)
-
-        inventory.insert({
-            name = "coal",
-            count = 10,
-        })
-
-        local driver = surface.create_entity({
-            name = "depot-train-driver",
-            position = train_position,
-            force = force,
-        })
-        locomotive.set_driver(driver)
-
-        driver.riding_state = {
-            acceleration = defines.riding.acceleration.accelerating,
-            direction = defines.riding.direction.straight,
+        local x_train, y_train = rotate_relative_position[depot_station_output.direction](-2, 3)
+        local train_position = {
+            x = depot_station_output.position.x + x_train,
+            y = depot_station_output.position.y + y_train,
         }
-    else
-        player.print("cant place locomotive")
+        --local direction = opposite[station_entity.direction]
+        local direction = depot_station_output.direction
+
+        local entity_data = {
+            name = mod.defines.entity.depot_locomotive.name,
+            position = train_position,
+            direction = direction,
+            force = force,
+        };
+
+        if surface.can_place_entity(entity_data) then
+            local locomotive = surface.create_entity(entity_data)
+
+            local inventory = locomotive.get_inventory(defines.inventory.fuel)
+
+            inventory.insert({
+                name = "coal",
+                count = 10,
+            })
+
+            local driver = surface.create_entity({
+                name = "depot-train-driver",
+                position = train_position,
+                force = force,
+            })
+            locomotive.set_driver(driver)
+
+            driver.riding_state = {
+                acceleration = defines.riding.acceleration.accelerating,
+                direction = defines.riding.direction.straight,
+            }
+
+            task:deploying_cursor_next()
+        else
+            player.print("cant place locomotive")
+        end
+
+        persistence_storage.trains_tasks.add(task)
     end
 end
 
@@ -210,14 +233,23 @@ function private.process_task(task, tick)
     return true
 end
 
+function private.get_forming_tasks_contexts()
+    local contexts = {}
+    local tasks = persistence_storage.trains_tasks.find_all_forming_tasks()
+
+    ---@param task scripts.lib.domain.TrainFormingTask
+    for _, task in ipairs(tasks) do
+        table.insert(contexts, Context.from_model(task))
+    end
+
+    return contexts
+end
+
 ---@param data NthTickEventData
 function private.deploy_trains(data)
-    for surface_name, _ in pairs(game.surfaces) do
-        for force_name, _ in pairs(game.forces) do
-            local context = Context.new(nil, surface_name, force_name)
-
-            private.deploy_trains_for_context(context, data)
-        end
+    ---@param context scripts.lib.domain.Context
+    for _, context in ipairs(private.get_forming_tasks_contexts()) do
+        private.deploy_trains_for_context(context, data)
     end
 
     if persistence_storage.trains_tasks.count_forming_tasks_ready_for_deploy() == 0 then
@@ -226,14 +258,35 @@ function private.deploy_trains(data)
 end
 
 ---@param context scripts.lib.domain.Context
+function private.is_deploy_slot_empty(context)
+    return persistence_storage.trains_tasks.count_deploying_tasks(context) == 0
+end
+
+---@param context scripts.lib.domain.Context
+---@param task scripts.lib.domain.TrainFormingTask
+---@param tick uint
+function private.deploy_task(context, task, tick)
+    if not task:is_state_deploying() and not task:is_state_formed() then
+        return
+    end
+
+    if task:is_state_formed() and not private.is_deploy_slot_empty(context) then
+        return
+    end
+
+    private.try_build_train(context, task, tick)
+end
+
+---@param context scripts.lib.domain.Context
 ---@param data NthTickEventData
 function private.deploy_trains_for_context(context, data)
     local tick = data.tick
     local tasks = persistence_storage.trains_tasks.find_forming_tasks_ready_for_deploy(context)
 
-    -- todo not process task if depot not exists
-
-    --mod.log.debug(tasks, {}, "deploy_trains_for_context")
+    ---@param task scripts.lib.domain.TrainFormingTask
+    for _, task in ipairs(tasks) do
+        private.deploy_task(context, task, tick)
+    end
 end
 
 ---@param data NthTickEventData

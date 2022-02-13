@@ -5,7 +5,7 @@ local constants = {
         forming = "forming", -- from(created)
         formed = "formed", -- from(forming)
         deploying = "deploying", -- from(formed)
-        done = "done", -- from(deploying)
+        deployed = "deployed", -- from(deploying)
     }
 }
 
@@ -29,8 +29,9 @@ local public = {
     required_forming_ticks = nil,
     ---@type uint ticks left to forming train
     forming_end_at = nil,
+    ---@type uint
+    deploying_cursor = 0
 }
-local private = {}
 
 public.defines = constants
 
@@ -48,12 +49,14 @@ function public:to_table()
         id = self.id,
         type = self.type,
         train_template_id = self.train_template_id,
+        train_template = self.train_template,
         state = self.state,
         deleted = self.deleted,
         force_name = self.force_name,
         surface_name = self.surface_name,
         required_forming_ticks = self.required_forming_ticks,
         forming_end_at = self.forming_end_at,
+        deploying_cursor = self.deploying_cursor,
     }
 end
 
@@ -83,6 +86,16 @@ function public:start_forming_train(tick, multiplier, train_template)
     self.forming_end_at = tick + self.required_forming_ticks
 end
 
+---@param train_template scripts.lib.domain.TrainTemplate
+function public:start_deploy(train_template)
+    self.state = constants.state.deploying
+    self.train_template = train_template
+end
+
+function public:deploying_cursor_next()
+    self.deploying_cursor = self.deploying_cursor + 1
+end
+
 ---@type uint progress in percent
 function public:progress()
     if self.state == constants.state.created then
@@ -106,11 +119,6 @@ function public:is_state_created()
 end
 
 ---@return bool
-function public:is_state_done()
-    return self.state == constants.state.done
-end
-
----@return bool
 function public:is_state_formed()
     return self.state == constants.state.formed
 end
@@ -123,6 +131,11 @@ end
 ---@return bool
 function public:is_state_deploying()
     return self.state == constants.state.deploying
+end
+
+---@return bool
+function public:is_state_deployed()
+    return self.state == constants.state.deployed
 end
 
 ---@param data table|scripts.lib.domain.TrainFormingTask
@@ -138,6 +151,7 @@ function public.from_table(data)
     object.deleted = data.deleted
     object.required_forming_ticks = data.required_forming_ticks
     object.forming_end_at = data.forming_end_at
+    object.deploying_cursor = data.deploying_cursor
 
     return object
 end

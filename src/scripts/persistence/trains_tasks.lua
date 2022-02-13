@@ -41,6 +41,12 @@ function private.match_state(v, state)
         return true
     end
 
+    if type(state) == "string" then
+        return v.state == state
+    elseif type(state) == "table" then
+        return flib_table.find(state, v.state) ~= nil
+    end
+
     return v.state == state
 end
 
@@ -116,6 +122,19 @@ function public.find_forming_tasks(context, train_template_id)
     return flib_table.map(rows, TrainFormingTask.from_table)
 end
 
+function public.count_deploying_tasks(context)
+    assert(context, "context is nil")
+
+    local rows = private.find_trains_tasks(
+            context,
+            TrainFormingTask.defines.type,
+            nil,
+            TrainFormingTask.defines.state.deploying
+    )
+
+    return #rows
+end
+
 ---@param context scripts.lib.domain.Context
 ---@param train_template_id uint
 ---@return uint
@@ -144,16 +163,16 @@ end
 ---@return uint
 function public.find_all_forming_tasks()
     local rows = flib_table.filter(global.trains_tasks, function(v)
-        return v.deleted == false and
-                v.type == TrainFormingTask.defines.type
+        return v.deleted == false and v.type == TrainFormingTask.defines.type
     end, true)
 
     return flib_table.map(rows, TrainFormingTask.from_table)
 end
 
-function public.find_forming_tasks_ready_for_deploy()
+---@param context scripts.lib.domain.Context|nil
+function public.find_forming_tasks_ready_for_deploy(context)
     local rows = private.find_trains_tasks(
-            nil,
+            context,
             TrainFormingTask.type,
             nil,
             {TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploying}
