@@ -13,6 +13,9 @@ local public = {
 ---@param surface_name string
 ---@param force_name string
 function public:is_same(surface_name, force_name)
+    assert(surface_name, "surface_name is nil")
+    assert(force_name, "force_name is nil")
+
     return surface_name == self.surface_name and force_name == self.force_name
 end
 

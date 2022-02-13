@@ -1,5 +1,3 @@
-local flib_table = require("__flib__.table")
-
 local constants = {
     type = "forming",
     state = {

@@ -181,7 +181,7 @@ function private.try_build_train(task, tick)
 end
 
 function private.get_depot_multiplier()
-    return 10.0 -- todo depended from technologies
+    return 1.0 -- todo depended from technologies
 end
 
 ---@param task scripts.lib.domain.TrainFormingTask
@@ -205,24 +205,49 @@ function private.process_task(task, tick)
 
     persistence_storage.add_train_task(task)
 
+    private.raise_task_changed_event(task)
+
     return true
+end
+
+---@param data NthTickEventData
+function private.deploy_trains(data)
+    for surface_name, _ in pairs(game.surfaces) do
+        for force_name, _ in pairs(game.forces) do
+            local context = Context.new(nil, surface_name, force_name)
+
+            private.deploy_trains_for_context(context, data)
+        end
+    end
+
+    if persistence_storage.count_forming_trains_tasks_ready_for_deploy() == 0 then
+        script.on_nth_tick(mod.defines.on_nth_tick.train_deploy, nil)
+    end
+end
+
+---@param context scripts.lib.domain.Context
+---@param data NthTickEventData
+function private.deploy_trains_for_context(context, data)
+    local tick = data.tick
+    local tasks = persistence_storage.find_forming_trains_tasks_ready_for_deploy(context)
+
+    -- todo not process task if depot not exists
+
+    mod.log.debug(tasks, {}, "deploy_trains_for_context")
 end
 
 ---@param data NthTickEventData
 function private.process_queue(data)
     local tick = data.tick
-    local tasks = persistence_storage.find_grouped_forming_train_tasks()
+    local tasks = persistence_storage.find_all_forming_train_tasks()
+
     -- todo not process task if depot not exists
-    for _, surface_tasks in pairs(tasks) do
-        for _, force_tasks in pairs(surface_tasks) do
-            for _, template_tasks in ipairs(force_tasks) do
-                ---@param task scripts.lib.domain.TrainFormingTask
-                for _, task in ipairs(template_tasks) do
-                    if private.process_task(task, tick) then
-                        private.raise_task_changed_event(task)
-                    end
-                end
-            end
+
+    for _, task in pairs(tasks) do
+        private.process_task(task, tick)
+
+        if task:is_state_formed() then
+            script.on_nth_tick(mod.defines.on_nth_tick.train_deploy, private.deploy_trains)
         end
     end
 
@@ -233,7 +258,7 @@ end
 
 ---@param context scripts.lib.domain.Context
 function private.get_used_forming_slots_count(context)
-    return persistence_storage.count_forming_train_tasks(context)
+    return persistence_storage.count_forming_trains_tasks(context)
 end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
@@ -297,18 +322,20 @@ function private.on_ntd_register_queue_processor()
     script.on_nth_tick(mod.defines.on_nth_tick.tasks_processor, private.process_queue)
 end
 
-function private.balance_trains_count()
+---@param data NthTickEventData
+function private.balance_trains_count(data)
     for surface_name, _ in pairs(game.surfaces) do
         for force_name, _ in pairs(game.forces) do
             local context = Context.new(nil, surface_name, force_name)
 
-            private.balance_trains_count_for_context(context)
+            private.balance_trains_count_for_context(context, data)
         end
     end
 end
 
 ---@param context scripts.lib.domain.Context
-function private.balance_trains_count_for_context(context)
+---@param data NthTickEventData
+function private.balance_trains_count_for_context(context, data)
     local train_templates = persistence_storage.find_enabled_train_templates(context)
 
     ---@param train_template scripts.lib.domain.TrainTemplate

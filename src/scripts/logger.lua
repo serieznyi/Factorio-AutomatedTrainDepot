@@ -25,6 +25,10 @@ local PATTERN = "[%date][%level][%category] %message"
 local function write_message(level, category, text, args)
     local message = PATTERN
 
+    if type(text) == "table" then
+        text = mod.util.table.to_string(text)
+    end
+
     message = string.gsub(message,"%%date", misc.ticks_to_timestring(game.ticks_played))
     message = string.gsub(message,"%%level", tostring(level))
     message = string.gsub(message,"%%message", tostring(text))
@@ -58,7 +62,7 @@ function logger.info(text, args, category)
     write_message(LEVEL.INFO, category, text, args)
 end
 
----@param text string
+---@param text string|table
 ---@param args table
 ---@param category string Message category
 function logger.debug(text, args, category)

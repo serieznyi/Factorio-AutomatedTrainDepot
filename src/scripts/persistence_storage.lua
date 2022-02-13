@@ -96,30 +96,44 @@ end
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
+---@param v table
+---@param context scripts.lib.domain.Context
+function private.match_context(v, context)
+    if context == nil then
+        return true
+    end
+
+    return context:is_same(v.surface_name, v.force_name)
+end
+
+---@param v table
+---@param train_template_id uint
+function private.match_train_template_id(v, train_template_id)
+    if train_template_id == nil then
+        return true
+    end
+
+    return v.train_template_id == train_template_id
+end
+
+---@param v table
+---@param state string
+function private.match_state(v, state)
+    if state == nil then
+        return true
+    end
+
+    return v.state == state
+end
+
 ---@param uncontrolled bool
 ---@param context scripts.lib.domain.Context
 function private.find_trains(context, uncontrolled, train_template_id)
-    local function same_train_template_id(v)
-        if train_template_id == nil then
-            return true
-        end
-
-        return v.train_template_id == train_template_id
-    end
-
-    local function same_context(v)
-        if context == nil then
-            return true
-        end
-
-        return context:is_same(v.surface_name, v.force_name)
-    end
-
     local trains = flib_table.filter(global.trains, function(v)
         return v.deleted == false and
                 v.uncontrolled_train == uncontrolled and
-                same_context(v) and
-                same_train_template_id(v)
+                private.match_context(v, context) and
+                private.match_train_template_id(v, train_template_id)
     end, true)
 
     return flib_table.map(trains, Train.from_table)
@@ -128,34 +142,17 @@ end
 ---@param context scripts.lib.domain.Context
 ---@param type string
 ---@param train_template_id uint
----@param state string
+---@param state table|string
 function private.find_trains_tasks(context, type, train_template_id, state)
-    assert(context, "context is nil")
     assert(type, "type is nil")
-
-    local function same_train_template_id(v)
-        if train_template_id == nil then
-            return true
-        end
-
-        return v.train_template_id == train_template_id
-    end
-
-    local function same_state(v)
-        if state == nil then
-            return true
-        end
-
-        return v.state == state
-    end
 
     ---@param v scripts.lib.domain.TrainDisbandTask|scripts.lib.domain.TrainDisbandTask
     local rows = flib_table.filter(global.trains_tasks, function(v)
         return v.deleted == false and
                v.type == type and
-               context:is_same(v.surface_name, v.force_name) and
-               same_train_template_id(v) and
-               same_state(v)
+               private.match_context(v, context) and
+               private.match_train_template_id(v, train_template_id) and
+               private.match_state(v, state)
     end)
 
     return rows
@@ -262,6 +259,8 @@ end
 ---@param train_task scripts.lib.domain.TrainFormingTask|scripts.lib.domain.TrainDisbandTask
 ---@return scripts.lib.domain.TrainFormingTask|scripts.lib.domain.TrainDisbandTask
 function public.add_train_task(train_task)
+    assert(train_task, "train-task is nil")
+
     if train_task.id == nil then
         train_task.id = train_task_sequence:next()
     end
@@ -273,21 +272,11 @@ function public.add_train_task(train_task)
     return train_task
 end
 
----@param context scripts.lib.domain.Context
-function public.count_forming_train_tasks(context)
-    local rows = private.find_trains_tasks(
-            context,
-            TrainFormingTask.defines.type,
-            nil,
-            nil
-    )
-
-    return #rows
-end
-
 ---@param train_template_id uint
 ---@param context scripts.lib.domain.Context
 function public.find_forming_train_tasks(context, train_template_id)
+    assert(context, "context is nil")
+
     local rows = private.find_trains_tasks(
             context,
             TrainFormingTask.defines.type,
@@ -302,6 +291,8 @@ end
 ---@param train_template_id uint
 ---@return uint
 function public.count_forming_trains_tasks(context, train_template_id)
+    assert(context, "context is nil")
+
     local tasks = private.find_trains_tasks(
             context,
             TrainFormingTask.defines.type,
@@ -322,35 +313,35 @@ function public.total_count_forming_train_tasks()
 end
 
 ---@return uint
-function public.find_grouped_forming_train_tasks()
-    local tasks = flib_table.filter(global.trains_tasks, function(v)
+function public.find_all_forming_train_tasks()
+    local rows = flib_table.filter(global.trains_tasks, function(v)
         return v.deleted == false and
                v.type == TrainFormingTask.defines.type
     end, true)
 
-    local result = {}
+    return flib_table.map(rows, TrainFormingTask.from_table)
+end
 
-    ---@param task scripts.lib.domain.TrainFormingTask
-    for _, task in ipairs(tasks) do
-        if result[task.surface_name] == nil then
-            result[task.surface_name] = {}
-        end
+function public.find_forming_trains_tasks_ready_for_deploy()
+    local rows = private.find_trains_tasks(
+            nil,
+            TrainFormingTask.type,
+            nil,
+            {TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploying}
+    )
 
-        if result[task.surface_name][task.force_name] == nil then
-            result[task.surface_name][task.force_name] = {}
-        end
+    return flib_table.map(rows, TrainFormingTask.from_table)
+end
 
-        if result[task.surface_name][task.force_name][task.train_template_id] == nil then
-            result[task.surface_name][task.force_name][task.train_template_id] = {}
-        end
+function public.count_forming_trains_tasks_ready_for_deploy()
+    local rows = private.find_trains_tasks(
+            nil,
+            TrainFormingTask.type,
+            nil,
+            {TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploying}
+    )
 
-        table.insert(
-                result[task.surface_name][task.force_name][task.train_template_id],
-                TrainFormingTask.from_table(task)
-        )
-    end
-
-    return result
+    return #rows
 end
 
 -- -- -- TRAIN
