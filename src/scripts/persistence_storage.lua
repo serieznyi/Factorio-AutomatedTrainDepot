@@ -99,13 +99,27 @@ end
 ---@param uncontrolled bool
 ---@param context scripts.lib.domain.Context
 function private.find_trains(context, uncontrolled, train_template_id)
-    assert(context, "context is nil")
+    local function same_train_template_id(v)
+        if train_template_id == nil then
+            return true
+        end
+
+        return v.train_template_id == train_template_id
+    end
+
+    local function same_context(v)
+        if context == nil then
+            return true
+        end
+
+        return context:is_same(v.surface_name, v.force_name)
+    end
 
     local trains = flib_table.filter(global.trains, function(v)
         return v.deleted == false and
                 v.uncontrolled_train == uncontrolled and
-                context:is_same(v.surface_name, v.force_name) and
-                (train_template_id ~= nil and v.train_template_id == train_template_id or true)
+                same_context(v) and
+                same_train_template_id(v)
     end, true)
 
     return flib_table.map(trains, Train.from_table)
@@ -119,20 +133,20 @@ function private.find_trains_tasks(context, type, train_template_id, state)
     assert(context, "context is nil")
     assert(type, "type is nil")
 
-    local function same_train_template_id(v, id)
-        if id == nil then
+    local function same_train_template_id(v)
+        if train_template_id == nil then
             return true
         end
 
-        return v.train_template_id == id
+        return v.train_template_id == train_template_id
     end
 
-    local function same_state(v, state_local)
-        if state_local == nil then
+    local function same_state(v)
+        if state == nil then
             return true
         end
 
-        return v.state == state_local
+        return v.state == state
     end
 
     ---@param v scripts.lib.domain.TrainDisbandTask|scripts.lib.domain.TrainDisbandTask
@@ -140,8 +154,8 @@ function private.find_trains_tasks(context, type, train_template_id, state)
         return v.deleted == false and
                v.type == type and
                context:is_same(v.surface_name, v.force_name) and
-               same_train_template_id(v, train_template_id) and
-               same_state(v, state)
+               same_train_template_id(v) and
+               same_state(v)
     end)
 
     return rows
@@ -222,9 +236,7 @@ function public.find_enabled_train_templates(context)
         return context:is_same(v.surface_name, v.force_name) and v.enabled == true
     end)
 
-    return flib_table.map(filtered, function(v)
-        return TrainTemplate.from_table(v)
-    end)
+    return flib_table.map(filtered, function(v) return TrainTemplate.from_table(v) end)
 end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
@@ -259,6 +271,18 @@ function public.add_train_task(train_task)
     global.trains_tasks[train_task.id] = gc.with_updated_at(data)
 
     return train_task
+end
+
+---@param context scripts.lib.domain.Context
+function public.count_forming_train_tasks(context)
+    local rows = private.find_trains_tasks(
+            context,
+            TrainFormingTask.defines.type,
+            nil,
+            nil
+    )
+
+    return #rows
 end
 
 ---@param train_template_id uint

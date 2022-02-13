@@ -13,6 +13,7 @@ defines.on_nth_tick = {
     persistence_storage_gc = 18000, -- every 5 minute
     gui_pop_up = 1, -- every tick
     tasks_processor = 60, -- every second
+    balance_trains_count = 120, -- every 2-nd second
     train_deploy = 5, -- every 5 tick
 }
 

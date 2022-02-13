@@ -126,11 +126,6 @@ function private.refresh_component(player, train_template)
 
     tasks_progress_container.clear()
 
-    mod.log.debug(mod.util.table.to_string({
-        template = train_template,
-        tasks = tasks,
-    }))
-
     ---@param task scripts.lib.domain.TrainFormingTask
     for _, task in ipairs(tasks) do
         flib_gui.add(tasks_progress_container, {

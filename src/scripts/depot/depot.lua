@@ -212,7 +212,7 @@ end
 function private.process_queue(data)
     local tick = data.tick
     local tasks = persistence_storage.find_grouped_forming_train_tasks()
-
+    -- todo not process task if depot not exists
     for _, surface_tasks in pairs(tasks) do
         for _, force_tasks in pairs(surface_tasks) do
             for _, template_tasks in ipairs(force_tasks) do
@@ -233,9 +233,7 @@ end
 
 ---@param context scripts.lib.domain.Context
 function private.get_used_forming_slots_count(context)
-    local tasks = persistence_storage.find_forming_train_tasks(context)
-
-    return #tasks
+    return persistence_storage.count_forming_train_tasks(context)
 end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
@@ -291,6 +289,64 @@ function private.try_discard_forming_train_task_for_template(train_template)
     return false
 end
 
+function private.on_ntd_register_trains_count_balancer()
+    script.on_nth_tick(mod.defines.on_nth_tick.balance_trains_count, private.balance_trains_count)
+end
+
+function private.on_ntd_register_queue_processor()
+    script.on_nth_tick(mod.defines.on_nth_tick.tasks_processor, private.process_queue)
+end
+
+function private.balance_trains_count()
+    for surface_name, _ in pairs(game.surfaces) do
+        for force_name, _ in pairs(game.forces) do
+            local context = Context.new(nil, surface_name, force_name)
+
+            private.balance_trains_count_for_context(context)
+        end
+    end
+end
+
+---@param context scripts.lib.domain.Context
+function private.balance_trains_count_for_context(context)
+    local train_templates = persistence_storage.find_enabled_train_templates(context)
+
+    ---@param train_template scripts.lib.domain.TrainTemplate
+    for _, train_template in ipairs(train_templates) do
+        local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
+        local forming_train_tasks = persistence_storage.find_forming_train_tasks(context, train_template.id)
+        local count = #trains + #forming_train_tasks
+        local diff = train_template.trains_quantity - count
+
+        if diff > 0 then
+            for _ = 1, diff do
+                if not private.try_add_forming_train_task_for_template(train_template) then
+                    break
+                end
+            end
+        elseif diff < 0 then
+            local count_for_delete = diff * -1
+
+            for _ = 1, count_for_delete do
+                if not private.try_discard_forming_train_task_for_template(train_template) then
+                    break
+                end
+
+                count_for_delete = count_for_delete - 1
+            end
+
+            if count_for_delete > 0 then
+                -- todo add task for delete train
+                mod.log.debug("want delete train")
+            end
+        end
+    end
+
+    if persistence_storage.count_forming_trains_tasks(context) > 0 then
+        private.on_ntd_register_queue_processor()
+    end
+end
+
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
@@ -306,13 +362,12 @@ end
 ---@param train_template_id uint
 function public.enable_train_template(train_template_id)
     local train_template = persistence_storage.get_train_template(train_template_id)
-    local context = Context.from_model(train_template)
 
     train_template.enabled = true
 
     train_template = persistence_storage.add_train_template(train_template)
 
-    public.synchronize_trains_count(context)
+    private.on_ntd_register_trains_count_balancer()
 
     return train_template
 end
@@ -336,7 +391,7 @@ function public.change_trains_quantity(train_template_id, count)
     persistence_storage.add_train_template(train_template)
 
     if train_template.enabled then
-        public.synchronize_trains_count(context)
+        private.on_ntd_register_trains_count_balancer()
     end
 
     return train_template
@@ -372,47 +427,7 @@ end
 function public.register_train(lua_train, old_train_id_1, old_train_id_2)
     private.register_train(lua_train, old_train_id_1, old_train_id_2)
 
-    public.synchronize_trains_count(Context.from_train(lua_train))
-end
-
----@param context scripts.lib.domain.Context
-function public.synchronize_trains_count(context)
-    local train_templates = persistence_storage.find_enabled_train_templates(context)
-
-    ---@param train_template scripts.lib.domain.TrainTemplate
-    for _, train_template in ipairs(train_templates) do
-        local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
-        local forming_train_tasks = persistence_storage.find_forming_train_tasks(context, train_template.id)
-        local count = #trains + #forming_train_tasks
-        local diff = train_template.trains_quantity - count
-
-        if diff > 0 then
-            for _ = 1, diff do
-                if not private.try_add_forming_train_task_for_template(train_template) then
-                    break
-                end
-            end
-        elseif diff < 0 then
-            local count_for_delete = diff * -1
-
-            for _ = 1, count_for_delete do
-                if not private.try_discard_forming_train_task_for_template(train_template) then
-                    break
-                end
-
-                count_for_delete = count_for_delete - 1
-            end
-
-            if count_for_delete > 0 then
-                -- todo add task for delete train
-                mod.log.debug("want delete train")
-            end
-        end
-    end
-
-    if persistence_storage.count_forming_trains_tasks(context) > 0 then
-        script.on_nth_tick(mod.defines.on_nth_tick.tasks_processor, private.process_queue)
-    end
+    private.on_ntd_register_trains_count_balancer()
 end
 
 return public
