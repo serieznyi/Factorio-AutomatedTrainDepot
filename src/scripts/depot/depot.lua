@@ -165,15 +165,15 @@ function private.try_build_train(context, task, tick)
     if task.depot_locomotive == nil and not task:is_state_deployed() then
         -- try deploy depot train
 
-        local entity_data = {
+        local depot_locomotive_entity_data = {
             name = mod.defines.entity.depot_locomotive.name,
             position = train_position,
             direction = direction,
             force = force,
         };
 
-        if surface.can_place_entity(entity_data) then
-            local locomotive = surface.create_entity(entity_data)
+        if surface.can_place_entity(depot_locomotive_entity_data) then
+            local locomotive = surface.create_entity(depot_locomotive_entity_data)
 
             local inventory = locomotive.get_inventory(defines.inventory.fuel)
 

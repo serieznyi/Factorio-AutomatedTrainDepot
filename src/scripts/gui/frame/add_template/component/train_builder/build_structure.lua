@@ -37,6 +37,28 @@ function build_structure.get(train_part_id)
             },
             {
                 type = "sprite-button",
+                visible = false,
+                tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.left, current_direction = mod.defines.train.direction.left },
+                ref = {"carrier_direction_left_button"},
+                style = "flib_slot_button_default",
+                sprite = "atd_sprite_arrow_left",
+                actions = {
+                    on_click = { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_carrier_direction },
+                }
+            },
+            {
+                type = "sprite-button",
+                tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.right, current_direction = mod.defines.train.direction.left },
+                ref = {"carrier_direction_right_button"},
+                visible = false,
+                style = "flib_slot_button_default",
+                sprite = "atd_sprite_arrow_right",
+                actions = {
+                    on_click = { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_carrier_direction },
+                }
+            },
+            {
+                type = "sprite-button",
                 ref = { "locomotive_config_button" },
                 name = "locomotive_config_button",
                 tags = {train_part_id = train_part_id },
@@ -44,28 +66,6 @@ function build_structure.get(train_part_id)
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_gear",
             },
-            {
-                type = "sprite-button",
-                visible = false,
-                tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.left, current_direction = mod.defines.train.direction.left },
-                ref = {"locomotive_direction_left_button"},
-                style = "flib_slot_button_default",
-                sprite = "atd_sprite_arrow_left",
-                actions = {
-                    on_click = { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_locomotive_direction },
-                }
-            },
-            {
-                type = "sprite-button",
-                tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.right, current_direction = mod.defines.train.direction.left },
-                ref = {"locomotive_direction_right_button"},
-                visible = false,
-                style = "flib_slot_button_default",
-                sprite = "atd_sprite_arrow_right",
-                actions = {
-                    on_click = { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_locomotive_direction },
-                }
-            }
         }
     }
 end

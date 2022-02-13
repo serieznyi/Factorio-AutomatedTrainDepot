@@ -12,6 +12,7 @@ local DEFAULT_LEVEL = LEVEL.WARNING
 ---@param text string
 local function write_message(level, text)
     if level <= global.console.level then
+        -- todo write message for all or for concretter player
         local first_player = game.get_player(1)
         first_player.print(text)
     end

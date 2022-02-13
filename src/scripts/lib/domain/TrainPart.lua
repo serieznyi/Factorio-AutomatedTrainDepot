@@ -26,6 +26,7 @@ local TrainPart = {
 TrainPart.TYPE = {
     LOCOMOTIVE = "locomotive",
     CARGO = "cargo",
+    ARTILLERY = "artillery",
 }
 
 ---@return table

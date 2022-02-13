@@ -1,6 +1,6 @@
-local defines = {}
+local public = {}
 
-defines.task = {
+public.task = {
     construct = {
         id = 1,
         state = {
@@ -9,7 +9,7 @@ defines.task = {
     },
 }
 
-defines.on_nth_tick = {
+public.on_nth_tick = {
     persistence_storage_gc = 18000, -- every 5 minute
     gui_pop_up = 1, -- every tick
     tasks_processor = 60, -- every second
@@ -17,30 +17,30 @@ defines.on_nth_tick = {
     train_deploy = 5, -- every 5 tick
 }
 
-defines.events = {
+public.events = {
     on_train_task_changed_mod = script.generate_event_name(),
     on_train_template_deleted_mod = script.generate_event_name(),
     on_train_template_changed_mod = script.generate_event_name(),
 }
 
-defines.train_template = {
+public.train_template = {
 }
 
-defines.train = {
+public.train = {
     state = {
         execute_schedule        = "execute_schedule",
         go_to_depot             = "go_to_depot",
         go_to_cleaning_station  = "go_to_cleaning_station",
     },
     direction = {
-        left = "left",
-        right = "right",
+        left = defines.direction.north,
+        right = defines.direction.south,
     }
 }
 
-defines.entity = require("prototypes.defines.entity")
+public.entity = require("prototypes.defines.entity")
 
-defines.gui = {
+public.gui = {
     actions = {
         any = script.generate_event_name(),
         -- common
@@ -54,7 +54,7 @@ defines.gui = {
         change_trains_quantity = script.generate_event_name(),
         -- train gui
         delete_train_part = script.generate_event_name(),
-        change_locomotive_direction = script.generate_event_name(),
+        change_carrier_direction = script.generate_event_name(),
         refresh_train_part = script.generate_event_name(),
         -- other
         trigger_form_changed = script.generate_event_name(),
@@ -76,8 +76,8 @@ defines.gui = {
     mod_frame_marker_name = "atd_frame",
 }
 
-defines.persistence = {
-    garbage_ttl = defines.on_nth_tick.persistence_storage_gc,
+public.persistence = {
+    garbage_ttl = public.on_nth_tick.persistence_storage_gc,
 }
 
-return defines
+return public

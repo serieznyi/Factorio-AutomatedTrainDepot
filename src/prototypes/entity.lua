@@ -27,6 +27,16 @@ depot_train_driver.collision_mask = { "ghost-layer"}
 
 local depot_locomotive = table.deepcopy(data.raw["locomotive"]["locomotive"])
 depot_locomotive.name = entity.depot_locomotive.name
+depot_locomotive.flags = {
+    "hidden",
+    "not-rotatable",
+    "not-on-map",
+    "hide-alt-info",
+    "not-selectable-in-game",
+    "not-in-kill-statistics",
+    "not-deconstructable",
+    "not-blueprintable",
+}
 
 data:extend({
     automated_train_depot_building,

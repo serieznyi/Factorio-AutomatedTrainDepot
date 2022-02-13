@@ -116,13 +116,13 @@ function private.handle_add_new_train_part(event)
 end
 
 ---@param event scripts.lib.decorator.Event
-function private.handle_change_locomotive_direction(event)
+function private.handle_change_carrier_direction(event)
     local player = game.get_player(event.player_index)
     local tags = flib_gui.get_tags(event.gui_element)
     local train_part_id = private.get_train_part_id(event.gui_element)
     local direction = tags.direction == mod.defines.train.direction.right and mod.defines.train.direction.left or mod.defines.train.direction.right
 
-    private.set_locomotive_direction(train_part_id, player, direction)
+    private.set_carrier_direction(train_part_id, player, direction)
 
     private.update_train_part(player, train_part_id)
 
@@ -132,13 +132,13 @@ end
 ---@param train_part_id uint
 ---@param player LuaPlayer
 ---@param new_direction uint
-function private.set_locomotive_direction(train_part_id, player, new_direction)
+function private.set_carrier_direction(train_part_id, player, new_direction)
     ---@type table
     local train_part = storage.get_train_part(player, train_part_id)
-    local locomotive_direction_left_button = train_part.refs.locomotive_direction_left_button
-    local locomotive_direction_right_button = train_part.refs.locomotive_direction_right_button
-    flib_gui.update(locomotive_direction_left_button, { tags = { current_direction = new_direction } })
-    flib_gui.update(locomotive_direction_right_button, { tags = { current_direction = new_direction } })
+    local direction_left_button = train_part.refs.carrier_direction_left_button
+    local direction_right_button = train_part.refs.carrier_direction_right_button
+    flib_gui.update(direction_left_button, { tags = { current_direction = new_direction } })
+    flib_gui.update(direction_right_button, { tags = { current_direction = new_direction } })
 end
 
 ---@param player LuaPlayer
@@ -152,12 +152,12 @@ function private.update_train_part(player, train_part_id)
     ---@type LuaGuiElement
     local locomotive_config_button = train_part.refs.locomotive_config_button
     ---@type LuaGuiElement
-    local locomotive_direction_left_button = train_part.refs.locomotive_direction_left_button
+    local direction_left_button = train_part.refs.carrier_direction_left_button
     ---@type LuaGuiElement
-    local locomotive_direction_right_button = train_part.refs.locomotive_direction_right_button
+    local direction_right_button = train_part.refs.carrier_direction_right_button
     ---@type uint
-    local tags = flib_gui.get_tags(train_part.refs.locomotive_direction_right_button)
-    local current_locomotive_direction = tags.current_direction
+    local tags = flib_gui.get_tags(train_part.refs.carrier_direction_right_button)
+    local current_carrier_direction = tags.current_direction
 
     if private.is_train_part_selector_cleaned(player, train_part_id) then
         train_part.refs.element.destroy()
@@ -169,15 +169,15 @@ function private.update_train_part(player, train_part_id)
         return
     end
 
-    local locomotive_part = private.is_locomotive_selected(part_chooser.elem_value)
+    local type = private.get_train_part_type_from_item_name(part_chooser.elem_value)
+    local has_direction = type ~= TrainPart.TYPE.CARGO
 
-    locomotive_config_button.visible = locomotive_part
+    locomotive_config_button.visible = type == TrainPart.TYPE.LOCOMOTIVE
     delete_button.visible = true
 
-    if locomotive_part then
-        locomotive_direction_left_button.visible = (current_locomotive_direction == mod.defines.train.direction.left)
-        locomotive_direction_right_button.visible = (current_locomotive_direction == mod.defines.train.direction.right)
-
+    if has_direction then
+        direction_left_button.visible = (current_carrier_direction == mod.defines.train.direction.left)
+        direction_right_button.visible = (current_carrier_direction == mod.defines.train.direction.right)
     end
 end
 
@@ -201,12 +201,12 @@ end
 
 ---@param element LuaGuiElement
 ---@param player LuaPlayer
-function private.get_locomotive_direction(element, player)
+function private.get_carrier_direction(element, player)
     local train_part_id = private.get_train_part_id(element)
     ---@type table
     local train_part = storage.get_train_part(player, train_part_id)
-    local left_button = train_part.refs.locomotive_direction_left_button
-    local right_button = train_part.refs.locomotive_direction_right_button
+    local left_button = train_part.refs.carrier_direction_left_button
+    local right_button = train_part.refs.carrier_direction_right_button
 
     local direction_button
 
@@ -246,14 +246,18 @@ end
 
 ---@param value string|nil
 ---@return bool
-function private.is_locomotive_selected(value)
-    if value == nil then
-        return false
-    end
+function private.get_train_part_type_from_item_name(value)
+    assert(value, "value is nil")
 
     local prototype = game.entity_prototypes[value]
 
-    return prototype.type == "locomotive"
+    local map = {
+        ["locomotive"] = TrainPart.TYPE.LOCOMOTIVE,
+        ["artillery-wagon"] = TrainPart.TYPE.ARTILLERY,
+        ["cargo-wagon"] = TrainPart.TYPE.CARGO,
+    }
+
+    return map[prototype.type]
 end
 
 ---@param player LuaPlayer
@@ -285,12 +289,10 @@ end
 function private.write_form(player, refs, train_part)
     refs.part_chooser.elem_value = train_part.prototype_name
 
-    if train_part.type == TrainPart.TYPE.LOCOMOTIVE then
+    if train_part.type == TrainPart.TYPE.LOCOMOTIVE or train_part.type == TrainPart.TYPE.ARTILLERY then
         local train_part_id = private.get_train_part_id(refs.part_chooser)
 
-        private.set_locomotive_direction(train_part_id, player, train_part.direction)
-    elseif train_part.type == TrainPart.TYPE.CARGO then
-        -- todo
+        private.set_carrier_direction(train_part_id, player, train_part.direction)
     end
 end
 
@@ -329,8 +331,8 @@ function public.dispatch(event)
             func = private.handle_update_train_part
         },
         {
-            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.change_locomotive_direction),
-            func = private.handle_change_locomotive_direction
+            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.change_carrier_direction),
+            func = private.handle_change_carrier_direction
         },
         {
             match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.delete_train_part),
@@ -358,13 +360,14 @@ function public.read_form(player)
         local item_name = part_chooser.elem_value
 
         if item_name ~= nil then
-            local locomotive = private.is_locomotive_selected(item_name)
-            local type = locomotive and TrainPart.TYPE.LOCOMOTIVE or TrainPart.TYPE.CARGO
+            local type = private.get_train_part_type_from_item_name(item_name)
             ---@type scripts.lib.domain.TrainPart
             local train_part = TrainPart.new(type, item_name)
 
-            if locomotive then
-                train_part.direction = private.get_locomotive_direction(part_chooser, player)
+            if type == TrainPart.TYPE.ARTILLERY then
+                train_part.direction = private.get_carrier_direction(part_chooser, player)
+            elseif type == TrainPart.TYPE.LOCOMOTIVE then
+                train_part.direction = private.get_carrier_direction(part_chooser, player)
                 train_part.use_any_fuel = true
                 -- todo add later
                 --train_part.fuel = {
