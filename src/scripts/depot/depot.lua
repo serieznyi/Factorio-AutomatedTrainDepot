@@ -194,6 +194,8 @@ function private.try_build_train(context, task, tick)
 
     ---@type LuaEntity
     local depot_station_output = remote.call("atd", "depot_get_output_station", context)
+    ---@type LuaEntity
+    local depot_station_signal = remote.call("atd", "depot_get_output_signal", context)
 
     if depot_station_output == nil then
         mod.log.warning("Depot station for context {1} is nil", {tostring(context)}, "depot")
@@ -253,9 +255,20 @@ function private.try_build_train(context, task, tick)
             task:deploying_cursor_next()
         end
     elseif task:is_state_deploying() and result_train_length == target_train_length then
-        task:deployed()
-        task:delete()
-        private.register_train_for_template(main_locomotive.train, train_template)
+        local trains_in_block = false
+        for _, rail in ipairs(depot_station_signal.get_connected_rails()) do
+            game.get_player(1).print(mod.util.table.to_string(rail.position))
+            if rail.trains_in_block > 0 then
+                trains_in_block = true
+                break
+            end
+        end
+
+        if not trains_in_block then
+            task:deployed()
+            task:delete()
+            private.register_train_for_template(main_locomotive.train, train_template)
+        end
     end
 
     persistence_storage.trains_tasks.add(task)
