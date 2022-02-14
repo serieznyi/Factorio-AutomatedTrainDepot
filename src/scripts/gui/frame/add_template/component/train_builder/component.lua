@@ -210,16 +210,6 @@ function private.update_train_part(player, train_part_id)
     end
 end
 
-function private.validator_rule_has_locomotive(field_name, form)
-    for _, train_part in pairs(form[field_name]) do
-        if train_part.type == TrainPart.TYPE.LOCOMOTIVE then
-            return nil
-        end
-    end
-
-    return {"validation-message.locomotive-required"}
-end
-
 function private.validator_rule_has_main_locomotive(field_name, form)
     ---@type scripts.lib.domain.TrainPart
     local carrier = form[field_name][1]
@@ -453,10 +443,6 @@ end
 function public.validate_form(player)
     local form_data = public.read_form(player)
     local validator_rules = {
-        {
-            match = validator.match_by_name({"train"}),
-            rules = { private.validator_rule_has_locomotive },
-        },
         {
             match = validator.match_by_name({"train"}),
             rules = { private.validator_rule_has_main_locomotive },
