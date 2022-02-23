@@ -62,6 +62,8 @@ table.insert(prototypes, prototype)
 prototype = table.deepcopy(data.raw["lamp"]["small-lamp"])
 prototype.name = prototype_defines.entity.depot_building_input.name
 configure_depot_part_prototype(prototype)
+prototype.tile_width = 1
+prototype.tile_height = 1
 table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
@@ -82,6 +84,8 @@ table.insert(prototypes, prototype)
 prototype = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 prototype.name = prototype_defines.entity.depot_building_output.name
 configure_depot_part_prototype(prototype)
+prototype.tile_width = 1
+prototype.tile_height = 1
 table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
