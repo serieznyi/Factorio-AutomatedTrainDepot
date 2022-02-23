@@ -23,13 +23,6 @@ local rotate_relative_position = {
     end,
 }
 
-local opposite = {
-    [defines.direction.north] = defines.direction.south,
-    [defines.direction.east] = defines.direction.west,
-    [defines.direction.south] = defines.direction.north,
-    [defines.direction.west] = defines.direction.east,
-}
-
 local private = {}
 local public = {}
 local storage = {}
@@ -265,7 +258,7 @@ function public.build(player, entity)
     local depot_station_output = surface.create_entity({
         name = mod.defines.prototypes.entity.depot_building_train_stop_output.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
-        direction = opposite[entity.direction]
+        direction = flib_direction.opposite(entity.direction)
     })
     private.shadow_entity(depot_station_output)
     table.insert(dependent_entities, depot_station_output)
