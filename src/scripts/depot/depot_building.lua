@@ -3,11 +3,31 @@ local flib_direction = require('__flib__.direction')
 local Context = require('scripts.lib.domain.Context')
 
 local FORCE_DEFAULT = "player"
-local DEPOT_RAILS_COUNT = 5
-local RAIL_ENTITY_LENGTH = 2
 local SIGNAL_TYPE = {
     NORMAL = "rail-signal",
     CHAIN = "rail-chain-signal",
+}
+
+local rotate_relative_position = {
+    [defines.direction.north] = function(x, y)
+        return x, y
+    end,
+    [defines.direction.east] = function(x, y)
+        return y * -1, x
+    end,
+    [defines.direction.south] = function(x, y)
+        return x * -1, y * -1
+    end,
+    [defines.direction.west] = function(x, y)
+        return y, x * -1
+    end,
+}
+
+local opposite = {
+    [defines.direction.north] = defines.direction.south,
+    [defines.direction.east] = defines.direction.west,
+    [defines.direction.south] = defines.direction.north,
+    [defines.direction.west] = defines.direction.east,
 }
 
 local private = {}
@@ -66,58 +86,82 @@ function private.shadow_entity(entity)
 end
 
 ---@param rail_entity LuaEntity
----@param station_direction int
-function private.build_rail_signal(rail_entity, signal_type, station_direction)
-    local offset
-    if station_direction == defines.direction.south then offset = -1.5 else offset = 1.5 end
+---@param direction defines.direction
+function private.build_rail_signal(rail_entity, signal_type, direction)
+    local x, y = rotate_relative_position[direction](1.5, 0)
     local rail_signal = rail_entity.surface.create_entity({
         name = signal_type,
-        position = { rail_entity.position.x + offset, rail_entity.position.y },
-        direction = flib_direction.opposite(station_direction)
+        position = { rail_entity.position.x + x, rail_entity.position.y + y },
+        direction = flib_direction.opposite(direction)
     })
     private.shadow_entity(rail_signal)
-    rail_signal.operable = true
+    rail_signal.operable = true -- todo ?
+
     return rail_signal
 end
 
 ---@param surface LuaSurface
----@param position Position
+---@param start_position Position
 ---@param direction uint
 ---@param rails_count int
 ---@return table list of build rails
-function private.build_straight_rails(surface, position, direction, rails_count)
-    local offset
-    if direction == defines.direction.south then offset = -1.5 else offset = 1.5 end
-    local railX = position.x - offset
+function private.build_straight_rails(surface, start_position, direction, rails_count)
     local rails = {}
     local rail
-    for y = position.y, (position.y + (RAIL_ENTITY_LENGTH * rails_count)), RAIL_ENTITY_LENGTH do
-        rail = nil
-        rail = surface.create_entity({ name = "straight-rail",  position = { railX, y}})
-        private.shadow_entity(rail)
+    local x, y
+
+    for _ = 1, rails_count do
+        rail = surface.create_entity({ name = "straight-rail",  position = start_position, direction = direction })
         table.insert(rails, rail)
+
+        x, y = rotate_relative_position[direction](0, 2)
+        start_position = { x = rail.position.x + x, y = rail.position.y + y }
     end
 
     return rails
 end
 
----@param station_entity LuaEntity
----@param railsCount int
----@return table list of build rails
-function private.build_straight_rails_for_station(station_entity, railsCount)
-    local offset
-    if station_entity.direction == defines.direction.south then offset = -1.5 else offset = 1.5 end
-    local railX = station_entity.position.x - offset
-    local rails = {}
-    local rail
-    for y = station_entity.position.y, (station_entity.position.y + (RAIL_ENTITY_LENGTH * railsCount)), RAIL_ENTITY_LENGTH do
-        rail = nil
-        rail = station_entity.surface.create_entity({ name = "straight-rail",  position = { railX, y}})
-        private.shadow_entity(rail)
-        table.insert(rails, rail)
+---@param entity LuaEntity
+---@param direction defines.direction
+---@return LuaEntity
+function private.get_guideline(entity, direction)
+    -- todo check entity type
+
+    local function is_odd(number) return number % 2 == 1 end
+    local entity_position = entity.position
+    local x = entity_position.x
+    local y = entity_position.y
+
+    local variants = {
+        {x = x, y = y - 1},
+        {x = x, y = y + 1},
+        {x = x - 1, y = y},
+        {x = x + 1, y = y},
+        {x = x - 1, y = y - 1},
+        {x = x + 1, y = y - 1},
+        {x = x + 1, y = y + 1},
+        {x = x + 1, y = y + 1},
+    }
+
+    if is_odd(x) and is_odd(y) then
+        return entity_position
     end
 
-    return rails
+    for _, variant in ipairs(variants) do
+        if is_odd(variant.x) and is_odd(variant.y) then
+            return variant
+        end
+    end
+
+    error('logical error')
+end
+
+---@param position Position
+---@return bool
+function private.is_wrong_place(position)
+    local function is_odd(number) return number % 2 == 1 end
+
+    return not is_odd(position.x) or not is_odd(position.y)
 end
 
 ---------------------------------------------------------------------------
@@ -132,41 +176,66 @@ end
 ---@return void
 ---@param player LuaPlayer
 function public.build(player, entity)
+    if private.is_wrong_place(entity.position) then
+        local surface = entity.surface
+        local position = entity.position
+
+        entity.destroy()
+
+        surface.create_entity({
+            name = "flying-text",
+            text = "Wrong place: TODO", -- todo translate it
+            position = position,
+            color = {r = 1, g = 0.45, b = 0, a = 0.8},
+            force = player.force,
+        })
+        return
+    end
+
     local dependent_entities = {}
     ---@type LuaSurface
     local surface = entity.surface
+    ---@type Position
+    local guideline_coordinate = private.get_guideline(entity)
+    local x, y
+    local DEPOT_RAILS_COUNT = 8
 
     -- Input and output for logistic signals
 
-    local SIGNALS_POS_Y = entity.position.y + 5
-
+    x, y = rotate_relative_position[entity.direction](0.5, 2.5)
     local depot_signals_input = surface.create_entity({
         name = mod.defines.entity.depot_building_input.name,
-        position = {entity.position.x + 2, SIGNALS_POS_Y}
+        position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
+        direction = entity.direction,
     })
     private.shadow_entity(depot_signals_input)
     table.insert(dependent_entities, depot_signals_input)
 
+    x, y = rotate_relative_position[entity.direction](-0.5, 2.5)
     local depot_signals_output = surface.create_entity({
         name = mod.defines.entity.depot_building_output.name,
-        position = {entity.position.x - 1, SIGNALS_POS_Y}
+        position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
+        direction = entity.direction,
     })
     private.shadow_entity(depot_signals_output)
     table.insert(dependent_entities, depot_signals_output)
 
     -- Input station, rails and signals
-
+    x, y = rotate_relative_position[entity.direction](6, 0)
     local depot_station_input = surface.create_entity({
         name = mod.defines.entity.depot_building_train_stop_input.name,
-        position = {entity.position.x + 6.5, entity.position.y - 4.5}
+        position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
+        direction = entity.direction,
+
     })
     private.shadow_entity(depot_station_input)
     table.insert(dependent_entities, depot_station_input)
 
+    x, y = rotate_relative_position[entity.direction](4, -6)
     local input_rails = private.build_straight_rails(
             surface,
-            depot_station_input.position,
-            depot_station_input.direction,
+            {x = guideline_coordinate.x + x, y = guideline_coordinate.y + y},
+            entity.direction,
             DEPOT_RAILS_COUNT
     )
     for _,v in ipairs(input_rails) do table.insert(dependent_entities, v) end
@@ -176,20 +245,21 @@ function public.build(player, entity)
     table.insert(dependent_entities, input_rail_signal)
 
     -- Output station, rails and signals
-
+    x, y = rotate_relative_position[entity.direction](-6, 0)
     local depot_station_output = surface.create_entity({
         name = mod.defines.entity.depot_building_train_stop_output.name,
-        position = {entity.position.x - 6, entity.position.y + 4},
-        direction = defines.direction.south
+        position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
+        direction = opposite[entity.direction]
     })
-    depot_station_output.rotatable = true
     private.shadow_entity(depot_station_output)
     table.insert(dependent_entities, depot_station_output)
 
+    x, y = rotate_relative_position[entity.direction](-4, -6)
+
     local output_rails = private.build_straight_rails(
             surface,
-            {x = entity.position.x - 5.5, y = entity.position.y - 4.5},
-            depot_station_output.direction,
+            {x = guideline_coordinate.x + x, y = guideline_coordinate.y + y},
+            entity.direction,
             DEPOT_RAILS_COUNT
     )
     for _,v in ipairs(output_rails) do table.insert(dependent_entities, v) end

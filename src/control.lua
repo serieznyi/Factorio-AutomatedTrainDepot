@@ -49,7 +49,6 @@ commands.add_command("atd-global-keys", nil, function(command)
     player.print(mod.util.table.to_string(keys))
 end)
 
-
 ---------------------------------------------------------------------------
 -- -- -- REGISTER MAIN EVENTS
 ---------------------------------------------------------------------------
