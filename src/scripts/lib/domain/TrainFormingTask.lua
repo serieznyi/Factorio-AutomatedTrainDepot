@@ -162,11 +162,10 @@ end
 ---@param data table|scripts.lib.domain.TrainFormingTask
 ---@return scripts.lib.domain.TrainFormingTask
 function public.from_table(data)
-    local object = public.new(data.surface_name, data.force_name)
+    local object = public.new(data.surface_name, data.force_name, data.train_template_id)
 
     object.id = data.id
     object.type = data.type
-    object.train_template_id = data.train_template_id
     object.train_template = data.train_template
     object.main_locomotive = data.main_locomotive
     object.state = data.state
@@ -183,17 +182,16 @@ end
 function public.from_train_template(train_template)
     assert(train_template, "train_template is nil")
 
-    local task = public.new(train_template.surface_name, train_template.force_name)
-
-    task.train_template_id = train_template.id
+    local task = public.new(train_template.surface_name, train_template.force_name, train_template.id)
 
     return task
 end
 
 ---@param surface_name string
 ---@param force_name string
+---@param train_template_id uint
 ---@return scripts.lib.domain.TrainFormingTask
-function public.new(surface_name, force_name)
+function public.new(surface_name, force_name, train_template_id)
     ---@type scripts.lib.domain.TrainFormingTask
     local self = {}
     setmetatable(self, { __index = public })
@@ -203,6 +201,9 @@ function public.new(surface_name, force_name)
 
     assert(force_name, "force_name is nil")
     self.force_name = force_name
+
+    assert(train_template_id, "train_template_id is nil")
+    self.train_template_id = train_template_id
 
     return self
 end
