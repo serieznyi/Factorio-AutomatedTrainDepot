@@ -37,8 +37,7 @@ function public.entity_build(event)
     end
 
     if entity.name == "entity-ghost" and entity.ghost_name == mod.defines.prototypes.entity.depot_building.name then
-        local player = game.get_player(event.player_index)
-        depot_building.build_ghost(player, entity)
+        depot_building.build_ghost(entity)
     elseif entity.name == mod.defines.prototypes.entity.depot_building.name then
         local player = event.player_index ~= nil and game.get_player(event.player_index) or nil
 
@@ -55,8 +54,7 @@ function public.entity_rotated(event)
     end
 
     if entity.name == mod.defines.prototypes.entity.depot_building.name then
-        local player = game.get_player(event.player_index)
-        depot_building.revert_rotation(player, entity, event.previous_direction)
+        depot_building.revert_rotation(entity, event.previous_direction)
     end
 end
 

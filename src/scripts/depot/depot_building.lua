@@ -66,6 +66,19 @@ end
 ---------------------------------------------------------------------------
 
 ---@param entity LuaEntity
+---@param text table|string
+---@param color table
+function private.entity_flying_text(entity, text, color)
+    entity.surface.create_entity({
+        type = "flying-text",
+        name = "flying-text",
+        position = entity.position,
+        text = text,
+        color = color,
+    })
+end
+
+---@param entity LuaEntity
 function private.shadow_entity(entity)
     entity.force = FORCE_DEFAULT -- todo pass force as argument
     entity.operable = false
@@ -159,18 +172,6 @@ function private.is_wrong_place(position)
     local function is_odd(number) return number % 2 == 1 end
 
     return not is_odd(position.x) or not is_odd(position.y)
-end
-
----@param player LuaPlayer
----@param position Position
-function private.notify_about_wrong_place(player, position)
-    player.surface.create_entity({
-        name = "flying-text",
-        text = "Wrong place: TODO", -- todo translate it
-        position = position,
-        color = {r = 1, g = 0.45, b = 0, a = 0.8},
-        player = player,
-    })
 end
 
 ---@param entity LuaEntity
@@ -269,6 +270,40 @@ function private.build(context, entity)
     mod.log.debug('Depot on surface {1} for force {2} was build', {context.surface_name, context.force_name})
 end
 
+---@param player LuaPlayer
+function private.return_depot_in_inventory(player)
+    local inventory = player.get_main_inventory()
+    inventory.insert({name=mod.defines.prototypes.item.depot_building.name, count=1})
+end
+
+---@param entity LuaEntity
+---@return bool true if building break
+function private.try_break_building(entity)
+    local context = Context.from_entity(entity)
+    local depot_exists = storage.get_depot(context)
+    local wrong_place = private.is_wrong_place(entity.position)
+    local broken = false
+
+    if wrong_place or depot_exists then
+        broken = true
+
+        local error_message
+
+        if depot_exists then
+            error_message = "Only one depot can be placed on surface"
+        else
+            error_message = "Wrong place"
+        end
+
+        -- todo translate it
+        private.entity_flying_text(entity, error_message, mod.defines.color.write)
+
+        entity.destroy()
+    end
+
+    return broken
+end
+
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
@@ -280,13 +315,8 @@ end
 ---@param entity LuaEntity
 ---@return void
 ---@param player LuaPlayer
-function public.build_ghost(player, entity)
-    if private.is_wrong_place(entity.position) then
-        private.notify_about_wrong_place(player, entity.position)
-
-        entity.destroy()
-        return
-    end
+function public.build_ghost(entity)
+    private.try_break_building(entity)
 end
 
 ---@param entity LuaEntity
@@ -309,33 +339,20 @@ function private.is_depot_part(entity)
 end
 
 ---@param entity LuaEntity
----@param player LuaPlayer
 ---@param old_direction defines.direction
-function public.revert_rotation(player, entity, old_direction)
-    local surface = entity.surface
-
+function public.revert_rotation(entity, old_direction)
     entity.direction = old_direction
 
-    surface.create_entity({
-        name = "flying-text",
-        text = "Builded depot cant be rotated", -- todo translate it
-        position = entity.position,
-        color = mod.defines.color.red,
-        player = player,
-    })
+    -- todo translate it
+    private.entity_flying_text(entity, "Builded depot cant be rotated", mod.defines.color.write)
 end
 
 ---@param entity LuaEntity
 ---@param player LuaPlayer
 function public.build(entity, player)
-    if private.is_wrong_place(entity.position) then
-        private.notify_about_wrong_place(player, entity.position)
-
-        entity.destroy()
-
+    if private.try_break_building(entity) then
         if player then
-            local inventory = player.get_main_inventory()
-            inventory.insert({name=mod.defines.prototypes.item.depot_building.name, count=1})
+            private.return_depot_in_inventory(player)
         end
 
         return

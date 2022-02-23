@@ -1,8 +1,15 @@
 local public = {}
 
+local TICKS_PER_SECOND = 60
+
 public.color = {
     orange = {r = 1, g = 0.45, b = 0, a = 0.75},
     red = {r = 1, g = 0, b = 0, a = 0.75},
+    write = {r = 1, g = 1, b = 1, a = 1},
+}
+
+public.time_in_ticks = {
+    seconds_5 = TICKS_PER_SECOND * 5,
 }
 
 public.on_nth_tick = {

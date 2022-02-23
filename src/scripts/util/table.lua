@@ -94,28 +94,16 @@ function public.hash_code(table_arg)
     return hash_code
 end
 
----@param arrays table
----@param assoc bool
-function public.array_merge(arrays, assoc)
-    local associative = false
-
-    if assoc == true then
-        associative = true
-    end
-
-    local output = {}
-
-    if associative then
-        for _, array in ipairs(arrays) do
-            for key, value in pairs(array) do
-                output[key] = value
-            end
+---@param arrays table array of objects
+function public.objects_merge(arrays)
+    local result = {}
+    for _, array in ipairs(arrays) do
+        for key, value in pairs(array) do
+            result[key] = value
         end
-
-        return output
     end
 
-    return flib_table.array_merge(arrays)
+    return result
 end
 
 function public.array_values(array)
