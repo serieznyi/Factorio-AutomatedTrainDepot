@@ -81,11 +81,13 @@ end
 ---@param rail_entity LuaEntity
 ---@param direction defines.direction
 function private.build_rail_signal(rail_entity, signal_type, direction)
+    local force = rail_entity.force
     local x, y = rotate_relative_position[direction](1.5, 0)
     local rail_signal = rail_entity.surface.create_entity({
         name = signal_type,
         position = { rail_entity.position.x + x, rail_entity.position.y + y },
-        direction = flib_direction.opposite(direction)
+        direction = flib_direction.opposite(direction),
+        force = force,
     })
     private.shadow_entity(rail_signal)
     rail_signal.operable = true -- todo ?
@@ -94,17 +96,23 @@ function private.build_rail_signal(rail_entity, signal_type, direction)
 end
 
 ---@param surface LuaSurface
+---@param force LuaForce
 ---@param start_position Position
 ---@param direction uint
 ---@param rails_count int
 ---@return table list of build rails
-function private.build_straight_rails(surface, start_position, direction, rails_count)
+function private.build_straight_rails(surface, force, start_position, direction, rails_count)
     local rails = {}
     local rail
     local x, y
 
     for _ = 1, rails_count do
-        rail = surface.create_entity({ name = "straight-rail",  position = start_position, direction = direction })
+        rail = surface.create_entity({
+            name = "straight-rail",
+            position = start_position,
+            direction = direction,
+            force = force,
+        })
         table.insert(rails, rail)
 
         x, y = rotate_relative_position[direction](0, 2)
@@ -204,6 +212,8 @@ function public.build(player, entity)
     local dependent_entities = {}
     ---@type LuaSurface
     local surface = entity.surface
+    ---@type LuaForce
+    local force = entity.force
     ---@type Position
     local guideline_coordinate = private.get_guideline(entity)
     local x, y
@@ -216,6 +226,7 @@ function public.build(player, entity)
         name = mod.defines.prototypes.entity.depot_building_input.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = entity.direction,
+        force = force,
     })
     private.shadow_entity(depot_signals_input)
     table.insert(dependent_entities, depot_signals_input)
@@ -225,6 +236,7 @@ function public.build(player, entity)
         name = mod.defines.prototypes.entity.depot_building_output.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = entity.direction,
+        force = force,
     })
     private.shadow_entity(depot_signals_output)
     table.insert(dependent_entities, depot_signals_output)
@@ -243,6 +255,7 @@ function public.build(player, entity)
     x, y = rotate_relative_position[entity.direction](4, -6)
     local input_rails = private.build_straight_rails(
             surface,
+            force,
             {x = guideline_coordinate.x + x, y = guideline_coordinate.y + y},
             entity.direction,
             DEPOT_RAILS_COUNT
@@ -258,7 +271,8 @@ function public.build(player, entity)
     local depot_station_output = surface.create_entity({
         name = mod.defines.prototypes.entity.depot_building_train_stop_output.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
-        direction = flib_direction.opposite(entity.direction)
+        direction = flib_direction.opposite(entity.direction),
+        force = force,
     })
     private.shadow_entity(depot_station_output)
     table.insert(dependent_entities, depot_station_output)
@@ -267,6 +281,7 @@ function public.build(player, entity)
 
     local output_rails = private.build_straight_rails(
             surface,
+            force,
             {x = guideline_coordinate.x + x, y = guideline_coordinate.y + y},
             entity.direction,
             DEPOT_RAILS_COUNT
