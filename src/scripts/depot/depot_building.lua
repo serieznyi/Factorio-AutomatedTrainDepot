@@ -182,6 +182,9 @@ function public.build(player, entity)
 
         entity.destroy()
 
+        local inventory = player.get_main_inventory()
+        inventory.insert({name=mod.defines.prototypes.item.depot_building.name, count=1})
+
         surface.create_entity({
             name = "flying-text",
             text = "Wrong place: TODO", -- todo translate it
@@ -303,10 +306,11 @@ function public.get_depot_output_signal(context)
     return depot.output_signal
 end
 
----@param player LuaPlayer
+---@param entity LuaEntity
 ---@return void
-function public.destroy(player)
-    local context = Context.from_player(player)
+function public.destroy(entity)
+    local context = Context.from_entity(entity)
+
     local depot = storage.get_depot(context)
 
     if depot == nil then
