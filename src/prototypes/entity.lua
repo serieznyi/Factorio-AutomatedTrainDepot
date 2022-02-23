@@ -29,7 +29,7 @@ automated_train_depot_building.selection_box = { { selection_box.x1, selection_b
 automated_train_depot_building.collision_box = { { selection_box.x1 + 0.01, selection_box.y1 + 0.01},
                                                  { selection_box.x2 - 0.01, selection_box.y2 - 0.01}}
 automated_train_depot_building.minable = {mining_time = 1, result = prototype_defines.item.depot_building.name }
-automated_train_depot_building.create_ghost_on_death = true
+automated_train_depot_building.create_ghost_on_death = true -- todo not work
 
 --automated_train_depot_building.icon = nil todo check
 --automated_train_depot_building.icon_size = nil todo check
