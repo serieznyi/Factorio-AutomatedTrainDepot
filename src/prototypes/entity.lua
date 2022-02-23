@@ -23,7 +23,7 @@ automated_train_depot_building.tile_width = 2
 automated_train_depot_building.tile_height = 2
 automated_train_depot_building.name = prototype_defines.entity.depot_building.name
 automated_train_depot_building.selectable_in_game = true
-local selection_box = { x1 = -7, y1 = -8.5, x2 = 7, y2 = 7.0}
+local selection_box = { x1 = -7, y1 = -9, x2 = 7, y2 = 9 }
 automated_train_depot_building.selection_box = { { selection_box.x1, selection_box.y1},
                                                  { selection_box.x2, selection_box.y2}}
 automated_train_depot_building.collision_box = { { selection_box.x1 + 0.01, selection_box.y1 + 0.01},
