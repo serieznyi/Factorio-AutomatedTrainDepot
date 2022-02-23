@@ -29,7 +29,6 @@ end
 ---@param lua_entity LuaEntity
 function public.from_entity(lua_entity)
     return public.new(
-            nil,
             lua_entity.surface.name,
             lua_entity.force.name
     )
@@ -38,7 +37,6 @@ end
 ---@param entity table
 function public.from_model(entity)
     return public.new(
-            nil,
             entity.surface_name,
             entity.force_name
     )
@@ -47,7 +45,6 @@ end
 ---@param player LuaPlayer
 function public.from_player(player)
     return public.new(
-        player,
         player.surface.name,
         player.force.name
     )
@@ -60,16 +57,13 @@ function public.from_train(lua_train)
     return public.from_entity(carrier)
 end
 
----@param player LuaPlayer
 ---@param surface_name string
 ---@param force_name string
 ---@return scripts.lib.domain.Context
-function public.new(player, surface_name, force_name)
+function public.new(surface_name, force_name)
     ---@type scripts.lib.domain.Context
     local self = {}
     setmetatable(self, { __index = public, __tostring = private.to_string })
-
-    self.player_index = player and player.index or nil
 
     self.surface_name = surface_name or nil
     assert(self.surface_name, "surface_name is nil")

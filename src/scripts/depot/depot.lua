@@ -466,7 +466,7 @@ function private.balance_trains_count(data)
     -- todo get surface/force from tasks
     for surface_name, _ in pairs(game.surfaces) do
         for force_name, _ in pairs(game.forces) do
-            local context = Context.new(nil, surface_name, force_name)
+            local context = Context.new(surface_name, force_name)
 
             private.balance_trains_count_for_context(context, data)
         end

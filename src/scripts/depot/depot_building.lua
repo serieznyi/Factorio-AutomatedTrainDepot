@@ -177,76 +177,9 @@ function private.notify_about_wrong_place(player, position)
     })
 end
 
----------------------------------------------------------------------------
--- -- -- PUBLIC
----------------------------------------------------------------------------
-
-function public.init()
-    storage.init()
-end
-
 ---@param entity LuaEntity
----@return void
----@param player LuaPlayer
-function public.build_ghost(player, entity)
-    if private.is_wrong_place(entity.position) then
-        private.notify_about_wrong_place(player, entity.position)
-
-        entity.destroy()
-        return
-    end
-end
-
----@param entity LuaEntity
----@return bool
-function private.is_depot_part(entity)
-    local context = Context.from_entity(entity)
-    local depot = storage.get_depot(context)
-
-    if depot.depot_entity == entity then
-        return true
-    end
-
-    for _, dependent_entity in ipairs(depot.dependent_entities) do
-        if dependent_entity == entity then
-            return true
-        end
-    end
-
-    return false
-end
-
----@param entity LuaEntity
----@param player LuaPlayer
----@param old_direction defines.direction
-function public.revert_rotation(player, entity, old_direction)
-    local surface = entity.surface
-
-    entity.direction = old_direction
-
-    surface.create_entity({
-        name = "flying-text",
-        text = "Builded depot cant be rotated", -- todo translate it
-        position = entity.position,
-        color = mod.defines.color.red,
-        player = player,
-    })
-end
-
----@param entity LuaEntity
----@return void
----@param player LuaPlayer
-function public.build(player, entity)
-    if private.is_wrong_place(entity.position) then
-        private.notify_about_wrong_place(player, entity.position)
-
-        local inventory = player.get_main_inventory()
-        inventory.insert({name=mod.defines.prototypes.item.depot_building.name, count=1})
-
-        entity.destroy()
-        return
-    end
-
+---@param context scripts.lib.domain.Context
+function private.build(context, entity)
     local dependent_entities = {}
     ---@type LuaSurface
     local surface = entity.surface
@@ -330,7 +263,6 @@ function public.build(player, entity)
     local output_rail_signal = private.build_rail_signal(last_output_rail, SIGNAL_TYPE.NORMAL, depot_station_output.direction)
     table.insert(dependent_entities, output_rail_signal)
 
-    local context = Context.from_player(player)
     storage.save_depot(context, {
         depot_entity = entity,
         output_station = depot_station_output,
@@ -339,6 +271,83 @@ function public.build(player, entity)
     })
 
     mod.log.debug('Depot on surface {1} for force {2} was build', {context.surface_name, context.force_name})
+end
+
+---------------------------------------------------------------------------
+-- -- -- PUBLIC
+---------------------------------------------------------------------------
+
+function public.init()
+    storage.init()
+end
+
+---@param entity LuaEntity
+---@return void
+---@param player LuaPlayer
+function public.build_ghost(player, entity)
+    if private.is_wrong_place(entity.position) then
+        private.notify_about_wrong_place(player, entity.position)
+
+        entity.destroy()
+        return
+    end
+end
+
+---@param entity LuaEntity
+---@return bool
+function private.is_depot_part(entity)
+    local context = Context.from_entity(entity)
+    local depot = storage.get_depot(context)
+
+    if depot.depot_entity == entity then
+        return true
+    end
+
+    for _, dependent_entity in ipairs(depot.dependent_entities) do
+        if dependent_entity == entity then
+            return true
+        end
+    end
+
+    return false
+end
+
+---@param entity LuaEntity
+---@param player LuaPlayer
+---@param old_direction defines.direction
+function public.revert_rotation(player, entity, old_direction)
+    local surface = entity.surface
+
+    entity.direction = old_direction
+
+    surface.create_entity({
+        name = "flying-text",
+        text = "Builded depot cant be rotated", -- todo translate it
+        position = entity.position,
+        color = mod.defines.color.red,
+        player = player,
+    })
+end
+
+---@param entity LuaEntity
+---@param player LuaPlayer
+function public.build(entity, player)
+    if private.is_wrong_place(entity.position) then
+        private.notify_about_wrong_place(player, entity.position)
+
+        entity.destroy()
+
+        if player then
+            local inventory = player.get_main_inventory()
+            inventory.insert({name=mod.defines.prototypes.item.depot_building.name, count=1})
+        end
+
+        return
+    end
+
+    local context = Context.from_entity(entity)
+
+    private.build(context, entity)
 end
 
 ---@param context scripts.lib.domain.Context

@@ -40,8 +40,9 @@ function public.entity_build(event)
         local player = game.get_player(event.player_index)
         depot_building.build_ghost(player, entity)
     elseif entity.name == mod.defines.prototypes.entity.depot_building.name then
-        local player = game.get_player(event.player_index)
-        depot_building.build(player, entity)
+        local player = event.player_index ~= nil and game.get_player(event.player_index) or nil
+
+        depot_building.build(entity, player)
     end
 end
 
