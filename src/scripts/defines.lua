@@ -1,14 +1,5 @@
 local public = {}
 
-public.task = {
-    construct = {
-        id = 1,
-        state = {
-
-        }
-    },
-}
-
 public.on_nth_tick = {
     persistence_storage_gc = 18000, -- every 5 minute
     gui_pop_up = 1, -- every tick
@@ -38,7 +29,7 @@ public.train = {
     }
 }
 
-public.entity = require("prototypes.defines.entity")
+public.prototypes = require("prototypes.defines.index")
 
 public.gui = {
     actions = {

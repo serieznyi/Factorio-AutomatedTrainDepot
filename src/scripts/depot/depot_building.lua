@@ -204,7 +204,7 @@ function public.build(player, entity)
 
     x, y = rotate_relative_position[entity.direction](0.5, 2.5)
     local depot_signals_input = surface.create_entity({
-        name = mod.defines.entity.depot_building_input.name,
+        name = mod.defines.prototypes.entity.depot_building_input.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = entity.direction,
     })
@@ -213,7 +213,7 @@ function public.build(player, entity)
 
     x, y = rotate_relative_position[entity.direction](-0.5, 2.5)
     local depot_signals_output = surface.create_entity({
-        name = mod.defines.entity.depot_building_output.name,
+        name = mod.defines.prototypes.entity.depot_building_output.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = entity.direction,
     })
@@ -223,7 +223,7 @@ function public.build(player, entity)
     -- Input station, rails and signals
     x, y = rotate_relative_position[entity.direction](6, 0)
     local depot_station_input = surface.create_entity({
-        name = mod.defines.entity.depot_building_train_stop_input.name,
+        name = mod.defines.prototypes.entity.depot_building_train_stop_input.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = entity.direction,
 
@@ -247,7 +247,7 @@ function public.build(player, entity)
     -- Output station, rails and signals
     x, y = rotate_relative_position[entity.direction](-6, 0)
     local depot_station_output = surface.create_entity({
-        name = mod.defines.entity.depot_building_train_stop_output.name,
+        name = mod.defines.prototypes.entity.depot_building_train_stop_output.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = opposite[entity.direction]
     })

@@ -113,20 +113,20 @@ flib_event.register(
         },
         event_handler.entity_build,
         {
-            { filter="name", name= mod.defines.entity.depot_building.name },
+            { filter="name", name= mod.defines.prototypes.entity.depot_building.name },
         }
 )
 
 flib_event.register(
         {
-            defines.events.on_pre_player_mined_item,
-            defines.events.on_robot_pre_mined,
+            defines.events.on_player_mined_entity,
+            defines.events.on_robot_mined_entity,
             defines.events.on_entity_died,
             defines.events.script_raised_destroy,
         },
         event_handler.entity_dismantled,
         {
-            { filter="name", name= mod.defines.entity.depot_building.name },
+            { filter="name", name= mod.defines.prototypes.entity.depot_building.name },
             { filter="rolling-stock" },
         }
 )

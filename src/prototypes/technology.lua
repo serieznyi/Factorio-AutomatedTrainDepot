@@ -1,13 +1,15 @@
+local prototype_defines = require("defines.index")
+
 local automated_train_depot = {
     type = "technology",
-    name = "automated-train-depot",
+    name = prototype_defines.technology.automated_train_depot.name,
     icon = "__AutomatedTrainDepot__/media/graphics/technology/automated-train-depot.png",
     icon_size = 256,
     --icon_mipmaps = 4, todo use mipmaps
     effects = {
         {
             type = "unlock-recipe",
-            recipe = "atd-building"
+            recipe = prototype_defines.recipe.depot_building.name,
         }
     },
     prerequisites = { -- todo need balance

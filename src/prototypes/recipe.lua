@@ -1,8 +1,10 @@
+local prototype_defines = require("defines.index")
+
 local train_depot = {
     type = "recipe",
     category = "advanced-crafting",
     subgroup = "train-transport",
-    name = "atd-building",
+    name = prototype_defines.recipe.depot_building.name,
     enabled = false,
     ingredients = { -- todo balance it
         {"concrete", 1000},
@@ -13,7 +15,7 @@ local train_depot = {
         {"filter-inserter", 50},
         {"gate", 6},
     },
-    result = "atd-building",
+    result = prototype_defines.item.depot_building.name,
     result_count = 1,
 }
 

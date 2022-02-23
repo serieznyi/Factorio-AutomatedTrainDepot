@@ -36,7 +36,7 @@ function public.entity_build(event)
         return
     end
 
-    if entity.name == mod.defines.entity.depot_building.name then
+    if entity.name == mod.defines.prototypes.entity.depot_building.name then
         local player = game.get_player(event.player_index)
         depot_building.build(player, entity)
     end
@@ -50,7 +50,7 @@ function public.entity_dismantled(event)
         return
     end
 
-    if entity.name == mod.defines.entity.depot_building.name then
+    if entity.name == mod.defines.prototypes.entity.depot_building.name then
         local player = game.get_player(event.player_index)
         depot_building.destroy(player, entity)
     elseif private.is_rolling_stock(entity) then
@@ -84,7 +84,7 @@ function public.open_gui(event)
     ---@type LuaPlayer
     local player = game.get_player(event.player_index)
 
-    if entity.name == mod.defines.entity.depot_building.name then
+    if entity.name == mod.defines.prototypes.entity.depot_building.name then
         gui_main_frame.open(player)
     end
 end
