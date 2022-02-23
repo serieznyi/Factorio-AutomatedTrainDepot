@@ -257,7 +257,6 @@ function private.try_build_train(context, task, tick)
     elseif task:is_state_deploying() and result_train_length == target_train_length then
         local trains_in_block = false
         for _, rail in ipairs(depot_station_signal.get_connected_rails()) do
-            game.get_player(1).print(mod.util.table.to_string(rail.position))
             if rail.trains_in_block > 0 then
                 trains_in_block = true
                 break
