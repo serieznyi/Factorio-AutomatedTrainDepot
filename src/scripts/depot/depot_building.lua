@@ -165,13 +165,15 @@ function private.is_wrong_place(position)
     return not is_odd(position.x) or not is_odd(position.y)
 end
 
-function private.notify_about_wrong_place(surface, force, position)
-    surface.create_entity({
+---@param player LuaPlayer
+---@param position Position
+function private.notify_about_wrong_place(player, position)
+    player.surface.create_entity({
         name = "flying-text",
         text = "Wrong place: TODO", -- todo translate it
         position = position,
         color = {r = 1, g = 0.45, b = 0, a = 0.8},
-        force = force,
+        player = player,
     })
 end
 
@@ -188,6 +190,8 @@ end
 ---@param player LuaPlayer
 function public.build_ghost(player, entity)
     if private.is_wrong_place(entity.position) then
+        private.notify_about_wrong_place(player, entity.position)
+
         entity.destroy()
 
         private.notify_about_wrong_place(entity.surface, player.force, entity.position)
@@ -200,12 +204,12 @@ end
 ---@param player LuaPlayer
 function public.build(player, entity)
     if private.is_wrong_place(entity.position) then
-        entity.destroy()
+        private.notify_about_wrong_place(player, entity.position)
 
         local inventory = player.get_main_inventory()
         inventory.insert({name=mod.defines.prototypes.item.depot_building.name, count=1})
 
-        private.notify_about_wrong_place(entity.surface, player.force, entity.position)
+        entity.destroy()
         return
     end
 
@@ -247,7 +251,7 @@ function public.build(player, entity)
         name = mod.defines.prototypes.entity.depot_building_train_stop_input.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = entity.direction,
-
+        force = force,
     })
     private.shadow_entity(depot_station_input)
     table.insert(dependent_entities, depot_station_input)
