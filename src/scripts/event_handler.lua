@@ -36,7 +36,10 @@ function public.entity_build(event)
         return
     end
 
-    if entity.name == mod.defines.prototypes.entity.depot_building.name then
+    if entity.name == "entity-ghost" and entity.ghost_name == mod.defines.prototypes.entity.depot_building.name then
+        local player = game.get_player(event.player_index)
+        depot_building.build_ghost(player, entity)
+    elseif entity.name == mod.defines.prototypes.entity.depot_building.name then
         local player = game.get_player(event.player_index)
         depot_building.build(player, entity)
     end
@@ -51,8 +54,7 @@ function public.entity_dismantled(event)
     end
 
     if entity.name == mod.defines.prototypes.entity.depot_building.name then
-        local player = game.get_player(event.player_index)
-        depot_building.destroy(player, entity)
+        depot_building.destroy(entity)
     elseif private.is_rolling_stock(entity) then
         local left_carriages = flib_table.filter(entity.train.carriages, function(e)
             return e.unit_number ~= entity.unit_number

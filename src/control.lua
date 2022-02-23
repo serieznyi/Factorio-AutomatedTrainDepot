@@ -114,6 +114,7 @@ flib_event.register(
         event_handler.entity_build,
         {
             { filter="name", name= mod.defines.prototypes.entity.depot_building.name },
+            { filter="ghost_name", name= mod.defines.prototypes.entity.depot_building.name },
         }
 )
 

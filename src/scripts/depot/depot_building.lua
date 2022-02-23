@@ -164,6 +164,16 @@ function private.is_wrong_place(position)
     return not is_odd(position.x) or not is_odd(position.y)
 end
 
+function private.notify_about_wrong_place(surface, force, position)
+    surface.create_entity({
+        name = "flying-text",
+        text = "Wrong place: TODO", -- todo translate it
+        position = position,
+        color = {r = 1, g = 0.45, b = 0, a = 0.8},
+        force = force,
+    })
+end
+
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
@@ -175,23 +185,26 @@ end
 ---@param entity LuaEntity
 ---@return void
 ---@param player LuaPlayer
+function public.build_ghost(player, entity)
+    if private.is_wrong_place(entity.position) then
+        entity.destroy()
+
+        private.notify_about_wrong_place(entity.surface, player.force, entity.position)
+        return
+    end
+end
+
+---@param entity LuaEntity
+---@return void
+---@param player LuaPlayer
 function public.build(player, entity)
     if private.is_wrong_place(entity.position) then
-        local surface = entity.surface
-        local position = entity.position
-
         entity.destroy()
 
         local inventory = player.get_main_inventory()
         inventory.insert({name=mod.defines.prototypes.item.depot_building.name, count=1})
 
-        surface.create_entity({
-            name = "flying-text",
-            text = "Wrong place: TODO", -- todo translate it
-            position = position,
-            color = {r = 1, g = 0.45, b = 0, a = 0.8},
-            force = player.force,
-        })
+        private.notify_about_wrong_place(entity.surface, player.force, entity.position)
         return
     end
 
