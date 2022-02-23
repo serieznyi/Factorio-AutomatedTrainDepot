@@ -1,89 +1,101 @@
 local prototype_defines = require("defines.index")
+local mod_table = require("scripts.util.table")
 
-local flags = {
-    "hidden",
-    "hide-alt-info",
-    "not-selectable-in-game",
-    "not-in-kill-statistics",
-    "not-deconstructable",
-    "not-blueprintable",
-}
+---@param selection_box BoundingBox
+---@return BoundingBox
+local function selection_box_to_collision_box(selection_box)
+    return {
+        left_top = {
+            x = selection_box.left_top.x + 0.01,
+            y = selection_box.left_top.y + 0.01
+        },
+        right_bottom = {
+            x = selection_box.right_bottom.x - 0.01,
+            y = selection_box.right_bottom.y - 0.01
+        }
+    }
+end
 
-local empty_sprite =
-{
-    filename = "__core__/graphics/empty.png",
-    width = 1,
-    height = 1,
-    frame_count = 1
-}
-local empty_collision_box = {{0, 0}, {0, 0}}
+---@param prototype LuaEntityPrototype
+local function configure_depot_part_prototype(prototype)
+    local empty_box = {{0, 0}, {0, 0}}
 
-local automated_train_depot_building = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
-automated_train_depot_building.tile_width = 2
-automated_train_depot_building.tile_height = 2
-automated_train_depot_building.name = prototype_defines.entity.depot_building.name
-automated_train_depot_building.selectable_in_game = true
-local selection_box = { x1 = -7, y1 = -9, x2 = 7, y2 = 9 }
-automated_train_depot_building.selection_box = { { selection_box.x1, selection_box.y1},
-                                                 { selection_box.x2, selection_box.y2}}
-automated_train_depot_building.collision_box = { { selection_box.x1 + 0.01, selection_box.y1 + 0.01},
-                                                 { selection_box.x2 - 0.01, selection_box.y2 - 0.01}}
-automated_train_depot_building.minable = {mining_time = 1, result = prototype_defines.item.depot_building.name }
-automated_train_depot_building.create_ghost_on_death = true -- todo not work
+    prototype.selectable_in_game = false
+    prototype.minable = nil
+    prototype.selection_priority = 1
+    prototype.collision_box = empty_box
+    prototype.selection_box = empty_box
+    prototype.collision_mask = nil
+    prototype.flags = {
+        "hidden",
+        "hide-alt-info",
+        "not-selectable-in-game",
+        "not-in-kill-statistics",
+        "not-deconstructable",
+        "not-blueprintable",
+    }
+end
 
---automated_train_depot_building.icon = nil todo check
---automated_train_depot_building.icon_size = nil todo check
---automated_train_depot_building.icons = nil todo check
---automated_train_depot_building.icon_mipmaps = nil todo check
+local prototypes = {}
 
-local automated_train_depot_building_input = table.deepcopy(data.raw["lamp"]["small-lamp"])
-automated_train_depot_building_input.name = prototype_defines.entity.depot_building_input.name
-automated_train_depot_building_input.flags = flags
-automated_train_depot_building_input.minable = nil
-automated_train_depot_building_input.collision_mask = nil
-automated_train_depot_building_input.collision_box = empty_collision_box
+------------- PROTOTYPE
 
-local automated_train_depot_straight_rail = table.deepcopy(data.raw["straight-rail"]["straight-rail"])
-automated_train_depot_straight_rail.name = prototype_defines.entity.depot_building_straight_rail.name
-automated_train_depot_straight_rail.flags = flags
-automated_train_depot_straight_rail.minable = nil
-automated_train_depot_straight_rail.collision_mask = nil
-automated_train_depot_straight_rail.collision_box = empty_collision_box
+local prototype = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
+prototype.tile_width = 2
+prototype.tile_height = 2
+prototype.name = prototype_defines.entity.depot_building.name
+prototype.selectable_in_game = true
+prototype.selection_priority = 200
+prototype.selection_box = { left_top = { x = -7, y = -9}, right_bottom = { x = 7, y = 9}}
+prototype.collision_box = selection_box_to_collision_box(prototype.selection_box)
+prototype.minable = { mining_time = 1, result = prototype_defines.item.depot_building.name }
+prototype.create_ghost_on_death = true -- todo not work
+--entity.icon = nil todo check
+--entity.icon_size = nil todo check
+--entity.icons = nil todo check
+--entity.icon_mipmaps = nil todo check
 
-local automated_train_depot_rail_signal = table.deepcopy(data.raw["rail-signal"]["rail-signal"])
-automated_train_depot_rail_signal.name = prototype_defines.entity.depot_building_rail_signal.name
-automated_train_depot_rail_signal.flags = flags
-automated_train_depot_rail_signal.minable = nil
-automated_train_depot_rail_signal.collision_mask = nil
-automated_train_depot_rail_signal.collision_box = empty_collision_box
+table.insert(prototypes, prototype)
 
-local automated_train_depot_building_output = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
-automated_train_depot_building_output.name = prototype_defines.entity.depot_building_output.name
-automated_train_depot_building_output.flags = flags
-automated_train_depot_building_input.minable = nil
-automated_train_depot_building_input.collision_mask = nil
-automated_train_depot_building_input.collision_box = empty_collision_box
+------------- PROTOTYPE
 
-local automated_train_depot_building_train_stop_input = table.deepcopy(data.raw["train-stop"]["train-stop"])
-automated_train_depot_building_train_stop_input.name = prototype_defines.entity.depot_building_train_stop_input.name
-automated_train_depot_building_train_stop_input.flags = flags
-automated_train_depot_building_input.minable = nil
-automated_train_depot_building_input.collision_mask = nil
-automated_train_depot_building_input.collision_box = empty_collision_box
+prototype = table.deepcopy(data.raw["lamp"]["small-lamp"])
+prototype.name = prototype_defines.entity.depot_building_input.name
+configure_depot_part_prototype(prototype)
+table.insert(prototypes, prototype)
 
-local automated_train_depot_building_train_stop_output = table.deepcopy(data.raw["train-stop"]["train-stop"])
-automated_train_depot_building_train_stop_output.name = prototype_defines.entity.depot_building_train_stop_output.name
-automated_train_depot_building_train_stop_output.flags = flags
-automated_train_depot_building_input.minable = nil
-automated_train_depot_building_input.collision_mask = nil
-automated_train_depot_building_input.collision_box = empty_collision_box
+------------- PROTOTYPE
 
-data:extend({
-    automated_train_depot_building,
-    automated_train_depot_building_input,
-    automated_train_depot_building_output,
-    automated_train_depot_building_train_stop_input,
-    automated_train_depot_building_train_stop_output,
-    automated_train_depot_straight_rail,
-    automated_train_depot_rail_signal,
-})
+prototype = table.deepcopy(data.raw["straight-rail"]["straight-rail"])
+prototype.name = prototype_defines.entity.depot_building_straight_rail.name
+configure_depot_part_prototype(prototype)
+table.insert(prototypes, prototype)
+
+------------- PROTOTYPE
+
+prototype = table.deepcopy(data.raw["rail-signal"]["rail-signal"])
+prototype.name = prototype_defines.entity.depot_building_rail_signal.name
+configure_depot_part_prototype(prototype)
+table.insert(prototypes, prototype)
+
+------------- PROTOTYPE
+prototype = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
+prototype.name = prototype_defines.entity.depot_building_output.name
+configure_depot_part_prototype(prototype)
+table.insert(prototypes, prototype)
+
+------------- PROTOTYPE
+
+prototype = table.deepcopy(data.raw["train-stop"]["train-stop"])
+prototype.name = prototype_defines.entity.depot_building_train_stop_input.name
+configure_depot_part_prototype(prototype)
+table.insert(prototypes, prototype)
+
+------------- PROTOTYPE
+
+prototype = table.deepcopy(data.raw["train-stop"]["train-stop"])
+prototype.name = prototype_defines.entity.depot_building_train_stop_output.name
+configure_depot_part_prototype(prototype)
+table.insert(prototypes, prototype)
+
+data:extend(prototypes)
