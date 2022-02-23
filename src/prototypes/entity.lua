@@ -43,6 +43,20 @@ automated_train_depot_building_input.minable = nil
 automated_train_depot_building_input.collision_mask = nil
 automated_train_depot_building_input.collision_box = empty_collision_box
 
+local automated_train_depot_straight_rail = table.deepcopy(data.raw["straight-rail"]["straight-rail"])
+automated_train_depot_straight_rail.name = prototype_defines.entity.depot_building_straight_rail.name
+automated_train_depot_straight_rail.flags = flags
+automated_train_depot_straight_rail.minable = nil
+automated_train_depot_straight_rail.collision_mask = nil
+automated_train_depot_straight_rail.collision_box = empty_collision_box
+
+local automated_train_depot_rail_signal = table.deepcopy(data.raw["rail-signal"]["rail-signal"])
+automated_train_depot_rail_signal.name = prototype_defines.entity.depot_building_rail_signal.name
+automated_train_depot_rail_signal.flags = flags
+automated_train_depot_rail_signal.minable = nil
+automated_train_depot_rail_signal.collision_mask = nil
+automated_train_depot_rail_signal.collision_box = empty_collision_box
+
 local automated_train_depot_building_output = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 automated_train_depot_building_output.name = prototype_defines.entity.depot_building_output.name
 automated_train_depot_building_output.flags = flags
@@ -70,4 +84,6 @@ data:extend({
     automated_train_depot_building_output,
     automated_train_depot_building_train_stop_input,
     automated_train_depot_building_train_stop_output,
+    automated_train_depot_straight_rail,
+    automated_train_depot_rail_signal,
 })

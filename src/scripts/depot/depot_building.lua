@@ -3,10 +3,6 @@ local flib_direction = require('__flib__.direction')
 local Context = require('scripts.lib.domain.Context')
 
 local FORCE_DEFAULT = "player"
-local SIGNAL_TYPE = {
-    NORMAL = "rail-signal",
-    CHAIN = "rail-chain-signal",
-}
 
 local rotate_relative_position = { --todo move to mod.direction module
     [defines.direction.north] = function(x, y)
@@ -71,7 +67,7 @@ end
 
 ---@param entity LuaEntity
 function private.shadow_entity(entity)
-    entity.force = FORCE_DEFAULT
+    entity.force = FORCE_DEFAULT -- todo pass force as argument
     entity.operable = false
     entity.minable = false
     entity.destructible = false
@@ -80,11 +76,11 @@ end
 
 ---@param rail_entity LuaEntity
 ---@param direction defines.direction
-function private.build_rail_signal(rail_entity, signal_type, direction)
+function private.build_rail_signal(rail_entity, direction)
     local force = rail_entity.force
     local x, y = rotate_relative_position[direction](1.5, 0)
     local rail_signal = rail_entity.surface.create_entity({
-        name = signal_type,
+        name = mod.defines.prototypes.entity.depot_building_rail_signal.name,
         position = { rail_entity.position.x + x, rail_entity.position.y + y },
         direction = flib_direction.opposite(direction),
         force = force,
@@ -108,7 +104,7 @@ function private.build_straight_rails(surface, force, start_position, direction,
 
     for _ = 1, rails_count do
         rail = surface.create_entity({
-            name = "straight-rail",
+            name = mod.defines.prototypes.entity.depot_building_straight_rail.name,
             position = start_position,
             direction = direction,
             force = force,
@@ -234,7 +230,7 @@ function private.build(context, entity)
     for _,v in ipairs(input_rails) do table.insert(dependent_entities, v) end
     local last_input_rail = input_rails[#input_rails]
 
-    local input_rail_signal = private.build_rail_signal(last_input_rail, SIGNAL_TYPE.NORMAL, depot_station_input.direction)
+    local input_rail_signal = private.build_rail_signal(last_input_rail, depot_station_input.direction)
     table.insert(dependent_entities, input_rail_signal)
 
     -- Output station, rails and signals
@@ -260,7 +256,7 @@ function private.build(context, entity)
     for _,v in ipairs(output_rails) do table.insert(dependent_entities, v) end
     local last_output_rail = output_rails[#output_rails]
 
-    local output_rail_signal = private.build_rail_signal(last_output_rail, SIGNAL_TYPE.NORMAL, depot_station_output.direction)
+    local output_rail_signal = private.build_rail_signal(last_output_rail, depot_station_output.direction)
     table.insert(dependent_entities, output_rail_signal)
 
     storage.save_depot(context, {

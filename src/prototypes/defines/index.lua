@@ -6,6 +6,12 @@ return {
         depot_building_input = {
             name = "atd-building-input-entity",
         },
+        depot_building_straight_rail = {
+            name = "atd-building-straight-rail-entity",
+        },
+        depot_building_rail_signal = {
+            name = "atd-building-rail-signal-entity",
+        },
         depot_building_output = {
             name = "atd-building-output-entity",
         },
