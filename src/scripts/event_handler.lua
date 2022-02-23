@@ -46,6 +46,20 @@ function public.entity_build(event)
 end
 
 ---@param event EventData
+function public.entity_rotated(event)
+    local entity = event.entity
+
+    if not entity or not entity.valid then
+        return
+    end
+
+    if entity.name == mod.defines.prototypes.entity.depot_building.name then
+        local player = game.get_player(event.player_index)
+        depot_building.revert_rotation(player, entity, event.previous_direction)
+    end
+end
+
+---@param event EventData
 function public.entity_dismantled(event)
     local entity = event.entity
 

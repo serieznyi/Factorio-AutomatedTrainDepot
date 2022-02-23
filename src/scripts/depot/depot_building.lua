@@ -8,7 +8,7 @@ local SIGNAL_TYPE = {
     CHAIN = "rail-chain-signal",
 }
 
-local rotate_relative_position = {
+local rotate_relative_position = { --todo move to mod.direction module
     [defines.direction.north] = function(x, y)
         return x, y
     end,
@@ -193,10 +193,44 @@ function public.build_ghost(player, entity)
         private.notify_about_wrong_place(player, entity.position)
 
         entity.destroy()
-
-        private.notify_about_wrong_place(entity.surface, player.force, entity.position)
         return
     end
+end
+
+---@param entity LuaEntity
+---@return bool
+function private.is_depot_part(entity)
+    local context = Context.from_entity(entity)
+    local depot = storage.get_depot(context)
+
+    if depot.depot_entity == entity then
+        return true
+    end
+
+    for _, dependent_entity in ipairs(depot.dependent_entities) do
+        if dependent_entity == entity then
+            return true
+        end
+    end
+
+    return false
+end
+
+---@param entity LuaEntity
+---@param player LuaPlayer
+---@param old_direction defines.direction
+function public.revert_rotation(player, entity, old_direction)
+    local surface = entity.surface
+
+    entity.direction = old_direction
+
+    surface.create_entity({
+        name = "flying-text",
+        text = "Builded depot cant be rotated", -- todo translate it
+        position = entity.position,
+        color = mod.defines.color.red,
+        player = player,
+    })
 end
 
 ---@param entity LuaEntity

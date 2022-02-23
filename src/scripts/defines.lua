@@ -1,5 +1,10 @@
 local public = {}
 
+public.color = {
+    orange = {r = 1, g = 0.45, b = 0, a = 0.75},
+    red = {r = 1, g = 0, b = 0, a = 0.75},
+}
+
 public.on_nth_tick = {
     persistence_storage_gc = 18000, -- every 5 minute
     gui_pop_up = 1, -- every tick

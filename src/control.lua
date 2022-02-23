@@ -119,6 +119,11 @@ flib_event.register(
 )
 
 flib_event.register(
+        defines.events.on_player_rotated_entity,
+        event_handler.entity_rotated
+)
+
+flib_event.register(
         {
             defines.events.on_player_mined_entity,
             defines.events.on_robot_mined_entity,
