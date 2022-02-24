@@ -13,6 +13,9 @@ local private = {}
 
 ---@param train_template scripts.lib.domain.TrainTemplate
 function public.get(train_template)
+    local QUANTITY_ONE = 1
+    local QUANTITY_FIVE = 5
+
     return {
         type = "frame",
         direction = "vertical",
@@ -55,54 +58,6 @@ function public.get(train_template)
                     {
                         type = "flow",
                         direction = "horizontal",
-                        children = {
-                            {
-                                type = "button",
-                                style = "tool_button",
-                                caption = "-1",
-                                actions = {
-                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = -1 }
-                                },
-                            },
-                            {
-                                type = "button",
-                                style = "tool_button",
-                                caption = "-5",
-                                actions = {
-                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = -5 }
-                                },
-                            },
-                            {
-                                type = "textfield",
-                                numeric = true,
-                                lose_focus_on_confirm = true,
-                                enabled = false,
-                                allow_decimal = false,
-                                allow_negative = false,
-                                text = train_template.trains_quantity,
-                                ref = {"trains_quantity"},
-                            },
-                            {
-                                type = "button",
-                                style = "tool_button",
-                                caption = "+5",
-                                actions = {
-                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = 5 }
-                                },
-                            },
-                            {
-                                type = "button",
-                                style = "tool_button",
-                                caption = "+1",
-                                actions = {
-                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = 1 }
-                                },
-                            },
-                        }
-                    },
-                    {
-                        type = "flow",
-                        direction = "horizontal",
                         ref = { "tasks_progress_container" },
                     }
                 }
@@ -114,6 +69,59 @@ function public.get(train_template)
                 direction = "horizontal",
                 ref = {"footerbar_flow"},
                 children = {
+                    {
+                        type = "flow",
+                        direction = "horizontal",
+                        children = {
+                            {
+                                type = "button",
+                                style = "tool_button",
+                                caption = "-" .. QUANTITY_ONE,
+                                tooltip = { "train-template-view-component.atd-decrease-trains-count-button-tooltip", QUANTITY_ONE },
+                                actions = {
+                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = QUANTITY_ONE * -1 }
+                                },
+                            },
+                            {
+                                type = "button",
+                                style = "tool_button",
+                                caption = "-" .. QUANTITY_FIVE,
+                                tooltip = { "train-template-view-component.atd-decrease-trains-count-button-tooltip", QUANTITY_FIVE },
+                                actions = {
+                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = QUANTITY_FIVE * -1 }
+                                },
+                            },
+                            {
+                                type = "textfield",
+                                numeric = true,
+                                lose_focus_on_confirm = true,
+                                enabled = false,
+                                style = "atd_trains_quantity_textfield",
+                                allow_decimal = false,
+                                allow_negative = false,
+                                text = train_template.trains_quantity,
+                                ref = {"trains_quantity"},
+                            },
+                            {
+                                type = "button",
+                                style = "tool_button",
+                                caption = "+" .. QUANTITY_FIVE,
+                                tooltip = { "train-template-view-component.atd-increase-trains-count-button-tooltip", QUANTITY_FIVE },
+                                actions = {
+                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = QUANTITY_FIVE }
+                                },
+                            },
+                            {
+                                type = "button",
+                                style = "tool_button",
+                                caption = "+" .. QUANTITY_ONE,
+                                tooltip = { "train-template-view-component.atd-increase-trains-count-button-tooltip", QUANTITY_ONE },
+                                actions = {
+                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = QUANTITY_ONE }
+                                },
+                            },
+                        }
+                    },
                     {
                         type = "empty-widget",
                         ignored_by_interaction = true,

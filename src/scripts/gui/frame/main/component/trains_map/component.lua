@@ -109,8 +109,7 @@ function public.create(container, player, trains)
     assert(container, "container is nil")
     assert(player, "player is nil")
 
-    -- todo add real caption
-    local caption = {"train-view.some-caption"}
+    local caption = {"trains-map.atd-uncontrolled-trains"}
     local refs = flib_gui.build(container, {build_structure.get(caption)})
 
     storage.set(player, container, refs)

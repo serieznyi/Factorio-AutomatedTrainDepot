@@ -50,3 +50,8 @@ styles["error_label"] = {
     font = "default-semibold",
     font_color = { r = 227, g = 44, b = 44 },
 }
+
+styles["atd_trains_quantity_textfield"] = {
+    type = "textbox_style",
+    font_color = { r = 1, g = 1, b = 1, a = 1 },
+}
