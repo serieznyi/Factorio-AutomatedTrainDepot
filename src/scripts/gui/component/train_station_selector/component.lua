@@ -27,11 +27,28 @@ function private.get_value(refs)
     return refs.drop_down.items[refs.drop_down.selected_index]
 end
 
+---@param train_stations table
+---@return table
+function private.exclude_depot_train_stations(train_stations)
+    local depot_train_stations_prototype_names = {
+        mod.defines.prototypes.entity.depot_building_train_stop_input.name,
+        mod.defines.prototypes.entity.depot_building_train_stop_output.name,
+    }
+
+    local function is_not_depot_train_station(station)
+        return not flib_table.find(depot_train_stations_prototype_names, station.prototype.name)
+    end
+
+    return flib_table.filter(train_stations, is_not_depot_train_station)
+end
+
 ---@param force LuaForce
 ---@param surface LuaSurface
 ---@param selected_station_name string
 function private.get_train_stations(surface, force, selected_station_name)
     local train_stations = game.get_train_stops({surface = surface, force = force})
+
+    train_stations = private.exclude_depot_train_stations(train_stations)
 
     ---@param station LuaEntity
     local train_stations_names = flib_table.map(train_stations, function(station)
@@ -55,7 +72,7 @@ end
 --- @module gui.component.TrainStationSelector
 local TrainStationSelector = {
     ---@type string
-    selected_station_name = nil,
+    selected_name = nil,
     ---@type LuaForce
     force = nil,
     ---@type LuaSurface
@@ -95,11 +112,11 @@ function TrainStationSelector:build(container)
 
     self.refs = flib_gui.build(container, { private.build_structure(train_stations, self.actions) })
 
-    if self.selected_station_name == nil or self.selected_station_name == "" then
+    if self.selected_name == nil or self.selected_name == "" then
         self.refs.drop_down.selected_index = 1
     else
         for i, v in ipairs(self.refs.drop_down.items) do
-            if v == self.selected_station_name then
+            if v == self.selected_name then
                 self.refs.drop_down.selected_index = i
             end
         end
@@ -123,7 +140,7 @@ function TrainStationSelector.new(surface, force, actions, selected_station_name
     self.surface = surface
 
     if selected_station_name ~= nil then
-        self.selected_station_name = selected_station_name
+        self.selected_name = selected_station_name
     end
 
     if actions ~= nil then
