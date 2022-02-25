@@ -201,24 +201,7 @@ function private.validation_rules()
             match = validator.match_by_name({"icon"}),
             rules = { validator.rule_empty },
         },
-        {
-            match = validator.match_by_name({"clean_station"}),
-            rules = { private.validation_not_same },
-        },
     }
-end
-
----@param field_name string
----@param form table
-function private.validation_not_same(field_name, form)
-    local value1 = form["clean_station"]
-    local value2 = form["destination_station"]
-
-    if value1 ~= nil and value1 ~= "" and value1 == value2 then
-        return {"validation-message.cant-be-equals", "default_clean_station", "default_destination_station"}
-    end
-
-    return nil
 end
 
 ---@param player LuaPlayer
