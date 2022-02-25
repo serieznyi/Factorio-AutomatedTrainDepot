@@ -39,13 +39,12 @@ function private.exclude_depot_train_stations(train_stations)
         return not flib_table.find(depot_train_stations_prototype_names, station.prototype.name)
     end
 
-    return flib_table.filter(train_stations, is_not_depot_train_station)
+    return flib_table.filter(train_stations, is_not_depot_train_station, true)
 end
 
 ---@param force LuaForce
 ---@param surface LuaSurface
----@param selected_station_name string
-function private.get_train_stations(surface, force, selected_station_name)
+function private.get_train_stations(surface, force)
     local train_stations = game.get_train_stops({surface = surface, force = force})
 
     train_stations = private.exclude_depot_train_stations(train_stations)
@@ -59,10 +58,7 @@ function private.get_train_stations(surface, force, selected_station_name)
 
     table.sort(train_stations_names)
 
-    return flib_table.array_merge({
-        selected_station_name == nil and {""} or {},
-        train_stations_names,
-    })
+    return train_stations_names
 end
 
 ---------------------------------------------------------------------------
@@ -112,7 +108,7 @@ function TrainStationSelector:build(container)
 
     self.refs = flib_gui.build(container, { private.build_structure(train_stations, self.actions) })
 
-    if self.selected_name == nil or self.selected_name == "" then
+    if self.selected_name == nil then
         self.refs.drop_down.selected_index = 1
     else
         for i, v in ipairs(self.refs.drop_down.items) do
