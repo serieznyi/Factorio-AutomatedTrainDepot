@@ -88,7 +88,7 @@ end
 function public:start_forming_train(tick, multiplier, train_template)
     assert(tick, "tick is nil")
 
-    assert(self.state == constants.state.created or self.state == constants.state.paused, "wrong state")
+    assert(self.state == constants.state.created, "wrong state")
 
     self.state = constants.state.forming
 
