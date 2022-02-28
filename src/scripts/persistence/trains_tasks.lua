@@ -1,6 +1,7 @@
 local flib_table = require("__flib__.table")
 
 local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
+local TrainDisbandTask = require("scripts.lib.domain.TrainDisbandTask")
 local Sequence = require("scripts.lib.Sequence")
 local gc = require("scripts.persistence.gc")
 
@@ -144,6 +145,22 @@ function public.count_forming_tasks(context, train_template_id)
     local tasks = private.find_trains_tasks(
             context,
             TrainFormingTask.defines.type,
+            train_template_id,
+            nil
+    )
+
+    return #tasks
+end
+
+---@param context scripts.lib.domain.Context
+---@param train_template_id uint
+---@return uint
+function public.count_disband_tasks(context, train_template_id)
+    assert(context, "context is nil")
+
+    local tasks = private.find_trains_tasks(
+            context,
+            TrainDisbandTask.defines.type,
             train_template_id,
             nil
     )

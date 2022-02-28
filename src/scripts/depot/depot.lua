@@ -4,6 +4,7 @@ local flib_table = require("__flib__.table")
 local Train = require("scripts.lib.domain.Train")
 local Context = require("scripts.lib.domain.Context")
 local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
+local TrainDisbandTask = require("scripts.lib.domain.TrainDisbandTask")
 local persistence_storage = require("scripts.persistence_storage")
 local mod_game = require("scripts.util.game")
 
@@ -123,6 +124,10 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
 end
 
 function private.get_forming_slots_total_count()
+    return 2 -- todo depend from technologies
+end
+
+function private.get_disband_slots_total_count()
     return 2 -- todo depend from technologies
 end
 
@@ -388,12 +393,21 @@ function private.has_free_forming_slot(context)
     return slots_count > tasks_count
 end
 
+---@param context scripts.lib.domain.Context
+---@return bool
+function private.has_free_disband_slot(context)
+    local tasks_count = persistence_storage.trains_tasks.count_disband_tasks(context)
+    local slots_count = private.get_disband_slots_total_count()
+
+    return slots_count > tasks_count
+end
+
 ---@param train_template scripts.lib.domain.TrainTemplate
 function private.try_add_forming_train_task_for_template(train_template)
     -- todo balance tasks for different forces, surfaces and templates
     local context = Context.from_model(train_template)
 
-    mod.log.debug({
+    mod.log.debug({-- todo remove me
         train_template_id = train_template.id,
         has_free_slot = private.has_free_forming_slot(context),
     }, {}, "try_add_forming_train_task_for_template")
@@ -452,6 +466,49 @@ function private.try_discard_forming_train_task_for_template(train_template)
     return false
 end
 
+---@param train_template scripts.lib.domain.TrainTemplate
+---@return scripts.lib.domain.Train
+function private.try_get_train_for_disband(train_template)
+    local context = Context.from_model(train_template)
+    local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
+
+    return #trains > 0 and trains[1] or nil
+end
+
+---@param train_template scripts.lib.domain.TrainTemplate
+function private.try_add_disband_train_task_for_template(train_template)
+    -- todo balance tasks for different forces, surfaces and templates
+    local context = Context.from_model(train_template)
+
+    mod.log.debug({ -- todo remove me
+        train_template_id = train_template.id,
+        has_free_slot = private.has_free_disband_slot(context),
+    }, {}, "try_add_disband_train_task_for_template")
+
+    if not private.has_free_disband_slot(context) then
+        return false
+    end
+
+    ---@type scripts.lib.domain.Train
+    local train = private.try_get_train_for_disband(train_template)
+
+    if train == nil then
+        return false
+    end
+
+    local task = TrainDisbandTask.from_train(train)
+
+    persistence_storage.trains_tasks.add(task)
+
+    mod.log.debug(
+            "Add new disband task `{1}` for template `{2}` and train `{3}`",
+            { task.id, train_template.name, train.id },
+            "depot"
+    )
+
+    return true
+end
+
 function private.on_ntd_register_trains_count_balancer()
     script.on_nth_tick(mod.defines.on_nth_tick.balance_trains_count, private.balance_trains_count)
 end
@@ -484,7 +541,7 @@ function private.balance_trains_count_for_context(context, data)
         local count = #trains + forming_train_tasks_count
         local diff = train_template.trains_quantity - count
 
-        mod.log.debug({
+        mod.log.debug({ -- todo remove me
             template_id = train_template.id,
             template_quantity = train_template.trains_quantity,
             trains_count = #trains,
@@ -511,8 +568,9 @@ function private.balance_trains_count_for_context(context, data)
             end
 
             if count_for_delete > 0 then
-                -- todo add task for delete train
-                mod.log.debug("want delete train")
+                if not private.try_add_disband_train_task_for_template(train_template) then
+                    break
+                end
             end
         end
     end

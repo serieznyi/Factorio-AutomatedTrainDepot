@@ -62,6 +62,14 @@ function TrainTemplate:get_forming_time()
     return time
 end
 
+---@return uint train disband time in seconds (without multiplier)
+function TrainTemplate:get_disband_time()
+    local time = self:get_forming_time()
+
+    -- disband time is 75% from forming time
+    return math.ceil(time * 0.75)
+end
+
 ---@return table
 function TrainTemplate:to_table()
     return {
