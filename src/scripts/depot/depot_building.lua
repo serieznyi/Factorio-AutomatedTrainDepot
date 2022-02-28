@@ -217,6 +217,7 @@ function private.build(context, entity)
         direction = entity.direction,
         force = force,
     })
+    depot_station_input.backer_name = "Depot input station",
     private.shadow_entity(depot_station_input)
     table.insert(dependent_entities, depot_station_input)
 
@@ -242,6 +243,7 @@ function private.build(context, entity)
         direction = flib_direction.opposite(entity.direction),
         force = force,
     })
+    depot_station_output.backer_name = "Depot output station",
     private.shadow_entity(depot_station_output)
     table.insert(dependent_entities, depot_station_output)
 
