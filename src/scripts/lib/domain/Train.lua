@@ -1,5 +1,13 @@
 local flib_train = require("__flib__.train")
 
+local constants = {
+    state = {
+        process_schedule = "process_schedule",
+        move_to_depot = "move_to_depot",
+        move_to_clean_station = "move_to_clean_station",
+    }
+}
+
 local private = {}
 
 ---------------------------------------------------------------------------
@@ -26,6 +34,8 @@ local Train = {
     force_name = nil,
     ---@type string
     surface_name = nil,
+    ---@type string
+    state = constants.state.process_schedule,
 }
 
 ---@param train_template scripts.lib.domain.TrainTemplate
@@ -73,6 +83,7 @@ function Train:to_table()
         uncontrolled_train = self.uncontrolled_train,
         deleted = self.deleted,
         train_template_id = self.train_template_id,
+        state = self.state,
     }
 end
 
@@ -99,6 +110,7 @@ function Train.from_table(data)
     train.uncontrolled_train = data.uncontrolled_train
     train.deleted = data.deleted
     train.train_template_id = data.train_template_id
+    train.state = data.state
 
     return train
 end
