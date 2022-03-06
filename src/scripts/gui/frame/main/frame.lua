@@ -1,4 +1,5 @@
 local flib_gui = require("__flib__.gui")
+local flib_table = require("__flib__.table")
 
 local mod_gui = require("scripts.util.gui")
 local Context = require("scripts.lib.domain.Context")
@@ -9,9 +10,12 @@ local constants = require("scripts.gui.frame.main.constants")
 local build_structure = require("scripts.gui.frame.main.build_structure")
 local train_template_view_component = require("scripts.gui.frame.main.component.train_template_view.component")
 local trains_map_component = require("scripts.gui.frame.main.component.trains_map.component")
+local ExtendedListBox = require("scripts.gui.component.extended_list_box.component")
 
 local FRAME = constants.FRAME
 
+---@type gui.component.ExtendedListBox
+local trains_templates_list_component = nil
 local public = {}
 local private = {}
 local storage = {}
@@ -77,31 +81,16 @@ function private.handle_open_uncontrolled_trains_map(event)
 end
 
 ---@param event scripts.lib.decorator.Event
-function private.handle_select_train_template(event)
-    local player = game.get_player(event.player_index)
-    local element = event.gui_element
-
-    private.select_train_template(player, element.get_index_in_parent())
-
-    return true
-end
-
----@param event scripts.lib.decorator.Event
 function private.handle_delete_train_template(event)
     local player = game.get_player(event.player_index)
-    local selected_train_template_element = private.get_selected_train_template_element(player)
 
-    if selected_train_template_element ~= nil then
-        local train_template_id = private.get_selected_train_template_id(player)
+    local train_template_id = private.get_selected_train_template_id(player)
 
-        persistence_storage.delete_train_template(train_template_id)
+    persistence_storage.delete_train_template(train_template_id)
 
-        selected_train_template_element.destroy()
+    train_template_view_component.destroy(player)
 
-        train_template_view_component.destroy(player)
-
-        private.select_train_template(player, 1)
-    end
+    trains_templates_list_component:remove_element(train_template_id)
 
     private.refresh_gui(player)
 
@@ -128,12 +117,9 @@ function private.handle_close_frame(event)
 end
 
 ---@param player LuaPlayer
-function private.select_train_template(player, element_index)
+function private.select_train_template_view(player, train_template_id)
     local refs = storage.refs(player)
 
-    private.mark_selected_train_template_button(element_index, refs)
-
-    local train_template_id = private.get_selected_train_template_id(player)
     local train_template = persistence_storage.get_train_template(train_template_id)
 
     if train_template == nil then
@@ -147,69 +133,21 @@ function private.select_train_template(player, element_index)
     private.refresh_gui(player)
 end
 
----@param player LuaPlayer
-function private.get_selected_train_template_element(player)
-    local refs = storage.refs(player)
+---@param tags table
+function private.on_template_list_item_selected(event, tags)
+    local player = game.get_player(event.player_index)
 
-    for _, v in ipairs(refs.trains_templates_container.children) do
-        local tags = flib_gui.get_tags(v)
-
-        if tags.selected == true then
-            return v
-        end
-    end
-
-    return nil
+    private.select_train_template_view(player, tags.id)
 end
 
----@param player LuaPlayer
 ---@return uint
-function private.get_selected_train_template_id(player)
-    local selected_train_template_element = private.get_selected_train_template_element(player)
-
-    if selected_train_template_element == nil then
-        return nil
-    end
-
-    local selected_train_template_element_tags = flib_gui.get_tags(selected_train_template_element)
-
-    return selected_train_template_element_tags.train_template_id
-end
-
----@param player LuaPlayer
----@param container LuaGuiElement
-function private.refresh_trains_templates_list(player, container)
-    local context = Context.from_player(player)
-    local trains_templates = persistence_storage.find_train_templates(context)
-    local selected_train_template_id = private.get_selected_train_template_id(player)
-
-    container.clear()
-
-    ---@param train_template scripts.lib.domain.TrainTemplate
-    for i, train_template in pairs(trains_templates) do
-        local icon = mod_gui.image_for_item(train_template.icon)
-        local selected_train_template = train_template.id == selected_train_template_id
-
-        if selected_train_template_id == nil and i == 1 then
-            selected_train_template = true
-        end
-
-        flib_gui.add(container, {
-            type = "button",
-            caption = icon .. " " .. train_template.name,
-            style = selected_train_template and "atd_button_list_box_item_active" or "atd_button_list_box_item",
-            tooltip = { "main-frame.atd-train-template-list-button-tooltip", train_template.name},
-            tags = { train_template_id = train_template.id, selected = selected_train_template },
-            actions = {
-                on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.select_train_template }
-            }
-        })
-    end
+function private.get_selected_train_template_id()
+    return trains_templates_list_component:get_selected_id()
 end
 
 function private.refresh_control_buttons(player)
     local refs = storage.refs(player)
-    local selected_train_template_id = private.get_selected_train_template_id(player)
+    local selected_train_template_id = trains_templates_list_component:get_selected_id()
     local train_template_selected = selected_train_template_id ~= nil
     local context = Context.from_player(player)
     local has_uncontrolled_trains = persistence_storage.count_uncontrolled_trains(context) > 0
@@ -226,29 +164,47 @@ end
 
 ---@param player LuaPlayer
 function private.refresh_gui(player)
-    local refs = storage.refs(player)
+    local context = Context.from_player(player)
 
-    private.refresh_trains_templates_list(player, refs.trains_templates_container)
+    local new_values = private.get_trains_templates_values(context)
+    trains_templates_list_component:refresh(new_values)
 
     private.refresh_control_buttons(player)
 end
 
----@param element_index uint
----@param refs table
-function private.mark_selected_train_template_button(element_index, refs)
-    ---@param child LuaGuiElement
-    for i, child in ipairs(refs.trains_templates_container.children) do
-        if i ~= element_index then
-            flib_gui.update(child, { tags = {selected = false} })
-        else
-            flib_gui.update(child, { tags = {selected = true} })
-        end
-    end
+---@param context scripts.lib.domain.Context
+---@return gui.component.ExtendedListBoxValue
+function private.get_trains_templates_values(context)
+    local trains_templates = persistence_storage.find_train_templates(context)
+
+    ---@param t scripts.lib.domain.TrainTemplate
+    return flib_table.map(
+            trains_templates,
+            function(t)
+                local icon = mod_gui.image_for_item(t.icon)
+
+                return {
+                    caption = icon .. " " .. t.name,
+                    id = t.id,
+                    tooltip = { "main-frame.atd-train-template-list-button-tooltip", t.name},
+                }
+            end
+    )
 end
 
 ---@param player LuaPlayer
 function private.create_for(player)
+    local context = Context.from_player(player)
+    local values = private.get_trains_templates_values(context)
     local refs = flib_gui.build(player.gui.screen, { build_structure.get() })
+
+    trains_templates_list_component = ExtendedListBox.new(
+            values,
+            nil,
+            nil,
+            private.on_template_list_item_selected
+    )
+    trains_templates_list_component:build(refs.trains_templates_container)
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
@@ -327,6 +283,22 @@ function public.dispatch(event)
         {
             match = event_dispatcher.match_all_non_gui_events(),
             func = train_template_view_component.dispatch
+        },
+        {
+            match = function()
+                if trains_templates_list_component == nil then
+                    return false
+                end
+
+                return event_dispatcher.match_target(trains_templates_list_component:name())
+            end,
+            func = function(e)
+                if trains_templates_list_component == nil then
+                    return false
+                end
+
+                return trains_templates_list_component:dispatch(e)
+            end
         },
     }
 

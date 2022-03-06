@@ -130,23 +130,7 @@ function build_structure.get()
                             {
                                 type = "flow",
                                 direction = "vertical",
-                                children = {
-                                    {
-                                        type = "frame",
-                                        style = "inside_deep_frame",
-                                        children = {
-                                            {
-                                                type = "scroll-pane",
-                                                ref = {"trains_templates_container"},
-                                                style_mods = {
-                                                    vertically_stretchable = true,
-                                                    horizontally_stretchable = true,
-                                                },
-                                                style = "atd_scroll_pane_list_box",
-                                            }
-                                        }
-                                    },
-                                }
+                                ref = {"trains_templates_container"},
                             },
                         }
                     },

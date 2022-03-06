@@ -65,6 +65,7 @@ public.gui = {
         enable_train_template = script.generate_event_name(),
         disable_train_template = script.generate_event_name(),
         open_uncontrolled_trains_map = script.generate_event_name(),
+        choose_list_box_item = script.generate_event_name(),
     },
     frames = {
         main = { name = "main_frame" },
