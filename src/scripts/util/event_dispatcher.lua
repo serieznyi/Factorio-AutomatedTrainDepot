@@ -102,6 +102,14 @@ end
 function public.dispatch(handlers, event, source_name)
     local processed = false
 
+    if false then
+        mod.log.debug(
+        "Taken event `{1}`",
+                {event:name()},
+        "event.dispatcher:" .. source_name
+        )
+    end
+
     for _, h in ipairs(handlers) do
         if h.match(event) then
             if h.func(event) then
