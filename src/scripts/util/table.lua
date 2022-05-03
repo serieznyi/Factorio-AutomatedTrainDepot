@@ -43,10 +43,10 @@ function private.hash_value(value)
 
     if value_type == "number" then
         hash_code = private.hash_number(value)
-    elseif value_type == "boolean" then
-        hash_code = private.hash_boolean(value)
     elseif value_type == "string" then
         hash_code = private.hash_string(value)
+    elseif value_type == "boolean" then
+        hash_code = private.hash_boolean(value)
     elseif value_type == "nil" then
         hash_code = 1
     elseif value_type == "table" then
@@ -62,7 +62,7 @@ end
 
 public.NIL = "__mod__nil"
 
---- Convert table to string
+--- Convert table to string (table content view)
 ---@param table_arg table
 function public.to_string(table_arg)
     return serpent.block(table_arg)
@@ -77,18 +77,9 @@ function public.hash_code(table_arg)
     end
 
     local hash_code = 1
-    local assoc = table_arg[1] == nil
 
-    if assoc then
-        for k, v in pairs(table_arg) do
-            hash_code = hash_code + private.hash_string(k)
-
-            hash_code = hash_code + private.hash_value(v)
-        end
-    else
-        for _, v in ipairs(table_arg) do
-            hash_code = private.hash_value(v)
-        end
+    for k, v in pairs(table_arg) do
+        hash_code = hash_code + private.hash_value(k) + private.hash_value(v)
     end
 
     return hash_code
