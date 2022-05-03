@@ -29,6 +29,7 @@ function build_structure.get(train_part_id)
                 ref = { "delete_button" },
                 tags = {train_part_id = train_part_id },
                 visible = false,
+                tooltip = {"add-train-template-frame.atd-delete-carrier-button"},
                 style = "flib_slot_button_red",
                 sprite = "atd_sprite_trash",
                 actions = {
@@ -40,6 +41,7 @@ function build_structure.get(train_part_id)
                 visible = false,
                 tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.in_direction, current_direction = mod.defines.train.direction.in_direction },
                 ref = {"carrier_direction_left_button"},
+                tooltip = {"add-train-template-frame.atd-сhange-direction-of-locomotive"},
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_left",
                 actions = {
@@ -51,6 +53,7 @@ function build_structure.get(train_part_id)
                 tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.opposite_direction, current_direction = mod.defines.train.direction.in_direction },
                 ref = {"carrier_direction_right_button"},
                 visible = false,
+                tooltip = {"add-train-template-frame.atd-сhange-direction-of-locomotive"},
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_right",
                 actions = {
@@ -60,6 +63,7 @@ function build_structure.get(train_part_id)
             {
                 type = "sprite-button",
                 ref = { "locomotive_config_button" },
+                tooltip = {"add-train-template-frame.atd-configure-locomotive-button"},
                 name = "locomotive_config_button",
                 tags = {train_part_id = train_part_id },
                 visible = false,
