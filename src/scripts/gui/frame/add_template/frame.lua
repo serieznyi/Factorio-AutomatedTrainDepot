@@ -10,13 +10,14 @@ local build_structure = require("scripts.gui.frame.add_template.build_structure"
 local train_builder_component = require("scripts.gui.frame.add_template.component.train_builder.component")
 local validator = require("scripts.gui.validator")
 local persistence_storage = require("scripts.persistence_storage")
+local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.component")
 
 local FRAME = constants.FRAME
 
 ---@type gui.component.TrainStationSelector
 local clean_train_station_dropdown_component
----@type gui.component.TrainStationSelector
-local destination_train_station_dropdown_component
+---@type gui.component.TrainScheduleSelector
+local destination_train_schedule_dropdown_component
 
 local public = {}
 local private = {}
@@ -154,14 +155,13 @@ function private.create_for(player, train_template_id)
     )
     clean_train_station_dropdown_component:build(refs.clean_train_station_dropdown_wrapper)
 
-    destination_train_station_dropdown_component = TrainStationSelector.new(
-            player.surface,
-            player.force,
-            { on_selection_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }},
-            train_template and train_template.destination_station or (depot_settings and depot_settings.default_destination_station or nil),
+    destination_train_schedule_dropdown_component = TrainScheduleSelector.new(
+            context,
+            private.handle_form_changed,
+            train_template and train_template.destination_schedule or (depot_settings and depot_settings.default_destination_schedule or nil),
             true
     )
-    destination_train_station_dropdown_component:build(refs.target_train_station_dropdown_wrapper)
+    destination_train_schedule_dropdown_component:build(refs.destination_schedule_dropdown_wrapper)
 
     refs.window.force_auto_center()
     refs.titlebar_flow.drag_target = refs.window
@@ -211,7 +211,7 @@ function private.validate_form(player)
     return flib_table.array_merge({
         train_builder_component.validate_form(player),
         clean_train_station_dropdown_component:validate_form(),
-        destination_train_station_dropdown_component:validate_form(),
+        destination_train_schedule_dropdown_component:validate_form(),
         validator.validate(private.validation_rules(), form_data)
     })
 end
@@ -301,7 +301,7 @@ function public.read_form(player)
     train_template.train =  train_builder_component.read_form(player)
     train_template.enabled = false
     train_template.clean_station = clean_train_station_dropdown_component:read_form()
-    train_template.destination_station = destination_train_station_dropdown_component:read_form()
+    train_template.destination_station = destination_train_schedule_dropdown_component:read_form()
     train_template.trains_quantity = 0
 
     return train_template

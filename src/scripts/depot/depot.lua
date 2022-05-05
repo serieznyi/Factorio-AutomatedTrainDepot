@@ -166,12 +166,7 @@ end
 ---@param train_template scripts.lib.domain.TrainTemplate
 ---@param train LuaTrain
 function private.add_train_schedule(train, train_template)
-    train.schedule = {
-        current = 1,
-        records = {
-            {station = train_template.destination_station},
-        }
-    }
+    train.schedule = flib_table.deep_copy(train_template.destination_schedule)
     train.manual_mode = false
 end
 

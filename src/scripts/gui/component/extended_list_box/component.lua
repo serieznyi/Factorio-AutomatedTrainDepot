@@ -2,7 +2,6 @@ local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
 local event_dispatcher = require("scripts.util.event_dispatcher")
-local mod_table = require("scripts.util.table")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
 
@@ -21,6 +20,8 @@ function private.build_structure()
             {
                 type = "scroll-pane",
                 ref = {"container"},
+                horizontal_scroll_policy = "auto",
+                vertical_scroll_policy = "always",
                 style_mods = {
                     vertically_stretchable = true,
                     horizontally_stretchable = true,
@@ -34,13 +35,7 @@ end
 ---@param refs table
 ---@return string
 function private.get_value(refs)
-    return refs.drop_down.items[refs.drop_down.selected_index]
-end
-
----@param event scripts.lib.decorator.Event
-function private:handle_click(event)
-    local tags = flib_gui.get_tags(event.original_event.element)
-
+    return 1 -- todo fix me
 end
 
 local COMPONENT_NAME = "extended_list_box"

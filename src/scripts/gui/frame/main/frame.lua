@@ -45,7 +45,7 @@ end
 
 ---@param player LuaPlayer
 ---@param refs table
-function storage.set(player, refs)
+function storage.set_refs(player, refs)
     global.gui.frame[FRAME.NAME][player.index] = {
         refs = refs,
     }
@@ -215,7 +215,7 @@ function private.create_for(player)
         ((resolution.height - (FRAME.HEIGHT * scale)) / 2)
     }
 
-    storage.set(player, refs)
+    storage.set_refs(player, refs)
 
     return storage.refs(player)
 end
@@ -286,11 +286,7 @@ function public.dispatch(event)
         },
         {
             match = function()
-                if trains_templates_list_component == nil then
-                    return false
-                end
-
-                return event_dispatcher.match_target(trains_templates_list_component:name())
+                return trains_templates_list_component and event_dispatcher.match_target(trains_templates_list_component:name())
             end,
             func = function(e)
                 if trains_templates_list_component == nil then

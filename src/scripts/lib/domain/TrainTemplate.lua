@@ -22,8 +22,8 @@ local TrainTemplate = {
     trains_quantity = nil,
     ---@type string
     clean_station = nil,
-    ---@type string
-    destination_station = nil,
+    ---@type TrainSchedule
+    destination_schedule = nil,
     ---@type string
     force_name = nil,
     ---@type string
@@ -86,7 +86,7 @@ function TrainTemplate:to_table()
         force_name = self.force_name,
         surface_name = self.surface_name,
         clean_station = self.clean_station,
-        destination_station = self.destination_station,
+        destination_schedule = self.destination_schedule,
     }
 end
 
@@ -131,7 +131,7 @@ function TrainTemplate.from_table(data)
     object.force_name = data.force_name
     object.surface_name = data.surface_name
     object.clean_station = data.clean_station
-    object.destination_station = data.destination_station
+    object.destination_schedule = data.destination_schedule
 
     return object
 end

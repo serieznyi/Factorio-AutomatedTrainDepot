@@ -200,7 +200,7 @@ function build_structure.get(train_template)
                                 children = {
                                     {
                                         type = "flow",
-                                        ref  =  {"target_train_station_dropdown_wrapper"},
+                                        ref  =  {"destination_schedule_dropdown_wrapper"},
                                     },
                                     {
                                         type = "flow",

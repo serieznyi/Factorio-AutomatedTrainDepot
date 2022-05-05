@@ -9,12 +9,13 @@ local persistence_storage = require("scripts.persistence_storage")
 local constants = require("scripts.gui.frame.settings.constants")
 local build_structure = require("scripts.gui.frame.settings.build_structure")
 local validator = require("scripts.gui.validator")
+local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.component")
 
 local FRAME = constants.FRAME
 ---@type gui.component.TrainStationSelector
 local clean_train_station_dropdown_component
----@type gui.component.TrainStationSelector
-local target_train_station_dropdown_component
+---@type gui.component.TrainScheduleSelector
+local train_schedule_component
 
 local public = {}
 local private = {}
@@ -116,28 +117,8 @@ function private.handle_frame_destroy(event)
     return true
 end
 
----@param field_name string
----@param form table
-function private.validation_not_same(field_name, form)
-    local value1 = form["default_clean_station"]
-    local value2 = form["default_destination_station"]
-
-    if value1 ~= nil and value1 ~= "" and value1 == value2 then
-        return {"validation-message.cant-be-equals", "default_clean_station", "default_destination_station"}
-    end
-
-    return nil
-end
-
 function private.validation_rules()
-    return {
-        {
-            match = validator.match_by_name({"default_clean_station"}),
-            rules = {
-                private.validation_not_same
-            },
-        },
-    }
+    return {}
 end
 
 function private.destroy_frame(player)
@@ -151,6 +132,9 @@ function private.destroy_frame(player)
 
     window.visible = false
     window.destroy()
+
+    clean_train_station_dropdown_component = nil
+    train_schedule_component = nil
 
     storage.clean(player)
 end
@@ -178,14 +162,13 @@ function private.create_for(player)
     )
     clean_train_station_dropdown_component:build(refs.clean_train_station_dropdown_wrapper)
 
-    target_train_station_dropdown_component = TrainStationSelector.new(
-            player.surface,
-            player.force,
-            { on_selection_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }},
-            depot_settings and depot_settings.default_destination_station or nil,
+    train_schedule_component = TrainScheduleSelector.new(
+            context,
+            private.handle_form_changed,
+            depot_settings and depot_settings.default_destination_schedule or nil,
             true
     )
-    target_train_station_dropdown_component:build(refs.target_train_station_dropdown_wrapper)
+    train_schedule_component:build(refs.target_train_station_dropdown_wrapper)
 
     if depot_settings ~= nil then
         private.write_form(player, refs, depot_settings)
@@ -206,7 +189,7 @@ function private.validate_form(player)
 
     return flib_table.array_merge({
         clean_train_station_dropdown_component:validate_form(),
-        target_train_station_dropdown_component:validate_form(),
+        train_schedule_component:validate_form(),
         validator.validate(private.validation_rules(), form_data)
     })
 end
@@ -219,7 +202,7 @@ function private.read_form(player)
     return {
         use_any_fuel = refs.use_any_fuel_checkbox.state,
         default_clean_station = clean_train_station_dropdown_component:read_form(),
-        default_destination_station = target_train_station_dropdown_component:read_form(),
+        default_destination_schedule = train_schedule_component:read_form(),
         force_name = player.force.name,
         surface_name = player.surface.name,
     }
@@ -259,6 +242,18 @@ function public.dispatch(event)
         {
             match = event_dispatcher.match_target_and_action(FRAME.NAME, mod.defines.gui.actions.save_form),
             func = private.handle_save_form
+        },
+        {
+            match = function()
+                return train_schedule_component and event_dispatcher.match_target(train_schedule_component:name())
+            end,
+            func = function(e)
+                if train_schedule_component == nil then
+                    return false
+                end
+
+                return train_schedule_component:dispatch(e)
+            end
         },
     }
 

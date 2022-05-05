@@ -50,11 +50,16 @@ function build_structure.get(settings)
                 direction = "vertical",
                 children = {
                     {
-                        type = "table",
-                        column_count = 2,
+                        type = "frame",
+                        style = "bordered_frame",
+                        direction = "vertical",
+                        style_mods = {
+                            horizontally_stretchable = true,
+                        },
                         children = {
                             {
                                 type = "label",
+                                style = "caption_label",
                                 caption = {"settings-frame.atd-use-any-supported-fuel"},
                             },
                             {
@@ -65,17 +70,39 @@ function build_structure.get(settings)
                                     on_checked_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }
                                 }
                             },
+                        },
+                    },
+                    {
+                        type = "frame",
+                        style = "bordered_frame",
+                        direction = "vertical",
+                        style_mods = {
+                            horizontally_stretchable = true,
+                        },
+                        children = {
                             {
                                 type = "label",
+                                style = "caption_label",
                                 caption = {"settings-frame.atd-default-clean-train-station"},
                             },
                             {
                                 type = "flow",
                                 ref = { "clean_train_station_dropdown_wrapper" },
                             },
+                        }
+                    },
+                    {
+                        type = "frame",
+                        style = "bordered_frame",
+                        direction = "vertical",
+                        style_mods = {
+                            horizontally_stretchable = true,
+                        },
+                        children = {
                             {
                                 type = "label",
-                                caption = {"settings-frame.atd-default-target-train-station"},
+                                style = "caption_label",
+                                caption = {"settings-frame.atd-default-target-train-schedule"},
                             },
                             {
                                 type = "flow",

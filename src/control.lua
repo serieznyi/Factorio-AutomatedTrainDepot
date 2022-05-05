@@ -86,6 +86,7 @@ end)
 
 -- Loaded save file what contains mod ; Cant write in global
 flib_event.on_load(function()
+    flib_dictionary.load()
     gui_index.load()
     depot.load()
     persistence_storage.load()

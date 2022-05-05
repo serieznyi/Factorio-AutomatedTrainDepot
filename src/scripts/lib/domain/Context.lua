@@ -2,8 +2,6 @@ local Train = require("Train")
 
 --- @module scripts.lib.domain.Context
 local public = {
-    ---@type LuaForce
-    force = nil,
     ---@type string
     surface_name = nil,
     ---@type string
