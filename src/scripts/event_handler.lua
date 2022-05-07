@@ -85,12 +85,8 @@ function public.handle_gui_event(event)
 end
 
 ---@param event EventData
-function public.open_gui(event)
-    if
-        public.handle_gui_event(event) == true
-        or not event.entity
-        or not event.entity.valid
-    then
+function public.open_main_frame(event)
+    if not event.entity or not event.entity.valid then
         return
     end
 
