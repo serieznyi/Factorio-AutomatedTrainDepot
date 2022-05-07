@@ -1,5 +1,7 @@
 local flib_gui = require("__flib__.gui")
 
+local gui_main_frame = require("scripts.gui.frame.main.frame")
+
 local manager = {}
 
 local FRAME_MODULES = {
@@ -34,6 +36,11 @@ local function get_element_mod_frame(element)
     end
 
     return get_element_mod_frame(element.parent)
+end
+
+---@param player LuaPlayer
+local function is_main_frame_opened(player)
+    return false -- todo add real check
 end
 
 ---@param event scripts.lib.decorator.Event
@@ -91,6 +98,15 @@ function manager.load()
     for _, module in ipairs(FRAME_MODULES) do
         module.load()
     end
+end
+
+---@param player LuaPlayer
+function manager.open_main_frame(player)
+    if is_main_frame_opened(player) then
+        return
+    end
+
+    gui_main_frame.open(player)
 end
 
 -- TODO use on user banned, deleted, logout, ...

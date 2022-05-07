@@ -2,7 +2,6 @@ local flib_table = require("__flib__.table")
 
 local depot_building = require("scripts.depot.depot_building")
 local depot = require("scripts.depot.depot")
-local gui_main_frame = require("scripts.gui.frame.main.frame")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local Event = require("scripts.lib.decorator.Event")
@@ -96,7 +95,7 @@ function public.open_main_frame(event)
     local player = game.get_player(event.player_index)
 
     if entity.name == mod.defines.prototypes.entity.depot_building.name then
-        gui_main_frame.open(player)
+        gui_manager.open_main_frame(player)
     end
 end
 
