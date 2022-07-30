@@ -4,6 +4,11 @@ local FRAME = constants.FRAME
 
 local build_structure = {}
 
+local label_info_sprite_style = {
+    natural_width = 15,
+    natural_height = 15,
+}
+
 function build_structure.get(settings)
     local new = settings == nil and true or false
 
@@ -100,9 +105,26 @@ function build_structure.get(settings)
                         },
                         children = {
                             {
-                                type = "label",
-                                style = "caption_label",
-                                caption = {"settings-frame.atd-default-target-train-schedule"},
+                                type = "flow",
+                                direction = "horizontal",
+                                style_mods = {
+                                    vertically_squashable = true,
+                                    horizontally_squashable = true,
+                                },
+                                children = {
+                                    {
+                                        type = "label",
+                                        style = "caption_label",
+                                        caption = {"settings-frame.atd-default-train-schedule"},
+                                        tooltip = { "settings-frame-description.atd-default-train-schedule" },
+                                    },
+                                    {
+                                        type = "sprite",
+                                        sprite = "atd_sprite_info",
+                                        resize_to_sprite = false,
+                                        style_mods = label_info_sprite_style,
+                                    },
+                                }
                             },
                             {
                                 type = "flow",

@@ -181,8 +181,8 @@ function build_structure.get(train_template)
                                 children = {
                                     {
                                         type = "label",
-                                        caption = { "add-train-template-frame.atd-destination-train-station" },
-                                        tooltip = { "add-train-template-frame-description.atd-destination-train-station" },
+                                        caption = { "add-train-template-frame.atd-working-schedule" },
+                                        tooltip = { "add-train-template-frame-description.atd-working-schedule" },
                                     },
                                     {
                                         type = "sprite",
