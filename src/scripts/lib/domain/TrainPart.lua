@@ -1,7 +1,5 @@
-local private = {}
-
 ---@return uint forming time in seconds for locomotive and this equipment (without multiplier)
-function private.get_forming_time_for_locomotive()
+function get_forming_time_for_locomotive()
     ---@type LuaRecipe
     local locomotive_recipe = game.recipe_prototypes["locomotive"]
     local time = locomotive_recipe.energy
@@ -55,7 +53,7 @@ function TrainPart:get_forming_time()
         return cargo_wagon_recipe.energy
     end
 
-    return private.get_forming_time_for_locomotive()
+    return get_forming_time_for_locomotive()
 end
 
 ---@param data table

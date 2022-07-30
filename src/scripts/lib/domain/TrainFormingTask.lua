@@ -1,4 +1,4 @@
-local constants = {
+local defines = {
     type = "forming",
     state = {
         created = "created", -- from(nil)
@@ -10,11 +10,13 @@ local constants = {
 }
 
 --- @module scripts.lib.domain.TrainFormingTask
-local public = {
+local TrainFormingTask = {
+    ---@type table
+    defines = defines,
     ---@type uint
-    type = constants.type,
+    type = defines.type,
     ---@type string
-    state = constants.state.created,
+    state = defines.state.created,
     ---@type bool
     deleted = false,
     ---@type string
@@ -35,18 +37,8 @@ local public = {
     main_locomotive = nil,
 }
 
-public.defines = constants
-
----------------------------------------------------------------------------
--- -- -- PRIVATE
----------------------------------------------------------------------------
-
----------------------------------------------------------------------------
--- -- -- PUBLIC
----------------------------------------------------------------------------
-
 ---@return table
-function public:to_table()
+function TrainFormingTask:to_table()
     return {
         id = self.id,
         type = self.type,
@@ -64,16 +56,16 @@ function public:to_table()
 end
 
 ---@return table
-function public:delete()
+function TrainFormingTask:delete()
     self.deleted = true
 end
 
 ---@return table
-function public:state_formed()
-    self.state = constants.state.formed
+function TrainFormingTask:state_formed()
+    self.state = defines.state.formed
 end
 
-function public:get_main_locomotive()
+function TrainFormingTask:get_main_locomotive()
     if self.main_locomotive ~= nil and not self.main_locomotive.valid then
         return nil
     end
@@ -85,12 +77,12 @@ end
 ---@param multiplier double
 ---@param train_template scripts.lib.domain.TrainTemplate
 ---@return table
-function public:start_forming_train(tick, multiplier, train_template)
+function TrainFormingTask:start_forming_train(tick, multiplier, train_template)
     assert(tick, "tick is nil")
 
-    assert(self.state == constants.state.created, "wrong state")
+    assert(self.state == defines.state.created, "wrong state")
 
-    self.state = constants.state.forming
+    self.state = defines.state.forming
 
     self.required_forming_ticks = train_template:get_forming_time() * 60 * multiplier
 
@@ -98,23 +90,23 @@ function public:start_forming_train(tick, multiplier, train_template)
 end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
-function public:start_deploy(train_template)
-    self.state = constants.state.deploying
+function TrainFormingTask:start_deploy(train_template)
+    self.state = defines.state.deploying
     self.train_template = train_template
 end
 
-function public:deploying_cursor_next()
+function TrainFormingTask:deploying_cursor_next()
     self.deploying_cursor = self.deploying_cursor + 1
 end
 
-function public:deployed()
+function TrainFormingTask:deployed()
     self.main_locomotive = nil
-    self.state = constants.state.deployed
+    self.state = defines.state.deployed
 end
 
 ---@type uint progress in percent
-function public:progress()
-    if self.state == constants.state.created then
+function TrainFormingTask:progress()
+    if self.state == defines.state.created then
         return 0
     end
 
@@ -125,44 +117,44 @@ function public:progress()
 end
 
 ---@param entity LuaEntity
-function public:set_main_locomotive(entity)
+function TrainFormingTask:set_main_locomotive(entity)
     self.main_locomotive = entity
 end
 
 ---@param tick uint
-function public:is_forming_time_left(tick)
+function TrainFormingTask:is_forming_time_left(tick)
     return tick > self.forming_end_at
 end
 
 ---@return bool
-function public:is_state_created()
-    return self.state == constants.state.created
+function TrainFormingTask:is_state_created()
+    return self.state == defines.state.created
 end
 
 ---@return bool
-function public:is_state_formed()
-    return self.state == constants.state.formed
+function TrainFormingTask:is_state_formed()
+    return self.state == defines.state.formed
 end
 
 ---@return bool
-function public:is_state_forming()
-    return self.state == constants.state.forming
+function TrainFormingTask:is_state_forming()
+    return self.state == defines.state.forming
 end
 
 ---@return bool
-function public:is_state_deploying()
-    return self.state == constants.state.deploying
+function TrainFormingTask:is_state_deploying()
+    return self.state == defines.state.deploying
 end
 
 ---@return bool
-function public:is_state_deployed()
-    return self.state == constants.state.deployed
+function TrainFormingTask:is_state_deployed()
+    return self.state == defines.state.deployed
 end
 
 ---@param data table|scripts.lib.domain.TrainFormingTask
 ---@return scripts.lib.domain.TrainFormingTask
-function public.from_table(data)
-    local object = public.new(data.surface_name, data.force_name, data.train_template_id)
+function TrainFormingTask.from_table(data)
+    local object = TrainFormingTask.new(data.surface_name, data.force_name, data.train_template_id)
 
     object.id = data.id
     object.type = data.type
@@ -179,10 +171,10 @@ end
 
 ---@return scripts.lib.domain.TrainFormingTask
 ---@param train_template scripts.lib.domain.TrainTemplate
-function public.from_train_template(train_template)
+function TrainFormingTask.from_train_template(train_template)
     assert(train_template, "train_template is nil")
 
-    local task = public.new(train_template.surface_name, train_template.force_name, train_template.id)
+    local task = TrainFormingTask.new(train_template.surface_name, train_template.force_name, train_template.id)
 
     return task
 end
@@ -191,10 +183,10 @@ end
 ---@param force_name string
 ---@param train_template_id uint
 ---@return scripts.lib.domain.TrainFormingTask
-function public.new(surface_name, force_name, train_template_id)
+function TrainFormingTask.new(surface_name, force_name, train_template_id)
     ---@type scripts.lib.domain.TrainFormingTask
     local self = {}
-    setmetatable(self, { __index = public })
+    setmetatable(self, { __index = TrainFormingTask })
 
     assert(surface_name, "surface_name is nil")
     self.surface_name = surface_name
@@ -208,4 +200,4 @@ function public.new(surface_name, force_name, train_template_id)
     return self
 end
 
-return public
+return TrainFormingTask

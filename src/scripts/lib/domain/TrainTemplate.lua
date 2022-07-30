@@ -3,6 +3,17 @@ local mod_table = require("scripts.util.table")
 
 local TrainPart = require("scripts.lib.domain.TrainPart")
 
+---@param lua_train LuaTrain
+---@return int
+function lua_train_hash_code(lua_train)
+    local data = {
+        color = nil,
+        carriages = {},
+    }
+
+    return mod_table.hash_code(data)
+end
+
 --- @module scripts.lib.domain.TrainTemplate
 local TrainTemplate = {
     ---@type uint
@@ -29,26 +40,6 @@ local TrainTemplate = {
     ---@type string
     surface_name = nil,
 }
-local private = {}
-
----------------------------------------------------------------------------
--- -- -- PRIVATE
----------------------------------------------------------------------------
-
----@param lua_train LuaTrain
----@return int
-function private.lua_train_hash_code(lua_train)
-    local data = {
-        color = nil,
-        carriages = {},
-    }
-
-    return mod_table.hash_code(data)
-end
-
----------------------------------------------------------------------------
--- -- -- PUBLIC
----------------------------------------------------------------------------
 
 ---@return uint train forming time in seconds (without multiplier)
 function TrainTemplate:get_forming_time()
@@ -112,7 +103,7 @@ end
 ---@param lua_train LuaTrain
 ---@return int
 function TrainTemplate:is_equal_train_structure(lua_train)
-    return private.lua_train_hash_code(lua_train) == self.train_structure_hash_code()
+    return lua_train_hash_code(lua_train) == self.train_structure_hash_code()
 end
 
 ---@param data table

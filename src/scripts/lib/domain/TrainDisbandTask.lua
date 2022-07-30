@@ -1,4 +1,4 @@
-local constants = {
+local defines = {
     type = "disband",
     state = {
         created = "created", -- from(nil)
@@ -10,11 +10,13 @@ local constants = {
 }
 
 --- @module scripts.lib.domain.TrainDisbandTask
-local public = {
+local TrainDisbandTask = {
+    ---@type table
+    defines = defines,
     ---@type uint
-    type = constants.type,
+    type = defines.type,
     ---@type string
-    state = constants.state.created,
+    state = defines.state.created,
     ---@type bool
     deleted = false,
     ---@type string
@@ -26,21 +28,11 @@ local public = {
     ---@type uint ticks left to forming train
     disband_end_at = nil,
     ---@type uint
-    train_id = nil,
+    train_id = nil
 }
 
-public.defines = constants
-
----------------------------------------------------------------------------
--- -- -- PRIVATE
----------------------------------------------------------------------------
-
----------------------------------------------------------------------------
--- -- -- PUBLIC
----------------------------------------------------------------------------
-
 ---@return table
-function public:to_table()
+function TrainDisbandTask:to_table()
     return {
         id = self.id,
         type = self.type,
@@ -55,49 +47,49 @@ function public:to_table()
 end
 
 ---@return table
-function public:delete()
+function TrainDisbandTask:delete()
     self.deleted = true
 end
 
 ---@return table
-function public:state_disbanded()
-    self.state = constants.state.disbanded
+function TrainDisbandTask:state_disbanded()
+    self.state = defines.state.disbanded
 end
 
 ---@return table
-function public:state_train_took()
-    self.state = constants.state.train_took
+function TrainDisbandTask:state_train_took()
+    self.state = defines.state.train_took
 end
 
 ---@param tick uint
 ---@param multiplier double
 ---@param train_template scripts.lib.domain.TrainTemplate
 ---@return table
-function public:start_disband_train(tick, multiplier, train_template)
+function TrainDisbandTask:start_disband_train(tick, multiplier, train_template)
     assert(tick, "tick is nil")
     assert(multiplier, "multiplier is nil")
     assert(train_template, "train_template is nil")
 
-    assert(self.state == constants.state.train_took, "wrong state")
+    assert(self.state == defines.state.train_took, "wrong state")
 
-    self.state = constants.state.disbanding
+    self.state = defines.state.disbanding
 
     self.required_disband_ticks = train_template:get_disband_time() * 60 * multiplier
 
     self.disband_end_at = tick + self.required_disband_ticks
 end
 
-function public:state_train_taking()
-    self.state = constants.state.deploying
+function TrainDisbandTask:state_train_taking()
+    self.state = defines.state.deploying
 end
 
-function public:disbanded()
-    self.state = constants.state.disbanded
+function TrainDisbandTask:disbanded()
+    self.state = defines.state.disbanded
 end
 
 ---@type uint progress in percent
-function public:progress()
-    if self.state ~= constants.state.disbanding then
+function TrainDisbandTask:progress()
+    if self.state ~= defines.state.disbanding then
         return 0
     end
 
@@ -108,39 +100,39 @@ function public:progress()
 end
 
 ---@param tick uint
-function public:is_disband_time_left(tick)
+function TrainDisbandTask:is_disband_time_left(tick)
     return tick > self.disband_end_at
 end
 
 ---@return bool
-function public:is_state_created()
-    return self.state == constants.state.created
+function TrainDisbandTask:is_state_created()
+    return self.state == defines.state.created
 end
 
 ---@return bool
-function public:is_state_disbanded()
-    return self.state == constants.state.disbanded
+function TrainDisbandTask:is_state_disbanded()
+    return self.state == defines.state.disbanded
 end
 
 ---@return bool
-function public:is_state_train_taking()
-    return self.state == constants.state.train_taking
+function TrainDisbandTask:is_state_train_taking()
+    return self.state == defines.state.train_taking
 end
 
 ---@return bool
-function public:is_state_train_took()
-    return self.state == constants.state.train_took
+function TrainDisbandTask:is_state_train_took()
+    return self.state == defines.state.train_took
 end
 
 ---@return bool
-function public:is_state_disbanded()
-    return self.state == constants.state.disbanded
+function TrainDisbandTask:is_state_disbanded()
+    return self.state == defines.state.disbanded
 end
 
 ---@param data table|scripts.lib.domain.TrainDisbandTask
 ---@return scripts.lib.domain.TrainDisbandTask
-function public.from_table(data)
-    local object = public.new(data.surface_name, data.force_name, data.train_id)
+function TrainDisbandTask.from_table(data)
+    local object = TrainDisbandTask.new(data.surface_name, data.force_name, data.train_id)
 
     object.id = data.id
     object.type = data.type
@@ -155,10 +147,10 @@ end
 
 ---@return scripts.lib.domain.TrainDisbandTask
 ---@param train scripts.lib.domain.Train
-function public.from_train(train)
+function TrainDisbandTask.from_train(train)
     assert(train, "train is nil")
 
-    local task = public.new(train.surface_name, train.force_name, train.id)
+    local task = TrainDisbandTask.new(train.surface_name, train.force_name, train.id)
 
     return task
 end
@@ -167,10 +159,10 @@ end
 ---@param force_name string
 ---@param train_id uint
 ---@return scripts.lib.domain.TrainDisbandTask
-function public.new(surface_name, force_name, train_id)
+function TrainDisbandTask.new(surface_name, force_name, train_id)
     ---@type scripts.lib.domain.TrainDisbandTask
     local self = {}
-    setmetatable(self, { __index = public })
+    setmetatable(self, { __index = TrainDisbandTask })
 
     assert(surface_name, "surface_name is nil")
     self.surface_name = surface_name
@@ -184,4 +176,4 @@ function public.new(surface_name, force_name, train_id)
     return self
 end
 
-return public
+return TrainDisbandTask

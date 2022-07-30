@@ -1,23 +1,21 @@
 local Train = require("Train")
 
+---@param obj scripts.lib.domain.Context
+function to_string(obj)
+    return obj.surface_name .. ":" .. obj.force_name
+end
+
 --- @module scripts.lib.domain.Context
-local public = {
+local Context = {
     ---@type string
     surface_name = nil,
     ---@type string
     force_name = nil,
 }
 
-local private = {}
-
----@param obj scripts.lib.domain.Context
-function private.to_string(obj)
-    return obj.surface_name .. ":" .. obj.force_name
-end
-
 ---@param surface_name string
 ---@param force_name string
-function public:is_same(surface_name, force_name)
+function Context:is_same(surface_name, force_name)
     assert(surface_name, "surface_name is nil")
     assert(force_name, "force_name is nil")
 
@@ -25,43 +23,43 @@ function public:is_same(surface_name, force_name)
 end
 
 ---@param lua_entity LuaEntity
-function public.from_entity(lua_entity)
-    return public.new(
+function Context.from_entity(lua_entity)
+    return Context.new(
             lua_entity.surface.name,
             lua_entity.force.name
     )
 end
 
 ---@param entity table
-function public.from_model(entity)
-    return public.new(
+function Context.from_model(entity)
+    return Context.new(
             entity.surface_name,
             entity.force_name
     )
 end
 
 ---@param player LuaPlayer
-function public.from_player(player)
-    return public.new(
+function Context.from_player(player)
+    return Context.new(
         player.surface.name,
         player.force.name
     )
 end
 
 ---@param lua_train LuaTrain
-function public.from_train(lua_train)
+function Context.from_train(lua_train)
     local carrier = Train.get_any_carrier(lua_train)
 
-    return public.from_entity(carrier)
+    return Context.from_entity(carrier)
 end
 
 ---@param surface_name string
 ---@param force_name string
 ---@return scripts.lib.domain.Context
-function public.new(surface_name, force_name)
+function Context.new(surface_name, force_name)
     ---@type scripts.lib.domain.Context
     local self = {}
-    setmetatable(self, { __index = public, __tostring = private.to_string })
+    setmetatable(self, { __index = Context, __tostring = to_string })
 
     self.surface_name = surface_name or nil
     assert(self.surface_name, "surface_name is nil")
@@ -72,4 +70,4 @@ function public.new(surface_name, force_name)
     return self
 end
 
-return public
+return Context
