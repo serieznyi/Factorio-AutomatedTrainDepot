@@ -5,14 +5,15 @@ local event_dispatcher = require("scripts.util.event_dispatcher")
 local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Context = require("scripts.lib.domain.Context")
 local TrainStationSelector = require("scripts.gui.component.train_station_selector.component")
-local constants = require("scripts.gui.frame.add_template.constants")
 local build_structure = require("scripts.gui.frame.add_template.build_structure")
 local train_builder_component = require("scripts.gui.frame.add_template.component.train_builder.component")
 local validator = require("scripts.gui.validator")
 local persistence_storage = require("scripts.persistence_storage")
 local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.component")
 
-local FRAME = constants.FRAME
+local FRAME = {
+    NAME = mod.defines.gui.frames.add_template.name
+}
 
 ---@type gui.component.TrainStationSelector
 local clean_train_station_dropdown_component

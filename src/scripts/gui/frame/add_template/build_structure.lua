@@ -1,6 +1,6 @@
-local constants = require("scripts.gui.frame.add_template.constants")
-
-local FRAME = constants.FRAME
+local FRAME = {
+    NAME = mod.defines.gui.frames.add_template.name
+}
 
 local label_info_sprite_style = {
     natural_width = 15,

@@ -6,13 +6,16 @@ local Context = require("scripts.lib.domain.Context")
 local event_dispatcher = require("scripts.util.event_dispatcher")
 local persistence_storage = require("scripts.persistence_storage")
 
-local constants = require("scripts.gui.frame.main.constants")
 local build_structure = require("scripts.gui.frame.main.build_structure")
 local train_template_view_component = require("scripts.gui.frame.main.component.train_template_view.component")
 local trains_map_component = require("scripts.gui.frame.main.component.trains_map.component")
 local ExtendedListBox = require("scripts.gui.component.extended_list_box.component")
 
-local FRAME = constants.FRAME
+local FRAME = {
+    NAME = mod.defines.gui.frames.main.name,
+    WIDTH = 1400,
+    HEIGHT = 800,
+}
 
 ---@type gui.component.ExtendedListBox
 local trains_templates_list_component = nil

@@ -1,6 +1,8 @@
-local constants = require("scripts.gui.frame.main.constants")
-
-local FRAME = constants.FRAME
+local FRAME = {
+    NAME = mod.defines.gui.frames.main.name,
+    WIDTH = 1400, -- todo repeatable
+    HEIGHT = 800, -- todo repeatable
+}
 
 local build_structure = {}
 

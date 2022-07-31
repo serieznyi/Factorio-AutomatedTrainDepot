@@ -1,6 +1,6 @@
-local constants = require("scripts.gui.frame.settings.constants")
-
-local FRAME = constants.FRAME
+local FRAME = {
+    NAME = mod.defines.gui.frames.settings.name,
+}
 
 local build_structure = {}
 

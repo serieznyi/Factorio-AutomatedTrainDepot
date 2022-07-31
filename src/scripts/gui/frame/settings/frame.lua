@@ -6,12 +6,13 @@ local Context = require("scripts.lib.domain.Context")
 local TrainStationSelector = require("scripts.gui.component.train_station_selector.component")
 local DepotSettings = require("scripts.lib.domain.DepotSettings")
 local persistence_storage = require("scripts.persistence_storage")
-local constants = require("scripts.gui.frame.settings.constants")
 local build_structure = require("scripts.gui.frame.settings.build_structure")
 local validator = require("scripts.gui.validator")
 local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.component")
 
-local FRAME = constants.FRAME
+local FRAME = {
+    NAME = mod.defines.gui.frames.settings.name,
+}
 ---@type gui.component.TrainStationSelector
 local clean_train_station_dropdown_component
 ---@type gui.component.TrainScheduleSelector
