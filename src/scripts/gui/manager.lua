@@ -67,20 +67,10 @@ local function is_event_blocked(event)
                 }
         )
 
-        manager.bring_to_front_current_window(player)
-
         return true
     end
 
     return false
-end
-
-function manager.bring_to_front_current_window()
-    for _, player in pairs(game.players) do
-        if player.opened ~= nil and is_mod_frame(player.opened) then
-            player.opened.bring_to_front()
-        end
-    end
 end
 
 function manager.init()

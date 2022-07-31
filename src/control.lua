@@ -155,10 +155,6 @@ flib_event.register(defines.events.on_gui_opened, event_handler.open_main_frame)
 -- -- -- NTH EVENTS
 ---------------------------------------------------------------------------
 
--- todo try bring to from inside frame
--- todo регистрировать только если окно открыто
-flib_event.on_nth_tick(1, event_handler.bring_to_front_current_window)
-
 -- todo check performance
 flib_event.on_nth_tick(mod.defines.on_nth_tick.persistence_storage_gc, persistence_storage.collect_garbage)
 

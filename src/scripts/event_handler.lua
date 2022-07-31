@@ -99,10 +99,6 @@ function public.open_main_frame(event)
     end
 end
 
-function public.bring_to_front_current_window()
-    gui_manager.bring_to_front_current_window()
-end
-
 ---@param event EventData
 function public.pass_to_gui(event)
     gui_manager.dispatch(Event.new(event))
