@@ -199,7 +199,8 @@ end
 function private.create_for(player)
     local context = Context.from_player(player)
     local values = private.get_trains_templates_values(context)
-    local refs = flib_gui.build(player.gui.screen, { structure.get() })
+    local structure_config = {frame_name = FRAME.NAME, width = FRAME.WIDTH, height = FRAME.HEIGHT}
+    local refs = flib_gui.build(player.gui.screen, { structure.get(structure_config) })
 
     trains_templates_list_component = ExtendedListBox.new(
             values,

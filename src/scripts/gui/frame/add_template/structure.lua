@@ -1,7 +1,3 @@
-local FRAME = {
-    NAME = mod.defines.gui.frames.add_template.name
-}
-
 local label_info_sprite_style = {
     natural_width = 15,
     natural_height = 15,
@@ -9,15 +5,16 @@ local label_info_sprite_style = {
 
 local structure = {}
 
----@param train_template scripts.lib.domain.TrainTemplate
-function structure.get(train_template)
+function structure.get(config)
+    ---@type scripts.lib.domain.TrainTemplate
+    local train_template = config.train_template
     local train_template_name = train_template ~= nil and train_template.name or nil
     local new = train_template_name == nil
     local train_template_id = train_template ~= nil and train_template.id or nil
 
     return {
         type = "frame",
-        name = FRAME.NAME,
+        name = config.frame_name,
         tags = { type = mod.defines.gui.mod_frame_marker_name, train_template_id = train_template_id },
         direction = "vertical",
         ref  =  {"window"},
@@ -76,7 +73,7 @@ function structure.get(train_template)
                                         ref = {"icon_input"},
                                         elem_type = "item",
                                         actions = {
-                                            on_elem_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }
+                                            on_elem_changed = { target = config.frame_name, action = mod.defines.gui.actions.touch_form }
                                         }
                                     },
                                     {
@@ -100,8 +97,8 @@ function structure.get(train_template)
                                         type = "textfield",
                                         ref = {"name_input"},
                                         actions = {
-                                            on_text_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form },
-                                            on_confirmed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form },
+                                            on_text_changed = { target = config.frame_name, action = mod.defines.gui.actions.touch_form },
+                                            on_confirmed = { target = config.frame_name, action = mod.defines.gui.actions.touch_form },
                                         }
                                     },
                                     {
@@ -229,7 +226,7 @@ function structure.get(train_template)
                         style = "back_button",
                         caption = { "gui.atd-cancel" },
                         actions = {
-                            on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame },
+                            on_click = { target = config.frame_name, action = mod.defines.gui.actions.close_frame },
                         },
                     },
                     {
@@ -244,7 +241,7 @@ function structure.get(train_template)
                         ref = {"submit_button"},
                         enabled = false,
                         actions = {
-                            on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.save_form },
+                            on_click = { target = config.frame_name, action = mod.defines.gui.actions.save_form },
                         },
                     },
                 }

@@ -152,7 +152,8 @@ end
 function private.create_for(player)
     local context = Context.from_player(player)
     local depot_settings = persistence_storage.get_depot_settings(context)
-    local refs = flib_gui.build(player.gui.screen, { structure.get(depot_settings) })
+    local structure_config = {frame_name = FRAME.NAME, depot_settings = depot_settings}
+    local refs = flib_gui.build(player.gui.screen, { structure.get(structure_config) })
 
     clean_train_station_dropdown_component = TrainStationSelector.new(
             player.surface,

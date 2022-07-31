@@ -1,7 +1,3 @@
-local FRAME = {
-    NAME = mod.defines.gui.frames.settings.name,
-}
-
 local structure = {}
 
 local label_info_sprite_style = {
@@ -9,12 +5,12 @@ local label_info_sprite_style = {
     natural_height = 15,
 }
 
-function structure.get(settings)
-    local new = settings == nil and true or false
+function structure.get(config)
+    local new = config.settings == nil and true or false
 
     return {
         type = "frame",
-        name = FRAME.NAME,
+        name = config.frame_name,
         tags = {type = mod.defines.gui.mod_frame_marker_name },
         direction = "vertical",
         ref  =  {"window"},
@@ -72,7 +68,7 @@ function structure.get(settings)
                                 state = false,
                                 ref = { "use_any_fuel_checkbox" },
                                 actions = {
-                                    on_checked_state_changed = { target = FRAME.NAME, action = mod.defines.gui.actions.touch_form }
+                                    on_checked_state_changed = { target = config.frame_name, action = mod.defines.gui.actions.touch_form }
                                 }
                             },
                         },
@@ -150,7 +146,7 @@ function structure.get(settings)
                         style = "back_button",
                         caption = { "gui.atd-cancel" },
                         actions = {
-                            on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.close_frame },
+                            on_click = { target = config.frame_name, action = mod.defines.gui.actions.close_frame },
                         },
                     },
                     {
@@ -165,7 +161,7 @@ function structure.get(settings)
                         ref = {"submit_button"},
                         enabled = false,
                         actions = {
-                            on_click = { target = FRAME.NAME, action = mod.defines.gui.actions.save_form },
+                            on_click = { target = config.frame_name, action = mod.defines.gui.actions.save_form },
                         },
                     },
                 }

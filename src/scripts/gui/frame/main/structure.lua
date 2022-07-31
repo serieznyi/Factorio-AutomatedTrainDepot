@@ -1,22 +1,16 @@
-local FRAME = {
-    NAME = mod.defines.gui.frames.main.name,
-    WIDTH = 1400, -- todo repeatable
-    HEIGHT = 800, -- todo repeatable
-}
-
 local structure = {}
 
-function structure.get()
+function structure.get(config)
     return {
         type = "frame",
-        name = FRAME.NAME,
+        name = config.frame_name,
         tags = {type = mod.defines.gui.mod_frame_marker_name },
         direction = "vertical",
         ref  =  {"window"},
         visible = false,
         style_mods = {
-            natural_width = FRAME.WIDTH,
-            natural_height = FRAME.HEIGHT,
+            natural_width = config.width,
+            natural_height = config.height,
         },
         children = {
             -- Titlebar
@@ -55,7 +49,7 @@ function structure.get()
                         hovered_sprite = "utility/close_black",
                         clicked_sprite = "utility/close_black",
                         actions = {
-                            on_click = {target = FRAME.NAME, action = mod.defines.gui.actions.close_frame}
+                            on_click = {target = config.NAME, action = mod.defines.gui.actions.close_frame}
                         }
                     },
                 }
@@ -69,7 +63,7 @@ function structure.get()
                         type = "flow",
                         direction = "vertical",
                         style_mods = {
-                            natural_width = FRAME.WIDTH * 0.25,
+                            natural_width = config.width * 0.25,
                         },
                         children = {
                             {
@@ -139,7 +133,7 @@ function structure.get()
                     {
                         type = "flow",
                         style_mods = {
-                            natural_width = FRAME.WIDTH - (FRAME.WIDTH * 0.25),
+                            natural_width = config.width - (config.width * 0.25),
                         },
                         direction = "vertical",
                         children = {
