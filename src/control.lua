@@ -32,7 +32,8 @@ end)
 ---@param command CustomCommandData
 commands.add_command("atd-global-print", nil, function(command)
     local player = game.get_player(command.player_index)
-    local data = global[command.parameter]
+
+    local data = global[command.parameter] ~= nil and global[command.parameter] or mod.global[command.parameter]
 
     player.print(mod.util.table.to_string(data))
 end)
@@ -40,13 +41,19 @@ end)
 ---@param command CustomCommandData
 commands.add_command("atd-global-keys", nil, function(command)
     local player = game.get_player(command.player_index)
-    local keys = {}
+    local data = {}
 
     for i, _ in pairs(global) do
-        table.insert(keys, i)
+        table.insert(data, {name = i, type = "persistence"})
     end
 
-    player.print(mod.util.table.to_string(keys))
+    for i, _ in pairs(mod.global) do
+        table.insert(data, {name = i, type = "in-memory"})
+    end
+
+    for _, value in ipairs(data) do
+        player.print("[" .. value.type .. "] " .. value.name)
+    end
 end)
 
 ---------------------------------------------------------------------------

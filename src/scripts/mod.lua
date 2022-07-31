@@ -11,4 +11,8 @@ mod.util = {
     game = require("scripts.util.game"),
 }
 
+mod.global = {
+    frames_stack = {}
+}
+
 return mod
