@@ -2,14 +2,14 @@ local FRAME = {
     NAME = mod.defines.gui.frames.settings.name,
 }
 
-local build_structure = {}
+local structure = {}
 
 local label_info_sprite_style = {
     natural_width = 15,
     natural_height = 15,
 }
 
-function build_structure.get(settings)
+function structure.get(settings)
     local new = settings == nil and true or false
 
     return {
@@ -174,4 +174,4 @@ function build_structure.get(settings)
     }
 end
 
-return build_structure
+return structure

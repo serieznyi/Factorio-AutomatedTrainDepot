@@ -6,7 +6,7 @@ local Context = require("scripts.lib.domain.Context")
 local event_dispatcher = require("scripts.util.event_dispatcher")
 local persistence_storage = require("scripts.persistence_storage")
 
-local build_structure = require("scripts.gui.frame.main.build_structure")
+local structure = require("scripts.gui.frame.main.structure")
 local train_template_view_component = require("scripts.gui.frame.main.component.train_template_view.component")
 local trains_map_component = require("scripts.gui.frame.main.component.trains_map.component")
 local ExtendedListBox = require("scripts.gui.component.extended_list_box.component")
@@ -199,7 +199,7 @@ end
 function private.create_for(player)
     local context = Context.from_player(player)
     local values = private.get_trains_templates_values(context)
-    local refs = flib_gui.build(player.gui.screen, { build_structure.get() })
+    local refs = flib_gui.build(player.gui.screen, { structure.get() })
 
     trains_templates_list_component = ExtendedListBox.new(
             values,

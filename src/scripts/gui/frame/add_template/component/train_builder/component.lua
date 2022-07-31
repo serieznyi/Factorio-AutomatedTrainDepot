@@ -6,7 +6,7 @@ local TrainPart = require("scripts.lib.domain.TrainPart")
 local event_dispatcher = require("scripts.util.event_dispatcher")
 
 local constants = require("scripts.gui.frame.add_template.component.train_builder.constants")
-local build_structure = require("scripts.gui.frame.add_template.component.train_builder.build_structure")
+local structure = require("scripts.gui.frame.add_template.component.train_builder.structure")
 local validator = require("scripts.gui.validator")
 
 local COMPONENT = constants.COMPONENT
@@ -348,7 +348,7 @@ end
 function public.add_train_part(container_element, player, train_part)
     -- todo use math rand
     local train_part_id = script.generate_event_name()
-    local refs = flib_gui.build(container_element, {build_structure.get(train_part_id)})
+    local refs = flib_gui.build(container_element, { structure.get(train_part_id)})
 
     storage.set_container(player, container_element)
 

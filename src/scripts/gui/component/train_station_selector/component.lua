@@ -12,7 +12,7 @@ local private = {}
 
 ---@param values table
 ---@param actions table
-function private.build_structure(values, actions)
+function private.structure(values, actions)
     return {
         type = "drop-down",
         ref = {"drop_down"},
@@ -106,7 +106,7 @@ end
 function TrainStationSelector:build(container)
     local train_stations = private.get_train_stations(self.surface, self.force)
 
-    self.refs = flib_gui.build(container, { private.build_structure(train_stations, self.actions) })
+    self.refs = flib_gui.build(container, { private.structure(train_stations, self.actions) })
 
     if self.selected_name == nil then
         self.refs.drop_down.selected_index = 1

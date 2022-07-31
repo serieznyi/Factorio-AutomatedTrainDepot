@@ -4,9 +4,9 @@ local FRAME = {
     HEIGHT = 800, -- todo repeatable
 }
 
-local build_structure = {}
+local structure = {}
 
-function build_structure.get()
+function structure.get()
     return {
         type = "frame",
         name = FRAME.NAME,
@@ -160,4 +160,4 @@ function build_structure.get()
     }
 end
 
-return build_structure
+return structure

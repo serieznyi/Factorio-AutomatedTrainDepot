@@ -2,10 +2,10 @@ local constants = require("scripts.gui.frame.add_template.component.train_builde
 
 local COMPONENT = constants.COMPONENT
 
-local build_structure = {}
+local structure = {}
 
 ---@param train_part_id int
-function build_structure.get(train_part_id)
+function structure.get(train_part_id)
     return {
         type = "flow",
         direction = "vertical",
@@ -74,4 +74,4 @@ function build_structure.get(train_part_id)
     }
 end
 
-return build_structure
+return structure

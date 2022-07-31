@@ -5,7 +5,7 @@ local event_dispatcher = require("scripts.util.event_dispatcher")
 local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Context = require("scripts.lib.domain.Context")
 local TrainStationSelector = require("scripts.gui.component.train_station_selector.component")
-local build_structure = require("scripts.gui.frame.add_template.build_structure")
+local structure = require("scripts.gui.frame.add_template.structure")
 local train_builder_component = require("scripts.gui.frame.add_template.component.train_builder.component")
 local validator = require("scripts.gui.validator")
 local persistence_storage = require("scripts.persistence_storage")
@@ -145,7 +145,7 @@ function private.create_for(player, train_template_id)
     local context = Context.from_player(player)
     local train_template = persistence_storage.get_train_template(train_template_id)
     local depot_settings = persistence_storage.get_depot_settings(context)
-    local refs = flib_gui.build(player.gui.screen, {build_structure.get(train_template)})
+    local refs = flib_gui.build(player.gui.screen, { structure.get(train_template)})
 
     clean_train_station_dropdown_component = TrainStationSelector.new(
             player.surface,

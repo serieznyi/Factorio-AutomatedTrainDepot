@@ -7,10 +7,10 @@ local label_info_sprite_style = {
     natural_height = 15,
 }
 
-local build_structure = {}
+local structure = {}
 
 ---@param train_template scripts.lib.domain.TrainTemplate
-function build_structure.get(train_template)
+function structure.get(train_template)
     local train_template_name = train_template ~= nil and train_template.name or nil
     local new = train_template_name == nil
     local train_template_id = train_template ~= nil and train_template.id or nil
@@ -253,4 +253,4 @@ function build_structure.get(train_template)
     }
 end
 
-return build_structure
+return structure

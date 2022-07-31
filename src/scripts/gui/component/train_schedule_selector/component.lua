@@ -123,7 +123,7 @@ function public:_dropdown_changed(e)
 end
 
 ---@param values table list of values
-function public:_build_structure(values)
+function public:_structure(values)
     return {
         type = "flow",
         direction = "vertical",
@@ -169,7 +169,7 @@ function public:build(container)
 
     local dropdown_values = flib_table.map(self.schedules, private.get_schedule_name)
 
-    self.refs = flib_gui.build(container, { self:_build_structure(dropdown_values) })
+    self.refs = flib_gui.build(container, { self:_structure(dropdown_values) })
 
     if self.selected_schedule == nil then
         self.refs.drop_down.selected_index = 1

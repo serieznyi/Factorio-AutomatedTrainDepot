@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 
 local event_dispatcher = require("scripts.util.event_dispatcher")
 
-local build_structure = require("scripts.gui.frame.main.component.trains_map.build_structure")
+local structure = require("scripts.gui.frame.main.component.trains_map.structure")
 
 local COMPONENT = {
     NAME = mod.defines.gui.components.trains_map.name
@@ -110,7 +110,7 @@ function public.create(container, player, trains)
     assert(player, "player is nil")
 
     local caption = {"trains-map.atd-uncontrolled-trains"}
-    local refs = flib_gui.build(container, {build_structure.get(caption)})
+    local refs = flib_gui.build(container, { structure.get(caption)})
 
     storage.set(player, container, refs)
 

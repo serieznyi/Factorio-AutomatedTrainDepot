@@ -11,7 +11,7 @@ local private = {}
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
-function private.build_structure()
+function private.structure()
     return {
         type = "frame",
         style = "inside_deep_frame",
@@ -171,7 +171,7 @@ end
 
 ---@param parent LuaGuiElement
 function public:build(parent)
-    self.refs = flib_gui.build(parent, { private.build_structure() })
+    self.refs = flib_gui.build(parent, { private.structure() })
 
     self:refresh()
 end
