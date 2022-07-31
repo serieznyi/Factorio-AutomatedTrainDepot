@@ -49,7 +49,7 @@ function structure.get(config)
                         hovered_sprite = "utility/close_black",
                         clicked_sprite = "utility/close_black",
                         actions = {
-                            on_click = {target = config.NAME, action = mod.defines.gui.actions.close_frame}
+                            on_click = {target = config.frame_name, action = mod.defines.gui.actions.close_frame}
                         }
                     },
                 }
