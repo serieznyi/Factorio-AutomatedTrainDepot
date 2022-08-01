@@ -74,17 +74,18 @@ local function is_event_blocked(event)
 end
 
 function manager.init()
-    global.gui = {
-        frame = {},
-        component = {},
-    }
-
     for _, module in ipairs(FRAME_MODULES) do
         module.init()
     end
 end
 
 function manager.load()
+    mod.global.gui = {
+        frame = {},
+        component = {},
+        frames_stack = {}
+    }
+
     for _, module in ipairs(FRAME_MODULES) do
         module.load()
     end

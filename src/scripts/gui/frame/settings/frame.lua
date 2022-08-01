@@ -26,29 +26,25 @@ local storage = {}
 -- -- -- STORAGE
 ---------------------------------------------------------------------------
 
-function storage.init()
-    global.gui.frame[FRAME.NAME] = {}
+function storage.load()
+    mod.global.gui.frame[FRAME.NAME] = {}
 end
 
----@param player LuaPlayer
-function storage.clean(player)
-    global.gui.frame[FRAME.NAME][player.index] = nil
+function storage.clean()
+    mod.global.gui.frame[FRAME.NAME] = nil
 end
 
----@param player LuaPlayer
 ---@return table
-function storage.refs(player)
-    if global.gui.frame[FRAME.NAME][player.index] == nil then
+function storage.refs()
+    if mod.global.gui.frame[FRAME.NAME] == nil then
         return nil
     end
 
-    return global.gui.frame[FRAME.NAME][player.index].refs
+    return mod.global.gui.frame[FRAME.NAME].refs
 end
 
-function storage.set(player, refs)
-    global.gui.frame[FRAME.NAME][player.index] = {
-        refs = refs,
-    }
+function storage.set(refs)
+    mod.global.gui.frame[FRAME.NAME] = {refs = refs}
 end
 
 ---------------------------------------------------------------------------
@@ -66,7 +62,7 @@ end
 
 ---@param player LuaPlayer
 function private.update_form(player)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
     local submit_button = refs.submit_button
     local validation_errors = private.validate_form(player)
 
@@ -94,7 +90,7 @@ end
 ---@param event scripts.lib.decorator.Event
 function private.handle_open_frame(event)
     local player = game.get_player(event.player_index)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
 
     if refs == nil then
         refs = private.create_for(player)
@@ -123,7 +119,7 @@ function private.validation_rules()
 end
 
 function private.destroy_frame(player)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
 
     if refs == nil then
         return
@@ -137,7 +133,7 @@ function private.destroy_frame(player)
     clean_train_station_dropdown_component = nil
     train_schedule_component = nil
 
-    storage.clean(player)
+    storage.clean()
 end
 
 ---@param player LuaPlayer
@@ -180,7 +176,7 @@ function private.create_for(player)
     refs.titlebar_flow.drag_target = refs.window
     refs.footerbar_flow.drag_target = refs.window
 
-    storage.set(player, refs)
+    storage.set(refs)
 
     return refs
 end
@@ -199,7 +195,7 @@ end
 ---@param player LuaPlayer
 ---@return table form data
 function private.read_form(player)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
 
     return {
         use_any_fuel = refs.use_any_fuel_checkbox.state,
@@ -220,10 +216,10 @@ function public.name()
 end
 
 function public.init()
-    storage.init()
 end
 
 function public.load()
+    storage.load()
 end
 
 ---@param event scripts.lib.decorator.Event

@@ -16,39 +16,30 @@ local storage = {}
 -- -- -- STORAGE
 ---------------------------------------------------------------------------
 
-function storage.init()
-    global.gui.component[COMPONENT.NAME] = {}
+function storage.load()
+    mod.global.gui.component[COMPONENT.NAME] = {}
 end
 
----@param player LuaPlayer
-function storage.clean(player)
-    global.gui.component[COMPONENT.NAME][player.index] = nil
+function storage.clean()
+    mod.global.gui.component[COMPONENT.NAME] = nil
 end
 
----@param player LuaPlayer
 ---@param container LuaGuiElement
 ---@param refs table
-function storage.set(player, container, refs)
-    global.gui.component[COMPONENT.NAME][player.index] = {
+function storage.set(container, refs)
+    mod.global.gui.component[COMPONENT.NAME] = {
         container = container,
         refs = refs
     }
 end
 
----@param player LuaPlayer
 ---@return table
-function storage.refs(player)
-    if global.gui.component[COMPONENT.NAME][player.index] == nil then
+function storage.refs()
+    if mod.global.gui.component[COMPONENT.NAME] == nil then
         return nil
     end
 
-    return global.gui.component[COMPONENT.NAME][player.index].refs
-end
-
----@param player LuaPlayer
----@return LuaGuiElement
-function storage.container(player)
-    return global.gui.component[COMPONENT.NAME][player.index].container
+    return mod.global.gui.component[COMPONENT.NAME].refs
 end
 
 ---------------------------------------------------------------------------
@@ -58,7 +49,7 @@ end
 ---@param player LuaPlayer
 ---@param trains table
 function private.refresh_component(player, trains)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
     ---@type LuaGuiElement
     local trains_table = refs.trains_table
 
@@ -86,15 +77,15 @@ end
 ---------------------------------------------------------------------------
 
 function public.init()
-    storage.init()
 end
 
 function public.load()
+    storage.load()
 end
 
 ---@param player LuaPlayer
 function public.destroy(player)
-    storage.clean(player)
+    storage.clean()
 end
 
 ---@return string
@@ -112,7 +103,7 @@ function public.create(container, player, trains)
     local caption = {"trains-map.atd-uncontrolled-trains"}
     local refs = flib_gui.build(container, { structure.get(caption)})
 
-    storage.set(player, container, refs)
+    storage.set(container, refs)
 
     private.refresh_component(player, trains)
 end

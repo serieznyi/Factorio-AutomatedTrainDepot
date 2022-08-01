@@ -28,31 +28,26 @@ local storage = {}
 -- -- -- STORAGE
 ---------------------------------------------------------------------------
 
-function storage.init()
-    global.gui.frame[FRAME.NAME] = {}
+function storage.load()
+    mod.global.gui.frame[FRAME.NAME] = {}
 end
 
----@param player LuaPlayer
-function storage.clean(player)
-    global.gui.frame[FRAME.NAME][player.index] = nil
+function storage.clean()
+    mod.global.gui.frame[FRAME.NAME] = nil
 end
 
----@param player LuaPlayer
 ---@return table
-function storage.refs(player)
-    if global.gui.frame[FRAME.NAME][player.index] == nil then
+function storage.refs()
+    if mod.global.gui.frame[FRAME.NAME] == nil then
         return nil
     end
 
-    return global.gui.frame[FRAME.NAME][player.index].refs
+    return mod.global.gui.frame[FRAME.NAME].refs
 end
 
----@param player LuaPlayer
 ---@param refs table
-function storage.set(player, refs)
-    global.gui.frame[FRAME.NAME][player.index] = {
-        refs = refs,
-    }
+function storage.set(refs)
+    mod.global.gui.frame[FRAME.NAME] = {refs = refs}
 end
 
 ---------------------------------------------------------------------------
@@ -62,7 +57,7 @@ end
 ---@param event scripts.lib.decorator.Event
 function private.handle_frame_open(event)
     local player = game.get_player(event.player_index)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
     local tags = flib_gui.get_tags(event.gui_element)
 
     if refs == nil then
@@ -90,7 +85,7 @@ end
 ---@param event scripts.lib.decorator.Event
 function private.handle_form_changed(event)
     local player = game.get_player(event.player_index)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
     local submit_button = refs.submit_button
     local validation_errors = private.validate_form(player)
 
@@ -175,14 +170,14 @@ function private.create_for(player, train_template_id)
 
     train_builder_component.add_train_part(refs.train_builder_container, player)
 
-    storage.set(player, refs)
+    storage.set(refs)
 
     return refs
 end
 
 ---@param player LuaPlayer
 function private.update_form(player)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
     local submit_button = refs.submit_button
     local validation_errors = private.validate_form(player)
 
@@ -220,7 +215,7 @@ end
 
 ---@param player LuaPlayer
 function private.close_frame(player)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
 
     if refs == nil then
         return
@@ -231,9 +226,9 @@ function private.close_frame(player)
     window.visible = false
     window.destroy()
 
-    storage.clean(player)
+    storage.clean()
 
-    train_builder_component.destroy(player)
+    train_builder_component.destroy()
 end
 
 ---------------------------------------------------------------------------
@@ -246,12 +241,12 @@ function public.name()
 end
 
 function public.init()
-    storage.init()
-    train_builder_component.init()
     train_builder_component.on_changed(private.handle_form_changed)
 end
 
 function public.load()
+    storage.load()
+    train_builder_component.load()
     train_builder_component.on_changed(private.handle_form_changed)
 end
 
@@ -290,7 +285,7 @@ end
 ---@param player LuaPlayer
 ---@return scripts.lib.domain.TrainTemplate form data
 function public.read_form(player)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
     local window_tags = flib_gui.get_tags(refs.window)
     local context = Context.from_player(player)
     ---@type scripts.lib.domain.TrainTemplate

@@ -20,20 +20,20 @@ local storage = {}
 -- -- -- STORAGE
 ---------------------------------------------------------------------------
 
-function storage.init()
-    global.gui.component[COMPONENT.NAME] = {}
+function storage.load()
+    mod.global.gui.component[COMPONENT.NAME] = {}
 end
 
 ---@param player LuaPlayer
 function storage.clean(player)
-    global.gui.component[COMPONENT.NAME][player.index] = nil
+    mod.global.gui.component[COMPONENT.NAME][player.index] = nil
 end
 
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
 ---@param refs table
 function storage.set(player, container, refs)
-    global.gui.component[COMPONENT.NAME][player.index] = {
+    mod.global.gui.component[COMPONENT.NAME][player.index] = {
         container = container,
         refs = refs
     }
@@ -42,17 +42,17 @@ end
 ---@param player LuaPlayer
 ---@return table
 function storage.refs(player)
-    if global.gui.component[COMPONENT.NAME][player.index] == nil then
+    if mod.global.gui.component[COMPONENT.NAME][player.index] == nil then
         return nil
     end
 
-    return global.gui.component[COMPONENT.NAME][player.index].refs
+    return mod.global.gui.component[COMPONENT.NAME][player.index].refs
 end
 
 ---@param player LuaPlayer
 ---@return LuaGuiElement
 function storage.container(player)
-    return global.gui.component[COMPONENT.NAME][player.index].container
+    return mod.global.gui.component[COMPONENT.NAME][player.index].container
 end
 
 ---------------------------------------------------------------------------
@@ -209,10 +209,10 @@ end
 ---------------------------------------------------------------------------
 
 function public.init()
-    storage.init()
 end
 
 function public.load()
+    storage.load()
 end
 
 ---@param player LuaPlayer

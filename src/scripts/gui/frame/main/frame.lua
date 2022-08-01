@@ -27,36 +27,26 @@ local storage = {}
 -- -- -- STORAGE
 ---------------------------------------------------------------------------
 
-function storage.init()
-    global.gui.frame[FRAME.NAME] = {}
+function storage.load()
+    mod.global.gui.frame[FRAME.NAME] = {}
 end
 
----@param player LuaPlayer
-function storage.clean(player)
-    global.gui.frame[FRAME.NAME][player.index] = nil
+function storage.clean()
+    mod.global.gui.frame[FRAME.NAME] = nil
 end
 
----@param player LuaPlayer
 ---@return table
-function storage.refs(player)
-    if global.gui.frame[FRAME.NAME][player.index] == nil then
+function storage.refs()
+    if mod.global.gui.frame[FRAME.NAME] == nil then
         return nil
     end
 
-    return global.gui.frame[FRAME.NAME][player.index].refs
+    return mod.global.gui.frame[FRAME.NAME].refs
 end
 
----@param player LuaPlayer
 ---@param refs table
-function storage.set_refs(player, refs)
-    global.gui.frame[FRAME.NAME][player.index] = {
-        refs = refs,
-    }
-end
-
----@param player LuaPlayer
-function storage.get_selected_train_template(player)
-    return global.gui.frame[FRAME.NAME][player.index].selected_train_template
+function storage.set_refs(refs)
+    mod.global.gui.frame[FRAME.NAME] = {refs = refs}
 end
 
 ---------------------------------------------------------------------------
@@ -75,7 +65,7 @@ end
 ---@param event scripts.lib.decorator.Event
 function private.handle_open_uncontrolled_trains_map(event)
     local player = game.get_player(event.player_index)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
     local context = Context.from_player(player)
     local trains = persistence_storage.find_uncontrolled_trains(context)
 
@@ -103,7 +93,7 @@ end
 ---@param event scripts.lib.decorator.Event
 function private.handle_close_frame(event)
     local player = game.get_player(event.player_index)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
     local window = refs.window
 
     window.visible = false
@@ -114,14 +104,14 @@ function private.handle_close_frame(event)
 
     window.destroy()
 
-    storage.clean(player)
+    storage.clean()
 
     return true
 end
 
 ---@param player LuaPlayer
 function private.select_train_template_view(player, train_template_id)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
 
     local train_template = persistence_storage.get_train_template(train_template_id)
 
@@ -149,7 +139,7 @@ function private.get_selected_train_template_id()
 end
 
 function private.refresh_control_buttons(player)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
     local selected_train_template_id = trains_templates_list_component:get_selected_id()
     local train_template_selected = selected_train_template_id ~= nil
     local context = Context.from_player(player)
@@ -219,7 +209,7 @@ function private.create_for(player)
         ((resolution.height - (FRAME.HEIGHT * scale)) / 2)
     }
 
-    storage.set_refs(player, refs)
+    storage.set_refs(refs)
 
     return storage.refs(player)
 end
@@ -234,12 +224,12 @@ function public.name()
 end
 
 function public.init()
-    storage.init()
     train_template_view_component.init()
     trains_map_component.init()
 end
 
 function public.load()
+    storage.load()
     train_template_view_component.load()
     trains_map_component.load()
 end

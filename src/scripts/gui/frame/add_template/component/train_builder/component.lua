@@ -19,58 +19,47 @@ local storage = {}
 -- -- -- STORAGE
 ---------------------------------------------------------------------------
 
-function storage.init()
-    global.gui.component[COMPONENT.NAME] = {}
+function storage.load()
+    mod.global.gui.component[COMPONENT.NAME] = {}
 end
 
----@param player LuaPlayer
-function storage.clean(player)
-    global.gui.component[COMPONENT.NAME][player.index] = nil
+function storage.clean()
+    mod.global.gui.component[COMPONENT.NAME] = nil
 end
 
----@param player LuaPlayer
 ---@return table
-function storage.get_train_parts(player)
-    return global.gui.component[COMPONENT.NAME][player.index].train_parts
+function storage.get_train_parts()
+    return mod.global.gui.component[COMPONENT.NAME].train_parts
 end
 
----@param player LuaPlayer
 ---@param container LuaGuiElement
-function storage.set_container(player, container)
-    if global.gui.component[COMPONENT.NAME][player.index] == nil then
-        global.gui.component[COMPONENT.NAME][player.index] = {
-            container = container,
-            train_parts = {},
-        }
-    else
-        global.gui.component[COMPONENT.NAME][player.index].container = container
-    end
+function storage.set_container(container)
+    mod.global.gui.component[COMPONENT.NAME] = {
+        container = container,
+        train_parts = {},
+    }
 end
 
----@param player LuaPlayer
 ---@return LuaGuiElement
-function storage.get_container(player)
-    return global.gui.component[COMPONENT.NAME][player.index].container
+function storage.get_container()
+    return mod.global.gui.component[COMPONENT.NAME].container
 end
 
----@param player LuaPlayer
 ---@param train_part_id int
 ---@param refs table
-function storage.add_train_part(player, train_part_id, refs)
-    global.gui.component[COMPONENT.NAME][player.index].train_parts[train_part_id] = { refs = refs }
+function storage.add_train_part(train_part_id, refs)
+    mod.global.gui.component[COMPONENT.NAME].train_parts[train_part_id] = { refs = refs }
 end
 
----@param player LuaPlayer
 ---@param train_part_id int
-function storage.delete_train_part(player, train_part_id)
-    flib_table.retrieve(global.gui.component[COMPONENT.NAME][player.index].train_parts, train_part_id)
+function storage.delete_train_part(train_part_id)
+    flib_table.retrieve(mod.global.gui.component[COMPONENT.NAME].train_parts, train_part_id)
 end
 
----@param player LuaPlayer
 ---@param train_part_id int
 ---@return table
-function storage.get_train_part(player, train_part_id)
-    return global.gui.component[COMPONENT.NAME][player.index].train_parts[train_part_id]
+function storage.get_train_part(train_part_id)
+    return mod.global.gui.component[COMPONENT.NAME].train_parts[train_part_id]
 end
 
 ---------------------------------------------------------------------------
@@ -111,10 +100,10 @@ function private.handle_delete_train_part(event)
 
     ---@type int
     local train_part_id = private.get_train_part_id(event.gui_element)
-    local train_part = storage.get_train_part(player, train_part_id)
+    local train_part = storage.get_train_part(train_part_id)
 
     train_part.refs.element.destroy()
-    storage.delete_train_part(player, train_part_id)
+    storage.delete_train_part(train_part_id)
 
     return true
 end
@@ -130,7 +119,7 @@ function private.handle_add_new_train_part(event)
     ---@type LuaGuiElement
     local item_chooser = event.gui_element
     ---@type LuaGuiElement
-    local container = storage.get_container(player)
+    local container = storage.get_container()
 
     if item_chooser.elem_value ~= nil and not private.is_last_train_part_empty(event.player_index) then
         public.add_train_part(container, player)
@@ -163,7 +152,7 @@ end
 ---@param new_direction uint
 function private.set_carrier_direction(train_part_id, player, new_direction)
     ---@type table
-    local train_part = storage.get_train_part(player, train_part_id)
+    local train_part = storage.get_train_part(train_part_id)
     local direction_left_button = train_part.refs.carrier_direction_left_button
     local direction_right_button = train_part.refs.carrier_direction_right_button
     flib_gui.update(direction_left_button, { tags = { current_direction = new_direction } })
@@ -173,7 +162,7 @@ end
 ---@param player LuaPlayer
 ---@param train_part_id uint
 function private.update_train_part(player, train_part_id)
-    local train_part = storage.get_train_part(player, train_part_id)
+    local train_part = storage.get_train_part(train_part_id)
     ---@type LuaGuiElement
     local delete_button = train_part.refs.delete_button
     ---@type LuaGuiElement
@@ -190,7 +179,7 @@ function private.update_train_part(player, train_part_id)
 
     if private.is_train_part_selector_cleaned(player, train_part_id) then
         train_part.refs.element.destroy()
-        storage.delete_train_part(player, train_part_id)
+        storage.delete_train_part(train_part_id)
         return
     end
 
@@ -249,7 +238,7 @@ end
 function private.get_carrier_direction(element, player)
     local train_part_id = private.get_train_part_id(element)
     ---@type table
-    local train_part = storage.get_train_part(player, train_part_id)
+    local train_part = storage.get_train_part(train_part_id)
     local left_button = train_part.refs.carrier_direction_left_button
     local right_button = train_part.refs.carrier_direction_right_button
 
@@ -269,7 +258,7 @@ end
 function private.is_last_train_part_empty(player_index)
     local player = game.get_player(player_index)
     ---@type LuaGuiElement
-    local container = storage.get_container(player)
+    local container = storage.get_container()
     ---@type LuaGuiElement
     local last_train_part = container.children[#container.children]
 
@@ -281,8 +270,8 @@ end
 ---@param train_part_id uint
 ---@return bool
 function private.is_last_train_part_selector(player, train_part_id)
-    local train_part = storage.get_train_part(player, train_part_id)
-    local component = storage.get_container(player)
+    local train_part = storage.get_train_part(train_part_id)
+    local component = storage.get_container()
     ---@type LuaGuiElement
     local element = train_part.refs.element
 
@@ -310,7 +299,7 @@ end
 ---@param train_part_id uint
 ---@return bool
 function private.is_train_part_selector_cleaned(player, train_part_id)
-    local train_part = storage.get_train_part(player, train_part_id)
+    local train_part = storage.get_train_part(train_part_id)
 
     return train_part.refs.part_chooser.elem_value == nil and not private.is_last_train_part_selector(player, train_part_id)
 end
@@ -320,15 +309,14 @@ end
 ---------------------------------------------------------------------------
 
 function public.init()
-    storage.init()
 end
 
 function public.load()
+    storage.load()
 end
 
----@param player LuaPlayer
-function public.destroy(player)
-    storage.clean(player)
+function public.destroy()
+    storage.clean()
 end
 
 ---@param train_part scripts.lib.domain.TrainPart
@@ -350,9 +338,9 @@ function public.add_train_part(container_element, player, train_part)
     local train_part_id = script.generate_event_name()
     local refs = flib_gui.build(container_element, { structure.get(train_part_id)})
 
-    storage.set_container(player, container_element)
+    storage.set_container(container_element)
 
-    storage.add_train_part(player, train_part_id, refs)
+    storage.add_train_part(train_part_id, refs)
 
     if train_part ~= nil then
         private.write_form(player, refs, train_part)
@@ -397,7 +385,7 @@ end
 
 ---@param player LuaPlayer
 function public.read_form(player)
-    local train_parts = storage.get_train_parts(player)
+    local train_parts = storage.get_train_parts()
 
     local train = {}
 

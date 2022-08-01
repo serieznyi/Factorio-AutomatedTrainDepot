@@ -11,8 +11,7 @@ mod.util = {
     game = require("scripts.util.game"),
 }
 
-mod.global = {
-    frames_stack = {}
-}
+-- global table for runtime data
+mod.global = {}
 
 return mod

@@ -108,12 +108,16 @@ function TrainStationSelector:build(container)
 
     self.refs = flib_gui.build(container, { private.structure(train_stations, self.actions) })
 
-    if self.selected_name == nil then
-        self.refs.drop_down.selected_index = 1
-    else
-        for i, v in ipairs(self.refs.drop_down.items) do
-            if v == self.selected_name then
-                self.refs.drop_down.selected_index = i
+    if #self.refs.drop_down > 0 then
+        if self.selected_schedule == nil then
+            self.refs.drop_down.selected_index = 1
+        else
+            local selected_hash_code = mod_table.hash_code(self.selected_schedule.records);
+            ---@param s TrainSchedule
+            for i, s in ipairs(self.schedules) do
+                if selected_hash_code == mod_table.hash_code(s.records) then
+                    self.refs.drop_down.selected_index = i
+                end
             end
         end
     end
