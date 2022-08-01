@@ -21,15 +21,15 @@ local function load_event_names()
 end
 
 local function handle_main_frame_close(event)
-    mod.global.frames[mod.defines.gui.frames.main.name]:destroy()
+    mod.global.frames[MainFrame.name]:destroy()
 end
 
 local function handle_add_template_frame_close(event)
-    mod.global.frames[mod.defines.gui.frames.add_template.name]:destroy()
+    mod.global.frames[AddTemplateFrame.name]:destroy()
 end
 
 local function handle_settings_frame_close(event)
-    mod.global.frames[mod.defines.gui.frames.settings.name]:destroy()
+    mod.global.frames[SettingsFrame.name]:destroy()
 end
 
 ---@param event scripts.lib.decorator.Event

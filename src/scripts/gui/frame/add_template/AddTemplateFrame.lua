@@ -27,7 +27,7 @@ end
 --- @module gui.frame.AddTemplateFrame
 local AddTemplateFrame = {
     ---@type string
-    name = mod.defines.gui.frames.add_template.name,
+    name = "add_template_frame",
     ---@type LuaPlayer
     player = nil,
     ---@type uint

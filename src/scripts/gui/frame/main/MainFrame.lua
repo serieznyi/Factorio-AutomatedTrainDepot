@@ -13,7 +13,7 @@ local event_dispatcher = require("scripts.util.event_dispatcher")
 --- @module gui.frame.MainFrame
 local MainFrame = {
     ---@type string
-    name = mod.defines.gui.frames.main.name,
+    name = "main_frame",
     ---@type int
     width = 1400,
     ---@type int

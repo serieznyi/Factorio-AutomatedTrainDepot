@@ -69,11 +69,6 @@ public.train = {
 public.prototypes = require("prototypes.defines.index")
 
 public.gui = {
-    frames = {
-        main = { name = "main_frame" },
-        add_template = { name = "add_template_frame" },
-        settings = { name = "settings_frame" },
-    },
     components = {
         train_builder = { name = "train_builder_component" },
         train_template_view = { name = "train_template_view_component" },

@@ -13,7 +13,7 @@ local DepotSettings = require("scripts.lib.domain.DepotSettings")
 --- @module gui.frame.SettingsFrame
 local SettingsFrame = {
     ---@type string
-    name = mod.defines.gui.frames.settings.name,
+    name = "settings_frame",
     ---@type LuaPlayer
     player = nil,
     refs = {
