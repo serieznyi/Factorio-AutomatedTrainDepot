@@ -182,7 +182,7 @@ function SettingsFrame:_initialize()
             self.player.surface,
             self.player.force,
             -- todo change it
-            nil, --{ on_selection_state_changed = { target = self.name, action = mod.defines.gui.actions.touch_form } },
+            nil, --{ on_selection_state_changed = { target = self.name, action =  } },
             depot_settings and depot_settings.default_clean_station or nil,
             true
     )

@@ -218,7 +218,8 @@ function AddTemplateFrame:_initialize()
     self.components.clean_train_station_dropdown = TrainStationSelector.new(
             self.player.surface,
             self.player.force,
-            { on_selection_state_changed = { target = self.name, action = mod.defines.gui.actions.touch_form } },
+            -- todo fix it
+            null, --{ on_selection_state_changed = { target = self.name, action =  } },
             train_template and train_template.clean_station or (depot_settings and depot_settings.default_clean_station or nil),
             true
     )

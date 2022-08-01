@@ -58,13 +58,6 @@ function Event:target_name()
     return data and data.target or nil
 end
 
----@return string|nil
-function Event:action_name()
-    local data = self:initialize()
-
-    return data and data.action or nil
-end
-
 function Event:full_name()
     local original_name = self.string_name and self.string_name or "<unk>"
     local custom_name = self.custom_string_name and self.custom_string_name or "<unk>"

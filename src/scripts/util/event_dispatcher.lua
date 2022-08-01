@@ -1,44 +1,8 @@
 local public = {}
 
----@param target string
-function public.match_target(target)
-    ---@param e scripts.lib.decorator.Event
-    return function(e)
-        if not e:is_gui_event() then
-            return false
-        end
-
-        return e:target_name() == target
-    end
-end
-
 function public.match_all()
     return function()
         return true
-    end
-end
-
-function public.match_all_non_gui_events()
-    ---@param e scripts.lib.decorator.Event
-    return function(e)
-        if not e:is_gui_event() then
-            return true
-        end
-
-        return false
-    end
-end
-
----@param target string
----@param action string
-function public.match_target_and_action(target, action)
-    ---@param e scripts.lib.decorator.Event
-    return function(e)
-        if not e:is_gui_event() then
-            return false
-        end
-
-        return e:target_name() == target and e:action_name() == action
     end
 end
 

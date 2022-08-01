@@ -133,7 +133,9 @@ function public:_structure(values)
                 ref = {"drop_down"},
                 items = values,
                 actions = {
-                    on_selection_state_changed = { target = self:name(), action = mod.defines.gui.actions.any },
+                    on_selection_state_changed = {
+                        -- todo add
+                    },
                 }
             },
         }
@@ -235,10 +237,10 @@ end
 ---@param event scripts.lib.decorator.Event
 function public:dispatch(event)
     local event_handlers = {
-        {
-            match = event_dispatcher.match_target(self:name()),
-            func = function(e) return self:_dropdown_changed(e) end
-        },
+        --{ -- todo fix it
+        --    match = ,
+        --    func = function(e) return self:_dropdown_changed(e) end
+        --},
     }
 
     return event_dispatcher.dispatch(event_handlers, event)

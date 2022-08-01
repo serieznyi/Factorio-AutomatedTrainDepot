@@ -69,33 +69,6 @@ public.train = {
 public.prototypes = require("prototypes.defines.index")
 
 public.gui = {
-    actions = {
-        any = script.generate_event_name(),
-        -- common
-        open_frame = script.generate_event_name(),
-        close_frame = script.generate_event_name(),
-        save_form = script.generate_event_name(),
-        -- train template
-        delete_train_template = script.generate_event_name(),
-        select_train_template = script.generate_event_name(),
-        edit_train_template = script.generate_event_name(),
-        change_trains_quantity = script.generate_event_name(),
-        -- train gui
-        delete_train_part = script.generate_event_name(),
-        change_carrier_direction = script.generate_event_name(),
-        refresh_train_part = script.generate_event_name(),
-        -- other
-        trigger_form_changed = script.generate_event_name(),
-        touch_form = script.generate_event_name(),
-        enable_train_template = script.generate_event_name(),
-        disable_train_template = script.generate_event_name(),
-        open_uncontrolled_trains_map = script.generate_event_name(),
-        choose_list_box_item = script.generate_event_name(),
-        --
-        close_main_frame = script.generate_event_name(),
-        open_settings_frame = script.generate_event_name(),
-        open_adding_template_frame = script.generate_event_name(),
-    },
     frames = {
         main = { name = "main_frame" },
         add_template = { name = "add_template_frame" },
