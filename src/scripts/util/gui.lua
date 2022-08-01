@@ -37,4 +37,27 @@ function gui.action_name(action_number)
     return action_name_map[action_number] or 'unknown(' .. action_number .. ')'
 end
 
+---@param frame LuaGuiElement
+function gui.frame_stack_push(frame)
+    table.insert(mod.global.gui.frames_stack, frame)
+end
+
+function gui.frame_stack_pop()
+    if mod.global.gui.frames_stack == {} then
+        return
+    end
+
+    table.remove(mod.global.gui.frames_stack, #mod.global.gui.frames_stack)
+end
+
+function gui.frame_stack_last()
+    if mod.global.gui.frames_stack == {} then
+        return
+    end
+
+    local last_index = #mod.global.gui.frames_stack;
+
+    return mod.global.gui.frames_stack[last_index]
+end
+
 return gui

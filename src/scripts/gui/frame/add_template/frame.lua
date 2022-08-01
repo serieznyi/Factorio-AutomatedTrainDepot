@@ -172,6 +172,8 @@ function private.create_for(player, train_template_id)
 
     storage.set(refs)
 
+    mod.util.gui.frame_stack_push(refs.window)
+
     return refs
 end
 
@@ -224,6 +226,9 @@ function private.close_frame(player)
     local window = refs.window
 
     window.visible = false
+
+    mod.util.gui.frame_stack_pop(window)
+
     window.destroy()
 
     storage.clean()

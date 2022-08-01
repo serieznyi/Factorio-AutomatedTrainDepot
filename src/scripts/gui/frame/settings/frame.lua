@@ -109,6 +109,8 @@ end
 function private.handle_frame_destroy(event)
     local player = game.get_player(event.player_index)
 
+    mod.util.gui.frame_stack_pop(window)
+
     private.destroy_frame(player)
 
     return true
@@ -177,6 +179,8 @@ function private.create_for(player)
     refs.footerbar_flow.drag_target = refs.window
 
     storage.set(refs)
+
+    mod.util.gui.frame_stack_push(refs.window)
 
     return refs
 end

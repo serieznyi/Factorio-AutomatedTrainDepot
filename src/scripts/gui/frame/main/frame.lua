@@ -102,6 +102,8 @@ function private.handle_close_frame(event)
         player.opened = nil
     end
 
+    mod.util.gui.frame_stack_pop(refs.window)
+
     window.destroy()
 
     storage.clean()
@@ -211,7 +213,9 @@ function private.create_for(player)
 
     storage.set_refs(refs)
 
-    return storage.refs(player)
+    mod.util.gui.frame_stack_push(refs.window)
+
+    return storage.refs()
 end
 
 ---------------------------------------------------------------------------
