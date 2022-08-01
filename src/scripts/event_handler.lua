@@ -100,6 +100,11 @@ function public.open_main_frame(event)
 end
 
 ---@param event EventData
+function public.close_frame(event)
+    -- todo add frame close by esc
+end
+
+---@param event EventData
 function public.pass_to_gui(event)
     gui_manager.dispatch(Event.new(event))
 end
