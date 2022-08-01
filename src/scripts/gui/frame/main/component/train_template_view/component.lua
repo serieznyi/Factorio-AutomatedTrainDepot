@@ -9,7 +9,7 @@ local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.main.component.train_template_view.structure")
 
 local COMPONENT = {
-    NAME = mod.defines.gui.components.train_template_view.name
+    NAME = "train_template_view_component"
 }
 
 local public = {}

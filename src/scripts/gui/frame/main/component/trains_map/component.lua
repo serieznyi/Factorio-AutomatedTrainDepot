@@ -5,7 +5,7 @@ local event_dispatcher = require("scripts.util.event_dispatcher")
 local structure = require("scripts.gui.frame.main.component.trains_map.structure")
 
 local COMPONENT = {
-    NAME = mod.defines.gui.components.trains_map.name
+    NAME = "trains_map_component"
 }
 
 local public = {}

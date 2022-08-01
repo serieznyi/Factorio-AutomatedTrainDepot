@@ -9,7 +9,7 @@ local structure = require("scripts.gui.frame.add_template.component.train_builde
 local validator = require("scripts.gui.validator")
 
 local COMPONENT = {
-    name = mod.defines.gui.components.train_builder.name,
+    name = "train_builder_component",
 }
 local on_changed_callback = function()  end
 local public = {}
