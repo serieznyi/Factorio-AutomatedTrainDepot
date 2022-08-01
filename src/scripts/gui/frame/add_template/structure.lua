@@ -73,7 +73,7 @@ function structure.get(config)
                                         ref = {"icon_input"},
                                         elem_type = "item",
                                         actions = {
-                                            on_elem_changed = { target = config.frame_name, action = mod.defines.gui.actions.touch_form }
+                                            on_elem_changed = { event = mod.defines.events.on_gui_adding_template_frame_changed }
                                         }
                                     },
                                     {
@@ -97,8 +97,8 @@ function structure.get(config)
                                         type = "textfield",
                                         ref = {"name_input"},
                                         actions = {
-                                            on_text_changed = { target = config.frame_name, action = mod.defines.gui.actions.touch_form },
-                                            on_confirmed = { target = config.frame_name, action = mod.defines.gui.actions.touch_form },
+                                            on_text_changed = { event = mod.defines.events.on_gui_adding_template_frame_changed },
+                                            on_confirmed = { event = mod.defines.events.on_gui_adding_template_frame_changed },
                                         }
                                     },
                                     {
@@ -226,7 +226,7 @@ function structure.get(config)
                         style = "back_button",
                         caption = { "gui.atd-cancel" },
                         actions = {
-                            on_click = { target = config.frame_name, action = mod.defines.gui.actions.close_frame },
+                            on_click = { event = mod.defines.events.on_gui_close_add_template_frame_click },
                         },
                     },
                     {
@@ -241,7 +241,7 @@ function structure.get(config)
                         ref = {"submit_button"},
                         enabled = false,
                         actions = {
-                            on_click = { target = config.frame_name, action = mod.defines.gui.actions.save_form },
+                            on_click = { event = mod.defines.events.on_gui_save_adding_template_frame_click },
                         },
                     },
                 }

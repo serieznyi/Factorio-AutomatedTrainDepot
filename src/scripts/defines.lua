@@ -21,9 +21,34 @@ public.on_nth_tick = {
 }
 
 public.events = {
-    on_train_task_changed_mod = script.generate_event_name(),
-    on_train_template_deleted_mod = script.generate_event_name(),
-    on_train_template_changed_mod = script.generate_event_name(),
+    on_core_train_task_changed = script.generate_event_name(),
+    on_core_train_template_changed = script.generate_event_name(),
+    on_core_settings_changed = script.generate_event_name(),
+    -- component : train builder
+    on_gui_choose_train_part = script.generate_event_name(),
+    on_gui_delete_train_part_click = script.generate_event_name(),
+    on_gui_change_carrier_direction_click = script.generate_event_name(),
+    -- main frame
+    on_gui_close_main_frame_click = script.generate_event_name(),
+    on_gui_open_settings_frame_click = script.generate_event_name(),
+    on_gui_open_adding_template_frame_click = script.generate_event_name(),
+    on_gui_open_editing_template_frame_click = script.generate_event_name(),
+    on_gui_delete_train_template_click = script.generate_event_name(),
+    on_gui_open_uncontrolled_trains_map_click = script.generate_event_name(),
+    -- main frame : train templates view
+    on_gui_train_template_enabled = script.generate_event_name(),
+    on_gui_train_template_disabled = script.generate_event_name(),
+    on_gui_trains_quantity_changed = script.generate_event_name(),
+    -- settings frame
+    on_gui_settings_frame_changed = script.generate_event_name(),
+    on_gui_settings_frame_close_click = script.generate_event_name(),
+    on_gui_settings_frame_save_click = script.generate_event_name(),
+    -- add template frame
+    on_gui_adding_template_frame_changed = script.generate_event_name(),
+    on_gui_close_add_template_frame_click = script.generate_event_name(),
+    on_gui_save_adding_template_frame_click = script.generate_event_name(),
+    --
+    on_gui_extended_list_box_item_selected = script.generate_event_name(),
 }
 
 public.train_template = {
@@ -66,6 +91,10 @@ public.gui = {
         disable_train_template = script.generate_event_name(),
         open_uncontrolled_trains_map = script.generate_event_name(),
         choose_list_box_item = script.generate_event_name(),
+        --
+        close_main_frame = script.generate_event_name(),
+        open_settings_frame = script.generate_event_name(),
+        open_adding_template_frame = script.generate_event_name(),
     },
     frames = {
         main = { name = "main_frame" },

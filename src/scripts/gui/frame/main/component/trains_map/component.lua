@@ -114,7 +114,7 @@ function public.dispatch(event)
 
     }
 
-    return event_dispatcher.dispatch(event_handlers, event, COMPONENT.NAME)
+    return event_dispatcher.dispatch(event_handlers, event)
 end
 
 return public

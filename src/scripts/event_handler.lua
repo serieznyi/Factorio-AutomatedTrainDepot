@@ -79,7 +79,7 @@ function public.entity_dismantled(event)
 end
 
 ---@param event EventData
-function public.handle_gui_event(event)
+function public.handle_events(event)
     return gui_manager.dispatch(Event.new(event))
 end
 
@@ -102,11 +102,6 @@ end
 ---@param event EventData
 function public.close_frame(event)
     -- todo add frame close by esc
-end
-
----@param event EventData
-function public.pass_to_gui(event)
-    gui_manager.dispatch(Event.new(event))
 end
 
 -----@param event EventData

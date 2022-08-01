@@ -44,7 +44,7 @@ function private.raise_task_changed_event(train_task)
 
     for _, player in ipairs(force.players) do
         script.raise_event(
-                mod.defines.events.on_train_task_changed_mod,
+                mod.defines.events.on_core_train_task_changed,
                 { train_task_id = train_task.id, player_index = player.index }
         )
     end
@@ -401,11 +401,6 @@ end
 function private.try_add_forming_train_task_for_template(train_template)
     -- todo balance tasks for different forces, surfaces and templates
     local context = Context.from_model(train_template)
-
-    mod.log.debug({-- todo remove me
-        train_template_id = train_template.id,
-        has_free_slot = private.has_free_forming_slot(context),
-    }, {}, "try_add_forming_train_task_for_template")
 
     if not private.has_free_forming_slot(context) then
         return false

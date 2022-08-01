@@ -163,6 +163,9 @@ function public:validate_form()
     )
 end
 
+function public:destroy()
+end
+
 ---@param container LuaGuiElement
 function public:build(container)
     self.schedules = private.get_schedules(self.surface, self.force)
@@ -224,7 +227,7 @@ function public.new(context, on_changed, selected_schedule, required)
         self.required = required
     end
 
-    mod.log.debug("Component created: {1}", {self.component_id}, "gui.component.train_schedule_selector")
+    mod.log.debug("Component train_schedule_selector({1}) created", {self.component_id}, "gui.component.train_schedule_selector")
 
     return self
 end
@@ -238,7 +241,7 @@ function public:dispatch(event)
         },
     }
 
-    return event_dispatcher.dispatch(event_handlers, event, self:name())
+    return event_dispatcher.dispatch(event_handlers, event)
 end
 
 return public

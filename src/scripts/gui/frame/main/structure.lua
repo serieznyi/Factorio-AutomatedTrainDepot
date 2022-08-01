@@ -37,7 +37,7 @@ function structure.get(config)
                         tooltip = {"main-frame.atd-open-settings"},
                         sprite = "atd_sprite_settings",
                         actions = {
-                            on_click = { target = mod.defines.gui.frames.settings.name, action = mod.defines.gui.actions.open_frame }
+                            on_click = { event = mod.defines.events.on_gui_open_settings_frame_click }
                         }
                     },
                     {
@@ -49,7 +49,7 @@ function structure.get(config)
                         hovered_sprite = "utility/close_black",
                         clicked_sprite = "utility/close_black",
                         actions = {
-                            on_click = {target = config.frame_name, action = mod.defines.gui.actions.close_frame}
+                            on_click = { event = mod.defines.events.on_gui_close_main_frame_click }
                         }
                     },
                 }
@@ -83,7 +83,7 @@ function structure.get(config)
                                                 tooltip = {"main-frame.atd-add-new-train-template"},
                                                 sprite = "atd_sprite_add",
                                                 actions = {
-                                                    on_click = { target = mod.defines.gui.frames.add_template.name, action = mod.defines.gui.actions.open_frame }
+                                                    on_click = { event = mod.defines.events.on_gui_open_adding_template_frame_click }
                                                 },
                                             },
                                             {
@@ -94,7 +94,7 @@ function structure.get(config)
                                                 sprite = "atd_sprite_edit",
                                                 enabled = false,
                                                 actions = {
-                                                    on_click = { target = mod.defines.gui.frames.add_template.name, action = mod.defines.gui.actions.edit_train_template }
+                                                    on_click = { event = mod.defines.events.on_gui_open_editing_template_frame_click }
                                                 },
                                             },
                                             {
@@ -105,7 +105,7 @@ function structure.get(config)
                                                 sprite = "atd_sprite_trash",
                                                 enabled = false,
                                                 actions = {
-                                                    on_click = { target = mod.defines.gui.frames.main.name, action = mod.defines.gui.actions.delete_train_template }
+                                                    on_click = { event = mod.defines.events.on_gui_delete_train_template_click }
                                                 },
                                             },
                                             {
@@ -116,7 +116,7 @@ function structure.get(config)
                                                 sprite = "item/locomotive",
                                                 enabled = false,
                                                 actions = {
-                                                    on_click = { target = mod.defines.gui.frames.main.name, action = mod.defines.gui.actions.open_uncontrolled_trains_map }
+                                                    on_click = { event = mod.defines.events.on_gui_open_uncontrolled_trains_map_click }
                                                 },
                                             },
                                         }

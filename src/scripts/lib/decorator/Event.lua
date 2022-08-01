@@ -1,114 +1,84 @@
 local flib_gui = require("__flib__.gui")
 
 --- @module scripts.lib.decorator.Event
-local public = {
+local Event = {
     ---@type EventData
     original_event = nil,
     ---@type uint
     id = nil,
     ---@type string
-    _name = nil,
+    string_name = nil,
+    ---@type string
+    custom_name = nil,
+    ---@type string
+    custom_string_name = nil,
     ---@type table
-    _action_data = nil,
+    event_additional_data = nil,
     ---@type uint
     player_index = nil,
     ---@type LuaGuiElement
     gui_element = nil,
 }
-local private = {
-    event_name_map = nil
-}
 
 ---@param obj scripts.lib.decorator.Event
-function private.to_string(obj)
-    return obj:name()
+local function to_string(obj)
+    return obj.string_name
 end
+---@param event EventData
+---@return scripts.lib.decorator.Event
+function Event.new(event)
+    ---@type scripts.lib.decorator.Event
+    local self = {}
+    setmetatable(self, { __index = Event, __tostring = function(o) return o:full_name() end })
 
-function private.init_event_names()
-    private.event_name_map = {}
+    assert(event, "event is nil")
+    self.original_event = event
+    self.player_index = event.player_index
+    self.gui_element = event.element
+    self.tags = event.element and flib_gui.get_tags(event.element) or {}
 
-    local events_set = { defines.events, mod.defines.events }
+    self:initialize()
 
-    for _, events_el in ipairs(events_set) do
-        for event_name, event_number in pairs(events_el) do
-            if string.sub(event_name, 1, 3) == "on_" then
-                private.event_name_map[event_number] = event_name
-            end
-        end
-    end
-end
-
----@return string
-function public:name()
-    if self._name ~= nil then
-        return self._name
-    end
-
-    if private.event_name_map == nil then
-        private.init_event_names()
-    end
-
-    self._name = private.event_name_map[self.id]
-
-    return self._name
+    return self
 end
 
 ---@return table|nil
-function public:get_gui_event_data()
-    if self._action_data ~= nil then
-        return self._action_data
-    end
-
-    if not self:is_gui_event() then
-        return nil
-    end
-
-    local action_data = flib_gui.read_action(self.original_event)
-
-    if action_data == nil then
-        return nil
-    end
-
-    action_data.name = self:name(self.original_event.name)
-
-    self._action_data = action_data
-
-    return action_data
+function Event:initialize()
+    self.event_additional_data = flib_gui.read_action(self.original_event)
+    self.custom_name = self.event_additional_data and self.event_additional_data.event or nil
+    self.custom_string_name = mod.global.event_names[self.custom_name]
+    self.string_name = mod.global.event_names[self.original_event.name]
+    self.id = self.custom_name and self.custom_name or self.original_event.name
 end
 
 ---@return string|nil
-function public:target_name()
-    local data = self:get_gui_event_data()
+function Event:target_name()
+    local data = self:initialize()
 
     return data and data.target or nil
 end
 
 ---@return string|nil
-function public:action_name()
-    local data = self:get_gui_event_data()
+function Event:action_name()
+    local data = self:initialize()
 
     return data and data.action or nil
 end
 
+function Event:full_name()
+    local original_name = self.string_name and self.string_name or "<unk>"
+    local custom_name = self.custom_string_name and self.custom_string_name or "<unk>"
+
+    if self.custom_string_name ~= nil then
+        return custom_name .. "(" .. original_name .. ")"
+    end
+
+    return original_name
+end
+
 ---@return bool
-function public:is_gui_event()
+function Event:is_gui_event()
     return self.original_event.element ~= nil
 end
 
----@param event EventData
----@return scripts.lib.decorator.Event
-function public.new(event)
-    ---@type scripts.lib.decorator.Event
-    local self = {}
-    setmetatable(self, { __index = public, __tostring = private.to_string })
-
-    assert(event, "event is nil")
-    self.id = event.name
-    self.original_event = event
-    self.player_index = event.player_index
-    self.gui_element = event.element
-
-    return self
-end
-
-return public
+return Event

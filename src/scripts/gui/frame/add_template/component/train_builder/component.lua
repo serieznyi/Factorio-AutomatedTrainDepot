@@ -5,11 +5,12 @@ local TrainPart = require("scripts.lib.domain.TrainPart")
 
 local event_dispatcher = require("scripts.util.event_dispatcher")
 
-local constants = require("scripts.gui.frame.add_template.component.train_builder.constants")
 local structure = require("scripts.gui.frame.add_template.component.train_builder.structure")
 local validator = require("scripts.gui.validator")
 
-local COMPONENT = constants.COMPONENT
+local COMPONENT = {
+    name = mod.defines.gui.components.train_builder.name,
+}
 local on_changed_callback = function()  end
 local public = {}
 local private = {}
@@ -20,46 +21,51 @@ local storage = {}
 ---------------------------------------------------------------------------
 
 function storage.load()
-    mod.global.gui.component[COMPONENT.NAME] = {}
-end
-
-function storage.clean()
-    mod.global.gui.component[COMPONENT.NAME] = nil
-end
-
----@return table
-function storage.get_train_parts()
-    return mod.global.gui.component[COMPONENT.NAME].train_parts
-end
-
----@param container LuaGuiElement
-function storage.set_container(container)
-    mod.global.gui.component[COMPONENT.NAME] = {
-        container = container,
+    mod.global.gui.component[COMPONENT.name] = {
+        container = nil,
         train_parts = {},
     }
 end
 
+function storage.clean()
+    mod.global.gui.component[COMPONENT.name] = nil
+end
+
+---@return table
+function storage.get_train_parts()
+    return mod.global.gui.component[COMPONENT.name].train_parts
+end
+
+---@param container LuaGuiElement
+function storage.set_container(container)
+    mod.global.gui.component[COMPONENT.name].container = container
+end
+
 ---@return LuaGuiElement
 function storage.get_container()
-    return mod.global.gui.component[COMPONENT.NAME].container
+    return mod.global.gui.component[COMPONENT.name].container
 end
 
 ---@param train_part_id int
 ---@param refs table
 function storage.add_train_part(train_part_id, refs)
-    mod.global.gui.component[COMPONENT.NAME].train_parts[train_part_id] = { refs = refs }
+    mod.global.gui.component[COMPONENT.name].train_parts[train_part_id] = { refs = refs }
 end
 
 ---@param train_part_id int
 function storage.delete_train_part(train_part_id)
-    flib_table.retrieve(mod.global.gui.component[COMPONENT.NAME].train_parts, train_part_id)
+    flib_table.retrieve(mod.global.gui.component[COMPONENT.name].train_parts, train_part_id)
 end
 
 ---@param train_part_id int
 ---@return table
 function storage.get_train_part(train_part_id)
-    return mod.global.gui.component[COMPONENT.NAME].train_parts[train_part_id]
+    return mod.global.gui.component[COMPONENT.name].train_parts[train_part_id]
+end
+
+---@return table
+function storage.get_train_parts()
+    return mod.global.gui.component[COMPONENT.name].train_parts
 end
 
 ---------------------------------------------------------------------------
@@ -92,8 +98,6 @@ end
 
 ---@param event scripts.lib.decorator.Event
 function private.handle_delete_train_part(event)
-    local player = game.get_player(event.player_index)
-
     if not private.can_handle_event(event) then
         return
     end
@@ -208,6 +212,16 @@ function private.validator_rule_has_main_locomotive(field_name, form)
     end
 
     return {"validation-message.first-carrier-must-be-locomotive"}
+end
+
+function private.validator_rule_empty_train(field_name, form)
+    local train = form[field_name]
+
+    if train ~= nil and #train > 0 then
+        return
+    end
+
+    return {"validation-message.trains-is-empty"}
 end
 
 function private.validator_rule_main_locomotive_wrong_direction(field_name, form)
@@ -350,31 +364,35 @@ end
 
 ---@return string
 function public.name()
-    return COMPONENT.NAME
+    return COMPONENT.name
 end
 
 ---@param event scripts.lib.decorator.Event
 function public.dispatch(event)
     local event_handlers = {
         {
-            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.refresh_train_part),
-            func = private.handle_add_new_train_part
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_choose_train_part),
+            func = private.handle_add_new_train_part,
+            handler_source = COMPONENT.name,
         },
         {
-            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.refresh_train_part),
-            func = private.handle_update_train_part
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_choose_train_part),
+            func = private.handle_update_train_part,
+            handler_source = COMPONENT.name,
         },
         {
-            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.change_carrier_direction),
-            func = private.handle_change_carrier_direction
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_change_carrier_direction_click),
+            func = private.handle_change_carrier_direction,
+            handler_source = COMPONENT.name,
         },
         {
-            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.delete_train_part),
-            func = private.handle_delete_train_part
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_delete_train_part_click),
+            func = private.handle_delete_train_part,
+            handler_source = COMPONENT.name,
         },
     }
 
-    local processed = event_dispatcher.dispatch(event_handlers, event, COMPONENT.NAME)
+    local processed = event_dispatcher.dispatch(event_handlers, event)
 
     if processed then
         on_changed_callback(event) -- todo use event ?
@@ -433,11 +451,11 @@ function public.validate_form(player)
     local validator_rules = {
         {
             match = validator.match_by_name({"train"}),
-            rules = { private.validator_rule_has_main_locomotive },
-        },
-        {
-            match = validator.match_by_name({"train"}),
-            rules = { private.validator_rule_main_locomotive_wrong_direction },
+            rules = {
+                private.validator_rule_empty_train,
+                private.validator_rule_has_main_locomotive,
+                private.validator_rule_main_locomotive_wrong_direction
+            },
         },
     }
 

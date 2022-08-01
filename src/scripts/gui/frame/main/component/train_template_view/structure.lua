@@ -1,15 +1,4 @@
-local mod_gui = require("scripts.util.gui")
-
 local public = {}
-local private = {}
-
----------------------------------------------------------------------------
--- -- -- PRIVATE
----------------------------------------------------------------------------
-
----------------------------------------------------------------------------
--- -- -- PUBLIC
----------------------------------------------------------------------------
 
 ---@param train_template scripts.lib.domain.TrainTemplate
 function public.get(train_template)
@@ -79,7 +68,7 @@ function public.get(train_template)
                                 caption = "-" .. QUANTITY_ONE,
                                 tooltip = { "train-template-view-component.atd-decrease-trains-count-button-tooltip", QUANTITY_ONE },
                                 actions = {
-                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = QUANTITY_ONE * -1 }
+                                    on_click = { event = mod.defines.events.on_gui_trains_quantity_changed, count = QUANTITY_ONE * -1 }
                                 },
                             },
                             {
@@ -88,7 +77,7 @@ function public.get(train_template)
                                 caption = "-" .. QUANTITY_FIVE,
                                 tooltip = { "train-template-view-component.atd-decrease-trains-count-button-tooltip", QUANTITY_FIVE },
                                 actions = {
-                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = QUANTITY_FIVE * -1 }
+                                    on_click = { event = mod.defines.events.on_gui_trains_quantity_changed, count = QUANTITY_FIVE * -1 }
                                 },
                             },
                             {
@@ -108,7 +97,7 @@ function public.get(train_template)
                                 caption = "+" .. QUANTITY_FIVE,
                                 tooltip = { "train-template-view-component.atd-increase-trains-count-button-tooltip", QUANTITY_FIVE },
                                 actions = {
-                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = QUANTITY_FIVE }
+                                    on_click = { event = mod.defines.events.on_gui_trains_quantity_changed, count = QUANTITY_FIVE }
                                 },
                             },
                             {
@@ -117,7 +106,7 @@ function public.get(train_template)
                                 caption = "+" .. QUANTITY_ONE,
                                 tooltip = { "train-template-view-component.atd-increase-trains-count-button-tooltip", QUANTITY_ONE },
                                 actions = {
-                                    on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.change_trains_quantity, count = QUANTITY_ONE }
+                                    on_click = { event = mod.defines.events.on_gui_trains_quantity_changed, count = QUANTITY_ONE }
                                 },
                             },
                         }
@@ -137,7 +126,7 @@ function public.get(train_template)
                         ref = {"disable_button"},
                         enabled = train_template.enabled,
                         actions = {
-                            on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.disable_train_template }
+                            on_click = { event = mod.defines.events.on_gui_train_template_disabled }
                         },
                     },
                     {
@@ -149,7 +138,7 @@ function public.get(train_template)
                         enabled = not train_template.enabled,
                         tags = { train_template_id = train_template.id },
                         actions = {
-                            on_click = { target = mod.defines.gui.components.train_template_view.name, action = mod.defines.gui.actions.enable_train_template }
+                            on_click = { event = mod.defines.events.on_gui_train_template_enabled }
                         },
                     },
                 }

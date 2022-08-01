@@ -147,14 +147,13 @@ flib_event.register(
 
 flib_event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
 
--- todo remove it
-flib_event.register(mod.util.table.array_values(mod.defines.events), event_handler.pass_to_gui)
+flib_event.register(mod.util.table.array_values(mod.defines.events), event_handler.handle_events)
 
 ---------------------------------------------------------------------------
 -- -- -- REGISTER GUI EVENTS
 ---------------------------------------------------------------------------
 
-flib_gui.hook_events(event_handler.handle_gui_event)
+flib_gui.hook_events(event_handler.handle_events)
 
 flib_event.register(defines.events.on_gui_opened, event_handler.open_main_frame)
 flib_event.register(defines.events.on_gui_closed, event_handler.close_frame)

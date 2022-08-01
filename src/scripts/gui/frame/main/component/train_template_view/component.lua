@@ -24,35 +24,31 @@ function storage.load()
     mod.global.gui.component[COMPONENT.NAME] = {}
 end
 
----@param player LuaPlayer
-function storage.clean(player)
-    mod.global.gui.component[COMPONENT.NAME][player.index] = nil
+function storage.clean()
+    mod.global.gui.component[COMPONENT.NAME] = nil
 end
 
----@param player LuaPlayer
 ---@param container LuaGuiElement
 ---@param refs table
-function storage.set(player, container, refs)
-    mod.global.gui.component[COMPONENT.NAME][player.index] = {
+function storage.set(container, refs)
+    mod.global.gui.component[COMPONENT.NAME] = {
         container = container,
         refs = refs
     }
 end
 
----@param player LuaPlayer
 ---@return table
-function storage.refs(player)
-    if mod.global.gui.component[COMPONENT.NAME][player.index] == nil then
+function storage.refs()
+    if mod.global.gui.component[COMPONENT.NAME] == nil then
         return nil
     end
 
-    return mod.global.gui.component[COMPONENT.NAME][player.index].refs
+    return mod.global.gui.component[COMPONENT.NAME].refs
 end
 
----@param player LuaPlayer
 ---@return LuaGuiElement
-function storage.container(player)
-    return mod.global.gui.component[COMPONENT.NAME][player.index].container
+function storage.container()
+    return mod.global.gui.component[COMPONENT.NAME].container
 end
 
 ---------------------------------------------------------------------------
@@ -141,9 +137,9 @@ end
 ---@param event scripts.lib.decorator.Event
 ---@return uint
 function private.get_train_quantity_change_value(event)
-    local action = flib_gui.read_action(event.original_event)
+    local action = event.event_additional_data
 
-    return action.count
+    return event.event_additional_data ~= nil and action.count or nil
 end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
@@ -156,7 +152,7 @@ end
 ---@param player LuaPlayer
 ---@param train_template scripts.lib.domain.TrainTemplate
 function private.refresh_component(player, train_template)
-    local refs = storage.refs(player)
+    local refs = storage.refs()
     ---@type LuaGuiElement
     local container = refs.train_view
 
@@ -215,9 +211,11 @@ function public.load()
     storage.load()
 end
 
----@param player LuaPlayer
-function public.destroy(player)
-    storage.clean(player)
+function public.destroy()
+    local container = storage.container()
+    container.clear()
+
+    storage.clean()
 end
 
 ---@return string
@@ -231,7 +229,7 @@ end
 function public.create(container, player, train_template)
     local refs = flib_gui.build(container, { structure.get(train_template)})
 
-    storage.set(player, container, refs)
+    storage.set(container, refs)
 
     private.refresh_component(player, train_template)
 end
@@ -240,28 +238,28 @@ end
 function public.dispatch(event)
     local event_handlers = {
         {
-            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.enable_train_template),
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_train_template_enabled),
             func = private.handle_enable_train_template
         },
         {
-            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.disable_train_template),
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_train_template_disabled),
             func = private.handle_disable_train_template
         },
         {
-            match = event_dispatcher.match_target_and_action(COMPONENT.NAME, mod.defines.gui.actions.change_trains_quantity),
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_trains_quantity_changed),
             func = private.handle_change_trains_quantity
         },
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_train_task_changed_mod),
+            match = event_dispatcher.match_event(mod.defines.events.on_core_train_task_changed),
             func = private.handle_refresh_component
         },
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_train_template_changed_mod),
+            match = event_dispatcher.match_event(mod.defines.events.on_core_train_template_changed),
             func = private.handle_refresh_component
         },
     }
 
-    return event_dispatcher.dispatch(event_handlers, event, COMPONENT.NAME, private.can_handle_event)
+    return event_dispatcher.dispatch(event_handlers, event, COMPONENT.NAME)
 end
 
 return public

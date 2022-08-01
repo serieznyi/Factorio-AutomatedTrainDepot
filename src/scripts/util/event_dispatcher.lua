@@ -1,42 +1,4 @@
-local flib_gui = require("__flib__.gui")
-
-local mod_gui = require("scripts.util.gui")
-
 local public = {}
-local private = {}
-
----@param event_arg EventData
-function private.read_event_data(event_arg)
-    local event_data = flib_gui.read_action(event_arg)
-
-    if event_data == nil then
-        event_data = {}
-    end
-
-    event_data.name = public.event_name(event_arg.name)
-
-    if event_data.target == nil then
-        event_data.target = event_arg.target
-    end
-
-    return event_data
-end
-
-local event_name_map
-
-local function init()
-    event_name_map = {}
-
-    local events_set = { defines.events, mod.defines.events }
-
-    for _, events_el in ipairs(events_set) do
-        for event_name, event_number in pairs(events_el) do
-            if string.sub(event_name, 1, 3) == "on_" then
-                event_name_map[event_number] = event_name
-            end
-        end
-    end
-end
 
 ---@param target string
 function public.match_target(target)
@@ -47,6 +9,12 @@ function public.match_target(target)
         end
 
         return e:target_name() == target
+    end
+end
+
+function public.match_all()
+    return function()
+        return true
     end
 end
 
@@ -82,45 +50,29 @@ function public.match_event(event_id)
     end
 end
 
----@param event_arg EventData
-function public.is_gui_event(event_arg)
-    return event_arg.element ~= nil
-end
-
----@param event_number uint
-function public.event_name(event_number)
-    if event_name_map == nil then
-        init()
-    end
-
-    return event_name_map[event_number] or 'unknown(' .. event_number .. ')'
-end
-
 ---@param handlers table
 ---@param event scripts.lib.decorator.Event
----@param source_name string
-function public.dispatch(handlers, event, source_name)
+---@return bool
+function public.dispatch(handlers, event)
     local processed = false
 
-    if false then
+    if mod.defines.dev_mode then
         mod.log.debug(
         "Taken event `{1}`",
-                {event:name()},
-        "event.dispatcher:" .. source_name
+                {event.string_name },
+        "event.dispatcher"
         )
     end
 
     for _, h in ipairs(handlers) do
-        if h.match(event) then
-            if h.func(event) then
-                processed = true
+        if h.match(event) and h.func(event) then
+            processed = true
 
-                mod.log.debug(
-                        "Handled event `{1}`",
-                        { tostring(event) },
-                        "event.dispatcher:" .. source_name
-                )
-            end
+            mod.log.debug(
+                    "Handled event `{1}`",
+                    { tostring(event) },
+                    "event.dispatcher:" .. (h.handler_source and handler_source or '?')
+            )
         end
     end
 

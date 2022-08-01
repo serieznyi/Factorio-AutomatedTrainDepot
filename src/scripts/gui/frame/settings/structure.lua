@@ -68,7 +68,7 @@ function structure.get(config)
                                 state = false,
                                 ref = { "use_any_fuel_checkbox" },
                                 actions = {
-                                    on_checked_state_changed = { target = config.frame_name, action = mod.defines.gui.actions.touch_form }
+                                    on_checked_state_changed = { event = mod.defines.events.on_gui_settings_frame_changed }
                                 }
                             },
                         },
@@ -146,7 +146,7 @@ function structure.get(config)
                         style = "back_button",
                         caption = { "gui.atd-cancel" },
                         actions = {
-                            on_click = { target = config.frame_name, action = mod.defines.gui.actions.close_frame },
+                            on_click = { event = mod.defines.events.on_gui_settings_frame_close_click },
                         },
                     },
                     {
@@ -161,7 +161,7 @@ function structure.get(config)
                         ref = {"submit_button"},
                         enabled = false,
                         actions = {
-                            on_click = { target = config.frame_name, action = mod.defines.gui.actions.save_form },
+                            on_click = { event = mod.defines.events.on_gui_settings_frame_save_click },
                         },
                     },
                 }

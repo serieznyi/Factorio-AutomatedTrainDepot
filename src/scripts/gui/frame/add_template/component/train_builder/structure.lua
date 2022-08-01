@@ -1,7 +1,3 @@
-local constants = require("scripts.gui.frame.add_template.component.train_builder.constants")
-
-local COMPONENT = constants.COMPONENT
-
 local structure = {}
 
 ---@param train_part_id int
@@ -21,7 +17,7 @@ function structure.get(train_part_id)
                     {filter="rolling-stock"},
                 },
                 actions = {
-                    on_elem_changed = { target = COMPONENT.NAME, action = mod.defines.gui.actions.refresh_train_part },
+                    on_elem_changed = { event = mod.defines.events.on_gui_choose_train_part },
                 }
             },
             {
@@ -33,7 +29,7 @@ function structure.get(train_part_id)
                 style = "flib_slot_button_red",
                 sprite = "atd_sprite_trash",
                 actions = {
-                    on_click = { target = COMPONENT.NAME, action = mod.defines.gui.actions.delete_train_part }
+                    on_click = { event = mod.defines.events.on_gui_delete_train_part_click }
                 }
             },
             {
@@ -45,7 +41,7 @@ function structure.get(train_part_id)
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_left",
                 actions = {
-                    on_click = { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_carrier_direction },
+                    on_click = { event = mod.defines.events.on_gui_change_carrier_direction_click },
                 }
             },
             {
@@ -57,7 +53,7 @@ function structure.get(train_part_id)
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_right",
                 actions = {
-                    on_click = { target = COMPONENT.NAME, action = mod.defines.gui.actions.change_carrier_direction },
+                    on_click = { event = mod.defines.events.on_gui_change_carrier_direction_click },
                 }
             },
             {

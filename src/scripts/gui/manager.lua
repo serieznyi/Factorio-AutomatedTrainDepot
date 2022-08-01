@@ -1,14 +1,66 @@
 local flib_gui = require("__flib__.gui")
 
-local gui_main_frame = require("scripts.gui.frame.main.frame")
+local event_dispatcher = require("scripts.util.event_dispatcher")
+local MainFrame = require("scripts.gui.frame.main.MainFrame")
+local AddTemplateFrame = require("scripts.gui.frame.add_template.AddTemplateFrame")
+local SettingsFrame = require("scripts.gui.frame.settings.SettingsFrame")
 
 local manager = {}
 
-local FRAME_MODULES = {
-    require("scripts.gui.frame.main.frame"),
-    require("scripts.gui.frame.add_template.frame"),
-    require("scripts.gui.frame.settings.frame"),
-}
+-- todo move on some global loader ?
+local function load_event_names()
+    local events_set = { defines.events, mod.defines.events }
+
+    for _, events_el in ipairs(events_set) do
+        for event_name, event_number in pairs(events_el) do
+            if type(event_name) == "string" and string.sub(event_name, 1, 3) == "on_" then
+                mod.global.event_names[event_number] = event_name
+            end
+        end
+    end
+end
+
+local function handle_main_frame_close(event)
+    mod.global.frames[mod.defines.gui.frames.main.name]:destroy()
+end
+
+local function handle_add_template_frame_close(event)
+    mod.global.frames[mod.defines.gui.frames.add_template.name]:destroy()
+end
+
+local function handle_settings_frame_close(event)
+    mod.global.frames[mod.defines.gui.frames.settings.name]:destroy()
+end
+
+---@param event scripts.lib.decorator.Event
+local function handle_add_template_frame_open(event)
+    local player = game.get_player(event.player_index)
+
+    local frame = AddTemplateFrame.new(player)
+    mod.global.frames[frame.name] = frame
+
+    frame:show()
+end
+
+---@param event scripts.lib.decorator.Event
+local function handle_settings_frame_open(event)
+    local player = game.get_player(event.player_index)
+
+    local frame = SettingsFrame.new(player)
+    mod.global.frames[frame.name] = frame
+
+    frame:show()
+end
+
+---@param event scripts.lib.decorator.Event
+local function handle_edit_template_frame_open(event)
+    local player = game.get_player(event.player_index)
+
+    local frame = AddTemplateFrame.new(player, event.tags.train_template_id)
+    mod.global.frames[frame.name] = frame
+
+    frame:show()
+end
 
 ---@param element LuaGuiElement
 local function is_mod_frame(element)
@@ -43,40 +95,42 @@ local function is_main_frame_opened(player)
     return false -- todo add real check
 end
 
----@param event scripts.lib.decorator.Event
-local function is_event_blocked(event)
-    if not event:is_gui_event() then
-        return false
-    end
-
-    local element = event.gui_element
-    local element_frame = get_element_mod_frame(element)
-
-    if element_frame == nil then
-        return false
-    end
-
-    local player = game.get_player(event.player_index)
-
-    if player.opened ~= nil and player.opened ~= element_frame then
-        mod.log.debug(
-                "Event `{1}` for gui element `{2}` is blocked",
-                {
-                    event:name(),
-                    element.name
-                }
-        )
-
-        return true
-    end
-
-    return false
+local function event_handlers()
+    return {
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_close_main_frame_click),
+            func = handle_main_frame_close,
+            handler_source = "gui_manager"
+        },
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_close_add_template_frame_click),
+            func = handle_add_template_frame_close,
+            handler_source = "gui_manager"
+        },
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_settings_frame_close_click),
+            func = handle_settings_frame_close,
+            handler_source = "gui_manager"
+        },
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_open_adding_template_frame_click),
+            func = handle_add_template_frame_open,
+            handler_source = "gui_manager"
+        },
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_open_editing_template_frame_click),
+            func = handle_edit_template_frame_open,
+            handler_source = "gui_manager"
+        },
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_open_settings_frame_click),
+            func = handle_settings_frame_open,
+            handler_source = "gui_manager"
+        },
+    }
 end
 
 function manager.init()
-    for _, module in ipairs(FRAME_MODULES) do
-        module.init()
-    end
 end
 
 function manager.load()
@@ -86,9 +140,7 @@ function manager.load()
         frames_stack = {}
     }
 
-    for _, module in ipairs(FRAME_MODULES) do
-        module.load()
-    end
+    load_event_names()
 end
 
 ---@param player LuaPlayer
@@ -97,28 +149,18 @@ function manager.open_main_frame(player)
         return
     end
 
-    gui_main_frame.open(player)
-end
+    local frame = MainFrame.new(player)
+    mod.global.frames[frame.name] = frame
 
--- TODO use on user banned, deleted, logout, ...
----@param player LuaPlayer
-function manager.clean(player)
-    for _, module in ipairs(FRAME_MODULES) do
-        module.clean(player)
-    end
+    frame:show()
 end
 
 ---@param event scripts.lib.decorator.Event
 function manager.dispatch(event)
-    local processed = false
+    local processed = event_dispatcher.dispatch(event_handlers(), event)
 
-    -- todo frame move not blocked
-    if is_event_blocked(event) then
-        return true
-    end
-
-    for _, module in ipairs(FRAME_MODULES) do
-        if module.dispatch(event) then
+    for _, frame in pairs(mod.global.frames) do
+        if frame:dispatch(event) then
             processed = true
         end
     end

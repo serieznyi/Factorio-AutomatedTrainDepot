@@ -3,6 +3,7 @@ local mod = {}
 mod.defines = require("scripts.defines")
 mod.log = require("scripts.logger")
 mod.console = require("scripts.console")
+mod.dev_mode = true -- todo check var in CI
 
 -- todo use global util instead require
 mod.util = {
@@ -12,6 +13,9 @@ mod.util = {
 }
 
 -- global table for runtime data
-mod.global = {}
+mod.global = {
+    frames = {},
+    event_names = {},
+}
 
 return mod
