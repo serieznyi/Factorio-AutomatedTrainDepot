@@ -29,7 +29,7 @@ local function write_message(level, category, text, args)
         text = mod.util.table.to_string(text)
     end
 
-    message = string.gsub(message,"%%date", misc.ticks_to_timestring(game.ticks_played))
+    message = string.gsub(message,"%%date", game ~= nil and misc.ticks_to_timestring(game.ticks_played) or 0)
     message = string.gsub(message,"%%level", tostring(level))
     message = string.gsub(message,"%%message", tostring(text))
     message = string.gsub(message,"%%category", tostring(category or 'default'))
