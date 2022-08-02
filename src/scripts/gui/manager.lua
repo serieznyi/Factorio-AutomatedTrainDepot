@@ -65,7 +65,7 @@ end
 ---@param element LuaGuiElement
 local function get_parent_frame_for_gui_element(element)
     if element.type == "frame" then
-        local tags = flib_gui.read_action(element)
+        local tags = flib_gui. get_tags(element)
 
         if tags.atd_frame ~= nil then
             return element
