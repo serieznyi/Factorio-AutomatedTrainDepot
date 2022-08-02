@@ -10,12 +10,12 @@ function get_forming_time_for_locomotive()
 end
 
 --- @module scripts.lib.domain.TrainPart
-local TrainPart = {
+local TrainPart = { -- todo rename to carrier
     ---@type string
     type = nil,
     ---@type string
     prototype_name = nil,
-    ---@type uint
+    ---@type string
     direction = nil,
     ---@type bool
     use_any_fuel = nil,
@@ -40,6 +40,11 @@ end
 ---@type bool
 function TrainPart:is_locomotive()
     return self.type == TrainPart.TYPE.LOCOMOTIVE
+end
+
+---@type bool
+function TrainPart:has_direction()
+    return self.type == TrainPart.TYPE.LOCOMOTIVE or self.type == TrainPart.TYPE.ARTILLERY
 end
 
 ---@return uint train part forming time in seconds (without multiplier)

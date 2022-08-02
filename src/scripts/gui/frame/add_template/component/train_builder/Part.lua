@@ -1,0 +1,264 @@
+local flib_gui = require("__flib__.gui")
+local flib_table = require("__flib__.table")
+
+local event_dispatcher = require("scripts.util.event_dispatcher")
+local TrainPart = require("scripts.lib.domain.TrainPart")
+local structure = require("scripts.gui.frame.add_template.component.train_builder.structure")
+
+---@param o1 gui.component.TrainBuilder.Part
+---@param o2 gui.component.TrainBuilder.Part
+local function compare(o1, o2)
+    return o1.id == o2.id
+end
+
+--- @module gui.component.TrainBuilder.Part
+local Part = {
+    ---@type string
+    name = "train_part_component",
+    ---@type uint
+    id = nil,
+    ---@type LuaPlayer
+    player = nil,
+    ---@type function
+    on_changed = nil,
+    ---@type LuaGuiElement
+    container = nil,
+    refs = {
+        ---@type LuaGuiElement
+        element = nil,
+        ---@type LuaGuiElement
+        part_chooser = nil,
+        ---@type LuaGuiElement
+        delete_button = nil,
+        ---@type LuaGuiElement
+        carrier_direction_left_button = nil,
+        ---@type LuaGuiElement
+        carrier_direction_right_button = nil,
+        ---@type LuaGuiElement= nil,
+        locomotive_config_button = nil,
+    },
+}
+
+---@param train_part scripts.lib.domain.TrainPart
+---@param on_changed function
+---@param player LuaPlayer
+---@param container LuaGuiElement
+function Part.new(container, player, on_changed, train_part)
+    ---@type gui.component.TrainBuilder.Part
+    local self = {}
+    setmetatable(self, { __index = Part, __eq = compare})
+
+    self.id = script.generate_event_name() -- todo use math rand
+
+    self.player = player or nil
+    assert(self.player, "player is nil")
+
+    self.container = container
+    assert(self.container, "container is nil")
+
+    if on_changed ~= nil then
+        self.on_changed = on_changed
+    end
+
+    self:_initialize(train_part)
+
+    mod.log.debug("Component `{1}(id={2})` created", {self.name, self.id}, "gui")
+
+    return self
+end
+
+---@param event scripts.lib.decorator.Event
+function Part:dispatch(event)
+    local handlers = {
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_choose_train_part),
+            func = function(e) return self:_handle_update_train_part(e) end,
+            handler_source = self.name,
+        },
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_change_carrier_direction_click),
+            func = function(e) return self:_handle_change_carrier_direction(e) end,
+            handler_source = self.name,
+        },
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_delete_train_part_click),
+            func = function(e) return self:_handle_delete_train_part(e) end,
+            handler_source = self.name,
+        },
+    }
+
+    return event_dispatcher.dispatch(handlers, event)
+end
+
+function Part:is_empty()
+    return self.refs.part_chooser.elem_value == nil
+end
+
+function Part:destroy()
+    self.refs.element.destroy()
+end
+
+function Part:read_form()
+    local part_chooser = self.refs.part_chooser
+
+    -- if fast call form reading - fail on invalid chooser
+    if self.refs.part_chooser.valid == false then
+        return nil
+    end
+
+    local item_name = part_chooser.elem_value
+
+    if item_name == nil then
+        return nil
+    end
+
+    local type = self:_get_train_part_type_from_item_name(item_name)
+    ---@type scripts.lib.domain.TrainPart
+    local carrier = TrainPart.new(type, item_name)
+    local tags = flib_gui.get_tags(self.refs.carrier_direction_right_button)
+    local direction = tags.current_direction
+
+    if type == TrainPart.TYPE.ARTILLERY then
+        carrier.direction = direction
+    elseif type == TrainPart.TYPE.LOCOMOTIVE then
+        carrier.direction = direction
+        carrier.use_any_fuel = true
+        -- todo add later
+        --train_part.fuel = {
+        --    {type = "coal", amount = 1},
+        --    {type = "coal", amount = 1},
+        --    {type = "coal", amount = 1},
+        --}
+        --train_part.inventory = {
+        --    {entity = "entity1"},
+        --    {entity = "entity2"},
+        --    {entity = "entity3"},
+        --}
+    end
+
+    return carrier
+end
+
+---@param event scripts.lib.decorator.Event
+function Part:_handle_update_train_part(event)
+    if event.tags.train_part_id ~= self.id then
+        return false
+    end
+
+    self:_update()
+
+    self:_on_changed_callback_call()
+
+    return true
+end
+
+---@param event scripts.lib.decorator.Event
+function Part:_handle_delete_train_part(event)
+    if event.tags.train_part_id ~= self.id then
+        return false
+    end
+
+    self.refs.part_chooser.elem_value = nil
+
+    self:_on_changed_callback_call()
+
+    return true
+end
+
+---@param event scripts.lib.decorator.Event
+function Part:_handle_change_carrier_direction(event)
+    local tags = event.tags
+
+    if tags.train_part_id ~= self.id then
+        return false
+    end
+
+    local direction = tags.direction == mod.defines.train.direction.opposite_direction and mod.defines.train.direction.in_direction or mod.defines.train.direction.opposite_direction
+
+    self:_set_carrier_direction(direction)
+
+    self:_update()
+
+    self:_on_changed_callback_call()
+
+    return true
+end
+
+---@param new_direction uint
+function Part:_set_carrier_direction(new_direction)
+    flib_gui.update(self.refs.carrier_direction_left_button, { tags = { current_direction = new_direction } })
+    flib_gui.update(self.refs.carrier_direction_right_button, { tags = { current_direction = new_direction } })
+end
+
+---@param element LuaGuiElement
+---@return int
+function Part:_get_train_part_id(element)
+    local tags = flib_gui.get_tags(element)
+
+    return tags.train_part_id
+end
+
+---@param train_part scripts.lib.domain.TrainPart
+function Part:_initialize(train_part)
+    self.refs = flib_gui.build(self.container, { structure.get(self.id)})
+
+    if train_part ~= nil then
+        self.refs.part_chooser.elem_value = train_part.prototype_name
+
+        if train_part:has_direction() then
+            self:_set_carrier_direction(train_part.direction)
+        end
+    end
+
+    self:_update()
+end
+
+function Part:_update()
+    local tags = flib_gui.get_tags(self.refs.carrier_direction_right_button)
+    local current_carrier_direction = tags.current_direction
+
+    if self.refs.part_chooser.elem_value == nil then
+        return
+    end
+
+    local type = self:_get_train_part_type_from_item_name(self.refs.part_chooser.elem_value)
+    local has_direction = type ~= TrainPart.TYPE.CARGO
+
+    self.refs.locomotive_config_button.visible = type == TrainPart.TYPE.LOCOMOTIVE
+    self.refs.delete_button.visible = true
+
+    if has_direction then
+        self.refs.carrier_direction_left_button.visible = (current_carrier_direction == mod.defines.train.direction.in_direction)
+        self.refs.carrier_direction_right_button.visible = (current_carrier_direction == mod.defines.train.direction.opposite_direction)
+    end
+end
+
+---@param value string|nil
+---@return bool
+function Part:_get_train_part_type_from_item_name(value)
+    assert(value, "value is nil")
+
+    local prototype = game.entity_prototypes[value]
+
+    local map = {
+        ["locomotive"] = TrainPart.TYPE.LOCOMOTIVE,
+        ["artillery-wagon"] = TrainPart.TYPE.ARTILLERY,
+        ["cargo-wagon"] = TrainPart.TYPE.CARGO,
+        ["fluid-wagon"] = TrainPart.TYPE.CARGO,
+    }
+
+    return map[prototype.type]
+end
+
+function Part:_is_train_part_selector_cleaned()
+    return self.refs.part_chooser.elem_value == nil
+end
+
+function Part:_on_changed_callback_call()
+    if self.on_changed ~= nil then
+        local on_changed = self.on_changed
+        on_changed(self)
+    end
+end
+
+return Part

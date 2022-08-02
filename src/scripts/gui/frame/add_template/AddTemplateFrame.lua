@@ -8,7 +8,7 @@ local persistence_storage = require("scripts.persistence_storage")
 local event_dispatcher = require("scripts.util.event_dispatcher")
 local TrainStationSelector = require("scripts.gui.component.train_station_selector.component")
 local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.component")
-local train_builder_component = require("scripts.gui.frame.add_template.component.train_builder.component")
+local TrainBuilder = require("scripts.gui.frame.add_template.component.train_builder.TrainBuilder")
 local validator = require("scripts.gui.validator")
 
 local function validation_rules()
@@ -57,6 +57,8 @@ local AddTemplateFrame = {
         clean_train_station_dropdown = nil,
         ---@type gui.component.TrainScheduleSelector
         destination_train_schedule_dropdown = nil,
+        ---@type gui.component.TrainBuilder
+        train_builder = nil,
     },
 }
 
@@ -99,9 +101,6 @@ function AddTemplateFrame:destroy()
         component:destroy()
     end
 
-    -- todo make dynamic
-    train_builder_component.destroy()
-
     self.refs.window.destroy()
 
     mod.log.debug("Frame `{1}(id={2})` destroyed", {self.name, self.id}, "gui")
@@ -118,7 +117,7 @@ function AddTemplateFrame:read_form()
     train_template.icon = self.refs.icon_input.elem_value or mod.util.table.NIL
     -- TODO add chooser
     train_template.train_color = { 255, 255, 255}
-    train_template.train =  train_builder_component.read_form(self.player)
+    train_template.train =  self.components.train_builder:read_form(self.player)
     train_template.enabled = false
     train_template.clean_station = self.components.clean_train_station_dropdown:read_form()
     train_template.destination_station = self.components.destination_train_schedule_dropdown:read_form()
@@ -142,7 +141,7 @@ function AddTemplateFrame:dispatch(event)
         },
         {
             match = event_dispatcher.match_all(),
-            func = train_builder_component.dispatch,
+            func = function(e) return self.components.train_builder:dispatch(e) end,
             handler_source = self.name
         },
     }
@@ -165,6 +164,7 @@ function AddTemplateFrame:_handle_save_form(event)
 
         script.raise_event(mod.defines.events.on_gui_close_add_template_frame_click, {
             player_index = event.player_index,
+            element = event.gui_element,
         })
     end
 
@@ -175,19 +175,13 @@ end
 function AddTemplateFrame:_write_form(train_template)
     self.refs.icon_input.elem_value = train_template.icon
     self.refs.name_input.text = train_template.name
-
-    -- todo remove key from parts
-    for _, train_part in pairs(train_template.train) do
-        train_builder_component.add_train_part(self.refs.train_builder_container, self.player, train_part)
-    end
-
 end
 
 function AddTemplateFrame:_validate_form()
     local form_data = self:read_form()
 
     return flib_table.array_merge({
-        train_builder_component.validate_form(self.player),
+        self.components.train_builder:validate_form(),
         self.components.clean_train_station_dropdown:validate_form(),
         self.components.destination_train_schedule_dropdown:validate_form(),
         validator.validate(validation_rules(), form_data)
@@ -224,6 +218,12 @@ function AddTemplateFrame:_initialize()
     )
     self.components.clean_train_station_dropdown:build(self.refs.clean_train_station_dropdown_wrapper)
 
+    self.components.train_builder = TrainBuilder.new(
+        self.refs.train_builder_container,
+        self.player,
+        function(e) return self:_handle_form_changed(e) end,
+        train_template ~= nil and train_template.train or nil
+    )
 
     self.components.destination_train_schedule_dropdown = TrainScheduleSelector.new(
             context,
@@ -237,10 +237,6 @@ function AddTemplateFrame:_initialize()
     self.refs.window.visible = true
     self.refs.titlebar_flow.drag_target = self.refs.window
     self.refs.footerbar_flow.drag_target = self.refs.window
-
-    train_builder_component.load()
-    train_builder_component.on_changed(function(e) return self:_handle_form_changed(e) end)
-    train_builder_component.add_train_part(self.refs.train_builder_container, self.player)
 
     if train_template ~= nil then
         self:_write_form(train_template)

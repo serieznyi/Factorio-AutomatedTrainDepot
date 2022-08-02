@@ -1,0 +1,220 @@
+local flib_gui = require("__flib__.gui")
+local flib_table = require("__flib__.table")
+
+local TrainPart = require("scripts.lib.domain.TrainPart")
+local Part = require("scripts.gui.frame.add_template.component.train_builder.Part")
+local validator = require("scripts.gui.validator")
+local event_dispatcher = require("scripts.util.event_dispatcher")
+
+local function validator_rule_has_main_locomotive(field_name, form)
+    ---@type scripts.lib.domain.TrainPart
+    local carrier = form[field_name][1]
+
+    if not carrier or carrier.type == TrainPart.TYPE.LOCOMOTIVE then
+        return
+    end
+
+    return {"validation-message.first-carrier-must-be-locomotive"}
+end
+
+local function validator_rule_empty_train(field_name, form)
+    local train = form[field_name]
+
+    if train ~= nil and #train > 0 then
+        return
+    end
+
+    return {"validation-message.trains-is-empty"}
+end
+
+local function validator_rule_main_locomotive_wrong_direction(field_name, form)
+    ---@type scripts.lib.domain.TrainPart
+    local carrier = form[field_name][1]
+
+    if not carrier or carrier.type ~= TrainPart.TYPE.LOCOMOTIVE then
+        return
+    end
+
+    if carrier.direction == mod.defines.train.direction.in_direction then
+        return
+    end
+
+    return {"validation-message.locomotive-direction-in-station"}
+end
+
+--- @module gui.component.TrainBuilder
+local TrainBuilder = {
+    ---@type string
+    name = "train_builder_component",
+    ---@type uint
+    id = nil,
+    ---@type LuaPlayer
+    player = nil,
+    ---@type function
+    on_changed = nil,
+    refs = {
+        ---@type LuaGuiElement
+        container = nil,
+    },
+    ---@type gui.component.TrainBuilder.Part[]
+    parts = {}
+}
+
+---@param on_changed function
+---@param player LuaPlayer
+---@param container LuaGuiElement
+---@param train table of scripts.lib.domain.TrainPart[]
+function TrainBuilder.new(container, player, on_changed, train)
+    ---@type gui.component.TrainBuilder
+    local self = {}
+    setmetatable(self, { __index = TrainBuilder })
+
+    self.player = player or nil
+    assert(self.player, "player is nil")
+
+    if on_changed ~= nil then
+        self.on_changed = on_changed
+    end
+
+    self:_initialize(container, train)
+
+    mod.log.debug("Component `{1}(id={2})` created", {self.name, self.id}, "gui")
+
+    return self
+end
+
+function TrainBuilder:update()
+end
+
+function TrainBuilder:destroy()
+    self.refs.container.clear()
+
+    mod.log.debug("Frame `{1}(id={2})` destroyed", {self.name, self.id}, "gui")
+end
+
+function TrainBuilder:read_form()
+    local train = {}
+
+    ---@param el gui.component.TrainBuilder.Part
+    for _, el in ipairs(self.parts) do
+        local data = el:read_form()
+
+        if data ~= nil then
+            table.insert(train, data)
+        end
+    end
+
+    return train
+end
+
+---@return table errors
+function TrainBuilder:validate_form()
+    local form_data = self:read_form()
+    local validator_rules = {
+        {
+            match = validator.match_by_name({"train"}),
+            rules = {
+                validator_rule_empty_train,
+                validator_rule_has_main_locomotive,
+                validator_rule_main_locomotive_wrong_direction
+            },
+        },
+    }
+
+    return validator.validate(validator_rules, {train = form_data})
+end
+
+---@param event scripts.lib.decorator.Event
+function TrainBuilder:dispatch(event)
+    local handlers = {
+
+    }
+
+    ---@param part gui.component.TrainBuilder.Part
+    for _, part in ipairs(self.parts) do
+        table.insert(handlers, {
+            match = event_dispatcher.match_all(),
+            func = function(e) return part:dispatch(e) end,
+            handler_source = self.name,
+        })
+    end
+
+    return event_dispatcher.dispatch(handlers, event)
+end
+
+---@param container LuaGuiElement
+---@param train table of scripts.lib.domain.TrainPart[]
+function TrainBuilder:_initialize(container, train)
+    self.refs = flib_gui.build(container, { self:_structure() })
+
+    if train ~= nil then
+        for _, carrier in ipairs(train) do
+            self:_add_new_part(carrier)
+        end
+    end
+
+    self:_add_new_part()
+end
+
+---@return gui.component.TrainBuilder.Part
+function TrainBuilder:_get_last_part()
+    return self.parts[#self.parts]
+end
+
+---@param train_part scripts.lib.domain.TrainPart
+---@return gui.component.TrainBuilder.Part
+function TrainBuilder:_add_new_part(train_part)
+    local part = Part.new(
+            self.refs.container,
+            self.player,
+            function(part) return self:_process_part_changing(part) end,
+            train_part
+    )
+
+    self:_add_part(part)
+
+    return part
+end
+
+---@param part gui.component.TrainBuilder.Part
+function TrainBuilder:_process_part_changing(part)
+    local last_part = self:_get_last_part()
+
+    if part:is_empty() and part.id ~= last_part.id then
+        self:_remove_part(part)
+    elseif not part:is_empty() and part.id == last_part.id then
+        self:_add_new_part()
+    end
+
+    self:_on_changed_callback_call()
+end
+
+function TrainBuilder:_on_changed_callback_call()
+    if self.on_changed ~= nil then
+        local on_changed = self.on_changed
+        on_changed(self)
+    end
+end
+
+---@param part gui.component.TrainBuilder.Part
+function TrainBuilder:_add_part(part)
+    table.insert(self.parts, part)
+end
+
+---@param part gui.component.TrainBuilder.Part
+function TrainBuilder:_remove_part(part)
+    part:destroy()
+    local index = flib_table.find(self.parts, part)
+
+    table.remove(self.parts, index)
+end
+
+function TrainBuilder:_structure()
+    return {
+        type = "flow",
+        ref = {"container"},
+        direction = "horizontal",
+    }
+end
+
+return TrainBuilder
