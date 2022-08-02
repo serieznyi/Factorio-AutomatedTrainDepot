@@ -14,6 +14,8 @@ local event_dispatcher = require("scripts.util.event_dispatcher")
 local MainFrame = {
     ---@type string
     name = "main_frame",
+    ---@type gui.frame.Frame
+    parent_frame = nil,
     ---@type int
     width = 1400,
     ---@type int
@@ -58,12 +60,9 @@ function MainFrame.new(player)
     return self
 end
 
-function MainFrame:show()
-    self.refs.window.bring_to_front()
-    self.refs.window.visible = true
-    self.player.opened = self.refs.window
-
-    mod.util.gui.frame_stack_push(self.refs.window)
+---@type LuaGuiElement
+function MainFrame:window()
+    return self.refs.window
 end
 
 function MainFrame:update()
@@ -78,12 +77,6 @@ end
 
 function MainFrame:destroy()
     self.refs.window.visible = false
-
-    if self.player.opened == self.refs.window then
-        self.player.opened = nil
-    end
-
-    mod.util.gui.frame_stack_pop(self.refs.window)
 
     ---@param component LuaGuiElement
     for _, component in pairs(self.components) do
@@ -168,6 +161,7 @@ function MainFrame:_initialize()
     )
 
     self.refs.window.force_auto_center()
+    self.refs.window.visible = true
     self.refs.titlebar_flow.drag_target = self.refs.window
 
     local resolution, scale = self.player.display_resolution, self.player.display_scale

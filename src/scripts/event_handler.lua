@@ -91,17 +91,15 @@ function public.open_main_frame(event)
 
     ---@type LuaEntity
     local entity = event.entity
-    ---@type LuaPlayer
-    local player = game.get_player(event.player_index)
 
     if entity.name == mod.defines.prototypes.entity.depot_building.name then
-        gui_manager.open_main_frame(player)
+        gui_manager.open_main_frame(Event.new(event))
     end
 end
 
 ---@param event EventData
-function public.close_frame(event)
-    -- todo add frame close by esc
+function public.on_gui_closed(event)
+    gui_manager.on_gui_closed(Event.new(event))
 end
 
 -----@param event EventData

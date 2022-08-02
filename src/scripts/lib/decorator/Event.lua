@@ -18,6 +18,8 @@ local Event = {
     player_index = nil,
     ---@type LuaGuiElement
     gui_element = nil,
+    ---@type LuaPlayer
+    player = nil,
 }
 
 ---@param obj scripts.lib.decorator.Event
@@ -35,6 +37,7 @@ function Event.new(event)
     self.original_event = event
     self.player_index = event.player_index
     self.gui_element = event.element
+    self.player = game.get_player(event.player_index)
     self.tags = event.element and flib_gui.get_tags(event.element) or {}
 
     self:initialize()

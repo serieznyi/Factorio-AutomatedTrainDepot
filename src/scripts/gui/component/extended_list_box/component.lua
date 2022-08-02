@@ -51,7 +51,6 @@ local component_id_sequence = Sequence()
 --- @field id uint identifier
 --- @field tooltip table|string localized string or simple string
 --- @field tags table
-local lib_box_value = nil
 
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC

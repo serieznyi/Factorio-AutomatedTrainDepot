@@ -30,6 +30,8 @@ local AddTemplateFrame = {
     name = "add_template_frame",
     ---@type LuaPlayer
     player = nil,
+    ---@type gui.frame.Frame
+    parent_frame = nil,
     ---@type uint
     train_template_id = nil,
     refs = {
@@ -57,7 +59,9 @@ local AddTemplateFrame = {
 }
 
 ---@param player LuaPlayer
-function AddTemplateFrame.new(player, train_template_id)
+---@param train_template_id uint
+---@param parent_frame gui.frame.Frame
+function AddTemplateFrame.new(parent_frame, player, train_template_id)
     ---@type gui.frame.AddTemplateFrame
     local self = {}
     setmetatable(self, { __index = AddTemplateFrame })
@@ -67,6 +71,8 @@ function AddTemplateFrame.new(player, train_template_id)
 
     self.train_template_id = train_template_id or nil
 
+    self.parent_frame = parent_frame or nil
+
     self:_initialize()
 
     mod.log.debug("Frame `{1}` created", {self.name}, "gui")
@@ -74,12 +80,9 @@ function AddTemplateFrame.new(player, train_template_id)
     return self
 end
 
-function AddTemplateFrame:show()
-    self.refs.window.bring_to_front()
-    self.refs.window.visible = true
-    self.player.opened = self.refs.window
-
-    mod.util.gui.frame_stack_push(self.refs.window)
+---@type LuaGuiElement
+function AddTemplateFrame:window()
+    return self.refs.window
 end
 
 function AddTemplateFrame:update()
@@ -87,12 +90,6 @@ end
 
 function AddTemplateFrame:destroy()
     self.refs.window.visible = false
-
-    if self.player.opened == self.refs.window then
-        self.player.opened = nil
-    end
-
-    mod.util.gui.frame_stack_pop(self.refs.window)
 
     ---@param component LuaGuiElement
     for _, component in pairs(self.components) do
@@ -235,6 +232,7 @@ function AddTemplateFrame:_initialize()
     self.components.destination_train_schedule_dropdown:build(self.refs.destination_schedule_dropdown_wrapper)
 
     self.refs.window.force_auto_center()
+    self.refs.window.visible = true
     self.refs.titlebar_flow.drag_target = self.refs.window
     self.refs.footerbar_flow.drag_target = self.refs.window
 

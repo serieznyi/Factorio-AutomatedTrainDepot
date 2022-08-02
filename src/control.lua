@@ -156,7 +156,7 @@ flib_event.register(mod.util.table.array_values(mod.defines.events), event_handl
 flib_gui.hook_events(event_handler.handle_events)
 
 flib_event.register(defines.events.on_gui_opened, event_handler.open_main_frame)
-flib_event.register(defines.events.on_gui_closed, event_handler.close_frame)
+flib_event.register(defines.events.on_gui_closed, event_handler.on_gui_closed)
 
 ---------------------------------------------------------------------------
 -- -- -- NTH EVENTS

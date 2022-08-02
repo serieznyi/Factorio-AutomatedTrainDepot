@@ -16,6 +16,8 @@ local SettingsFrame = {
     name = "settings_frame",
     ---@type LuaPlayer
     player = nil,
+    ---@type gui.frame.Frame
+    parent_frame = nil,
     refs = {
         ---@type LuaGuiElement
         window = nil,
@@ -43,13 +45,16 @@ local SettingsFrame = {
 }
 
 ---@param player LuaPlayer
-function SettingsFrame.new(player)
+---@param parent_frame gui.frame.Frame
+function SettingsFrame.new(parent_frame, player)
     ---@type gui.frame.SettingsFrame
     local self = {}
     setmetatable(self, { __index = SettingsFrame })
 
-    self.player = player or nil
+    self.player = player
     assert(self.player, "player is nil")
+
+    self.parent_frame = parent_frame
 
     self:_initialize()
 
@@ -58,12 +63,9 @@ function SettingsFrame.new(player)
     return self
 end
 
-function SettingsFrame:show()
-    self.refs.window.bring_to_front()
-    self.refs.window.visible = true
-    self.player.opened = self.refs.window
-
-    mod.util.gui.frame_stack_push(self.refs.window)
+---@type LuaGuiElement
+function SettingsFrame:window()
+    return self.refs.window
 end
 
 function SettingsFrame:update()
@@ -71,12 +73,6 @@ end
 
 function SettingsFrame:destroy()
     self.refs.window.visible = false
-
-    if self.player.opened == self.refs.window then
-        self.player.opened = nil
-    end
-
-    mod.util.gui.frame_stack_pop(self.refs.window)
 
     ---@param component LuaGuiElement
     for _, component in pairs(self.components) do
@@ -206,6 +202,7 @@ function SettingsFrame:_initialize()
     self:_update_form()
 
     self.refs.window.force_auto_center()
+    self.refs.window.visible = true
     self.refs.titlebar_flow.drag_target = self.refs.window
     self.refs.footerbar_flow.drag_target = self.refs.window
 end

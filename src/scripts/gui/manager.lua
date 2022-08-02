@@ -1,4 +1,28 @@
 local flib_gui = require("__flib__.gui")
+local flib_table = require("__flib__.table")
+
+---------------------------------------------------------------------------
+-- -- -- TYPES ; BEGIN
+---------------------------------------------------------------------------
+
+---@module gui.frame.Frame
+local Frame = {
+    ---@type string
+    name = nil
+}
+
+---@return void
+function Frame:destroy() end
+
+---@return LuaGuiElement
+function Frame:window() end
+
+---------------------------------------------------------------------------
+-- -- -- TYPES ; END
+---------------------------------------------------------------------------
+
+--- @class gui.component.Frame
+--- @method show
 
 local event_dispatcher = require("scripts.util.event_dispatcher")
 local MainFrame = require("scripts.gui.frame.main.MainFrame")
@@ -6,6 +30,12 @@ local AddTemplateFrame = require("scripts.gui.frame.add_template.AddTemplateFram
 local SettingsFrame = require("scripts.gui.frame.settings.SettingsFrame")
 
 local manager = {}
+local frame_stack = {}
+local event_handlers = {}
+
+---------------------------------------------------------------------------
+-- -- -- OTHER
+---------------------------------------------------------------------------
 
 -- todo move on some global loader ?
 local function load_event_names()
@@ -20,66 +50,27 @@ local function load_event_names()
     end
 end
 
-local function handle_main_frame_close(event)
-    mod.global.frames[MainFrame.name]:destroy()
-end
+---@param frame gui.component.Frame
+---@param player LuaPlayer
+local function switch_on_frame(frame, player)
+    if mod.global.frames[frame.name] == nil then
+        mod.global.frames[frame.name] = frame
+    end
 
-local function handle_add_template_frame_close(event)
-    mod.global.frames[AddTemplateFrame.name]:destroy()
-end
+    local lua_frame = frame:window()
+    lua_frame.bring_to_front()
 
-local function handle_settings_frame_close(event)
-    mod.global.frames[SettingsFrame.name]:destroy()
-end
+    -- !!!important. Add to stack before real open window
+    frame_stack.frame_stack_push(frame)
 
----@param event scripts.lib.decorator.Event
-local function handle_add_template_frame_open(event)
-    local player = game.get_player(event.player_index)
+    player.opened = lua_frame
 
-    local frame = AddTemplateFrame.new(player)
-    mod.global.frames[frame.name] = frame
-
-    frame:show()
-end
-
----@param event scripts.lib.decorator.Event
-local function handle_settings_frame_open(event)
-    local player = game.get_player(event.player_index)
-
-    local frame = SettingsFrame.new(player)
-    mod.global.frames[frame.name] = frame
-
-    frame:show()
-end
-
----@param event scripts.lib.decorator.Event
-local function handle_edit_template_frame_open(event)
-    local player = game.get_player(event.player_index)
-
-    local frame = AddTemplateFrame.new(player, event.tags.train_template_id)
-    mod.global.frames[frame.name] = frame
-
-    frame:show()
+    mod.log.debug("switched on " .. frame.name, {})
 end
 
 ---@param element LuaGuiElement
-local function is_mod_frame(element)
-    if element.type ~= "frame" then
-        return false
-    end
-
-    local tags = flib_gui.get_tags(element)
-
-    if tags ~= nil and tags.type == mod.defines.gui.mod_frame_marker_name then
-        return true
-    end
-
-    return false
-end
-
----@param element LuaGuiElement
-local function get_element_mod_frame(element)
-    if element.type == "frame" and is_mod_frame(element) then
+local function get_parent_frame_for_gui_element(element)
+    if element.type == "frame" then
         return element
     end
 
@@ -87,48 +78,153 @@ local function get_element_mod_frame(element)
         return nil
     end
 
-    return get_element_mod_frame(element.parent)
+    return get_parent_frame_for_gui_element(element.parent)
 end
 
----@param player LuaPlayer
-local function is_main_frame_opened(player)
-    return false -- todo add real check
+---------------------------------------------------------------------------
+-- -- -- FRAME STACK
+---------------------------------------------------------------------------
+
+---@param frame gui.frame.Frame
+function frame_stack.frame_stack_push(frame)
+    if frame_stack.exists(frame) then
+        return
+    end
+
+    table.insert(mod.global.gui.frames_stack, frame)
+
+    mod.log.debug("stack pushed " .. tostring(frame.name), {}, "frame_stack")
 end
 
-local function event_handlers()
+---@param frame gui.frame.Frame
+---@return bool
+function frame_stack.exists(frame)
+    ---@param frame_in_stack gui.frame.Frame
+    for _, frame_in_stack in ipairs(mod.global.gui.frames_stack) do
+        if frame_in_stack.name == frame.name then
+            return true
+        end
+    end
+
+    return false
+end
+
+function frame_stack.frame_stack_pop()
+    if mod.global.gui.frames_stack == {} then
+        return
+    end
+
+    local last_index = #mod.global.gui.frames_stack;
+    local frame = mod.global.gui.frames_stack[last_index]
+
+    table.remove(mod.global.gui.frames_stack, last_index)
+
+    mod.log.debug("stack pop " .. tostring(frame.name), {}, "frame_stack")
+
+    return frame
+end
+
+---@return gui.frame.Frame
+function frame_stack.frame_stack_last()
+    if #mod.global.gui.frames_stack == 0 then
+        return
+    end
+
+    local last_index = #mod.global.gui.frames_stack;
+
+    return mod.global.gui.frames_stack[last_index]
+end
+
+---------------------------------------------------------------------------
+-- -- -- EVENT HANDLERS
+---------------------------------------------------------------------------
+
+---@param event scripts.lib.decorator.Event
+function event_handlers.handle_close_frame_by_event(event)
+    local event_window = get_parent_frame_for_gui_element(event.gui_element)
+
+    assert(event_window, 'window not found')
+
+    ---@param v gui.frame.Frame
+    local filtered = flib_table.filter(mod.global.frames, function(v)
+        return v:window() == event_window
+    end, true)
+
+    local frame = filtered[1]
+
+    assert(frame, 'frame not found')
+
+    manager.close_frame(frame)
+end
+
+function event_handlers.event_handlers()
     return {
         {
             match = event_dispatcher.match_event(mod.defines.events.on_gui_close_main_frame_click),
-            func = handle_main_frame_close,
+            func = event_handlers.handle_close_frame_by_event,
             handler_source = "gui_manager"
         },
         {
             match = event_dispatcher.match_event(mod.defines.events.on_gui_close_add_template_frame_click),
-            func = handle_add_template_frame_close,
+            func = event_handlers.handle_close_frame_by_event,
             handler_source = "gui_manager"
         },
         {
             match = event_dispatcher.match_event(mod.defines.events.on_gui_settings_frame_close_click),
-            func = handle_settings_frame_close,
+            func = event_handlers.handle_close_frame_by_event,
             handler_source = "gui_manager"
         },
         {
             match = event_dispatcher.match_event(mod.defines.events.on_gui_open_adding_template_frame_click),
-            func = handle_add_template_frame_open,
+            func = event_handlers.handle_add_template_frame_open,
             handler_source = "gui_manager"
         },
         {
             match = event_dispatcher.match_event(mod.defines.events.on_gui_open_editing_template_frame_click),
-            func = handle_edit_template_frame_open,
+            func = event_handlers.handle_add_template_frame_open,
             handler_source = "gui_manager"
         },
         {
             match = event_dispatcher.match_event(mod.defines.events.on_gui_open_settings_frame_click),
-            func = handle_settings_frame_open,
+            func = event_handlers.handle_settings_frame_open,
             handler_source = "gui_manager"
         },
     }
 end
+
+---@param event scripts.lib.decorator.Event
+function event_handlers.handle_add_template_frame_open(event)
+    local parent_frame = frame_stack.frame_stack_last()
+    ---@type LuaPlayer
+    local player = game.get_player(event.player_index)
+    local train_template_id = event.tags ~= nil and event.tags.train_template_id or nil
+    local frame = AddTemplateFrame.new(parent_frame, player, train_template_id)
+
+    switch_on_frame(frame, player)
+end
+
+---@param event scripts.lib.decorator.Event
+function event_handlers.handle_settings_frame_open(event)
+    local parent_frame = frame_stack.frame_stack_last()
+    ---@type LuaPlayer
+    local player = game.get_player(event.player_index)
+    local frame = SettingsFrame.new(parent_frame, player)
+
+    switch_on_frame(frame, player)
+end
+
+---@param event scripts.lib.decorator.Event
+function event_handlers.handle_main_frame_open(event)
+    ---@type LuaPlayer
+    local player = game.get_player(event.player_index)
+    local frame = MainFrame.new(player)
+
+    switch_on_frame(frame, player)
+end
+
+---------------------------------------------------------------------------
+-- -- -- PUBLIC
+---------------------------------------------------------------------------
 
 function manager.init()
 end
@@ -143,21 +239,14 @@ function manager.load()
     load_event_names()
 end
 
----@param player LuaPlayer
-function manager.open_main_frame(player)
-    if is_main_frame_opened(player) then
-        return
-    end
-
-    local frame = MainFrame.new(player)
-    mod.global.frames[frame.name] = frame
-
-    frame:show()
+---@param e scripts.lib.decorator.Event
+function manager.open_main_frame(e)
+    event_handlers.handle_main_frame_open(e)
 end
 
 ---@param event scripts.lib.decorator.Event
 function manager.dispatch(event)
-    local processed = event_dispatcher.dispatch(event_handlers(), event)
+    local processed = event_dispatcher.dispatch(event_handlers.event_handlers(), event)
 
     for _, frame in pairs(mod.global.frames) do
         if frame:dispatch(event) then
@@ -166,6 +255,46 @@ function manager.dispatch(event)
     end
 
     return processed
+end
+
+---@param frame gui.frame.Frame
+function manager.close_frame(frame)
+    mod.global.frames[frame.name] = nil
+
+    frame:destroy()
+
+    frame_stack.frame_stack_pop()
+end
+
+---@param event scripts.lib.decorator.Event
+function manager.on_gui_closed(event)
+    if event.gui_element == nil then
+        return
+    end
+
+    local closed_window = event.gui_element
+    local last_frame = frame_stack.frame_stack_last()
+    local parent_frame = last_frame.parent_frame
+    local last_frame_window = last_frame:window()
+    local player = game.get_player(event.player_index)
+
+    mod.log.debug({
+        closed_window = closed_window and closed_window.name or nil,
+        frame_stack = flib_table.map(mod.global.gui.frames_stack, function(f)
+            local name = f:window().name
+            local parent_name = f.parent_frame ~= nil and f.parent_frame:window().name or "none"
+            return name .. " (parent="..parent_name .. ")"
+        end),
+    })
+
+    if closed_window == last_frame_window then
+        frame_stack.frame_stack_pop()
+        last_frame:destroy()
+
+        if parent_frame ~= nil then
+            switch_on_frame(parent_frame, player)
+        end
+    end
 end
 
 return manager
