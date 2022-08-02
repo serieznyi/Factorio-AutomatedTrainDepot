@@ -87,6 +87,11 @@ function structure.get(config)
                                             },
                                             children = {
                                                 {
+                                                    type = "flow",
+                                                    direction = "vertical",
+                                                    ref = {"trains_templates_list_container"},
+                                                },
+                                                {
                                                     type = "frame",
                                                     style = "inside_deep_frame",
                                                     children = {
@@ -131,11 +136,6 @@ function structure.get(config)
                                                             }
                                                         },
                                                     }
-                                                },
-                                                {
-                                                    type = "flow",
-                                                    direction = "vertical",
-                                                    ref = {"trains_templates_list_container"},
                                                 },
                                             }
                                         },
