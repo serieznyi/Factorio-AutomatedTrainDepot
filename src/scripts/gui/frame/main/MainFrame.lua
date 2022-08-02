@@ -4,7 +4,7 @@ local flib_table = require("__flib__.table")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.main.structure")
 local train_template_view_component = require("scripts.gui.frame.main.component.train_template_view.component")
-local trains_map_component = require("scripts.gui.frame.main.component.trains_map.component")
+local TrainsMap = require("scripts.gui.component.trains_map.TrainsMap")
 local ExtendedListBox = require("scripts.gui.component.extended_list_box.component")
 local mod_gui = require("scripts.util.gui")
 local persistence_storage = require("scripts.persistence_storage")
@@ -40,7 +40,9 @@ local MainFrame = {
     },
     components = {
         ---@type gui.component.ExtendedListBox
-        trains_templates_list = nil
+        trains_templates_list = nil,
+        ---@type gui.component.TrainsMap
+        trains_map = nil,
     },
 }
 
@@ -52,8 +54,6 @@ function MainFrame.new(player)
 
     self.player = player or nil
     assert(self.player, "player is nil")
-
-    trains_map_component.load()
 
     self:_initialize()
 
@@ -87,8 +87,6 @@ function MainFrame:destroy()
     end
 
     self.refs.window.destroy()
-
-    trains_map_component.destroy(self.player)
 
     mod.log.debug("Frame `{1}(id={2})` destroyed", {self.name, self.id}, "gui")
 end
@@ -125,14 +123,10 @@ end
 
 ---@param event scripts.lib.decorator.Event
 function MainFrame:_handle_open_uncontrolled_trains_map(event)
-    local player = game.get_player(event.player_index)
-    local context = Context.from_player(player)
+    local context = Context.from_player(self.player)
     local trains = persistence_storage.find_uncontrolled_trains(context)
 
-    mod.log.debug("Frame id {1}", {self.id})
-
-    self.refs.content_frame.clear()
-    trains_map_component.create(self.refs.content_frame, player, trains)
+    self.components.trains_map:update(trains)
 end
 
 function MainFrame:_refresh_control_buttons()
@@ -162,6 +156,11 @@ function MainFrame:_initialize()
             nil,
             nil,
             function(tags) return self:update() end
+    )
+
+    self.components.trains_map = TrainsMap.new(
+            self.player,
+            self.refs.content_frame
     )
 
     self.refs.window.force_auto_center()
