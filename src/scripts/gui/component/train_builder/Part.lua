@@ -3,7 +3,7 @@ local flib_table = require("__flib__.table")
 
 local event_dispatcher = require("scripts.util.event_dispatcher")
 local TrainPart = require("scripts.lib.domain.TrainPart")
-local structure = require("scripts.gui.frame.add_template.component.train_builder.structure")
+local structure = require("scripts.gui.component.train_builder.structure")
 
 ---@param o1 gui.component.TrainBuilder.Part
 ---@param o2 gui.component.TrainBuilder.Part

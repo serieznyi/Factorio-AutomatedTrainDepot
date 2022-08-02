@@ -8,7 +8,7 @@ local persistence_storage = require("scripts.persistence_storage")
 local event_dispatcher = require("scripts.util.event_dispatcher")
 local TrainStationSelector = require("scripts.gui.component.train_station_selector.component")
 local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.component")
-local TrainBuilder = require("scripts.gui.frame.add_template.component.train_builder.TrainBuilder")
+local TrainBuilder = require("scripts.gui.component.train_builder.TrainBuilder")
 local validator = require("scripts.gui.validator")
 
 local function validation_rules()

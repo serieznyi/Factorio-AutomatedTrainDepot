@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
 local TrainPart = require("scripts.lib.domain.TrainPart")
-local Part = require("scripts.gui.frame.add_template.component.train_builder.Part")
+local Part = require("scripts.gui.component.train_builder.Part")
 local validator = require("scripts.gui.validator")
 local event_dispatcher = require("scripts.util.event_dispatcher")
 
