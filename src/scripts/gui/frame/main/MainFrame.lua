@@ -35,8 +35,6 @@ local MainFrame = {
         edit_button = nil,
         ---@type LuaGuiElement
         delete_button = nil,
-        ---@type LuaGuiElement
-        show_uncontrolled_trains_button = nil,
     },
     components = {
         ---@type gui.component.ExtendedListBox
@@ -132,12 +130,9 @@ end
 function MainFrame:_refresh_control_buttons()
     local selected_train_template_id = self.components.trains_templates_list:get_selected_id()
     local train_template_selected = selected_train_template_id ~= nil
-    local context = Context.from_player(self.player)
-    local has_uncontrolled_trains = persistence_storage.count_uncontrolled_trains(context) > 0
 
     self.refs.edit_button.enabled = train_template_selected
     self.refs.delete_button.enabled = train_template_selected
-    self.refs.show_uncontrolled_trains_button.enabled = has_uncontrolled_trains
 
     if train_template_selected then
         -- todo сделать так же для delete
@@ -151,7 +146,7 @@ function MainFrame:_initialize()
     self.id = self.refs.window.index
 
     self.components.trains_templates_list = ExtendedListBox.new(
-            self.refs.trains_templates_container,
+            self.refs.trains_templates_list_container,
             self:_get_trains_templates_values(),
             nil,
             nil,
@@ -160,7 +155,7 @@ function MainFrame:_initialize()
 
     self.components.trains_map = TrainsMap.new(
             self.player,
-            self.refs.content_frame
+            self.refs.trains_map_view
     )
 
     self.refs.window.force_auto_center()
@@ -205,9 +200,9 @@ function MainFrame:_select_train_template_view(train_template_id)
         return
     end
 
-    self.refs.content_frame.clear()
+    self.refs.trains_templates_view.clear()
 
-    train_template_view_component.create(self.refs.content_frame, self.player, train_template)
+    train_template_view_component.create(self.refs.trains_templates_view, self.player, train_template)
 end
 
 ---@return gui.component.ExtendedListBoxValue

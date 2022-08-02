@@ -20,7 +20,7 @@ local TrainsMap = {
 ---@param container LuaGuiElement
 ---@param trains table
 function TrainsMap.new(player, container, trains)
-    ---@type gui.component.TrainStationSelector
+    ---@type gui.component.TrainsMap
     local self = {}
     setmetatable(self, { __index = TrainsMap })
 

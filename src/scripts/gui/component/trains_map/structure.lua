@@ -11,20 +11,6 @@ function public.get(caption)
         },
         ref = { "component" },
         children = {
-            -- Titlebar
-            {
-                type = "flow",
-                direction = "vertical",
-                children = {
-                    {
-                        type = "label",
-                        caption = caption,
-                    },
-                    {
-                        type = "line",
-                    },
-                }
-            },
             -- Content
             {
                 type = "flow",
