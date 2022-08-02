@@ -11,7 +11,7 @@ function structure.get(config)
     return {
         type = "frame",
         name = config.frame_name,
-        tags = {type = mod.defines.gui.mod_frame_marker_name },
+        tags = { atd_frame = true },
         direction = "vertical",
         ref  =  {"window"},
         style_mods = {

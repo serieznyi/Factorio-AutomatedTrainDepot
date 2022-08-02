@@ -68,10 +68,6 @@ public.train = {
 
 public.prototypes = require("prototypes.defines.index")
 
-public.gui = {
-    mod_frame_marker_name = "atd_frame",
-}
-
 public.persistence = {
     garbage_ttl = public.on_nth_tick.persistence_storage_gc,
 }
