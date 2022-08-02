@@ -1,6 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
+local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.main.structure")
 local train_template_view_component = require("scripts.gui.frame.main.component.train_template_view.component")
@@ -35,6 +36,8 @@ local MainFrame = {
         edit_button = nil,
         ---@type LuaGuiElement
         delete_button = nil,
+        ---@type LuaGuiElement
+        copy_button = nil,
     },
     components = {
         ---@type gui.component.ExtendedListBox
@@ -107,6 +110,10 @@ function MainFrame:dispatch(event)
             func = function(e) return self:_handle_open_uncontrolled_trains_map(e) end
         },
         {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_copy_train_template_click),
+            func = function(e) return self:_handle_copy_train_template(e) end
+        },
+        {
             match = event_dispatcher.match_all(),
             func = train_template_view_component.dispatch
         },
@@ -127,12 +134,25 @@ function MainFrame:_handle_open_uncontrolled_trains_map(event)
     self.components.trains_map:update(trains)
 end
 
+---@param event scripts.lib.decorator.Event
+function MainFrame:_handle_copy_train_template(event)
+    local train_template_id = self.components.trains_templates_list:get_selected_id()
+    local train_template = persistence_storage.get_train_template(train_template_id)
+
+    persistence_storage.add_train_template(train_template:clone())
+
+    self:update()
+
+    return true
+end
+
 function MainFrame:_refresh_control_buttons()
     local selected_train_template_id = self.components.trains_templates_list:get_selected_id()
     local train_template_selected = selected_train_template_id ~= nil
 
     self.refs.edit_button.enabled = train_template_selected
     self.refs.delete_button.enabled = train_template_selected
+    self.refs.copy_button.enabled = train_template_selected
 
     if train_template_selected then
         -- todo сделать так же для delete

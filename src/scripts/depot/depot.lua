@@ -608,7 +608,6 @@ end
 ---@param count int
 function public.change_trains_quantity(train_template_id, count)
     local train_template = persistence_storage.get_train_template(train_template_id)
-    local context = Context.from_model(train_template)
 
     train_template:change_trains_quantity(count)
     persistence_storage.add_train_template(train_template)

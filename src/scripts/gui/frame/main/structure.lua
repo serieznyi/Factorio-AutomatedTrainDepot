@@ -133,6 +133,17 @@ function structure.get(config)
                                                                         on_click = { event = mod.defines.events.on_gui_delete_train_template_click }
                                                                     },
                                                                 },
+                                                                {
+                                                                    type = "sprite-button",
+                                                                    style = "tool_button_blue",
+                                                                    tooltip = {"main-frame.atd-copy-train-template"},
+                                                                    ref = {"copy_button"},
+                                                                    sprite = "atd_sprite_copy",
+                                                                    enabled = false,
+                                                                    actions = {
+                                                                        on_click = { event = mod.defines.events.on_gui_copy_train_template_click }
+                                                                    },
+                                                                },
                                                             }
                                                         },
                                                     }

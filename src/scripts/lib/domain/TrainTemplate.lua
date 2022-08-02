@@ -106,6 +106,23 @@ function TrainTemplate:is_equal_train_structure(lua_train)
     return lua_train_hash_code(lua_train) == self.train_structure_hash_code()
 end
 
+function TrainTemplate:clone()
+    local copy = TrainTemplate.new(nil, self.surface_name, self.force_name)
+
+    copy.name = self.name .. " (copy)"
+    copy.icon = self.icon
+    copy.train_color = self.train_color
+    copy.train = self.train
+    copy.enabled = false
+    copy.trains_quantity = self.trains_quantity
+    copy.clean_station = self.clean_station
+    copy.destination_schedule = self.destination_schedule
+    copy.force_name = self.force_name
+    copy.surface_name = self.surface_name
+
+    return copy
+end
+
 ---@param data table
 function TrainTemplate.from_table(data)
     local object = TrainTemplate.new(data.id)

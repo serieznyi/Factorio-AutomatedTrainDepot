@@ -57,6 +57,14 @@ data:extend({
     },
     {
         type = "sprite",
+        name = "atd_sprite_copy",
+        filename = "__AutomatedTrainDepot__/media/graphics/icons/copy.png",
+        size = 64,
+        icon_mipmaps = 4,
+        flags = {"gui-icon"}
+    },
+    {
+        type = "sprite",
         name = "atd_sprite_info",
         filename = "__base__/graphics/icons/info.png",
         size = 64,

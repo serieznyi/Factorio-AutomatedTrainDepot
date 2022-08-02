@@ -34,6 +34,7 @@ public.events = {
     on_gui_open_adding_template_frame_click = script.generate_event_name(),
     on_gui_open_editing_template_frame_click = script.generate_event_name(),
     on_gui_delete_train_template_click = script.generate_event_name(),
+    on_gui_copy_train_template_click = script.generate_event_name(),
     on_gui_open_uncontrolled_trains_map_click = script.generate_event_name(),
     -- main frame : train templates view
     on_gui_train_template_enabled = script.generate_event_name(),
