@@ -110,6 +110,11 @@ function frame_stack.exists(frame)
     return false
 end
 
+---@return bool
+function frame_stack.empty()
+    return #mod.global.gui.frames_stack == 0
+end
+
 function frame_stack.frame_stack_pop()
     if mod.global.gui.frames_stack == {} then
         return
@@ -265,7 +270,7 @@ end
 
 ---@param event scripts.lib.decorator.Event
 function manager.on_gui_closed(event)
-    if event.gui_element == nil then
+    if event.gui_element == nil or frame_stack.empty() then
         return
     end
 
