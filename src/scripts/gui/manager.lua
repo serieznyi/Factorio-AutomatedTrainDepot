@@ -64,8 +64,6 @@ local function switch_on_frame(frame, player)
     frame_stack.frame_stack_push(frame)
 
     player.opened = lua_frame
-
-    mod.log.debug("switched on " .. frame.name, {})
 end
 
 ---@param element LuaGuiElement
@@ -92,8 +90,6 @@ function frame_stack.frame_stack_push(frame)
     end
 
     table.insert(mod.global.gui.frames_stack, frame)
-
-    mod.log.debug("stack pushed " .. tostring(frame.name), {}, "frame_stack")
 end
 
 ---@param frame gui.frame.Frame
@@ -118,8 +114,6 @@ function frame_stack.frame_stack_pop()
     local frame = mod.global.gui.frames_stack[last_index]
 
     table.remove(mod.global.gui.frames_stack, last_index)
-
-    mod.log.debug("stack pop " .. tostring(frame.name), {}, "frame_stack")
 
     return frame
 end
@@ -277,15 +271,6 @@ function manager.on_gui_closed(event)
     local parent_frame = last_frame.parent_frame
     local last_frame_window = last_frame:window()
     local player = game.get_player(event.player_index)
-
-    mod.log.debug({
-        closed_window = closed_window and closed_window.name or nil,
-        frame_stack = flib_table.map(mod.global.gui.frames_stack, function(f)
-            local name = f:window().name
-            local parent_name = f.parent_frame ~= nil and f.parent_frame:window().name or "none"
-            return name .. " (parent="..parent_name .. ")"
-        end),
-    })
 
     if closed_window == last_frame_window then
         frame_stack.frame_stack_pop()
