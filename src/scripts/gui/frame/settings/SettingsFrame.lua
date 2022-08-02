@@ -14,6 +14,8 @@ local DepotSettings = require("scripts.lib.domain.DepotSettings")
 local SettingsFrame = {
     ---@type string
     name = "settings_frame",
+    ---@type uint
+    id = nil,
     ---@type LuaPlayer
     player = nil,
     ---@type gui.frame.Frame
@@ -58,7 +60,7 @@ function SettingsFrame.new(parent_frame, player)
 
     self:_initialize()
 
-    mod.log.debug("Frame `{1}` created", {self.name}, "gui")
+    mod.log.debug("Frame `{1}(id={2})` created", {self.name, self.id}, "gui")
 
     return self
 end
@@ -81,6 +83,8 @@ function SettingsFrame:destroy()
     end
 
     self.refs.window.destroy()
+
+    mod.log.debug("Frame `{1}(id={2})` destroyed", {self.name, self.id}, "gui")
 end
 
 function SettingsFrame:read_form()
@@ -170,6 +174,7 @@ function SettingsFrame:_initialize()
     local depot_settings = persistence_storage.get_depot_settings(context)
     local structure_config = {frame_name = self.name, depot_settings = depot_settings}
     self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })
+    self.id = self.refs.window.index
 
     self.components.clean_train_station_dropdown_component = TrainStationSelector.new(
             self.player.surface,

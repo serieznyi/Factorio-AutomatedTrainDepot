@@ -28,6 +28,8 @@ end
 local AddTemplateFrame = {
     ---@type string
     name = "add_template_frame",
+    ---@type uint
+    id = nil,
     ---@type LuaPlayer
     player = nil,
     ---@type gui.frame.Frame
@@ -75,7 +77,7 @@ function AddTemplateFrame.new(parent_frame, player, train_template_id)
 
     self:_initialize()
 
-    mod.log.debug("Frame `{1}` created", {self.name}, "gui")
+    mod.log.debug("Frame `{1}(id={2})` created", {self.name, self.id}, "gui")
 
     return self
 end
@@ -101,6 +103,8 @@ function AddTemplateFrame:destroy()
     train_builder_component.destroy()
 
     self.refs.window.destroy()
+
+    mod.log.debug("Frame `{1}(id={2})` destroyed", {self.name, self.id}, "gui")
 end
 
 ---@return scripts.lib.domain.TrainTemplate form data
@@ -208,6 +212,7 @@ function AddTemplateFrame:_initialize()
     local structure_config = {frame_name = self.name, train_template = train_template}
     local depot_settings = persistence_storage.get_depot_settings(context)
     self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })
+    self.id = self.refs.window.index
 
     self.components.clean_train_station_dropdown = TrainStationSelector.new(
             self.player.surface,

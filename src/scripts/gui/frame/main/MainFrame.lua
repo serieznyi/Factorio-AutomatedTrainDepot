@@ -14,6 +14,8 @@ local event_dispatcher = require("scripts.util.event_dispatcher")
 local MainFrame = {
     ---@type string
     name = "main_frame",
+    ---@type uint
+    id = nil,
     ---@type gui.frame.Frame
     parent_frame = nil,
     ---@type int
@@ -55,7 +57,7 @@ function MainFrame.new(player)
 
     self:_initialize()
 
-    mod.log.debug("Frame `{1}` created", {self.name}, "gui")
+    mod.log.debug("Frame `{1}(id={2})` created", {self.name, self.id}, "gui")
 
     return self
 end
@@ -87,6 +89,8 @@ function MainFrame:destroy()
     self.refs.window.destroy()
 
     trains_map_component.destroy(self.player)
+
+    mod.log.debug("Frame `{1}(id={2})` destroyed", {self.name, self.id}, "gui")
 end
 
 ---@param event scripts.lib.decorator.Event
@@ -125,6 +129,8 @@ function MainFrame:_handle_open_uncontrolled_trains_map(event)
     local context = Context.from_player(player)
     local trains = persistence_storage.find_uncontrolled_trains(context)
 
+    mod.log.debug("Frame id {1}", {self.id})
+
     self.refs.content_frame.clear()
     trains_map_component.create(self.refs.content_frame, player, trains)
 end
@@ -148,6 +154,7 @@ end
 function MainFrame:_initialize()
     local structure_config = {frame_name = self.name, width = self.width, height = self.height}
     self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })
+    self.id = self.refs.window.index
 
     self.components.trains_templates_list = ExtendedListBox.new(
             self.refs.trains_templates_container,
