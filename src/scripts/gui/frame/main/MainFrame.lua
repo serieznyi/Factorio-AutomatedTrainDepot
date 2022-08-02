@@ -84,10 +84,7 @@ function MainFrame:destroy()
         component:destroy()
     end
 
-    ---@param gui_element LuaGuiElement
-    for _, gui_element in pairs(self.refs) do
-        gui_element.destroy()
-    end
+    self.refs.window.destroy()
 
     trains_map_component.destroy(self.player)
 end

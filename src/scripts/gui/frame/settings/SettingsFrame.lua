@@ -80,10 +80,7 @@ function SettingsFrame:destroy()
         component:destroy()
     end
 
-    ---@param gui_element LuaGuiElement
-    for _, gui_element in pairs(self.refs) do
-        gui_element.destroy()
-    end
+    self.refs.window.destroy()
 end
 
 function SettingsFrame:read_form()

@@ -97,13 +97,10 @@ function AddTemplateFrame:destroy()
         component:destroy()
     end
 
-    ---@param gui_element LuaGuiElement
-    for _, gui_element in pairs(self.refs) do
-        gui_element.destroy()
-    end
-
     -- todo make dynamic
     train_builder_component.destroy()
+
+    self.refs.window.destroy()
 end
 
 ---@return scripts.lib.domain.TrainTemplate form data
