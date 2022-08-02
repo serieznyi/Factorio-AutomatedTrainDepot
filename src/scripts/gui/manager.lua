@@ -53,10 +53,6 @@ end
 ---@param frame gui.component.Frame
 ---@param player LuaPlayer
 local function switch_on_frame(frame, player)
-    if mod.global.frames[frame.name] == nil then
-        mod.global.frames[frame.name] = frame
-    end
-
     local lua_frame = frame:window()
     lua_frame.bring_to_front()
 
@@ -82,6 +78,11 @@ end
 ---------------------------------------------------------------------------
 -- -- -- FRAME STACK
 ---------------------------------------------------------------------------
+
+---@return table
+function frame_stack.all()
+    return flib_table. array_copy(mod.global.gui.frames_stack)
+end
 
 ---@param frame gui.frame.Frame
 function frame_stack.frame_stack_push(frame)
@@ -140,7 +141,7 @@ function event_handlers.handle_close_frame_by_event(event)
     assert(event_window, 'window not found')
 
     ---@param v gui.frame.Frame
-    local filtered = flib_table.filter(mod.global.frames, function(v)
+    local filtered = flib_table.filter(frame_stack.all(), function(v)
         return v:window() == event_window
     end, true)
 
@@ -242,7 +243,7 @@ end
 function manager.dispatch(event)
     local processed = event_dispatcher.dispatch(event_handlers.event_handlers(), event)
 
-    for _, frame in pairs(mod.global.frames) do
+    for _, frame in ipairs(frame_stack.all()) do
         if frame:dispatch(event) then
             processed = true
         end
@@ -253,8 +254,6 @@ end
 
 ---@param frame gui.frame.Frame
 function manager.close_frame(frame)
-    mod.global.frames[frame.name] = nil
-
     frame:destroy()
 
     frame_stack.frame_stack_pop()
