@@ -81,9 +81,6 @@ flib_event.on_init(function()
     flib_dictionary.init()
     flib_on_tick_n.init()
 
-    -- Initialize `global` table for gui
-    gui_manager.init()
-
     -- Initialize `global` table
     console.init()
     persistence_storage.init()

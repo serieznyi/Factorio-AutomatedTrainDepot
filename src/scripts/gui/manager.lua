@@ -197,16 +197,7 @@ end
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
 
-function manager.init()
-end
-
 function manager.load()
-    mod.global.gui = {
-        frame = {},
-        component = {},
-        frames_stack = {}
-    }
-
     load_event_names()
 end
 
