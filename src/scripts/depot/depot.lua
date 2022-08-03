@@ -135,14 +135,16 @@ function private.get_disband_slots_count()
     return 1 -- todo depend from technologies
 end
 
----@param depot_locomotive LuaEntity
-function private.ride_train(depot_locomotive)
+---@param locomotive LuaEntity
+function private.ride_train(locomotive)
     ---@type LuaTrain
-    local train = depot_locomotive.train
+    local train = locomotive.train
     local speed = math.abs(train.speed)
-    local train_driver = depot_locomotive.get_driver()
+    local train_driver = locomotive.get_driver()
     local min_speed = 0.04
     local max_speed = min_speed + 0.02
+
+    train.manual_mode = true
 
     -- control train speed
     if speed < min_speed then
@@ -180,10 +182,21 @@ function private.register_train_for_template(lua_train, train_template)
     persistence_storage.add_train(train)
 end
 
+---@param locomotive LuaEntity
+function private.add_depot_driver(locomotive)
+    local train_driver = locomotive.surface.create_entity({
+        name = mod.defines.prototypes.entity.depot_driver.name,
+        position = locomotive.position,
+        force = locomotive.force,
+    })
+
+    locomotive.set_driver(train_driver)
+end
+
 ---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.TrainFormingTask
 ---@param tick uint
-function private.try_build_train(context, task, tick)
+function private.try_construct_train(context, task, tick)
     if task:is_state_formed() then
         local train_template = persistence_storage.get_train_template(task.train_template_id)
         task:start_deploy(train_template)
@@ -238,21 +251,23 @@ function private.try_build_train(context, task, tick)
 
             if train_part:is_locomotive() then
                 if task.deploying_cursor == 1 then
-                    private.add_train_schedule(carrier.train, train_template)
-
                     task:set_main_locomotive(carrier)
+
+                    private.add_depot_driver(carrier)
                 end
 
-                -- add fuel
+                -- add fuel todo fill by fuel from template
                 local inventory = carrier.get_inventory(defines.inventory.fuel)
                 inventory.insert({name = "coal", count = 50})
 
                 -- todo add inventory
             end
 
-            private.add_train_schedule(carrier.train, train_template)
-
             task:deploying_cursor_next()
+        end
+
+        if main_locomotive ~= nil then
+            private.ride_train(main_locomotive)
         end
     elseif task:is_state_deploying() and result_train_length == target_train_length then
         local trains_in_block = false
@@ -264,6 +279,8 @@ function private.try_build_train(context, task, tick)
         end
 
         if not trains_in_block then
+            private.add_train_schedule(task.main_locomotive.train, train_template)
+
             task:deployed()
             task:delete()
             private.register_train_for_template(main_locomotive.train, train_template)
@@ -344,7 +361,7 @@ function private.deploy_task(context, task, tick)
         return
     end
 
-    private.try_build_train(context, task, tick)
+    private.try_construct_train(context, task, tick)
 end
 
 ---@param context scripts.lib.domain.Context
