@@ -1,12 +1,11 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
-local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.main.structure")
 local train_template_view_component = require("scripts.gui.frame.main.component.train_template_view.component")
 local TrainsMap = require("scripts.gui.component.trains_map.TrainsMap")
-local ExtendedListBox = require("scripts.gui.component.extended_list_box.component")
+local ExtendedListBox = require("scripts.gui.component.extended_list_box.ExtendedListBox")
 local mod_gui = require("scripts.util.gui")
 local persistence_storage = require("scripts.persistence_storage")
 local event_dispatcher = require("scripts.util.event_dispatcher")

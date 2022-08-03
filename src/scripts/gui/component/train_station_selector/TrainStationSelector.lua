@@ -14,8 +14,10 @@ local TrainStationSelector = {
     surface = nil,
     ---@type table
     actions = {},
-    ---@type table
-    refs = nil,
+    refs = {
+        ---@type LuaGuiElement
+        drop_down = nil,
+    },
     ---@type bool
     required = false,
 }
@@ -129,8 +131,6 @@ function TrainStationSelector:_exclude_depot_train_stations(train_stations)
     return flib_table.filter(train_stations, is_not_depot_train_station, true)
 end
 
----@param force LuaForce
----@param surface LuaSurface
 function TrainStationSelector:_get_train_stations()
     local train_stations = game.get_train_stops({surface = self.surface, force = self.force})
 
