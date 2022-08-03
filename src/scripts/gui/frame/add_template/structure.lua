@@ -1,8 +1,3 @@
-local label_info_sprite_style = {
-    natural_width = 15,
-    natural_height = 15,
-}
-
 local structure = {}
 
 function structure.get(config)
@@ -131,25 +126,9 @@ function structure.get(config)
                                 }
                             },
                             {
-                                type = "flow",
-                                direction = "horizontal",
-                                style_mods = {
-                                    vertically_squashable = true,
-                                    horizontally_squashable = true,
-                                },
-                                children = {
-                                    {
-                                        type = "label",
-                                        caption = { "add-train-template-frame.atd-clean-train-station" },
-                                        tooltip = { "add-train-template-frame-description.atd-clean-train-station" },
-                                    },
-                                    {
-                                        type = "sprite",
-                                        sprite = "atd_sprite_info",
-                                        resize_to_sprite = false,
-                                        style_mods = label_info_sprite_style,
-                                    },
-                                }
+                                type = "label",
+                                caption = { "add-train-template-frame.atd-clean-train-station" },
+                                tooltip = { "add-train-template-frame-description.atd-clean-train-station" },
                             },
                             {
                                 type = "flow",
@@ -169,25 +148,9 @@ function structure.get(config)
                                 }
                             },
                             {
-                                type = "flow",
-                                direction = "horizontal",
-                                style_mods = {
-                                    vertically_squashable = true,
-                                    horizontally_squashable = true,
-                                },
-                                children = {
-                                    {
-                                        type = "label",
-                                        caption = { "add-train-template-frame.atd-working-schedule" },
-                                        tooltip = { "add-train-template-frame-description.atd-working-schedule" },
-                                    },
-                                    {
-                                        type = "sprite",
-                                        sprite = "atd_sprite_info",
-                                        resize_to_sprite = false,
-                                        style_mods = label_info_sprite_style,
-                                    },
-                                }
+                                type = "label",
+                                caption = { "add-train-template-frame.atd-working-schedule" },
+                                tooltip = { "add-train-template-frame-description.atd-working-schedule" },
                             },
                             {
                                 type = "flow",

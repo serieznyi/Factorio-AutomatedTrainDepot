@@ -1,10 +1,5 @@
 local structure = {}
 
-local label_info_sprite_style = {
-    natural_width = 15,
-    natural_height = 15,
-}
-
 function structure.get(config)
     local new = config.settings == nil and true or false
 
@@ -85,6 +80,7 @@ function structure.get(config)
                                 type = "label",
                                 style = "caption_label",
                                 caption = {"settings-frame.atd-default-clean-train-station"},
+                                tooltip = { "settings-frame-description.atd-default-clean-train-station" },
                             },
                             {
                                 type = "flow",
@@ -101,26 +97,10 @@ function structure.get(config)
                         },
                         children = {
                             {
-                                type = "flow",
-                                direction = "horizontal",
-                                style_mods = {
-                                    vertically_squashable = true,
-                                    horizontally_squashable = true,
-                                },
-                                children = {
-                                    {
-                                        type = "label",
-                                        style = "caption_label",
-                                        caption = {"settings-frame.atd-default-train-schedule"},
-                                        tooltip = { "settings-frame-description.atd-default-train-schedule" },
-                                    },
-                                    {
-                                        type = "sprite",
-                                        sprite = "atd_sprite_info",
-                                        resize_to_sprite = false,
-                                        style_mods = label_info_sprite_style,
-                                    },
-                                }
+                                type = "label",
+                                style = "caption_label",
+                                caption = {"settings-frame.atd-default-train-schedule"},
+                                tooltip = { "settings-frame-description.atd-default-train-schedule" },
                             },
                             {
                                 type = "flow",
