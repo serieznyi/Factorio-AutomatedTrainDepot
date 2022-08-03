@@ -199,15 +199,13 @@ end
 
 function manager.load()
     load_event_names()
+
+    manager.register_events()
 end
 
 ---@param e scripts.lib.decorator.Event
 function manager.open_main_frame(e)
     event_handlers.handle_main_frame_open(e)
-end
-
-function manager.load()
-    manager.register_events()
 end
 
 function manager.register_events()
