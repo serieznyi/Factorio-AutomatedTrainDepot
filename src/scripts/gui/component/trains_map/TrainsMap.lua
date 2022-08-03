@@ -67,6 +67,7 @@ function TrainsMap:_refresh_component(trains)
             children = {
                 {
                     type = "minimap",
+                    zoom = 1.5,
                     entity = locomotive,
                 }
             }
