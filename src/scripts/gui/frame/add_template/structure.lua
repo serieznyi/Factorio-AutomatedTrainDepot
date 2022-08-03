@@ -51,6 +51,7 @@ function structure.get(config)
                 children = {
                     {
                         type = "table",
+                        vertical_centering = false,
                         column_count = 2,
                         children = {
                             {
@@ -84,6 +85,7 @@ function structure.get(config)
                             },
                             {
                                 type = "flow",
+                                direction = "vertical",
                                 style_mods = {
                                     bottom_padding = 15,
                                 },
@@ -100,6 +102,39 @@ function structure.get(config)
                                         type = "flow",
                                         direction = "vertical",
                                         tags = {validation_errors_container = true},
+                                    },
+                                    {
+                                        type = "flow",
+                                        direction = "vertical",
+                                        children = {
+                                            {
+                                                type = "label",
+                                                caption = { "add-train-template-frame.atd-name-rick-text" },
+                                                tooltip = { "add-train-template-frame-description.atd-name-rick-text" },
+                                            },
+                                            {
+                                                type = "flow",
+                                                direction = "horizontal",
+                                                children = {
+                                                    {
+                                                        type = "choose-elem-button",
+                                                        ref = {"name_rich_text_chooser_signal"},
+                                                        elem_type = "signal",
+                                                        actions = {
+                                                            on_elem_changed = { event = mod.defines.events.on_gui_name_rich_text_changed }
+                                                        }
+                                                    },
+                                                    {
+                                                        type = "choose-elem-button",
+                                                        ref = {"name_rich_text_chooser_recipe"},
+                                                        elem_type = "recipe",
+                                                        actions = {
+                                                            on_elem_changed = { event = mod.defines.events.on_gui_name_rich_text_changed }
+                                                        }
+                                                    },
+                                                }
+                                            }
+                                        },
                                     }
                                 }
                             },

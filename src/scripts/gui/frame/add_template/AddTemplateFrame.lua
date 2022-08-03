@@ -51,6 +51,10 @@ local AddTemplateFrame = {
         icon_input = nil,
         ---@type LuaGuiElement
         name_input = nil,
+        ---@type LuaGuiElement
+        name_rich_text_chooser_signal = nil,
+        ---@type LuaGuiElement
+        name_rich_text_chooser_recipe = nil,
     },
     components = {
         ---@type gui.component.TrainStationSelector
@@ -135,6 +139,11 @@ function AddTemplateFrame:dispatch(event)
             handler_source = self.name
         },
         {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_name_rich_text_changed),
+            func = function(e) return self:_handle_name_rick_text_changed(e) end,
+            handler_source = self.name
+        },
+        {
             match = event_dispatcher.match_event(mod.defines.events.on_gui_save_adding_template_frame_click),
             func = function(e) return self:_handle_save_form(e) end,
             handler_source = self.name
@@ -196,6 +205,35 @@ function AddTemplateFrame:_handle_form_changed(event)
     validator.render_errors(self.refs.validation_errors_container, validation_errors)
 
     submit_button.enabled = #validation_errors == 0
+
+    return true
+end
+
+---@param event scripts.lib.decorator.Event
+function AddTemplateFrame:_handle_name_rick_text_changed(event)
+    local name_input = self.refs.name_input
+    local signal_rich = self.refs.name_rich_text_chooser_signal
+    local recipe_rich = self.refs.name_rich_text_chooser_recipe
+
+    if signal_rich.elem_value ~= nil then
+        local elem_value = signal_rich.elem_value
+        local type = elem_value.type
+        local value = elem_value.name
+
+        if elem_value.type == "virtual" then
+             type = "virtual-signal"
+        end
+
+        if value ~= nil then
+            name_input.text = name_input.text .. "[".. type .. "=" .. value .. "]"
+        end
+        signal_rich.elem_value = nil
+    end
+
+    if recipe_rich.elem_value ~= nil then
+        name_input.text = name_input.text .. "[recipe=" .. tostring(recipe_rich.elem_value) .. "]"
+        recipe_rich.elem_value = nil
+    end
 
     return true
 end

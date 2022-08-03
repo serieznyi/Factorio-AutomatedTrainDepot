@@ -46,6 +46,7 @@ public.events = {
     on_gui_settings_frame_save_click = script.generate_event_name(),
     -- add template frame
     on_gui_adding_template_frame_changed = script.generate_event_name(),
+    on_gui_name_rich_text_changed = script.generate_event_name(),
     on_gui_close_add_template_frame_click = script.generate_event_name(),
     on_gui_save_adding_template_frame_click = script.generate_event_name(),
     --
