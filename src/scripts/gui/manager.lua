@@ -132,8 +132,6 @@ end
 
 ---@param event scripts.lib.decorator.Event
 function event_handlers.handle_close_frame_by_event(event)
-    mod.log.debug(event)
-
     local event_window = get_parent_frame_for_gui_element(event.element)
 
     assert(event_window, 'window not found')
