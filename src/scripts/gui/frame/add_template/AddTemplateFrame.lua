@@ -132,6 +132,10 @@ function AddTemplateFrame:read_form()
     return train_template
 end
 
+function AddTemplateFrame:bring_to_front()
+    self.refs.window.bring_to_front()
+end
+
 function AddTemplateFrame:_register_event_handlers()
     local handlers = {
         {

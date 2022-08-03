@@ -66,6 +66,10 @@ function MainFrame.new(player)
     return self
 end
 
+function MainFrame:bring_to_front()
+    self.refs.window.bring_to_front()
+end
+
 ---@type LuaGuiElement
 function MainFrame:window()
     return self.refs.window

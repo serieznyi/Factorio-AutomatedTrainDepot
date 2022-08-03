@@ -11,3 +11,6 @@ function Frame:destroy() end
 
 ---@return LuaGuiElement
 function Frame:window() end
+
+---@return void
+function Frame:bring_to_front() end

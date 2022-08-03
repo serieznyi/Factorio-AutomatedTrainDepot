@@ -70,6 +70,10 @@ function SettingsFrame:window()
     return self.refs.window
 end
 
+function SettingsFrame:bring_to_front()
+    self.refs.window.bring_to_front()
+end
+
 function SettingsFrame:update()
 end
 

@@ -1,9 +1,6 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
---- @class gui.component.Frame
---- @method show
-
 local EventDispatcher = require("scripts.util.EventDispatcher")
 local MainFrame = require("scripts.gui.frame.main.MainFrame")
 local AddTemplateFrame = require("scripts.gui.frame.add_template.AddTemplateFrame")
@@ -17,16 +14,15 @@ local event_handlers = {}
 -- -- -- OTHER
 ---------------------------------------------------------------------------
 
----@param frame gui.component.Frame
+---@param frame gui.frame.Frame
 ---@param player LuaPlayer
 local function switch_on_frame(frame, player)
-    local lua_frame = frame:window()
-    lua_frame.bring_to_front()
+    frame:bring_to_front()
 
     -- !!!important. Add to stack before real open window
     frame_stack.frame_stack_push(frame)
 
-    player.opened = lua_frame
+    player.opened = frame:window()
 end
 
 ---@param element LuaGuiElement
