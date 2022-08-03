@@ -14,7 +14,6 @@ mod.util = {
 -- global table for runtime data
 mod.global = {
     frames = {},
-    event_names = {},
     frames_stack = {},
 }
 

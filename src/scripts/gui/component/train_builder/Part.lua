@@ -145,7 +145,7 @@ end
 
 ---@param event scripts.lib.decorator.Event
 function Part:_handle_update_train_part(event)
-    if event.tags.train_part_id ~= self.id then
+    if event:tags().train_part_id ~= self.id then
         return false
     end
 
@@ -158,7 +158,7 @@ end
 
 ---@param event scripts.lib.decorator.Event
 function Part:_handle_delete_train_part(event)
-    if event.tags.train_part_id ~= self.id then
+    if event:tags().train_part_id ~= self.id then
         return false
     end
 
@@ -171,7 +171,7 @@ end
 
 ---@param event scripts.lib.decorator.Event
 function Part:_handle_change_carrier_direction(event)
-    local tags = event.tags
+    local tags = event:tags()
 
     if tags.train_part_id ~= self.id then
         return false

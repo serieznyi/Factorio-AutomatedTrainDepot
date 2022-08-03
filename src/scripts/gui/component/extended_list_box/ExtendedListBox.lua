@@ -188,11 +188,11 @@ function ExtendedListBox:__handle_click(event)
         return
     end
 
-    self.selected_id = event.tags.id
+    self.selected_id = event:tags().id
 
     self:refresh()
 
-    self:_after_choose_callback(event.tags)
+    self:_after_choose_callback(event:tags())
 end
 
 function ExtendedListBox:_after_choose_callback(tags)

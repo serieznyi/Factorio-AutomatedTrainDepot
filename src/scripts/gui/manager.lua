@@ -37,19 +37,6 @@ local event_handlers = {}
 -- -- -- OTHER
 ---------------------------------------------------------------------------
 
--- todo move on some global loader ?
-local function load_event_names()
-    local events_set = { defines.events, mod.defines.events }
-
-    for _, events_el in ipairs(events_set) do
-        for event_name, event_number in pairs(events_el) do
-            if type(event_name) == "string" and string.sub(event_name, 1, 3) == "on_" then
-                mod.global.event_names[event_number] = event_name
-            end
-        end
-    end
-end
-
 ---@param frame gui.component.Frame
 ---@param player LuaPlayer
 local function switch_on_frame(frame, player)
@@ -168,7 +155,7 @@ function event_handlers.handle_add_template_frame_open(event)
     local parent_frame = frame_stack.frame_stack_last()
     ---@type LuaPlayer
     local player = game.get_player(event.player_index)
-    local train_template_id = event.tags ~= nil and event.tags.train_template_id or nil
+    local train_template_id = event:tags() ~= nil and event:tags().train_template_id or nil
     local frame = AddTemplateFrame.new(parent_frame, player, train_template_id)
 
     switch_on_frame(frame, player)
@@ -198,8 +185,6 @@ end
 ---------------------------------------------------------------------------
 
 function manager.load()
-    load_event_names()
-
     manager.register_events()
 end
 

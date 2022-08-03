@@ -7,19 +7,15 @@ local Event = {
     ---@type uint
     id = nil,
     ---@type string
-    string_name = nil,
-    ---@type string
     custom_name = nil,
-    ---@type string
-    custom_string_name = nil,
     ---@type table
-    event_additional_data = nil,
+    action_data = nil,
     ---@type uint
     player_index = nil,
     ---@type LuaGuiElement
     element = nil,
-    ---@type LuaPlayer
-    player = nil,
+    ---@type table
+    _event_names = nil
 }
 
 ---@param event EventData
@@ -31,46 +27,69 @@ function Event.new(event)
 
     assert(event, "event is nil")
     self.original_event = event
+
+    self.action_data = flib_gui.read_action(self.original_event)
+    self.custom_name = self.action_data and self.action_data.event or nil
+    self.id = self.custom_name and self.custom_name or self.original_event.name
     self.player_index = event.player_index
     self.element = event.element
-    self.player = game.get_player(event.player_index)
-    self.tags = event.element and flib_gui.get_tags(event.element) or {}
-
-    self:initialize()
 
     return self
 end
 
----@return table|nil
-function Event:initialize()
-    self.event_additional_data = flib_gui.read_action(self.original_event)
-    self.custom_name = self.event_additional_data and self.event_additional_data.event or nil
-    self.custom_string_name = mod.global.event_names[self.custom_name]
-    self.string_name = mod.global.event_names[self.original_event.name]
-    self.id = self.custom_name and self.custom_name or self.original_event.name
-end
-
----@return string|nil
-function Event:target_name()
-    local data = self:initialize()
-
-    return data and data.target or nil
-end
-
 function Event:full_name()
-    local original_name = self.string_name and self.string_name or "<unk>"
-    local custom_name = self.custom_string_name and self.custom_string_name or "<unk>"
+    local original_name = self:_event_id_to_name(self.original_event.name)
+    local custom_name = self:_event_id_to_name(self.custom_name)
 
     if self.custom_string_name ~= nil then
-        return custom_name .. "(" .. original_name .. ")"
+        return original_name .. "(" .. custom_name .. ")"
     end
 
     return original_name
 end
 
+function Event:player()
+    return game.get_player(self.player_index)
+end
+
+function Event:tags()
+    if self.element == nil or self.element.valid == false then
+        return nil
+    end
+
+    return flib_gui.get_tags(self.element)
+end
+
 ---@return bool
 function Event:is_gui_event()
     return self.original_event.element ~= nil
+end
+
+---@type uint
+function Event:_event_id_to_name(id)
+    if id == nil then
+        return nil
+    end
+
+    if Event._event_names == nil then
+        self:_load_event_names()
+    end
+
+    return Event._event_names[id]
+end
+
+function Event:_load_event_names()
+    local events_set = { defines.events, mod.defines.events }
+
+    Event._event_names = {}
+
+    for _, events_el in ipairs(events_set) do
+        for event_name, event_number in pairs(events_el) do
+            if type(event_name) == "string" and string.sub(event_name, 1, 3) == "on_" then
+                Event._event_names[event_number] = event_name
+            end
+        end
+    end
 end
 
 return Event

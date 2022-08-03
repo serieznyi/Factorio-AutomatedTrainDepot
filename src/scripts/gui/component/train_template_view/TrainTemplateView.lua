@@ -149,9 +149,9 @@ end
 ---@param event scripts.lib.decorator.Event
 ---@return uint
 function TrainTemplateView:_get_train_quantity_change_value(event)
-    local action = event.event_additional_data
+    local action = event.action_data
 
-    return event.event_additional_data ~= nil and action.count or nil
+    return event.action_data ~= nil and action.count or nil
 end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
