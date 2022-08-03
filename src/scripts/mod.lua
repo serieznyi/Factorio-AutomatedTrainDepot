@@ -3,7 +3,6 @@ local mod = {}
 mod.defines = require("scripts.defines")
 mod.log = require("scripts.logger")
 mod.console = require("scripts.console")
-mod.dev_mode = true -- todo check var in CI
 
 -- todo use global util instead require
 mod.util = {
