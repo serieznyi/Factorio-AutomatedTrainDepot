@@ -13,7 +13,7 @@ local DepotSettings = require("scripts.lib.domain.DepotSettings")
 --- @module gui.frame.SettingsFrame
 local SettingsFrame = {
     ---@type string
-    name = "settings_frame",
+    name = nil,
     ---@type uint
     id = nil,
     ---@type LuaPlayer
@@ -23,6 +23,8 @@ local SettingsFrame = {
     refs = {
         ---@type LuaGuiElement
         window = nil,
+        ---@type LuaGuiElement
+        background_dimmer = nil,
         ---@type LuaGuiElement
         clean_train_station_dropdown_wrapper = nil,
         ---@type LuaGuiElement
@@ -58,9 +60,16 @@ function SettingsFrame:new(parent_frame, player)
 
     self.parent_frame = parent_frame
 
+    local context = Context.from_player(self.player)
+    local depot_settings = persistence_storage.get_depot_settings(context)
+    local structure_config = {frame_name = self.name, depot_settings = depot_settings}
+    self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })
+    self.id = self.refs.window.index
+    self.name = "settings_frame_" .. self.id
+
     self:_initialize()
 
-    mod.log.debug("Frame `{1}(id={2})` created", {self.name, self.id}, "gui")
+    mod.log.debug("Frame {1} created", {self.name}, self.name)
 
     return object
 end
@@ -81,9 +90,32 @@ end
 function SettingsFrame:update()
 end
 
+function SettingsFrame:_create_dimmer()
+    local resolution, scale = self.player.display_resolution, self.player.display_scale
+    local dimmer_name = "background_dimmer_" .. self.name
+
+    self.refs.background_dimmer = flib_gui.add(self.player.gui.screen, {
+        type = "frame",
+        name = dimmer_name,
+        style = true and "atd_frame_semitransparent" or "atd_frame_transparent",
+        actions = {
+            on_click = { event = mod.defines.events.on_gui_background_dimmer_click, owner_name = self.name }
+        },
+        style_mods = {
+            size = {
+                math.floor(resolution.width / scale),
+                math.floor(resolution.height / scale)
+            }
+        }
+    })
+
+    mod.log.debug("Frame {1} created", {dimmer_name}, self.name)
+end
+
 function SettingsFrame:destroy()
     EventDispatcher.unregister_handlers_by_source(self.name)
 
+    self.refs.background_dimmer.visible = false
     self.refs.window.visible = false
 
     for _, component in pairs(self.components) do
@@ -91,9 +123,11 @@ function SettingsFrame:destroy()
         component:destroy()
     end
 
+    mod.log.debug("Frame {1} destroyed", {self.refs.background_dimmer.name}, self.name)
+    self.refs.background_dimmer.destroy()
     self.refs.window.destroy()
 
-    mod.log.debug("Frame `{1}(id={2})` destroyed", {self.name, self.id}, "gui")
+    mod.log.debug("Frame {1} destroyed", {self.name}, self.name)
 end
 
 function SettingsFrame:read_form()
@@ -181,11 +215,7 @@ end
 function SettingsFrame:_initialize()
     self:_register_event_handlers()
 
-    local context = Context.from_player(self.player)
-    local depot_settings = persistence_storage.get_depot_settings(context)
-    local structure_config = {frame_name = self.name, depot_settings = depot_settings}
-    self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })
-    self.id = self.refs.window.index
+    self:_create_dimmer()
 
     self.components.clean_train_station_dropdown_component = TrainStationSelector.new(
             self.player.surface,
@@ -199,7 +229,7 @@ function SettingsFrame:_initialize()
     self.components.clean_train_station_dropdown_component:build(self.refs.clean_train_station_dropdown_wrapper)
 
     self.components.train_schedule_component = TrainScheduleSelector.new(
-            context,
+            Context.from_player(self.player),
             -- todo fix it
             nil, --private.handle_form_changed,
             depot_settings and depot_settings.default_destination_schedule or nil,

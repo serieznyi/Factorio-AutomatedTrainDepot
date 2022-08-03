@@ -55,3 +55,27 @@ styles["atd_trains_quantity_textfield"] = {
     type = "textbox_style",
     font_color = { r = 1, g = 1, b = 1, a = 1 },
 }
+
+styles["atd_frame_semitransparent"] = {
+    type = "frame_style",
+    graphical_set = {
+        base = {
+            type = "composition",
+            filename = "__factoryplanner__/graphics/semitransparent_pixel.png",
+            corner_size = 1,
+            position = {0, 0}
+        }
+    }
+}
+
+styles["atd_frame_transparent"] = {
+    type = "frame_style",
+    graphical_set = {
+        base = {
+            type = "composition",
+            filename = "__factoryplanner__/graphics/transparent_pixel.png",
+            corner_size = 1,
+            position = {0, 0}
+        }
+    }
+}

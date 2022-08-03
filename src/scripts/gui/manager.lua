@@ -146,6 +146,18 @@ function event_handlers.handle_settings_frame_open(event)
 end
 
 ---@param event scripts.lib.decorator.Event
+function event_handlers.handle_background_dimmer_click(event)
+    local owner_name = event.action_data.owner_name
+
+    ---@param frame gui.frame.Frame
+    for _, frame in ipairs(frame_stack.all()) do
+        if frame.name == owner_name then
+            frame:bring_to_front()
+        end
+    end
+end
+
+---@param event scripts.lib.decorator.Event
 function event_handlers.handle_main_frame_open(event)
     ---@type LuaPlayer
     local player = game.get_player(event.player_index)
@@ -192,6 +204,10 @@ function manager.register_events()
         {
             match = EventDispatcher.match_event(mod.defines.events.on_gui_open_settings_frame_click),
             handler = event_handlers.handle_settings_frame_open,
+        },
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_background_dimmer_click),
+            handler = event_handlers.handle_background_dimmer_click,
         },
     }
 

@@ -13,7 +13,7 @@ local persistence_storage = require("scripts.persistence_storage")
 --- @module gui.frame.MainFrame
 local MainFrame = {
     ---@type string
-    name = "main_frame",
+    name = nil,
     ---@type uint
     id = nil,
     ---@type gui.frame.Frame
@@ -27,6 +27,8 @@ local MainFrame = {
     refs = {
         ---@type LuaGuiElement
         window = nil,
+        ---@type LuaGuiElement
+        background_dimmer = nil,
         ---@type LuaGuiElement
         titlebar_flow = nil,
         ---@type LuaGuiElement
@@ -59,15 +61,43 @@ function MainFrame:new(player)
     self.player = player or nil
     assert(self.player, "player is nil")
 
+    local structure_config = {frame_name = self.name, width = self.width, height = self.height}
+    self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })
+    self.id = self.refs.window.index
+    self.name = "main_frame_" .. self.id
+
     self:_initialize()
 
-    mod.log.debug("Frame `{1}(id={2})` created", {self.name, self.id}, "gui")
+    mod.log.debug("Frame {1} created", {self.name}, self.name)
 
     return object
 end
 
 function MainFrame:bring_to_front()
+    self.refs.background_dimmer.bring_to_front()
     self.refs.window.bring_to_front()
+end
+
+function MainFrame:_create_dimmer()
+    local resolution, scale = self.player.display_resolution, self.player.display_scale
+    local dimmer_name = "background_dimmer_" .. self.name
+
+    self.refs.background_dimmer = flib_gui.add(self.player.gui.screen, {
+        type = "frame",
+        name = dimmer_name,
+        style = false and "atd_frame_semitransparent" or "atd_frame_transparent",
+        actions = {
+            on_click = { event = mod.defines.events.on_gui_background_dimmer_click, owner_name = self.name }
+        },
+        style_mods = {
+            size = {
+                math.floor(resolution.width / scale),
+                math.floor(resolution.height / scale)
+            }
+        }
+    })
+
+    mod.log.debug("Frame {1} created", {dimmer_name}, self.name)
 end
 
 function MainFrame:opened()
@@ -92,6 +122,7 @@ end
 function MainFrame:destroy()
     EventDispatcher.unregister_handlers_by_source(self.name)
 
+    self.refs.background_dimmer.visible = false
     self.refs.window.visible = false
 
     for _, component in pairs(self.components) do
@@ -99,9 +130,11 @@ function MainFrame:destroy()
         component:destroy()
     end
 
+    mod.log.debug("Frame {1} destroyed", {self.refs.background_dimmer.name}, self.name)
+    self.refs.background_dimmer.destroy()
     self.refs.window.destroy()
 
-    mod.log.debug("Frame `{1}(id={2})` destroyed", {self.name, self.id}, "gui")
+    mod.log.debug("Frame {1} destroyed", {self.name}, "gui")
 end
 
 ---@param event scripts.lib.decorator.Event
@@ -141,9 +174,7 @@ end
 function MainFrame:_initialize()
     self:_register_event_handlers()
 
-    local structure_config = {frame_name = self.name, width = self.width, height = self.height}
-    self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })
-    self.id = self.refs.window.index
+    self:_create_dimmer()
 
     self.components.trains_templates_view = TrainTemplateView.new(
             self.player,

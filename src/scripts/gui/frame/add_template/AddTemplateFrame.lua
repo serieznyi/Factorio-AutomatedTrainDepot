@@ -26,10 +26,10 @@ end
 
 --- @module gui.frame.AddTemplateFrame
 local AddTemplateFrame = {
-    ---@type string
-    name = "add_template_frame",
     ---@type uint
     id = nil,
+    ---@type string
+    name = nil,
     ---@type LuaPlayer
     player = nil,
     ---@type gui.frame.Frame
@@ -39,6 +39,8 @@ local AddTemplateFrame = {
     refs = {
         ---@type LuaGuiElement
         window = nil,
+        ---@type LuaGuiElement
+        background_dimmer = nil,
         ---@type LuaGuiElement
         titlebar_flow = nil,
         ---@type LuaGuiElement
@@ -74,16 +76,19 @@ function AddTemplateFrame:new(parent_frame, player, train_template_id)
     setmetatable(object, self)
     self.__index = self
 
-    self.player = player or nil
-    assert(self.player, "player is nil")
-
+    self.player = assert(player, "player is nil")
     self.train_template_id = train_template_id or nil
-
     self.parent_frame = parent_frame or nil
+
+    local train_template = persistence_storage.get_train_template(self.train_template_id)
+    local structure_config = {frame_name = self.name, train_template = train_template}
+    self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })
+    self.id = self.refs.window.index
+    self.name = "add_template_frame_" .. self.id
 
     self:_initialize()
 
-    mod.log.debug("Frame `{1}(id={2})` created", {self.name, self.id}, "gui")
+    mod.log.debug("Frame {1} created", {self.name}, "gui")
 
     return object
 end
@@ -99,6 +104,7 @@ end
 function AddTemplateFrame:destroy()
     EventDispatcher.unregister_handlers_by_source(self.name)
 
+    self.refs.background_dimmer.visible = false
     self.refs.window.visible = false
 
     for _, component in pairs(self.components) do
@@ -106,9 +112,11 @@ function AddTemplateFrame:destroy()
         component:destroy()
     end
 
+    mod.log.debug("Frame {1} destroyed", {self.refs.background_dimmer.name}, self.name)
+    self.refs.background_dimmer.destroy()
     self.refs.window.destroy()
 
-    mod.log.debug("Frame `{1}(id={2})` destroyed", {self.name, self.id}, "gui")
+    mod.log.debug("Frame {1} destroyed", {self.name}, self.name)
 end
 
 ---@return scripts.lib.domain.TrainTemplate form data
@@ -188,6 +196,28 @@ function AddTemplateFrame:_write_form(train_template)
     self.refs.name_input.text = train_template.name
 end
 
+function AddTemplateFrame:_create_dimmer()
+    local resolution, scale = self.player.display_resolution, self.player.display_scale
+    local dimmer_name = "background_dimmer_" .. self.name
+
+    self.refs.background_dimmer = flib_gui.add(self.player.gui.screen, {
+        type = "frame",
+        name = dimmer_name,
+        style = true and "atd_frame_semitransparent" or "atd_frame_transparent",
+        actions = {
+            on_click = { event = mod.defines.events.on_gui_background_dimmer_click, owner_name = self.name }
+        },
+        style_mods = {
+            size = {
+                math.floor(resolution.width / scale),
+                math.floor(resolution.height / scale)
+            }
+        }
+    })
+
+    mod.log.debug("Frame {1} created", {dimmer_name}, self.name)
+end
+
 function AddTemplateFrame:_validate_form()
     local form_data = self:read_form()
 
@@ -242,13 +272,10 @@ end
 
 function AddTemplateFrame:_initialize()
     self:_register_event_handlers()
+    self:_create_dimmer()
 
     local context = Context.from_player(self.player)
-    local train_template = persistence_storage.get_train_template(self.train_template_id)
-    local structure_config = {frame_name = self.name, train_template = train_template}
     local depot_settings = persistence_storage.get_depot_settings(context)
-    self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })
-    self.id = self.refs.window.index
 
     self.components.clean_train_station_dropdown = TrainStationSelector.new(
             self.player.surface,
