@@ -16,6 +16,7 @@ mod.util = {
 mod.global = {
     frames = {},
     event_names = {},
+    frames_stack = {},
 }
 
 return mod

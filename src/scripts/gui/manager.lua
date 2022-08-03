@@ -85,7 +85,7 @@ end
 
 ---@return table
 function frame_stack.all()
-    return flib_table. array_copy(mod.global.gui.frames_stack)
+    return flib_table. array_copy(mod.global.frames_stack)
 end
 
 ---@param frame gui.frame.Frame
@@ -94,14 +94,14 @@ function frame_stack.frame_stack_push(frame)
         return
     end
 
-    table.insert(mod.global.gui.frames_stack, frame)
+    table.insert(mod.global.frames_stack, frame)
 end
 
 ---@param frame gui.frame.Frame
 ---@return bool
 function frame_stack.exists(frame)
     ---@param frame_in_stack gui.frame.Frame
-    for _, frame_in_stack in ipairs(mod.global.gui.frames_stack) do
+    for _, frame_in_stack in ipairs(mod.global.frames_stack) do
         if frame_in_stack.name == frame.name then
             return true
         end
@@ -112,31 +112,31 @@ end
 
 ---@return bool
 function frame_stack.empty()
-    return #mod.global.gui.frames_stack == 0
+    return #mod.global.frames_stack == 0
 end
 
 function frame_stack.frame_stack_pop()
-    if mod.global.gui.frames_stack == {} then
+    if mod.global.frames_stack == {} then
         return
     end
 
-    local last_index = #mod.global.gui.frames_stack;
-    local frame = mod.global.gui.frames_stack[last_index]
+    local last_index = #mod.global.frames_stack;
+    local frame = mod.global.frames_stack[last_index]
 
-    table.remove(mod.global.gui.frames_stack, last_index)
+    table.remove(mod.global.frames_stack, last_index)
 
     return frame
 end
 
 ---@return gui.frame.Frame
 function frame_stack.frame_stack_last()
-    if #mod.global.gui.frames_stack == 0 then
+    if #mod.global.frames_stack == 0 then
         return
     end
 
-    local last_index = #mod.global.gui.frames_stack;
+    local last_index = #mod.global.frames_stack;
 
-    return mod.global.gui.frames_stack[last_index]
+    return mod.global.frames_stack[last_index]
 end
 
 ---------------------------------------------------------------------------
