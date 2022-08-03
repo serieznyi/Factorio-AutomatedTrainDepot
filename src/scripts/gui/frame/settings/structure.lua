@@ -1,8 +1,6 @@
 local structure = {}
 
 function structure.get(config)
-    local new = config.settings == nil and true or false
-
     return {
         type = "frame",
         name = config.frame_name,
@@ -137,7 +135,7 @@ function structure.get(config)
                     {
                         type = "button",
                         style = "confirm_button",
-                        caption = new and {"gui.atd-create"} or {"gui.atd-update"},
+                        caption = {"gui.atd-update"},
                         ref = {"submit_button"},
                         enabled = false,
                         actions = {

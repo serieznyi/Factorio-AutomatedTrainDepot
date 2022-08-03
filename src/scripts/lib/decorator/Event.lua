@@ -22,10 +22,6 @@ local Event = {
     player = nil,
 }
 
----@param obj scripts.lib.decorator.Event
-local function to_string(obj)
-    return obj.string_name
-end
 ---@param event EventData
 ---@return scripts.lib.decorator.Event
 function Event.new(event)

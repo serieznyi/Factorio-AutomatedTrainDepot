@@ -24,7 +24,7 @@ function Frame:window() end
 --- @class gui.component.Frame
 --- @method show
 
-local event_dispatcher = require("scripts.util.event_dispatcher")
+local EventDispatcher = require("scripts.util.EventDispatcher")
 local MainFrame = require("scripts.gui.frame.main.MainFrame")
 local AddTemplateFrame = require("scripts.gui.frame.add_template.AddTemplateFrame")
 local SettingsFrame = require("scripts.gui.frame.settings.SettingsFrame")
@@ -145,6 +145,8 @@ end
 
 ---@param event scripts.lib.decorator.Event
 function event_handlers.handle_close_frame_by_event(event)
+    mod.log.debug(event)
+
     local event_window = get_parent_frame_for_gui_element(event.gui_element)
 
     assert(event_window, 'window not found')
@@ -159,41 +161,6 @@ function event_handlers.handle_close_frame_by_event(event)
     assert(frame, 'frame not found')
 
     manager.close_frame(frame)
-end
-
-function event_handlers.event_handlers()
-    return {
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_close_main_frame_click),
-            func = event_handlers.handle_close_frame_by_event,
-            handler_source = "gui_manager"
-        },
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_close_add_template_frame_click),
-            func = event_handlers.handle_close_frame_by_event,
-            handler_source = "gui_manager"
-        },
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_settings_frame_close_click),
-            func = event_handlers.handle_close_frame_by_event,
-            handler_source = "gui_manager"
-        },
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_open_adding_template_frame_click),
-            func = event_handlers.handle_add_template_frame_open,
-            handler_source = "gui_manager"
-        },
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_open_editing_template_frame_click),
-            func = event_handlers.handle_add_template_frame_open,
-            handler_source = "gui_manager"
-        },
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_open_settings_frame_click),
-            func = event_handlers.handle_settings_frame_open,
-            handler_source = "gui_manager"
-        },
-    }
 end
 
 ---@param event scripts.lib.decorator.Event
@@ -248,17 +215,41 @@ function manager.open_main_frame(e)
     event_handlers.handle_main_frame_open(e)
 end
 
----@param event scripts.lib.decorator.Event
-function manager.dispatch(event)
-    local processed = event_dispatcher.dispatch(event_handlers.event_handlers(), event)
+function manager.load()
+    manager.register_events()
+end
 
-    for _, frame in ipairs(frame_stack.all()) do
-        if frame:dispatch(event) then
-            processed = true
-        end
+function manager.register_events()
+    local handlers = {
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_close_main_frame_click),
+            handler = event_handlers.handle_close_frame_by_event,
+        },
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_close_add_template_frame_click),
+            handler = event_handlers.handle_close_frame_by_event,
+        },
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_settings_frame_close_click),
+            handler = event_handlers.handle_close_frame_by_event,
+        },
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_open_adding_template_frame_click),
+            handler = event_handlers.handle_add_template_frame_open,
+        },
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_open_editing_template_frame_click),
+            handler = event_handlers.handle_add_template_frame_open,
+        },
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_open_settings_frame_click),
+            handler = event_handlers.handle_settings_frame_open,
+        },
+    }
+
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, "gui_manager")
     end
-
-    return processed
 end
 
 ---@param frame gui.frame.Frame

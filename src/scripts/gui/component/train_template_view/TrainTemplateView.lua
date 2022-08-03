@@ -1,18 +1,21 @@
 local flib_gui = require("__flib__.gui")
 
-local event_dispatcher = require("scripts.util.event_dispatcher")
+local EventDispatcher = require("scripts.util.EventDispatcher")
 local mod_gui = require("scripts.util.gui")
 local depot = require("scripts.depot.depot")
 local persistence_storage = require("scripts.persistence_storage")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.component.train_template_view.structure")
+local Sequence = require("scripts.lib.Sequence")
+
+local component_id_sequence = Sequence()
 
 ---@module gui.component.TrainTemplateView
 local TrainTemplateView = {
     ---@type uint
-    id = 0,
+    id = nil,
     ---@type string
-    name = "train_template_view_component",
+    name = nil,
     refs = {
         ---@type LuaGuiElement
         train_template_container = nil,
@@ -42,21 +45,29 @@ local TrainTemplateView = {
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
 function TrainTemplateView.new(player, container)
-    ---@type gui.component.TrainBuilder
+    ---@type gui.component.TrainTemplateView
     local self = {}
     setmetatable(self, { __index = TrainTemplateView })
+
+    self.id = component_id_sequence:next()
+
+    self.name = "train_template_view_component_" .. self.id
 
     self.player = player or nil
     assert(self.player, "player is nil")
 
     self.container = container
 
-    mod.log.debug("Component `{1}(id={2})` created", {self.name, self.id}, "gui")
+    self:_register_event_handlers()
+
+    mod.log.debug("Component {1} created", {self.name}, self.name)
 
     return self
 end
 
 function TrainTemplateView:destroy()
+    EventDispatcher.unregister_handlers_by_source(self.name)
+
     if self.refs.train_template_container ~= nil then
         self.refs.train_template_container.destroy()
     end
@@ -75,37 +86,33 @@ function TrainTemplateView:update(train_template)
     self:_refresh_component()
 end
 
----@param event scripts.lib.decorator.Event
-function TrainTemplateView:dispatch(event)
-    local event_handlers = {
+function TrainTemplateView:_register_event_handlers()
+    local handlers = {
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_train_template_enabled),
-            func = function(e) return self:_handle_enable_train_template(e) end,
-            handler_source = self.name,
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_train_template_enabled),
+            handler = function(e) return self:_handle_enable_train_template(e) end,
         },
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_train_template_disabled),
-            func = function(e) return self:_handle_disable_train_template(e) end,
-            handler_source = self.name,
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_train_template_disabled),
+            handler = function(e) return self:_handle_disable_train_template(e) end,
         },
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_trains_quantity_changed),
-            func = function(e) return self:_handle_change_trains_quantity(e) end,
-            handler_source = self.name,
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_trains_quantity_changed),
+            handler = function(e) return self:_handle_change_trains_quantity(e) end,
         },
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_core_train_task_changed),
-            func = function(e) return self:_handle_refresh_component(e) end,
-            handler_source = self.name,
+            match = EventDispatcher.match_event(mod.defines.events.on_core_train_task_changed),
+            handler = function(e) return self:_handle_refresh_component(e) end,
         },
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_core_train_template_changed),
-            func = function(e) return self:_handle_refresh_component(e) end,
-            handler_source = self.name,
+            match = EventDispatcher.match_event(mod.defines.events.on_core_train_template_changed),
+            handler = function(e) return self:_handle_refresh_component(e) end,
         },
     }
 
-    return event_dispatcher.dispatch(event_handlers, event, self.name)
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, self.name)
+    end
 end
 
 function TrainTemplateView:_handle_enable_train_template(e)

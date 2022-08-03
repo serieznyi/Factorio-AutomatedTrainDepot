@@ -3,9 +3,16 @@ local flib_gui = require("__flib__.gui")
 
 local mod_table = require("scripts.util.table")
 local validator = require("scripts.gui.validator")
+local Sequence = require("scripts.lib.Sequence")
+
+local component_id_sequence = Sequence()
 
 --- @module gui.component.TrainStationSelector
 local TrainStationSelector = {
+    ---@type uint
+    id = nil,
+    ---@type string
+    name = nil,
     ---@type string
     selected_name = nil,
     ---@type LuaForce
@@ -32,6 +39,10 @@ function TrainStationSelector.new(surface, force, actions, selected_station_name
     local self = {}
     setmetatable(self, { __index = TrainStationSelector })
 
+    self.id = component_id_sequence:next()
+
+    self.name = "train_station_selector_" .. self.id
+
     assert(force, "`force` is empty")
     self.force = force
 
@@ -50,7 +61,7 @@ function TrainStationSelector.new(surface, force, actions, selected_station_name
         self.required = required
     end
 
-    mod.log.debug("Component train-station_selector created", {}, "gui.component.train_station_selector")
+    mod.log.debug("Component {1} created", {self.name}, self.name)
 
     return self
 end

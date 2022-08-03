@@ -1,7 +1,7 @@
 local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
-local event_dispatcher = require("scripts.util.event_dispatcher")
+local EventDispatcher = require("scripts.util.EventDispatcher")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
 
@@ -16,6 +16,10 @@ local component_id_sequence = Sequence()
 --- @module gui.component.ExtendedListBox
 local ExtendedListBox = {
     ---@type uint
+    id = nil,
+    ---@type string
+    name = nil,
+    ---@type uint
     selected_id = nil,
     ---@type gui.component.ExtendedListBoxValue[]
     values = nil,
@@ -28,8 +32,6 @@ local ExtendedListBox = {
     },
     ---@type bool
     required = false,
-    ---@type uint
-    component_id = nil,
     ---@type function
     on_item_selected_closure = nil,
 }
@@ -44,7 +46,9 @@ function ExtendedListBox.new(parent, values, selected_id, required, on_item_sele
     local self = {}
     setmetatable(self, { __index = ExtendedListBox })
 
-    self.component_id = component_id_sequence:next()
+    self.id = component_id_sequence:next()
+
+    self.name = "extended_list_box_" .. self.id
 
     assert(values, "values is nil")
     self.values = values
@@ -65,7 +69,9 @@ function ExtendedListBox.new(parent, values, selected_id, required, on_item_sele
 
     self:refresh()
 
-    mod.log.debug("Component created", {}, "gui.component.extended_list_box")
+    self:_register_event_handlers()
+
+    mod.log.debug("Component {1} created", {self.name}, self.name)
 
     return self
 end
@@ -96,6 +102,8 @@ function ExtendedListBox:remove_element(id)
 end
 
 function ExtendedListBox:destroy()
+    EventDispatcher.unregister_handlers_by_source(self.name)
+
     ---@param gui_element LuaGuiElement
     for _, gui_element in pairs(self.refs) do
         gui_element.destroy()
@@ -154,10 +162,6 @@ function ExtendedListBox:refresh(new_values)
     end
 end
 
-function ExtendedListBox:name()
-    return "extended_list_box-" .. self.component_id
-end
-
 function ExtendedListBox:select_first()
     if #self.values > 0 then
         self.selected_id = self.values[1].id -- choose first
@@ -165,17 +169,17 @@ function ExtendedListBox:select_first()
 
 end
 
----@param event scripts.lib.decorator.Event
-function ExtendedListBox:dispatch(event)
-    local event_handlers = {
+function ExtendedListBox:_register_event_handlers()
+    local handlers = {
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_extended_list_box_item_selected),
-            func = function(e) return self:__handle_click(e) end
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_extended_list_box_item_selected),
+            handler = function(e) return self:__handle_click(e) end
         },
     }
 
-    -- todo add method for register handlers
-    return event_dispatcher.dispatch(event_handlers, event)
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, self.name)
+    end
 end
 
 ---@param event scripts.lib.decorator.Event

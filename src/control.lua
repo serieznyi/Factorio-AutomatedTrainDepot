@@ -8,7 +8,7 @@ mod = require("scripts.mod")
 local event_handler = require("scripts.event_handler")
 local depot_building = require("scripts.depot.depot_building")
 local depot = require("scripts.depot.depot")
-local gui_index = require("scripts.gui.manager")
+local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local persistence_storage = require("scripts.persistence_storage")
 
@@ -82,7 +82,7 @@ flib_event.on_init(function()
     flib_on_tick_n.init()
 
     -- Initialize `global` table for gui
-    gui_index.init()
+    gui_manager.init()
 
     -- Initialize `global` table
     console.init()
@@ -94,7 +94,7 @@ end)
 -- Loaded save file what contains mod ; Cant write in global
 flib_event.on_load(function()
     flib_dictionary.load()
-    gui_index.load()
+    gui_manager.load()
     depot.load()
     persistence_storage.load()
 end)

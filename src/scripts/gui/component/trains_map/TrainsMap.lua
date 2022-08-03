@@ -1,10 +1,16 @@
 local flib_gui = require("__flib__.gui")
 
 local structure = require("scripts.gui.component.trains_map.structure")
+local Sequence = require("scripts.lib.Sequence")
+
+local component_id_sequence = Sequence()
 
 --- @module gui.component.TrainsMap
 local TrainsMap = {
-    name = "trains_map",
+    ---@type uint
+    id = nil,
+    ---@type string
+    name = nil,
     ---@type LuaGuiElement
     container = nil,
     ---@type LuaPlayer
@@ -23,6 +29,10 @@ function TrainsMap.new(player, container, trains)
     ---@type gui.component.TrainsMap
     local self = {}
     setmetatable(self, { __index = TrainsMap })
+
+    self.id = component_id_sequence:next()
+
+    self.name = "trains_map_" .. self.id
 
     assert(player, "player is nil")
     self.player = player

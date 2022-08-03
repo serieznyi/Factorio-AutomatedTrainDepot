@@ -1,10 +1,10 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
+local EventDispatcher = require("scripts.util.EventDispatcher")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.settings.structure")
 local persistence_storage = require("scripts.persistence_storage")
-local event_dispatcher = require("scripts.util.event_dispatcher")
 local TrainStationSelector = require("scripts.gui.component.train_station_selector.TrainStationSelector")
 local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.TrainScheduleSelector")
 local validator = require("scripts.gui.validator")
@@ -74,6 +74,8 @@ function SettingsFrame:update()
 end
 
 function SettingsFrame:destroy()
+    EventDispatcher.unregister_handlers_by_source(self.name)
+
     self.refs.window.visible = false
 
     ---@param component LuaGuiElement
@@ -97,22 +99,21 @@ function SettingsFrame:read_form()
     }
 end
 
----@param event scripts.lib.decorator.Event
-function SettingsFrame:dispatch(event)
+function SettingsFrame:_register_event_handlers()
     local handlers = {
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_settings_frame_changed),
-            func = function(e) return self:_handle_form_changed(e) end,
-            handler_source = self.name
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_settings_frame_changed),
+            handler = function(e) return self:_handle_form_changed(e) end,
         },
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_settings_frame_save_click),
-            func = function(e) return self:_handle_save_form(e) end,
-            handler_source = self.name
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_settings_frame_save_click),
+            handler = function(e) return self:_handle_save_form(e) end,
         },
     }
 
-    return event_dispatcher.dispatch(handlers, event)
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, self.name)
+    end
 end
 
 ---@param event scripts.lib.decorator.Event
@@ -171,6 +172,8 @@ function SettingsFrame:_update_form()
 end
 
 function SettingsFrame:_initialize()
+    self:_register_event_handlers()
+
     local context = Context.from_player(self.player)
     local depot_settings = persistence_storage.get_depot_settings(context)
     local structure_config = {frame_name = self.name, depot_settings = depot_settings}

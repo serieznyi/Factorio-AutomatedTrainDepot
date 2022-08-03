@@ -1,9 +1,11 @@
 local flib_gui = require("__flib__.gui")
-local flib_table = require("__flib__.table")
 
-local event_dispatcher = require("scripts.util.event_dispatcher")
+local EventDispatcher = require("scripts.util.EventDispatcher")
 local TrainPart = require("scripts.lib.domain.TrainPart")
 local structure = require("scripts.gui.component.train_builder.structure")
+local Sequence = require("scripts.lib.Sequence")
+
+local component_id_sequence = Sequence()
 
 ---@param o1 gui.component.TrainBuilder.Part
 ---@param o2 gui.component.TrainBuilder.Part
@@ -14,7 +16,7 @@ end
 --- @module gui.component.TrainBuilder.Part
 local Part = {
     ---@type string
-    name = "train_part_component",
+    name = nil,
     ---@type uint
     id = nil,
     ---@type LuaPlayer
@@ -48,7 +50,9 @@ function Part.new(container, player, on_changed, train_part)
     local self = {}
     setmetatable(self, { __index = Part, __eq = compare})
 
-    self.id = script.generate_event_name() -- todo use math rand
+    self.id = component_id_sequence:next()
+
+    self.name = "train_part_component_" .. self.id
 
     self.player = player or nil
     assert(self.player, "player is nil")
@@ -62,32 +66,30 @@ function Part.new(container, player, on_changed, train_part)
 
     self:_initialize(train_part)
 
-    mod.log.debug("Component `{1}(id={2})` created", {self.name, self.id}, "gui")
+    mod.log.debug("Component {1} created", {self.name}, self.name)
 
     return self
 end
 
----@param event scripts.lib.decorator.Event
-function Part:dispatch(event)
+function Part:_register_event_handlers()
     local handlers = {
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_choose_train_part),
-            func = function(e) return self:_handle_update_train_part(e) end,
-            handler_source = self.name,
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_choose_train_part),
+            handler = function(e) return self:_handle_update_train_part(e) end,
         },
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_change_carrier_direction_click),
-            func = function(e) return self:_handle_change_carrier_direction(e) end,
-            handler_source = self.name,
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_change_carrier_direction_click),
+            handler = function(e) return self:_handle_change_carrier_direction(e) end,
         },
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_delete_train_part_click),
-            func = function(e) return self:_handle_delete_train_part(e) end,
-            handler_source = self.name,
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_delete_train_part_click),
+            handler = function(e) return self:_handle_delete_train_part(e) end,
         },
     }
 
-    return event_dispatcher.dispatch(handlers, event)
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, self.name)
+    end
 end
 
 function Part:is_empty()
@@ -95,6 +97,8 @@ function Part:is_empty()
 end
 
 function Part:destroy()
+    EventDispatcher.unregister_handlers_by_source(self.name)
+
     self.refs.element.destroy()
 end
 
@@ -200,7 +204,9 @@ end
 
 ---@param train_part scripts.lib.domain.TrainPart
 function Part:_initialize(train_part)
-    self.refs = flib_gui.build(self.container, { structure.get(self.id)})
+    self:_register_event_handlers()
+
+    self.refs = flib_gui.build(self.container, { structure.get(self.id) })
 
     if train_part ~= nil then
         self.refs.part_chooser.elem_value = train_part.prototype_name

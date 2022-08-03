@@ -1,6 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
+local EventDispatcher = require("scripts.util.EventDispatcher")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.main.structure")
 local TrainTemplateView = require("scripts.gui.component.train_template_view.TrainTemplateView")
@@ -8,7 +9,6 @@ local TrainsMap = require("scripts.gui.component.trains_map.TrainsMap")
 local ExtendedListBox = require("scripts.gui.component.extended_list_box.ExtendedListBox")
 local mod_gui = require("scripts.util.gui")
 local persistence_storage = require("scripts.persistence_storage")
-local event_dispatcher = require("scripts.util.event_dispatcher")
 
 --- @module gui.frame.MainFrame
 local MainFrame = {
@@ -82,6 +82,8 @@ function MainFrame:update()
 end
 
 function MainFrame:destroy()
+    EventDispatcher.unregister_handlers_by_source(self.name)
+
     self.refs.window.visible = false
 
     ---@param component LuaGuiElement
@@ -93,40 +95,6 @@ function MainFrame:destroy()
     self.refs.window.destroy()
 
     mod.log.debug("Frame `{1}(id={2})` destroyed", {self.name, self.id}, "gui")
-end
-
----@param event scripts.lib.decorator.Event
-function MainFrame:dispatch(event)
-    local handlers = {
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_delete_train_template_click),
-            func = function(e) return self:_handle_delete_train_template(e) end,
-            handler_source = self.name,
-        },
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_core_train_template_changed),
-            func = function(e) return self:_handle_update(e) end,
-            handler_source = self.name,
-        },
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_open_uncontrolled_trains_map_click),
-            func = function(e) return self:_handle_open_uncontrolled_trains_map(e) end
-        },
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_copy_train_template_click),
-            func = function(e) return self:_handle_copy_train_template(e) end
-        },
-        {
-            match = event_dispatcher.match_all(),
-            func = function (e) return self.components.trains_templates_view:dispatch(e) end
-        },
-        {
-            match = event_dispatcher.match_all(),
-            func = function(e) return self.components.trains_templates_list:dispatch(e) end
-        },
-    }
-
-    return event_dispatcher.dispatch(handlers, event)
 end
 
 ---@param event scripts.lib.decorator.Event
@@ -164,6 +132,8 @@ function MainFrame:_refresh_control_buttons()
 end
 
 function MainFrame:_initialize()
+    self:_register_event_handlers()
+
     local structure_config = {frame_name = self.name, width = self.width, height = self.height}
     self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })
     self.id = self.refs.window.index
@@ -249,6 +219,32 @@ function MainFrame:_get_trains_templates_values()
                 }
             end
     )
+end
+
+function MainFrame:_register_event_handlers()
+    local handlers = {
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_delete_train_template_click),
+            handler = function(e) return self:_handle_delete_train_template(e) end,
+        },
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_core_train_template_changed),
+            handler = function(e) return self:_handle_update(e) end,
+        },
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_open_uncontrolled_trains_map_click),
+            handler = function(e) return self:_handle_open_uncontrolled_trains_map(e) end
+        },
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_copy_train_template_click),
+            handler = function(e) return self:_handle_copy_train_template(e) end
+        },
+    }
+
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, self.name)
+    end
+
 end
 
 return MainFrame

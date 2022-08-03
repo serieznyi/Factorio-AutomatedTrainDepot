@@ -5,6 +5,7 @@ local depot = require("scripts.depot.depot")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local Event = require("scripts.lib.decorator.Event")
+local EventDispatcher = require("scripts.util.EventDispatcher")
 
 local private = {}
 local public = {}
@@ -80,7 +81,7 @@ end
 
 ---@param event EventData
 function public.handle_events(event)
-    return gui_manager.dispatch(Event.new(event))
+    return EventDispatcher.dispatch(Event.new(event))
 end
 
 ---@param event EventData

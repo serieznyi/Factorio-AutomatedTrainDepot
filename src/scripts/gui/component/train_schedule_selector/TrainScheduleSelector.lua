@@ -1,7 +1,7 @@
 local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
-local event_dispatcher = require("scripts.util.event_dispatcher")
+local EventDispatcher = require("scripts.util.EventDispatcher")
 local mod_table = require("scripts.util.table")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
@@ -10,6 +10,8 @@ local component_id_sequence = Sequence()
 
 --- @module gui.component.TrainScheduleSelector
 local TrainScheduleSelector = {
+    ---@type uint
+    id = nil,
     ---@type TrainSchedule
     selected_schedule = nil,
     ---@type LuaForce
@@ -26,8 +28,6 @@ local TrainScheduleSelector = {
     on_changed = function() end,
     ---@type TrainSchedule[]
     schedules = nil,
-    ---@type uint
-    component_id = nil,
 }
 
 ---@param context scripts.lib.domain.Context
@@ -39,7 +39,9 @@ function TrainScheduleSelector.new(context, on_changed, selected_schedule, requi
     local self = {}
     setmetatable(self, { __index = TrainScheduleSelector })
 
-    self.component_id = component_id_sequence:next()
+    self.id = component_id_sequence:next()
+
+    self.name = "train_schedule_selector_" .. self.id
 
     force = game.forces[context.force_name]
     assert(force, "force is empty")
@@ -61,7 +63,9 @@ function TrainScheduleSelector.new(context, on_changed, selected_schedule, requi
         self.required = required
     end
 
-    mod.log.debug("Component train_schedule_selector({1}) created", {self.component_id}, "gui.component.train_schedule_selector")
+    self:_register_event_handlers()
+
+    mod.log.debug("Component {1} created", { self.name }, self.name)
 
     return self
 end
@@ -90,6 +94,7 @@ function TrainScheduleSelector:validate_form()
 end
 
 function TrainScheduleSelector:destroy()
+    EventDispatcher.unregister_handlers_by_source(self.name)
 end
 
 ---@param container LuaGuiElement
@@ -118,20 +123,17 @@ function TrainScheduleSelector:build(container)
     --private.update_tooltip(self.refs, self.schedules)
 end
 
-function TrainScheduleSelector:name()
-    return "train-schedule-selector-" .. self.component_id
-end
-
----@param event scripts.lib.decorator.Event
-function TrainScheduleSelector:dispatch(event)
-    local event_handlers = {
+function TrainScheduleSelector:_register_event_handlers()
+    local handlers = {
         --{ -- todo fix it
         --    match = ,
         --    func = function(e) return self:_dropdown_changed(e) end
         --},
     }
 
-    return event_dispatcher.dispatch(event_handlers, event)
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, self.name)
+    end
 end
 
 ---@param refs table

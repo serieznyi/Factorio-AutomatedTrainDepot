@@ -4,7 +4,9 @@ local flib_table = require("__flib__.table")
 local TrainPart = require("scripts.lib.domain.TrainPart")
 local Part = require("scripts.gui.component.train_builder.Part")
 local validator = require("scripts.gui.validator")
-local event_dispatcher = require("scripts.util.event_dispatcher")
+local Sequence = require("scripts.lib.Sequence")
+
+local component_id_sequence = Sequence()
 
 local function validator_rule_has_main_locomotive(field_name, form)
     ---@type scripts.lib.domain.TrainPart
@@ -45,7 +47,7 @@ end
 --- @module gui.component.TrainBuilder
 local TrainBuilder = {
     ---@type string
-    name = "train_builder_component",
+    name = nil,
     ---@type uint
     id = nil,
     ---@type LuaPlayer
@@ -72,13 +74,17 @@ function TrainBuilder.new(container, player, on_changed, train)
     self.player = player or nil
     assert(self.player, "player is nil")
 
+    self.id = component_id_sequence:next()
+
+    self.name = "train_builder_component_" .. self.id
+
     if on_changed ~= nil then
         self.on_changed = on_changed
     end
 
     self:_initialize(container, train)
 
-    mod.log.debug("Component `{1}(id={2})` created", {self.name, self.id}, "gui")
+    mod.log.debug("Component {1} created", {self.name}, self.name)
 
     return self
 end
@@ -89,7 +95,7 @@ end
 function TrainBuilder:destroy()
     self.refs.container.clear()
 
-    mod.log.debug("Frame `{1}(id={2})` destroyed", {self.name, self.id}, "gui")
+    mod.log.debug("Frame {1} destroyed", {self.name}, self.name)
 end
 
 function TrainBuilder:read_form()
@@ -122,24 +128,6 @@ function TrainBuilder:validate_form()
     }
 
     return validator.validate(validator_rules, {train = form_data})
-end
-
----@param event scripts.lib.decorator.Event
-function TrainBuilder:dispatch(event)
-    local handlers = {
-
-    }
-
-    ---@param part gui.component.TrainBuilder.Part
-    for _, part in ipairs(self.parts) do
-        table.insert(handlers, {
-            match = event_dispatcher.match_all(),
-            func = function(e) return part:dispatch(e) end,
-            handler_source = self.name,
-        })
-    end
-
-    return event_dispatcher.dispatch(handlers, event)
 end
 
 ---@param container LuaGuiElement

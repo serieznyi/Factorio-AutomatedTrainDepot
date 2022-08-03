@@ -5,7 +5,7 @@ local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.add_template.structure")
 local persistence_storage = require("scripts.persistence_storage")
-local event_dispatcher = require("scripts.util.event_dispatcher")
+local EventDispatcher = require("scripts.util.EventDispatcher")
 local TrainStationSelector = require("scripts.gui.component.train_station_selector.TrainStationSelector")
 local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.TrainScheduleSelector")
 local TrainBuilder = require("scripts.gui.component.train_builder.TrainBuilder")
@@ -97,6 +97,8 @@ function AddTemplateFrame:update()
 end
 
 function AddTemplateFrame:destroy()
+    EventDispatcher.unregister_handlers_by_source(self.name)
+
     self.refs.window.visible = false
 
     ---@param component LuaGuiElement
@@ -130,32 +132,25 @@ function AddTemplateFrame:read_form()
     return train_template
 end
 
----@param event scripts.lib.decorator.Event
-function AddTemplateFrame:dispatch(event)
+function AddTemplateFrame:_register_event_handlers()
     local handlers = {
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_adding_template_frame_changed),
-            func = function(e) return self:_handle_form_changed(e) end,
-            handler_source = self.name
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_adding_template_frame_changed),
+            handler = function(e) return self:_handle_form_changed(e) end,
         },
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_name_rich_text_changed),
-            func = function(e) return self:_handle_name_rick_text_changed(e) end,
-            handler_source = self.name
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_name_rich_text_changed),
+            handler = function(e) return self:_handle_name_rick_text_changed(e) end,
         },
         {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_save_adding_template_frame_click),
-            func = function(e) return self:_handle_save_form(e) end,
-            handler_source = self.name
-        },
-        {
-            match = event_dispatcher.match_all(),
-            func = function(e) return self.components.train_builder:dispatch(e) end,
-            handler_source = self.name
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_save_adding_template_frame_click),
+            handler = function(e) return self:_handle_save_form(e) end,
         },
     }
 
-    return event_dispatcher.dispatch(handlers, event)
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, self.name)
+    end
 end
 
 ---@param event scripts.lib.decorator.Event
@@ -239,6 +234,8 @@ function AddTemplateFrame:_handle_name_rick_text_changed(event)
 end
 
 function AddTemplateFrame:_initialize()
+    self:_register_event_handlers()
+
     local context = Context.from_player(self.player)
     local train_template = persistence_storage.get_train_template(self.train_template_id)
     local structure_config = {frame_name = self.name, train_template = train_template}
