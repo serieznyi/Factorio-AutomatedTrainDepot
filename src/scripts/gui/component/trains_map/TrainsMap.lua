@@ -68,10 +68,11 @@ function TrainsMap:_refresh_component(trains)
                 {
                     type = "minimap",
                     zoom = 1.5,
-                    entity = locomotive,
                 }
             }
         })
+
+        trains_table.children[#trains_table.children].children[1].entity = locomotive
     end
 end
 
