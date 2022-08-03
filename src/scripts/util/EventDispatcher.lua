@@ -10,8 +10,6 @@ function EventDispatcher.register_handler(match, handler, source_name)
     assert(handler, "handler is nil")
     assert(source_name, "source_name is nil")
 
-    mod.log.debug("Handler registered for {1}", {source_name}, "EventDispatcher")
-
     if EventDispatcher.handlers[source_name] == nil then
         EventDispatcher.handlers[source_name] = {}
     end
@@ -47,8 +45,6 @@ end
 ---@return bool
 function EventDispatcher.dispatch(event)
     local processed = false
-
-    mod.log.debug("Taken event `{1}`", { event:full_name() }, "EventDispatcher")
 
     for _, source_handlers in pairs(EventDispatcher.handlers) do
         for _, h in ipairs(source_handlers) do
