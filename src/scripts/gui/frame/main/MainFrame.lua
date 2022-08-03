@@ -3,7 +3,7 @@ local flib_table = require("__flib__.table")
 
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.main.structure")
-local TrainTemplateView = require("scripts.gui.frame.main.component.train_template_view.component")
+local TrainTemplateView = require("scripts.gui.component.train_template_view.TrainTemplateView")
 local TrainsMap = require("scripts.gui.component.trains_map.TrainsMap")
 local ExtendedListBox = require("scripts.gui.component.extended_list_box.ExtendedListBox")
 local mod_gui = require("scripts.util.gui")

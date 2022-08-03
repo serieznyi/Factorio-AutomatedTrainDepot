@@ -5,7 +5,7 @@ local mod_gui = require("scripts.util.gui")
 local depot = require("scripts.depot.depot")
 local persistence_storage = require("scripts.persistence_storage")
 local Context = require("scripts.lib.domain.Context")
-local structure = require("scripts.gui.frame.main.component.train_template_view.structure")
+local structure = require("scripts.gui.component.train_template_view.structure")
 
 ---@module gui.component.TrainTemplateView
 local TrainTemplateView = {
