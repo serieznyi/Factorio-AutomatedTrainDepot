@@ -70,6 +70,7 @@ function structure.get(config)
                         content = {
                             type = "frame",
                             style = "inside_deep_frame",
+                            direction = "horizontal",
                             style_mods = {
                                 horizontally_stretchable = true,
                                 vertically_stretchable = true,
@@ -77,96 +78,90 @@ function structure.get(config)
                             children = {
                                 {
                                     type = "flow",
-                                    direction = "horizontal",
+                                    direction = "vertical",
+                                    style_mods = {
+                                        natural_width = config.width * 0.25,
+                                    },
                                     children = {
                                         {
                                             type = "flow",
                                             direction = "vertical",
-                                            style_mods = {
-                                                natural_width = config.width * 0.25,
-                                            },
+                                            ref = {"trains_templates_list_container"},
+                                        },
+                                        {
+                                            type = "frame",
+                                            style = "inside_deep_frame",
                                             children = {
                                                 {
-                                                    type = "flow",
-                                                    direction = "vertical",
-                                                    ref = {"trains_templates_list_container"},
-                                                },
-                                                {
                                                     type = "frame",
-                                                    style = "inside_deep_frame",
+                                                    style = "subheader_frame",
+                                                    style_mods = {
+                                                        horizontally_stretchable = true,
+                                                    },
                                                     children = {
                                                         {
-                                                            type = "frame",
-                                                            style = "subheader_frame",
-                                                            style_mods = {
-                                                                horizontally_stretchable = true,
+                                                            type = "sprite-button",
+                                                            style = "tool_button_green",
+                                                            tooltip = {"main-frame.atd-add-new-train-template"},
+                                                            sprite = "atd_sprite_add",
+                                                            actions = {
+                                                                on_click = { event = mod.defines.events.on_gui_open_adding_template_frame_click }
                                                             },
-                                                            children = {
-                                                                {
-                                                                    type = "sprite-button",
-                                                                    style = "tool_button_green",
-                                                                    tooltip = {"main-frame.atd-add-new-train-template"},
-                                                                    sprite = "atd_sprite_add",
-                                                                    actions = {
-                                                                        on_click = { event = mod.defines.events.on_gui_open_adding_template_frame_click }
-                                                                    },
-                                                                },
-                                                                {
-                                                                    type = "sprite-button",
-                                                                    style = "tool_button",
-                                                                    tooltip = {"main-frame.atd-edit-train-template"},
-                                                                    ref = {"edit_button"},
-                                                                    sprite = "atd_sprite_edit",
-                                                                    enabled = false,
-                                                                    actions = {
-                                                                        on_click = { event = mod.defines.events.on_gui_open_editing_template_frame_click }
-                                                                    },
-                                                                },
-                                                                {
-                                                                    type = "sprite-button",
-                                                                    style = "tool_button_red",
-                                                                    tooltip = {"main-frame.atd-delete-template"},
-                                                                    ref = {"delete_button"},
-                                                                    sprite = "atd_sprite_trash",
-                                                                    enabled = false,
-                                                                    actions = {
-                                                                        on_click = { event = mod.defines.events.on_gui_delete_train_template_click }
-                                                                    },
-                                                                },
-                                                                {
-                                                                    type = "sprite-button",
-                                                                    style = "tool_button_blue",
-                                                                    tooltip = {"main-frame.atd-copy-train-template"},
-                                                                    ref = {"copy_button"},
-                                                                    sprite = "atd_sprite_copy",
-                                                                    enabled = false,
-                                                                    actions = {
-                                                                        on_click = { event = mod.defines.events.on_gui_copy_train_template_click }
-                                                                    },
-                                                                },
-                                                            }
+                                                        },
+                                                        {
+                                                            type = "sprite-button",
+                                                            style = "tool_button",
+                                                            tooltip = {"main-frame.atd-edit-train-template"},
+                                                            ref = {"edit_button"},
+                                                            sprite = "atd_sprite_edit",
+                                                            enabled = false,
+                                                            actions = {
+                                                                on_click = { event = mod.defines.events.on_gui_open_editing_template_frame_click }
+                                                            },
+                                                        },
+                                                        {
+                                                            type = "sprite-button",
+                                                            style = "tool_button_red",
+                                                            tooltip = {"main-frame.atd-delete-template"},
+                                                            ref = {"delete_button"},
+                                                            sprite = "atd_sprite_trash",
+                                                            enabled = false,
+                                                            actions = {
+                                                                on_click = { event = mod.defines.events.on_gui_delete_train_template_click }
+                                                            },
+                                                        },
+                                                        {
+                                                            type = "sprite-button",
+                                                            style = "tool_button_blue",
+                                                            tooltip = {"main-frame.atd-copy-train-template"},
+                                                            ref = {"copy_button"},
+                                                            sprite = "atd_sprite_copy",
+                                                            enabled = false,
+                                                            actions = {
+                                                                on_click = { event = mod.defines.events.on_gui_copy_train_template_click }
+                                                            },
                                                         },
                                                     }
                                                 },
                                             }
                                         },
+                                    }
+                                },
+                                {
+                                    type = "flow",
+                                    style_mods = {
+                                        natural_width = config.width - (config.width * 0.25),
+                                    },
+                                    direction = "vertical",
+                                    children = {
                                         {
-                                            type = "flow",
+                                            type = "frame",
                                             style_mods = {
-                                                natural_width = config.width - (config.width * 0.25),
+                                                horizontally_stretchable = true,
+                                                vertically_stretchable = true,
                                             },
-                                            direction = "vertical",
-                                            children = {
-                                                {
-                                                    type = "frame",
-                                                    style_mods = {
-                                                        horizontally_stretchable = true,
-                                                        vertically_stretchable = true,
-                                                    },
-                                                    ref = {"trains_templates_view"},
-                                                    style = "inside_deep_frame",
-                                                }
-                                            }
+                                            ref = {"trains_templates_view_container"},
+                                            style = "inside_deep_frame",
                                         }
                                     }
                                 }

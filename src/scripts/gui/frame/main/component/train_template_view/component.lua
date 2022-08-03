@@ -5,168 +5,169 @@ local mod_gui = require("scripts.util.gui")
 local depot = require("scripts.depot.depot")
 local persistence_storage = require("scripts.persistence_storage")
 local Context = require("scripts.lib.domain.Context")
-
 local structure = require("scripts.gui.frame.main.component.train_template_view.structure")
 
-local COMPONENT = {
-    NAME = "train_template_view_component"
+---@module gui.component.TrainTemplateView
+local TrainTemplateView = {
+    ---@type uint
+    id = 0,
+    ---@type string
+    name = "train_template_view_component",
+    refs = {
+        ---@type LuaGuiElement
+        train_template_container = nil,
+        ---@type LuaGuiElement
+        train_template_title_label = nil,
+        ---@type LuaGuiElement
+        content = nil,
+        ---@type LuaGuiElement
+        train_view = nil,
+        ---@type LuaGuiElement
+        tasks_progress_container = nil,
+        ---@type LuaGuiElement
+        footerbar_flow = nil,
+        ---@type LuaGuiElement
+        trains_quantity = nil,
+        ---@type LuaGuiElement
+        disable_button = nil,
+        ---@type LuaGuiElement
+        enable_button = nil,
+    },
+    ---@type uint
+    train_template_id = nil,
+    ---@type LuaGuiElement
+    container = nil,
 }
 
-local public = {}
-local private = {}
-local storage = {}
-
----------------------------------------------------------------------------
--- -- -- STORAGE
----------------------------------------------------------------------------
-
-function storage.load()
-    mod.global.gui.component[COMPONENT.NAME] = {}
-end
-
-function storage.clean()
-    mod.global.gui.component[COMPONENT.NAME] = nil
-end
-
----@param container LuaGuiElement
----@param refs table
-function storage.set(container, refs)
-    mod.global.gui.component[COMPONENT.NAME] = {
-        container = container,
-        refs = refs
-    }
-end
-
----@return table
-function storage.refs()
-    if mod.global.gui.component[COMPONENT.NAME] == nil then
-        return nil
-    end
-
-    return mod.global.gui.component[COMPONENT.NAME].refs
-end
-
----@return LuaGuiElement
-function storage.container()
-    return mod.global.gui.component[COMPONENT.NAME].container
-end
-
----------------------------------------------------------------------------
--- -- -- PRIVATE
----------------------------------------------------------------------------
-
-function private.handle_enable_train_template(e)
-    local player = game.get_player(e.player_index)
-
-    if not private.can_handle_event(e) then
-        return
-    end
-
-    local train_template_id = private.get_train_template_id(player)
-    local train_template = depot.enable_train_template(train_template_id)
-
-    private.refresh_component(player, train_template)
-
-    return true
-end
-
-function private.handle_disable_train_template(e)
-    local player = game.get_player(e.player_index)
-
-    if not private.can_handle_event(e) then
-        return
-    end
-
-    local train_template_id = private.get_train_template_id(player)
-    local train_template = depot.disable_train_template(train_template_id)
-
-    private.refresh_component(player, train_template)
-
-    return true
-end
-
-function private.handle_change_trains_quantity(e)
-    local player = game.get_player(e.player_index)
-
-    if not private.can_handle_event(e) then
-        return
-    end
-
-    local train_template_id = private.get_train_template_id(player)
-    local count = private.get_train_quantity_change_value(e)
-    local train_template = depot.change_trains_quantity(train_template_id, count)
-
-    private.refresh_component(player, train_template)
-
-    return true
-end
-
-function private.handle_refresh_component(e)
-    local player = game.get_player(e.player_index)
-
-    if not private.can_handle_event(e) then
-        return
-    end
-
-    local train_template_id = private.get_train_template_id(player)
-    local train_template = persistence_storage.get_train_template(train_template_id)
-
-    private.refresh_component(player, train_template)
-
-    return true
-end
-
----@param e scripts.lib.decorator.Event
----@return bool
-function private.can_handle_event(e)
-    local player = game.get_player(e.player_index)
-    local refs = storage.refs(player)
-
-    return refs ~= nil and refs.component ~= nil and refs.component.valid
-end
-
 ---@param player LuaPlayer
----@return uint
-function private.get_train_template_id(player)
-    local refs = storage.refs(player)
-    local tags = flib_gui.get_tags(refs.component)
+---@param container LuaGuiElement
+function TrainTemplateView.new(player, container)
+    ---@type gui.component.TrainBuilder
+    local self = {}
+    setmetatable(self, { __index = TrainTemplateView })
 
-    return tags.train_template_id
+    self.player = player or nil
+    assert(self.player, "player is nil")
+
+    self.container = container
+
+    mod.log.debug("Component `{1}(id={2})` created", {self.name, self.id}, "gui")
+
+    return self
+end
+
+function TrainTemplateView:destroy()
+    if self.refs.train_template_container ~= nil then
+        self.refs.train_template_container.destroy()
+    end
+end
+
+---@param train_template scripts.lib.domain.TrainTemplate
+function TrainTemplateView:update(train_template)
+    if self.refs.train_template_container ~= nil then
+        self.refs.train_template_container.destroy()
+    end
+
+    self.refs = flib_gui.build(self.container, { structure.get(train_template) })
+
+    self.train_template_id = train_template.id
+
+    self:_refresh_component()
+end
+
+---@param event scripts.lib.decorator.Event
+function TrainTemplateView:dispatch(event)
+    local event_handlers = {
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_train_template_enabled),
+            func = function(e) return self:_handle_enable_train_template(e) end,
+            handler_source = self.name,
+        },
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_train_template_disabled),
+            func = function(e) return self:_handle_disable_train_template(e) end,
+            handler_source = self.name,
+        },
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_trains_quantity_changed),
+            func = function(e) return self:_handle_change_trains_quantity(e) end,
+            handler_source = self.name,
+        },
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_core_train_task_changed),
+            func = function(e) return self:_handle_refresh_component(e) end,
+            handler_source = self.name,
+        },
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_core_train_template_changed),
+            func = function(e) return self:_handle_refresh_component(e) end,
+            handler_source = self.name,
+        },
+    }
+
+    return event_dispatcher.dispatch(event_handlers, event, self.name)
+end
+
+function TrainTemplateView:_handle_enable_train_template(e)
+    local train_template = depot.enable_train_template(self.train_template_id)
+
+    self:_refresh_component(train_template)
+
+    return true
+end
+
+function TrainTemplateView:_handle_disable_train_template(e)
+    local train_template = depot.disable_train_template(self.train_template_id)
+
+    self:_refresh_component(train_template)
+
+    return true
+end
+
+function TrainTemplateView:_handle_change_trains_quantity(e)
+    local count = self:_get_train_quantity_change_value(e)
+    depot.change_trains_quantity(self.train_template_id, count)
+
+    self:_refresh_component()
+
+    return true
+end
+
+function TrainTemplateView:_handle_refresh_component(e)
+    self:_refresh_component()
+
+    return true
 end
 
 ---@param event scripts.lib.decorator.Event
 ---@return uint
-function private.get_train_quantity_change_value(event)
+function TrainTemplateView:_get_train_quantity_change_value(event)
     local action = event.event_additional_data
 
     return event.event_additional_data ~= nil and action.count or nil
 end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
-function private.train_template_component_caption(train_template)
+function TrainTemplateView:_train_template_component_caption(train_template)
     local icon = mod_gui.image_for_item(train_template.icon)
 
     return icon .. " " .. train_template.name
 end
 
----@param player LuaPlayer
----@param train_template scripts.lib.domain.TrainTemplate
-function private.refresh_component(player, train_template)
-    local refs = storage.refs()
-    ---@type LuaGuiElement
-    local container = refs.train_view
+function TrainTemplateView:_refresh_component()
+    local train_template = persistence_storage.get_train_template(self.train_template_id)
 
     -- update title
 
-    refs.component_title_label.caption = private.train_template_component_caption(train_template)
+    self.refs.train_template_title_label.caption = self:_train_template_component_caption(train_template)
 
     -- update train parts view
 
-    container.clear()
+    self.refs.train_view.clear()
 
     ---@param train_part scripts.lib.domain.TrainPart
     for _, train_part in pairs(train_template.train) do
-        flib_gui.add(container, {
+        flib_gui.add(self.refs.train_view, {
             type = "sprite-button",
             enabled = false,
             style = "flib_slot_default",
@@ -176,90 +177,27 @@ function private.refresh_component(player, train_template)
 
     -- update quantity input
 
-    refs.trains_quantity.text = tostring(train_template.trains_quantity)
+    self.refs.trains_quantity.text = tostring(train_template.trains_quantity)
 
     -- update control buttons
 
-    refs.enable_button.enabled = not train_template.enabled
-    refs.disable_button.enabled = train_template.enabled
+    self.refs.enable_button.enabled = not train_template.enabled
+    self.refs.disable_button.enabled = train_template.enabled
 
     -- update tasks view
 
-    local tasks_progress_container = refs.tasks_progress_container
-    local context = Context.from_player(player)
+    local context = Context.from_player(self.player)
     local tasks = persistence_storage.trains_tasks.find_forming_tasks(context, train_template.id)
 
-    tasks_progress_container.clear()
+    self.refs.tasks_progress_container.clear()
 
     ---@param task scripts.lib.domain.TrainFormingTask
     for _, task in ipairs(tasks) do
-        flib_gui.add(tasks_progress_container, {
+        flib_gui.add(self.refs.tasks_progress_container, {
             type = "progressbar",
             value = task:progress() * 0.01
         })
     end
 end
 
----------------------------------------------------------------------------
--- -- -- PUBLIC
----------------------------------------------------------------------------
-
-function public.init()
-end
-
-function public.load()
-    storage.load()
-end
-
-function public.destroy()
-    local container = storage.container()
-    container.clear()
-
-    storage.clean()
-end
-
----@return string
-function public.name()
-    return COMPONENT.NAME
-end
-
----@param container LuaGuiElement
----@param train_template scripts.lib.domain.TrainTemplate
----@param player LuaPlayer
-function public.create(container, player, train_template)
-    local refs = flib_gui.build(container, { structure.get(train_template)})
-
-    storage.set(container, refs)
-
-    private.refresh_component(player, train_template)
-end
-
----@param event scripts.lib.decorator.Event
-function public.dispatch(event)
-    local event_handlers = {
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_train_template_enabled),
-            func = private.handle_enable_train_template
-        },
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_train_template_disabled),
-            func = private.handle_disable_train_template
-        },
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_trains_quantity_changed),
-            func = private.handle_change_trains_quantity
-        },
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_core_train_task_changed),
-            func = private.handle_refresh_component
-        },
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_core_train_template_changed),
-            func = private.handle_refresh_component
-        },
-    }
-
-    return event_dispatcher.dispatch(event_handlers, event, COMPONENT.NAME)
-end
-
-return public
+return TrainTemplateView

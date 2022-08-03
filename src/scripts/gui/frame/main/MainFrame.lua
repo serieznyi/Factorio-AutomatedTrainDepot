@@ -3,7 +3,7 @@ local flib_table = require("__flib__.table")
 
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.main.structure")
-local train_template_view_component = require("scripts.gui.frame.main.component.train_template_view.component")
+local TrainTemplateView = require("scripts.gui.frame.main.component.train_template_view.component")
 local TrainsMap = require("scripts.gui.component.trains_map.TrainsMap")
 local ExtendedListBox = require("scripts.gui.component.extended_list_box.ExtendedListBox")
 local mod_gui = require("scripts.util.gui")
@@ -37,12 +37,16 @@ local MainFrame = {
         delete_button = nil,
         ---@type LuaGuiElement
         copy_button = nil,
+        ---@type LuaGuiElement
+        trains_templates_view_container = nil,
     },
     components = {
         ---@type gui.component.ExtendedListBox
         trains_templates_list = nil,
         ---@type gui.component.TrainsMap
         trains_map = nil,
+        ---@type gui.component.TrainTemplateView
+        trains_templates_view = nil,
     },
 }
 
@@ -114,7 +118,7 @@ function MainFrame:dispatch(event)
         },
         {
             match = event_dispatcher.match_all(),
-            func = train_template_view_component.dispatch
+            func = function (e) return self.components.trains_templates_view:dispatch(e) end
         },
         {
             match = event_dispatcher.match_all(),
@@ -164,17 +168,22 @@ function MainFrame:_initialize()
     self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })
     self.id = self.refs.window.index
 
+    self.components.trains_templates_view = TrainTemplateView.new(
+            self.player,
+            self.refs.trains_templates_view_container
+    )
+
     self.components.trains_templates_list = ExtendedListBox.new(
-            self.refs.trains_templates_list_container,
-            self:_get_trains_templates_values(),
-            nil,
-            nil,
-            function(tags) return self:update() end
+        self.refs.trains_templates_list_container,
+        self:_get_trains_templates_values(),
+        nil,
+        nil,
+        function(tags) return self:update() end
     )
 
     self.components.trains_map = TrainsMap.new(
-            self.player,
-            self.refs.trains_map_view
+        self.player,
+        self.refs.trains_map_view
     )
 
     self.refs.window.force_auto_center()
@@ -196,7 +205,7 @@ function MainFrame:_handle_delete_train_template(event)
 
     persistence_storage.delete_train_template(train_template_id)
 
-    train_template_view_component.destroy()
+    self.components.trains_templates_view:destroy()
 
     self.components.trains_templates_list:remove_element(train_template_id)
 
@@ -219,9 +228,7 @@ function MainFrame:_select_train_template_view(train_template_id)
         return
     end
 
-    self.refs.trains_templates_view.clear()
-
-    train_template_view_component.create(self.refs.trains_templates_view, self.player, train_template)
+    self.components.trains_templates_view:update(train_template)
 end
 
 ---@return gui.component.ExtendedListBoxValue

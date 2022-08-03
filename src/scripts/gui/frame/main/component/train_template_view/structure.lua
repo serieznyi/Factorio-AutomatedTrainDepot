@@ -8,7 +8,7 @@ function public.get(train_template)
     return {
         type = "frame",
         direction = "vertical",
-        ref = { "component" },
+        ref = { "train_template_container" },
         tags = { train_template_id = train_template.id },
         style_mods = {
             vertically_stretchable = true,
@@ -22,7 +22,7 @@ function public.get(train_template)
                 children = {
                     {
                         type = "label",
-                        ref = { "component_title_label" }
+                        ref = { "train_template_title_label" }
                     },
                     {
                         type = "line",
