@@ -101,7 +101,6 @@ function AddTemplateFrame:destroy()
 
     self.refs.window.visible = false
 
-    ---@param component LuaGuiElement
     for _, component in pairs(self.components) do
         -- todo add abstraction or annotation fake
         component:destroy()
@@ -134,6 +133,10 @@ end
 
 function AddTemplateFrame:bring_to_front()
     self.refs.window.bring_to_front()
+end
+
+function AddTemplateFrame:opened()
+    self.player.opened = self.refs.window
 end
 
 function AddTemplateFrame:_register_event_handlers()

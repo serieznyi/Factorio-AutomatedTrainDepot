@@ -1,5 +1,3 @@
--- Interface for autocomplete in code
-
 ---@module gui.frame.Frame
 local Frame = {
     ---@type string
@@ -14,3 +12,5 @@ function Frame:window() end
 
 ---@return void
 function Frame:bring_to_front() end
+
+function Frame:opened() end

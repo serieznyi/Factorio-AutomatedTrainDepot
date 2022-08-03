@@ -74,6 +74,10 @@ function SettingsFrame:bring_to_front()
     self.refs.window.bring_to_front()
 end
 
+function SettingsFrame:opened()
+    self.player.opened = self.refs.window
+end
+
 function SettingsFrame:update()
 end
 
@@ -82,7 +86,6 @@ function SettingsFrame:destroy()
 
     self.refs.window.visible = false
 
-    ---@param component LuaGuiElement
     for _, component in pairs(self.components) do
         -- todo add abstraction or annotation fake
         component:destroy()

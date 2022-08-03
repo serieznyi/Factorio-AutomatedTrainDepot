@@ -16,13 +16,13 @@ local event_handlers = {}
 
 ---@param frame gui.frame.Frame
 ---@param player LuaPlayer
-local function switch_on_frame(frame, player)
+local function switch_on_frame(frame)
     frame:bring_to_front()
 
     -- !!!important. Add to stack before real open window
     frame_stack.frame_stack_push(frame)
 
-    player.opened = frame:window()
+    frame:opened()
 end
 
 ---@param element LuaGuiElement
@@ -132,7 +132,7 @@ function event_handlers.handle_add_template_frame_open(event)
     local train_template_id = event:tags() ~= nil and event:tags().train_template_id or nil
     local frame = AddTemplateFrame:new(parent_frame, player, train_template_id)
 
-    switch_on_frame(frame, player)
+    switch_on_frame(frame)
 end
 
 ---@param event scripts.lib.decorator.Event
@@ -142,7 +142,7 @@ function event_handlers.handle_settings_frame_open(event)
     local player = game.get_player(event.player_index)
     local frame = SettingsFrame:new(parent_frame, player)
 
-    switch_on_frame(frame, player)
+    switch_on_frame(frame)
 end
 
 ---@param event scripts.lib.decorator.Event
@@ -151,7 +151,7 @@ function event_handlers.handle_main_frame_open(event)
     local player = game.get_player(event.player_index)
     local frame = MainFrame:new(player)
 
-    switch_on_frame(frame, player)
+    switch_on_frame(frame)
 end
 
 ---------------------------------------------------------------------------
@@ -217,14 +217,13 @@ function manager.on_gui_closed(event)
     local last_frame = frame_stack.frame_stack_last()
     local parent_frame = last_frame.parent_frame
     local last_frame_window = last_frame:window()
-    local player = game.get_player(event.player_index)
 
     if closed_window == last_frame_window then
         frame_stack.frame_stack_pop()
         last_frame:destroy()
 
         if parent_frame ~= nil then
-            switch_on_frame(parent_frame, player)
+            switch_on_frame(parent_frame)
         end
     end
 end
