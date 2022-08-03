@@ -130,7 +130,7 @@ function event_handlers.handle_add_template_frame_open(event)
     ---@type LuaPlayer
     local player = game.get_player(event.player_index)
     local train_template_id = event:tags() ~= nil and event:tags().train_template_id or nil
-    local frame = AddTemplateFrame.new(parent_frame, player, train_template_id)
+    local frame = AddTemplateFrame:new(parent_frame, player, train_template_id)
 
     switch_on_frame(frame, player)
 end
@@ -140,7 +140,7 @@ function event_handlers.handle_settings_frame_open(event)
     local parent_frame = frame_stack.frame_stack_last()
     ---@type LuaPlayer
     local player = game.get_player(event.player_index)
-    local frame = SettingsFrame.new(parent_frame, player)
+    local frame = SettingsFrame:new(parent_frame, player)
 
     switch_on_frame(frame, player)
 end
@@ -149,7 +149,7 @@ end
 function event_handlers.handle_main_frame_open(event)
     ---@type LuaPlayer
     local player = game.get_player(event.player_index)
-    local frame = MainFrame.new(player)
+    local frame = MainFrame:new(player)
 
     switch_on_frame(frame, player)
 end

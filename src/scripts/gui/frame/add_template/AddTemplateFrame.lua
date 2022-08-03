@@ -69,10 +69,10 @@ local AddTemplateFrame = {
 ---@param player LuaPlayer
 ---@param train_template_id uint
 ---@param parent_frame gui.frame.Frame
-function AddTemplateFrame.new(parent_frame, player, train_template_id)
-    ---@type gui.frame.AddTemplateFrame
-    local self = {}
-    setmetatable(self, { __index = AddTemplateFrame })
+function AddTemplateFrame:new(parent_frame, player, train_template_id)
+    object = {}
+    setmetatable(object, self)
+    self.__index = self
 
     self.player = player or nil
     assert(self.player, "player is nil")
@@ -85,7 +85,7 @@ function AddTemplateFrame.new(parent_frame, player, train_template_id)
 
     mod.log.debug("Frame `{1}(id={2})` created", {self.name, self.id}, "gui")
 
-    return self
+    return object
 end
 
 ---@type LuaGuiElement

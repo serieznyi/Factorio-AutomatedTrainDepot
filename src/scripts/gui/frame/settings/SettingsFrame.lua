@@ -48,10 +48,10 @@ local SettingsFrame = {
 
 ---@param player LuaPlayer
 ---@param parent_frame gui.frame.Frame
-function SettingsFrame.new(parent_frame, player)
-    ---@type gui.frame.SettingsFrame
-    local self = {}
-    setmetatable(self, { __index = SettingsFrame })
+function SettingsFrame:new(parent_frame, player)
+    object = {}
+    setmetatable(object, self)
+    self.__index = self
 
     self.player = player
     assert(self.player, "player is nil")
@@ -62,7 +62,7 @@ function SettingsFrame.new(parent_frame, player)
 
     mod.log.debug("Frame `{1}(id={2})` created", {self.name, self.id}, "gui")
 
-    return self
+    return object
 end
 
 ---@type LuaGuiElement

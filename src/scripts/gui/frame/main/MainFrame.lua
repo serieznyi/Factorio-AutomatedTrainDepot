@@ -51,10 +51,10 @@ local MainFrame = {
 }
 
 ---@param player LuaPlayer
-function MainFrame.new(player)
-    ---@type gui.frame.MainFrame
-    local self = {}
-    setmetatable(self, { __index = MainFrame,})
+function MainFrame:new(player)
+    object = {}
+    setmetatable(object, self)
+    self.__index = self
 
     self.player = player or nil
     assert(self.player, "player is nil")
@@ -63,7 +63,7 @@ function MainFrame.new(player)
 
     mod.log.debug("Frame `{1}(id={2})` created", {self.name, self.id}, "gui")
 
-    return self
+    return object
 end
 
 function MainFrame:bring_to_front()
