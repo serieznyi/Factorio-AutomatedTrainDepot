@@ -1,26 +1,6 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
----------------------------------------------------------------------------
--- -- -- TYPES ; BEGIN
----------------------------------------------------------------------------
-
----@module gui.frame.Frame
-local Frame = {
-    ---@type string
-    name = nil
-}
-
----@return void
-function Frame:destroy() end
-
----@return LuaGuiElement
-function Frame:window() end
-
----------------------------------------------------------------------------
--- -- -- TYPES ; END
----------------------------------------------------------------------------
-
 --- @class gui.component.Frame
 --- @method show
 
