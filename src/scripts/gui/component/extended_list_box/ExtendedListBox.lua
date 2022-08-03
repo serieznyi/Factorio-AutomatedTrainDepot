@@ -34,17 +34,40 @@ local ExtendedListBox = {
     on_item_selected_closure = nil,
 }
 
----@param event scripts.lib.decorator.Event
-function ExtendedListBox:__handle_click(event)
-    if self.refs == nil then
-        return
+---@param values gui.component.ExtendedListBoxValue[]
+---@param selected_id uint
+---@param on_item_selected_closure function
+---@param parent LuaGuiElement
+---@return scripts.lib.domain.Train
+function ExtendedListBox.new(parent, values, selected_id, required, on_item_selected_closure)
+    ---@type gui.component.ExtendedListBox
+    local self = {}
+    setmetatable(self, { __index = ExtendedListBox })
+
+    self.component_id = component_id_sequence:next()
+
+    assert(values, "values is nil")
+    self.values = values
+
+    self.on_item_selected_closure = on_item_selected_closure
+
+    if selected_id ~= nil then
+        self.selected_id = selected_id
     end
 
-    self.selected_id = event.tags.id
+    if required ~= nil then
+        self.required = required
+    else
+        self:select_first()
+    end
+
+    self.refs = flib_gui.build(parent, { self:_structure() })
 
     self:refresh()
 
-    self:_after_choose_callback(event.tags)
+    mod.log.debug("Component created", {}, "gui.component.extended_list_box")
+
+    return self
 end
 
 ---@type string
@@ -135,12 +158,6 @@ function ExtendedListBox:name()
     return "extended_list_box-" .. self.component_id
 end
 
-function ExtendedListBox:_after_choose_callback(tags)
-    if self.on_item_selected_closure then
-        self.on_item_selected_closure(tags)
-    end
-end
-
 function ExtendedListBox:select_first()
     if #self.values > 0 then
         self.selected_id = self.values[1].id -- choose first
@@ -148,40 +165,36 @@ function ExtendedListBox:select_first()
 
 end
 
----@param values gui.component.ExtendedListBoxValue[]
----@param selected_id uint
----@param on_item_selected_closure function
----@param parent LuaGuiElement
----@return scripts.lib.domain.Train
-function ExtendedListBox.new(parent, values, selected_id, required, on_item_selected_closure)
-    ---@type gui.component.ExtendedListBox
-    local self = {}
-    setmetatable(self, { __index = ExtendedListBox })
+---@param event scripts.lib.decorator.Event
+function ExtendedListBox:dispatch(event)
+    local event_handlers = {
+        {
+            match = event_dispatcher.match_event(mod.defines.events.on_gui_extended_list_box_item_selected),
+            func = function(e) return self:__handle_click(e) end
+        },
+    }
 
-    self.component_id = component_id_sequence:next()
+    -- todo add method for register handlers
+    return event_dispatcher.dispatch(event_handlers, event)
+end
 
-    assert(values, "values is nil")
-    self.values = values
-
-    self.on_item_selected_closure = on_item_selected_closure
-
-    if selected_id ~= nil then
-        self.selected_id = selected_id
+---@param event scripts.lib.decorator.Event
+function ExtendedListBox:__handle_click(event)
+    if self.refs == nil then
+        return
     end
 
-    if required ~= nil then
-        self.required = required
-    else
-        self:select_first()
-    end
-
-    self.refs = flib_gui.build(parent, { self:_structure() })
+    self.selected_id = event.tags.id
 
     self:refresh()
 
-    mod.log.debug("Component created", {}, "gui.component.extended_list_box")
+    self:_after_choose_callback(event.tags)
+end
 
-    return self
+function ExtendedListBox:_after_choose_callback(tags)
+    if self.on_item_selected_closure then
+        self.on_item_selected_closure(tags)
+    end
 end
 
 function ExtendedListBox:_structure()
@@ -207,19 +220,6 @@ end
 
 function ExtendedListBox:_get_value()
     return 1 -- todo fix me
-end
-
----@param event scripts.lib.decorator.Event
-function ExtendedListBox:dispatch(event)
-    local event_handlers = {
-        {
-            match = event_dispatcher.match_event(mod.defines.events.on_gui_extended_list_box_item_selected),
-            func = function(e) return self:__handle_click(e) end
-        },
-    }
-
-    -- todo add method for register handlers
-    return event_dispatcher.dispatch(event_handlers, event)
 end
 
 return ExtendedListBox

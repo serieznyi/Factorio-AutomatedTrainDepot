@@ -30,32 +30,40 @@ local TrainScheduleSelector = {
     component_id = nil,
 }
 
----@param e scripts.lib.decorator.Event
-function TrainScheduleSelector:_dropdown_changed(e)
-    local on_changed = self.on_changed
-    on_changed(e)
+---@param context scripts.lib.domain.Context
+---@param on_changed function
+---@param selected_schedule TrainSchedule
+---@return scripts.lib.domain.Train
+function TrainScheduleSelector.new(context, on_changed, selected_schedule, required)
+    ---@type gui.component.TrainScheduleSelector
+    local self = {}
+    setmetatable(self, { __index = TrainScheduleSelector })
 
-    --self:update_tooltip()
-end
+    self.component_id = component_id_sequence:next()
 
----@param values table list of values
-function TrainScheduleSelector:_structure(values)
-    return {
-        type = "flow",
-        direction = "vertical",
-        children = {
-            {
-                type = "drop-down",
-                ref = {"drop_down"},
-                items = values,
-                actions = {
-                    on_selection_state_changed = {
-                        -- todo add
-                    },
-                }
-            },
-        }
-    }
+    force = game.forces[context.force_name]
+    assert(force, "force is empty")
+    self.force = force
+
+    surface = game.surfaces[context.surface_name]
+    assert(surface, "surface is empty")
+    self.surface = surface
+
+    if selected_schedule ~= nil then
+        self.selected_schedule = selected_schedule
+    end
+
+    if on_changed ~= nil then
+        self.on_changed = on_changed
+    end
+
+    if required ~= nil then
+        self.required = required
+    end
+
+    mod.log.debug("Component train_schedule_selector({1}) created", {self.component_id}, "gui.component.train_schedule_selector")
+
+    return self
 end
 
 ---@type string
@@ -112,42 +120,6 @@ end
 
 function TrainScheduleSelector:name()
     return "train-schedule-selector-" .. self.component_id
-end
-
----@param context scripts.lib.domain.Context
----@param on_changed function
----@param selected_schedule TrainSchedule
----@return scripts.lib.domain.Train
-function TrainScheduleSelector.new(context, on_changed, selected_schedule, required)
-    ---@type gui.component.TrainScheduleSelector
-    local self = {}
-    setmetatable(self, { __index = TrainScheduleSelector })
-
-    self.component_id = component_id_sequence:next()
-
-    force = game.forces[context.force_name]
-    assert(force, "force is empty")
-    self.force = force
-
-    surface = game.surfaces[context.surface_name]
-    assert(surface, "surface is empty")
-    self.surface = surface
-
-    if selected_schedule ~= nil then
-        self.selected_schedule = selected_schedule
-    end
-
-    if on_changed ~= nil then
-        self.on_changed = on_changed
-    end
-
-    if required ~= nil then
-        self.required = required
-    end
-
-    mod.log.debug("Component train_schedule_selector({1}) created", {self.component_id}, "gui.component.train_schedule_selector")
-
-    return self
 end
 
 ---@param event scripts.lib.decorator.Event
@@ -232,6 +204,34 @@ function TrainScheduleSelector._update_tooltip(refs, schedules)
     local tooltip = self:_make_tooltip_for_schedule(selected_schedule)
 
     flib_gui.update(refs.drop_down, {tooltip = tooltip})
+end
+
+---@param e scripts.lib.decorator.Event
+function TrainScheduleSelector:_dropdown_changed(e)
+    local on_changed = self.on_changed
+    on_changed(e)
+
+    --self:update_tooltip()
+end
+
+---@param values table list of values
+function TrainScheduleSelector:_structure(values)
+    return {
+        type = "flow",
+        direction = "vertical",
+        children = {
+            {
+                type = "drop-down",
+                ref = {"drop_down"},
+                items = values,
+                actions = {
+                    on_selection_state_changed = {
+                        -- todo add
+                    },
+                }
+            },
+        }
+    }
 end
 
 return TrainScheduleSelector

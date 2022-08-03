@@ -41,6 +41,10 @@ function TrainsMap:destroy()
     self.refs.trains_table.destroy()
 end
 
+function TrainsMap:update(trains)
+    self:_refresh_component(trains)
+end
+
 ---@param trains table
 function TrainsMap:_initialize(trains)
     local caption = {"trains-map.atd-uncontrolled-trains"}
@@ -74,10 +78,6 @@ function TrainsMap:_refresh_component(trains)
 
         trains_table.children[#trains_table.children].children[1].entity = locomotive
     end
-end
-
-function TrainsMap:update(trains)
-    self:_refresh_component(trains)
 end
 
 return TrainsMap
