@@ -168,7 +168,7 @@ function AddTemplateFrame:_handle_save_form(event)
 
         script.raise_event(mod.defines.events.on_gui_close_add_template_frame_click, {
             player_index = event.player_index,
-            element = event.gui_element,
+            element = event.element,
         })
     end
 

@@ -17,7 +17,7 @@ local Event = {
     ---@type uint
     player_index = nil,
     ---@type LuaGuiElement
-    gui_element = nil,
+    element = nil,
     ---@type LuaPlayer
     player = nil,
 }
@@ -32,7 +32,7 @@ function Event.new(event)
     assert(event, "event is nil")
     self.original_event = event
     self.player_index = event.player_index
-    self.gui_element = event.element
+    self.element = event.element
     self.player = game.get_player(event.player_index)
     self.tags = event.element and flib_gui.get_tags(event.element) or {}
 

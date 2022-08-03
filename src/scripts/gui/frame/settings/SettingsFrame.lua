@@ -131,7 +131,7 @@ function SettingsFrame:_handle_save_form(event)
 
     script.raise_event(mod.defines.events.on_gui_settings_frame_close_click, {
         player_index = event.player_index,
-        element = event.gui_element,
+        element = event.element,
     })
 
     return true

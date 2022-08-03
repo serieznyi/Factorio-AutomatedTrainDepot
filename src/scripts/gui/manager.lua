@@ -147,7 +147,7 @@ end
 function event_handlers.handle_close_frame_by_event(event)
     mod.log.debug(event)
 
-    local event_window = get_parent_frame_for_gui_element(event.gui_element)
+    local event_window = get_parent_frame_for_gui_element(event.element)
 
     assert(event_window, 'window not found')
 
@@ -250,11 +250,11 @@ end
 
 ---@param event scripts.lib.decorator.Event
 function manager.on_gui_closed(event)
-    if event.gui_element == nil or frame_stack.empty() then
+    if event.element == nil or frame_stack.empty() then
         return
     end
 
-    local closed_window = event.gui_element
+    local closed_window = event.element
     local last_frame = frame_stack.frame_stack_last()
     local parent_frame = last_frame.parent_frame
     local last_frame_window = last_frame:window()
