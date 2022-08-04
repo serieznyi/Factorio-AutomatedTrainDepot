@@ -158,7 +158,9 @@ end
 
 ---@param event scripts.lib.decorator.Event
 function Part:_handle_delete_train_part(event)
-    if event:tags().train_part_id ~= self.id then
+    local tags = event:tags()
+
+    if tags == nil or tags.train_part_id ~= self.id then
         return false
     end
 
