@@ -132,9 +132,6 @@ function TrainScheduleSelector:_initialize(container)
             end
         end
     end
-
-    -- todo use later
-    --private.update_tooltip(self.refs, self.schedules)
 end
 
 function TrainScheduleSelector:_register_event_handlers()
@@ -210,39 +207,6 @@ function TrainScheduleSelector:_get_schedules()
 
     -- create new array with sequential keys
     return flib_table.filter(schedules, function() return true end, true)
-end
-
----@param schedule TrainSchedule
----@return string
-function TrainScheduleSelector:_make_tooltip_for_schedule(schedule)
-    local tooltip
-
-    ---@param record TrainScheduleRecord
-    for _, record in ipairs(schedule.records) do
-        tooltip = tooltip == nil and record.station or tooltip .. "\n" .. record.station;
-
-        if record.wait_conditions ~= nil then
-            local conditions = flib_table.reduce(
-                    record.wait_conditions,
-                    function(acc, v) return acc == "" and v.type or acc .. "," .. v.type end,
-                    ""
-            )
-
-            tooltip = tooltip .. " (" .. conditions .. ")"
-        end
-    end
-
-    return tooltip
-end
-
----@param refs table
----@param schedules table
-function TrainScheduleSelector._update_tooltip(refs, schedules)
-    ---@type TrainSchedule
-    local selected_schedule = schedules[refs.drop_down.selected_index]
-    local tooltip = self:_make_tooltip_for_schedule(selected_schedule)
-
-    flib_gui.update(refs.drop_down, {tooltip = tooltip})
 end
 
 ---@param e scripts.lib.decorator.Event
