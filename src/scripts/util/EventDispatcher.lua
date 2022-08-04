@@ -24,7 +24,12 @@ end
 function EventDispatcher.unregister_handlers_by_source(source_name)
     assert(source_name, "source_name is nil")
 
-    EventDispatcher.handlers[source_name] = nil
+    local source_handlers = EventDispatcher.handlers[source_name] ~= nil and EventDispatcher.handlers[source_name] or {}
+
+    for i, _ in ipairs(source_handlers) do
+        -- dispatcher fail if remove all source in one step
+        EventDispatcher.handlers[source_name][i] = nil
+    end
 end
 
 function EventDispatcher.match_all()
