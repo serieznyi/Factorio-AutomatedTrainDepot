@@ -52,6 +52,7 @@ public.events = {
     --
     on_gui_extended_list_box_item_selected = script.generate_event_name(),
     on_gui_trains_station_selector_changed = script.generate_event_name(),
+    on_gui_train_schedule_selector_changed = script.generate_event_name(),
     on_gui_background_dimmer_click = script.generate_event_name(),
 }
 

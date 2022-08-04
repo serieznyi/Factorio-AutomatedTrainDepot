@@ -98,9 +98,6 @@ function AddTemplateFrame:window()
     return self.refs.window
 end
 
-function AddTemplateFrame:update()
-end
-
 function AddTemplateFrame:destroy()
     EventDispatcher.unregister_handlers_by_source(self.name)
 
@@ -133,7 +130,7 @@ function AddTemplateFrame:read_form()
     train_template.train =  self.components.train_builder:read_form(self.player)
     train_template.enabled = false
     train_template.clean_station = self.components.clean_train_station_dropdown:read_form()
-    train_template.destination_station = self.components.destination_train_schedule_dropdown:read_form()
+    train_template.destination_schedule = self.components.destination_train_schedule_dropdown:read_form()
     train_template.trains_quantity = 0
 
     return train_template
@@ -276,6 +273,7 @@ function AddTemplateFrame:_initialize()
 
     local context = Context.from_player(self.player)
     local depot_settings = persistence_storage.get_depot_settings(context)
+    ---@type scripts.lib.domain.TrainTemplate
     local train_template = nil
 
     if self.train_template_id ~= nil then
@@ -286,7 +284,6 @@ function AddTemplateFrame:_initialize()
             self.refs.clean_train_station_dropdown_wrapper,
             self.player.surface,
             self.player.force,
-            -- todo fix it
             function(e) return self:_handle_form_changed(e) end,
             train_template and train_template.clean_station or (depot_settings and depot_settings.default_clean_station or nil),
             true
@@ -300,12 +297,12 @@ function AddTemplateFrame:_initialize()
     )
 
     self.components.destination_train_schedule_dropdown = TrainScheduleSelector.new(
+            self.refs.destination_schedule_dropdown_wrapper,
             context,
             function(e) return self:_handle_form_changed(e) end,
-            train_template and train_template.destination_schedule or (depot_settings and depot_settings.default_destination_schedule or nil),
+            self:_get_selected_schedule(train_template, depot_settings),
             true
     )
-    self.components.destination_train_schedule_dropdown:build(self.refs.destination_schedule_dropdown_wrapper)
 
     self.refs.window.force_auto_center()
     self.refs.window.visible = true
@@ -315,6 +312,20 @@ function AddTemplateFrame:_initialize()
     if train_template ~= nil then
         self:_write_form(train_template)
     end
+end
+
+---@param train_template scripts.lib.domain.TrainTemplate
+---@param depot_settings scripts.lib.domain.DepotSettings
+function AddTemplateFrame:_get_selected_schedule(train_template, depot_settings)
+    local selected_schedule = nil
+
+    if train_template ~= nil then
+        selected_schedule = train_template.destination_schedule
+    elseif depot_settings ~= nil then
+        selected_schedule = depot_settings.default_destination_schedule
+    end
+
+    return selected_schedule
 end
 
 return AddTemplateFrame

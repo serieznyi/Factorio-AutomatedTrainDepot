@@ -20,8 +20,10 @@ local TrainScheduleSelector = {
     surface = nil,
     ---@type table
     actions = {},
-    ---@type table
-    refs = nil,
+    refs = {
+        ---@type LuaGuiElement
+        drop_down = nil,
+    },
     ---@type bool
     required = false,
     ---@type function
@@ -34,7 +36,7 @@ local TrainScheduleSelector = {
 ---@param on_changed function
 ---@param selected_schedule TrainSchedule
 ---@return scripts.lib.domain.Train
-function TrainScheduleSelector.new(context, on_changed, selected_schedule, required)
+function TrainScheduleSelector.new(container, context, on_changed, selected_schedule, required)
     ---@type gui.component.TrainScheduleSelector
     local self = {}
     setmetatable(self, { __index = TrainScheduleSelector })
@@ -62,6 +64,8 @@ function TrainScheduleSelector.new(context, on_changed, selected_schedule, requi
     if required ~= nil then
         self.required = required
     end
+
+    self:_initialize(container)
 
     self:_register_event_handlers()
 
@@ -95,21 +99,24 @@ end
 
 function TrainScheduleSelector:destroy()
     EventDispatcher.unregister_handlers_by_source(self.name)
+
+    self.refs.drop_down.destroy()
 end
 
 ---@param container LuaGuiElement
-function TrainScheduleSelector:build(container)
+function TrainScheduleSelector:_initialize(container)
     self.schedules = self:_get_schedules()
 
     local dropdown_values = flib_table.map(self.schedules, function(v) return self:_get_schedule_name(v) end)
 
     self.refs = flib_gui.build(container, { self:_structure(dropdown_values) })
 
-    if #self.refs.drop_down > 0 then
+    if #self.refs.drop_down.items > 0 then
         if self.selected_schedule == nil then
             self.refs.drop_down.selected_index = 1
         else
             local selected_hash_code = mod_table.hash_code(self.selected_schedule.records);
+
             ---@param s TrainSchedule
             for i, s in ipairs(self.schedules) do
                 if selected_hash_code == mod_table.hash_code(s.records) then
@@ -125,10 +132,10 @@ end
 
 function TrainScheduleSelector:_register_event_handlers()
     local handlers = {
-        --{ -- todo fix it
-        --    match = ,
-        --    func = function(e) return self:_dropdown_changed(e) end
-        --},
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_train_schedule_selector_changed),
+            handler = function(e) return self:__handle_on_changed(e) end
+        },
     }
 
     for _, h in ipairs(handlers) do
@@ -209,11 +216,8 @@ function TrainScheduleSelector._update_tooltip(refs, schedules)
 end
 
 ---@param e scripts.lib.decorator.Event
-function TrainScheduleSelector:_dropdown_changed(e)
-    local on_changed = self.on_changed
-    on_changed(e)
-
-    --self:update_tooltip()
+function TrainScheduleSelector:__handle_on_changed(e)
+    self.on_changed(e)
 end
 
 ---@param values table list of values
@@ -226,10 +230,7 @@ function TrainScheduleSelector:_structure(values)
                 type = "drop-down",
                 ref = {"drop_down"},
                 items = values,
-                actions = {
-                    on_selection_state_changed = {
-                        -- todo add
-                    },
+                actions = { on_selection_state_changed = { event = mod.defines.events.on_gui_train_schedule_selector_changed },
                 }
             },
         }

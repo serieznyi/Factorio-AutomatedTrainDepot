@@ -5,6 +5,7 @@ function structure.get(config)
     local train_template = config.train_template
     local new = train_template == nil
     local train_template_id = train_template ~= nil and train_template.id or nil
+    local train_template_name = train_template ~= nil and train_template.name or nil
 
     return {
         type = "frame",

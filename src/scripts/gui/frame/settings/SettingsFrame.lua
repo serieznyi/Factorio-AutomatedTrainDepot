@@ -228,14 +228,12 @@ function SettingsFrame:_initialize(depot_settings)
     )
 
     self.components.train_schedule_component = TrainScheduleSelector.new(
+            self.refs.target_train_station_dropdown_wrapper,
             Context.from_player(self.player),
-            -- todo fix it
-            nil, --private.handle_form_changed,
+            function(e) return self:_handle_form_changed(e) end,
             depot_settings and depot_settings.default_destination_schedule or nil,
-            true
+            false
     )
-    -- todo remove it
-    self.components.train_schedule_component:build(self.refs.target_train_station_dropdown_wrapper)
 
     if depot_settings ~= nil then
         self:_write_form(depot_settings)
