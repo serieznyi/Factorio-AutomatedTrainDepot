@@ -3,8 +3,7 @@ local structure = {}
 function structure.get(config)
     ---@type scripts.lib.domain.TrainTemplate
     local train_template = config.train_template
-    local train_template_name = train_template ~= nil and train_template.name or nil
-    local new = train_template_name == nil
+    local new = train_template == nil
     local train_template_id = train_template ~= nil and train_template.id or nil
 
     return {

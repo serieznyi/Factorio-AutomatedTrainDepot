@@ -78,7 +78,7 @@ function AddTemplateFrame:new(parent_frame, player, train_template_id)
 
     self.player = assert(player, "player is nil")
     self.train_template_id = train_template_id or nil
-    self.parent_frame = parent_frame or nil
+    self.parent_frame = assert(parent_frame, "parent_frame is nil")
 
     local train_template = persistence_storage.get_train_template(self.train_template_id)
     local structure_config = {frame_name = self.name, train_template = train_template}
@@ -276,6 +276,11 @@ function AddTemplateFrame:_initialize()
 
     local context = Context.from_player(self.player)
     local depot_settings = persistence_storage.get_depot_settings(context)
+    local train_template = nil
+
+    if self.train_template_id ~= nil then
+        train_template = persistence_storage.get_train_template(self.train_template_id)
+    end
 
     self.components.clean_train_station_dropdown = TrainStationSelector.new(
             self.player.surface,
