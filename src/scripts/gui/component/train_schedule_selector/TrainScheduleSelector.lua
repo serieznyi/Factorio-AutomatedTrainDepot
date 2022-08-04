@@ -5,15 +5,22 @@ local EventDispatcher = require("scripts.util.EventDispatcher")
 local mod_table = require("scripts.util.table")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
+local persistence_storage = require("scripts.persistence_storage")
 
 local component_id_sequence = Sequence()
+
+--- @class gui.component.TrainScheduleSelector.Schedule
+--- @field name string
+--- @field schedule TrainSchedule
 
 --- @module gui.component.TrainScheduleSelector
 local TrainScheduleSelector = {
     ---@type uint
     id = nil,
-    ---@type TrainSchedule
+    ---@type gui.component.TrainScheduleSelector.Schedule
     selected_schedule = nil,
+    ---@type scripts.lib.domain.Context
+    context = nil,
     ---@type LuaForce
     force = nil,
     ---@type LuaSurface
@@ -45,6 +52,8 @@ function TrainScheduleSelector.new(container, context, on_changed, selected_sche
 
     self.name = "train_schedule_selector_" .. self.id
 
+    self.context = assert(context, "context is empty")
+
     force = game.forces[context.force_name]
     assert(force, "force is empty")
     self.force = force
@@ -54,7 +63,7 @@ function TrainScheduleSelector.new(container, context, on_changed, selected_sche
     self.surface = surface
 
     if selected_schedule ~= nil then
-        self.selected_schedule = selected_schedule
+        self.selected_schedule = self:_prepare_schedule(selected_schedule)
     end
 
     if on_changed ~= nil then
@@ -78,7 +87,7 @@ end
 function TrainScheduleSelector:read_form()
     local selected_schedule_index = self.refs.drop_down.selected_index
 
-    return self.schedules[selected_schedule_index]
+    return self.schedules[selected_schedule_index] ~= nil and self.schedules[selected_schedule_index].schedule or nil
 end
 
 function TrainScheduleSelector:validate_form()
@@ -107,7 +116,7 @@ end
 function TrainScheduleSelector:_initialize(container)
     self.schedules = self:_get_schedules()
 
-    local dropdown_values = flib_table.map(self.schedules, function(v) return self:_get_schedule_name(v) end)
+    local dropdown_values = flib_table.map(self.schedules, function(v) return v.name end)
 
     self.refs = flib_gui.build(container, { self:_structure(dropdown_values) })
 
@@ -115,11 +124,9 @@ function TrainScheduleSelector:_initialize(container)
         if self.selected_schedule == nil then
             self.refs.drop_down.selected_index = 1
         else
-            local selected_hash_code = mod_table.hash_code(self.selected_schedule.records);
-
             ---@param s TrainSchedule
             for i, s in ipairs(self.schedules) do
-                if selected_hash_code == mod_table.hash_code(s.records) then
+                if self.selected_schedule.hash == s.hash then
                     self.refs.drop_down.selected_index = i
                 end
             end
@@ -151,7 +158,7 @@ end
 
 ---@param schedule TrainSchedule
 ---@return string
-function TrainScheduleSelector:_get_schedule_name(schedule)
+function TrainScheduleSelector:_make_schedule_name(schedule)
     local name = nil
 
     ---@param r TrainScheduleRecord
@@ -162,24 +169,47 @@ function TrainScheduleSelector:_get_schedule_name(schedule)
     return name
 end
 
----@param force LuaForce
----@param surface LuaSurface
----@return TrainSchedule[]
+---@param schedule TrainSchedule
+function TrainScheduleSelector:_prepare_schedule(schedule)
+    ---@type TrainSchedule
+    schedule = flib_table.deep_copy(schedule)
+    schedule.current = 1
+
+    return {
+        hash = mod_table.hash_code(schedule.records),
+        schedule = schedule,
+        name = self:_make_schedule_name(schedule)
+    }
+end
+
+---@return gui.component.TrainScheduleSelector.Schedule[]
 function TrainScheduleSelector:_get_schedules()
+    local schedules = {}
+
+    --- Schedules from trains
     local trains = self.surface.get_trains(self.force)
-    local result = {}
 
     ---@param train LuaTrain`
     for _, train in ipairs(trains) do
         ---@type TrainSchedule
-        local schedule = flib_table.deep_copy(train.schedule)
-        schedule.current = 1
+        local schedule = self:_prepare_schedule(train.schedule)
 
-        table.insert(result, mod_table.hash_code(schedule.records), schedule)
+        table.insert(schedules, schedule.hash, schedule)
+    end
+
+    --- Schedules from templates
+    local templates = persistence_storage.find_train_templates(self.context)
+
+    ---@param template scripts.lib.domain.TrainTemplate
+    for _, template in ipairs(templates) do
+        ---@type TrainSchedule
+        local schedule = self:_prepare_schedule(template.destination_schedule)
+
+        table.insert(schedules, schedule.hash, schedule)
     end
 
     -- create new array with sequential keys
-    return flib_table.filter(result, function() return true end, true)
+    return flib_table.filter(schedules, function() return true end, true)
 end
 
 ---@param schedule TrainSchedule

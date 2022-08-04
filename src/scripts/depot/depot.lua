@@ -202,7 +202,7 @@ end
 ---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.TrainFormingTask
 ---@param tick uint
-function private.try_construct_train(context, task, tick)
+function private.try_deploy_train(context, task, tick)
     if task:is_state_formed() then
         local train_template = persistence_storage.get_train_template(task.train_template_id)
         task:start_deploy(train_template)
@@ -369,7 +369,7 @@ function private.deploy_task(context, task, tick)
         return
     end
 
-    private.try_construct_train(context, task, tick)
+    private.try_deploy_train(context, task, tick)
 end
 
 ---@param context scripts.lib.domain.Context
