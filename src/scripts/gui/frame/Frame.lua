@@ -1,7 +1,9 @@
 ---@module gui.frame.Frame
 local Frame = {
     ---@type string
-    name = nil
+    name = nil,
+    ---@type gui.frame.Frame
+    parent_frame = nil,
 }
 
 ---@return void

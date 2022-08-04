@@ -48,7 +48,7 @@ end
 
 ---@return table
 function frame_stack.all()
-    return flib_table. array_copy(mod.global.frames_stack)
+    return flib_table.array_copy(mod.global.frames_stack)
 end
 
 ---@param frame gui.frame.Frame
@@ -78,17 +78,13 @@ function frame_stack.empty()
     return #mod.global.frames_stack == 0
 end
 
+---@return gui.frame.Frame
 function frame_stack.frame_stack_pop()
-    if mod.global.frames_stack == {} then
+    if #mod.global.frames_stack == 0 then
         return
     end
 
-    local last_index = #mod.global.frames_stack;
-    local frame = mod.global.frames_stack[last_index]
-
-    table.remove(mod.global.frames_stack, last_index)
-
-    return frame
+    return table.remove(mod.global.frames_stack)
 end
 
 ---@return gui.frame.Frame
@@ -218,9 +214,13 @@ end
 
 ---@param frame gui.frame.Frame
 function manager.close_frame(frame)
+    local parent_frame = frame.parent_frame
+    frame_stack.frame_stack_pop()
     frame:destroy()
 
-    frame_stack.frame_stack_pop()
+    if parent_frame ~= nil then
+        switch_on_frame(parent_frame)
+    end
 end
 
 ---@param event scripts.lib.decorator.Event
@@ -229,18 +229,12 @@ function manager.on_gui_closed(event)
         return
     end
 
-    local closed_window = event.element
     local last_frame = frame_stack.frame_stack_last()
-    local parent_frame = last_frame.parent_frame
+    local closed_window = event.element
     local last_frame_window = last_frame:window()
 
     if closed_window == last_frame_window then
-        frame_stack.frame_stack_pop()
-        last_frame:destroy()
-
-        if parent_frame ~= nil then
-            switch_on_frame(parent_frame)
-        end
+        manager.close_frame(last_frame)
     end
 end
 
