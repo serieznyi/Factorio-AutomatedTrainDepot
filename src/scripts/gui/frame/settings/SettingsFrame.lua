@@ -67,7 +67,7 @@ function SettingsFrame:new(parent_frame, player)
     self.id = self.refs.window.index
     self.name = "settings_frame_" .. self.id
 
-    self:_initialize()
+    self:_initialize(depot_settings)
 
     mod.log.debug("Frame {1} created", {self.name}, self.name)
 
@@ -212,7 +212,8 @@ function SettingsFrame:_update_form()
     validator.render_errors(self.refs.validation_errors_container, validation_errors)
 end
 
-function SettingsFrame:_initialize()
+---@param depot_settings scripts.lib.domain.DepotSettings
+function SettingsFrame:_initialize(depot_settings)
     self:_register_event_handlers()
 
     self:_create_dimmer()
