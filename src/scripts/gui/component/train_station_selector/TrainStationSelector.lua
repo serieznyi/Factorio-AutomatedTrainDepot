@@ -4,6 +4,7 @@ local flib_gui = require("__flib__.gui")
 local mod_table = require("scripts.util.table")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
+local EventDispatcher = require("scripts.util.EventDispatcher")
 
 local component_id_sequence = Sequence()
 
@@ -27,27 +28,27 @@ local TrainStationSelector = {
     },
     ---@type bool
     required = false,
+    ---@type function
+    on_changed = false,
 }
 
 ---@param force LuaForce
 ---@param surface LuaSurface
----@param actions table
+---@param on_changed function
 ---@param selected_station_name string
 ---@return scripts.lib.domain.Train
-function TrainStationSelector.new(surface, force, actions, selected_station_name, required)
+---@param container LuaGuiElement
+function TrainStationSelector.new(container, surface, force, on_changed, selected_station_name, required)
     ---@type gui.component.TrainStationSelector
     local self = {}
     setmetatable(self, { __index = TrainStationSelector })
 
     self.id = component_id_sequence:next()
-
     self.name = "train_station_selector_" .. self.id
-
-    assert(force, "`force` is empty")
-    self.force = force
-
-    assert(surface, "`surface` is empty")
-    self.surface = surface
+    self.force = assert(force, "force is empty")
+    self.surface = assert(surface, "surface is empty")
+    self.required = required == nil and false or required
+    self.on_changed = on_changed
 
     if selected_station_name ~= nil then
         self.selected_name = selected_station_name
@@ -57,9 +58,7 @@ function TrainStationSelector.new(surface, force, actions, selected_station_name
         self.actions = actions
     end
 
-    if required ~= nil then
-        self.required = required
-    end
+    self:_initialize(container)
 
     mod.log.debug("Component {1} created", {self.name}, self.name)
 
@@ -71,7 +70,19 @@ function TrainStationSelector:read_form()
     return self:_get_value()
 end
 
+---@param event scripts.lib.decorator.Event
+function TrainStationSelector:__handle_on_changed(event)
+    if self.on_changed then
+        self.on_changed(event)
+    end
+end
+
 function TrainStationSelector:destroy()
+    EventDispatcher.unregister_handlers_by_source(self.name)
+
+    self.refs.drop_down.destroy()
+
+    mod.log.debug("Component {1} destroyed", {self.name}, self.name)
 end
 
 function TrainStationSelector:validate_form()
@@ -91,35 +102,50 @@ function TrainStationSelector:validate_form()
 end
 
 ---@param container LuaGuiElement
-function TrainStationSelector:build(container)
+function TrainStationSelector:_initialize(container)
     local train_stations = self:_get_train_stations()
 
     self.refs = flib_gui.build(container, { self:_structure(train_stations, self.actions) })
 
-    if #self.refs.drop_down > 0 then
-        if self.selected_schedule == nil then
+    if #self.refs.drop_down.items > 0 then
+        if self.selected_name == nil then
             self.refs.drop_down.selected_index = 1
         else
-            local selected_hash_code = mod_table.hash_code(self.selected_schedule.records);
-            ---@param s TrainSchedule
-            for i, s in ipairs(self.schedules) do
-                if selected_hash_code == mod_table.hash_code(s.records) then
+            for i, s in ipairs(self.refs.drop_down.items) do
+                if self.selected_name == s then
                     self.refs.drop_down.selected_index = i
                 end
             end
         end
     end
+
+    self:_register_event_handlers()
 end
 
 ---@param values table
 ---@param actions table
-function TrainStationSelector:_structure(values, actions)
+function TrainStationSelector:_structure(values)
     return {
         type = "drop-down",
         ref = {"drop_down"},
         items = values,
-        actions = actions,
+        actions = {
+            on_selection_state_changed = { event = mod.defines.events.on_gui_trains_station_selector_changed },
+        },
     }
+end
+
+function TrainStationSelector:_register_event_handlers()
+    local handlers = {
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_gui_trains_station_selector_changed),
+            handler = function(e) return self:__handle_on_changed(e) end
+        },
+    }
+
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, self.name)
+    end
 end
 
 ---@return string

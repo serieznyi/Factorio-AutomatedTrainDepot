@@ -219,15 +219,13 @@ function SettingsFrame:_initialize(depot_settings)
     self:_create_dimmer()
 
     self.components.clean_train_station_dropdown_component = TrainStationSelector.new(
+            self.refs.clean_train_station_dropdown_wrapper,
             self.player.surface,
             self.player.force,
-            -- todo change it
-            nil, --{ on_selection_state_changed = { target = self.name, action =  } },
+            function(e) return self:_handle_form_changed(e) end,
             depot_settings and depot_settings.default_clean_station or nil,
-            true
+            false
     )
-    -- todo remove it
-    self.components.clean_train_station_dropdown_component:build(self.refs.clean_train_station_dropdown_wrapper)
 
     self.components.train_schedule_component = TrainScheduleSelector.new(
             Context.from_player(self.player),

@@ -283,14 +283,14 @@ function AddTemplateFrame:_initialize()
     end
 
     self.components.clean_train_station_dropdown = TrainStationSelector.new(
+            self.refs.clean_train_station_dropdown_wrapper,
             self.player.surface,
             self.player.force,
             -- todo fix it
-            null, --{ on_selection_state_changed = { target = self.name, action =  } },
+            function(e) return self:_handle_form_changed(e) end,
             train_template and train_template.clean_station or (depot_settings and depot_settings.default_clean_station or nil),
             true
     )
-    self.components.clean_train_station_dropdown:build(self.refs.clean_train_station_dropdown_wrapper)
 
     self.components.train_builder = TrainBuilder.new(
         self.refs.train_builder_container,
