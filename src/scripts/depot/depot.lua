@@ -259,7 +259,7 @@ function private.try_deploy_train(context, task, tick)
                 if task.deploying_cursor == 1 then
                     task:set_main_locomotive(carrier)
 
-                    private.add_depot_driver(carrier)
+                    private.add_train_schedule(task.main_locomotive.train, train_template)
                 end
 
                 -- add fuel todo fill by fuel from template
@@ -269,12 +269,11 @@ function private.try_deploy_train(context, task, tick)
                 -- todo add inventory
             end
 
+            carrier.train.manual_mode = false
+
             task:deploying_cursor_next()
         end
 
-        if main_locomotive ~= nil then
-            private.ride_train(main_locomotive)
-        end
     elseif task:is_state_deploying() and result_train_length == target_train_length then
         local trains_in_block = false
         for _, rail in ipairs(depot_station_signal.get_connected_rails()) do
@@ -285,10 +284,6 @@ function private.try_deploy_train(context, task, tick)
         end
 
         if not trains_in_block then
-            private.remove_depot_driver(task.main_locomotive)
-
-            private.add_train_schedule(task.main_locomotive.train, train_template)
-
             task:deployed()
             task:delete()
             private.register_train_for_template(main_locomotive.train, train_template)
