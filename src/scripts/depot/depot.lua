@@ -193,6 +193,12 @@ function private.add_depot_driver(locomotive)
     locomotive.set_driver(train_driver)
 end
 
+---@param locomotive LuaEntity
+function private.remove_depot_driver(locomotive)
+    local train_driver = locomotive.get_driver()
+    train_driver.destroy()
+end
+
 ---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.TrainFormingTask
 ---@param tick uint
@@ -279,6 +285,8 @@ function private.try_construct_train(context, task, tick)
         end
 
         if not trains_in_block then
+            private.remove_depot_driver(task.main_locomotive)
+
             private.add_train_schedule(task.main_locomotive.train, train_template)
 
             task:deployed()
