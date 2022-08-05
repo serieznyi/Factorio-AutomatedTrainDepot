@@ -1,4 +1,4 @@
----@return uint forming time in seconds for locomotive and this equipment (without multiplier)
+---@return uint forming time in seconds for locomotive (without multiplier)
 function get_forming_time_for_locomotive()
     ---@type LuaRecipe
     local locomotive_recipe = game.recipe_prototypes["locomotive"]

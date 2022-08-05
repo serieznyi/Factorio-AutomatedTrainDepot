@@ -56,16 +56,6 @@ function structure.get(train_part_id)
                     on_click = { event = mod.defines.events.on_gui_change_carrier_direction_click },
                 }
             },
-            {
-                type = "sprite-button",
-                ref = { "locomotive_config_button" },
-                tooltip = {"add-train-template-frame.atd-configure-locomotive-button"},
-                name = "locomotive_config_button",
-                tags = {train_part_id = train_part_id },
-                visible = false,
-                style = "flib_slot_button_default",
-                sprite = "atd_sprite_gear",
-            },
         }
     }
 end

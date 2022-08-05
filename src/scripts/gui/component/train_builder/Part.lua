@@ -36,8 +36,6 @@ local Part = {
         carrier_direction_left_button = nil,
         ---@type LuaGuiElement
         carrier_direction_right_button = nil,
-        ---@type LuaGuiElement= nil,
-        locomotive_config_button = nil,
     },
 }
 
@@ -145,7 +143,9 @@ end
 
 ---@param event scripts.lib.decorator.Event
 function Part:_handle_update_train_part(event)
-    if event:tags().train_part_id ~= self.id then
+    local tags = event:tags()
+
+    if tags == nil or tags.train_part_id ~= self.id then
         return false
     end
 
@@ -232,7 +232,6 @@ function Part:_update()
     local type = self:_get_train_part_type_from_item_name(self.refs.part_chooser.elem_value)
     local has_direction = type ~= TrainPart.TYPE.CARGO
 
-    self.refs.locomotive_config_button.visible = type == TrainPart.TYPE.LOCOMOTIVE
     self.refs.delete_button.visible = true
 
     if has_direction then
