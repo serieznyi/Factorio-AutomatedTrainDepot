@@ -14,6 +14,17 @@ function validator.match_by_name(names_for_compare)
     end
 end
 
+---@param field string Name of field what will check
+---@param field function Check what rule allowed validate passed field data
+---@param field function Validation function
+function validator.check(field, match, check)
+    return {
+        field = field,
+        match = match,
+        check = check,
+    }
+end
+
 function validator.match_any()
     return function(name)
         return true
@@ -53,18 +64,14 @@ end
 ---@return table
 function validator.validate(rules, data_arg)
     local validation_errors = {}
-    local data = flib_table. deep_copy(data_arg)
+    local data = flib_table.deep_copy(data_arg)
 
-    for form_field_name, _ in pairs(data) do
-        for _, validator_data_element in ipairs(rules) do
-            if validator_data_element.match(form_field_name, data[form_field_name]) then
-                for _, validator_rule in ipairs(validator_data_element.rules) do
-                    local error = validator_rule(form_field_name, data)
+    for _, rule in ipairs(rules) do
+        if rule.match(rule.field, data[rule.field]) then
+            local error = rule.check(rule.field, data)
 
-                    if error ~= nil then
-                        table.insert(validation_errors, {field = form_field_name, error = error})
-                    end
-                end
+            if error ~= nil then
+                table.insert(validation_errors, {field = rule.field, error = error})
             end
         end
     end

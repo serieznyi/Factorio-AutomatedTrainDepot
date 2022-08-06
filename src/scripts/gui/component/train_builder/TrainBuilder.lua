@@ -8,7 +8,7 @@ local Sequence = require("scripts.lib.Sequence")
 
 local component_id_sequence = Sequence()
 
-local function validator_rule_has_main_locomotive(field_name, form)
+local function validation_check_has_main_locomotive(field_name, form)
     ---@type scripts.lib.domain.TrainPart
     local carrier = form[field_name][1]
 
@@ -19,7 +19,7 @@ local function validator_rule_has_main_locomotive(field_name, form)
     return {"validation-message.first-carrier-must-be-locomotive"}
 end
 
-local function validator_rule_empty_train(field_name, form)
+local function validation_check_empty_train(field_name, form)
     local train = form[field_name]
 
     if train ~= nil and #train > 0 then
@@ -29,7 +29,7 @@ local function validator_rule_empty_train(field_name, form)
     return {"validation-message.trains-is-empty"}
 end
 
-local function validator_rule_main_locomotive_wrong_direction(field_name, form)
+local function validation_check_main_locomotive_wrong_direction(field_name, form)
     ---@type scripts.lib.domain.TrainPart
     local carrier = form[field_name][1]
 
@@ -117,17 +117,12 @@ end
 function TrainBuilder:validate_form()
     local form_data = self:read_form()
     local validator_rules = {
-        {
-            match = validator.match_by_name({"train"}),
-            rules = {
-                validator_rule_empty_train,
-                validator_rule_has_main_locomotive,
-                validator_rule_main_locomotive_wrong_direction
-            },
-        },
+        validator.check( "train", validator.match_by_name({"train"}), validation_check_empty_train),
+        validator.check("train", validator.match_by_name({"train"}), validation_check_has_main_locomotive),
+        validator.check("train", validator.match_by_name({"train"}), validation_check_main_locomotive_wrong_direction),
     }
 
-    return validator.validate(validator_rules, {train = form_data})
+    return validator.validate(validator_rules, { train = form_data })
 end
 
 ---@param container LuaGuiElement

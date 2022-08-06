@@ -13,14 +13,8 @@ local validator = require("scripts.gui.validator")
 
 local function validation_rules()
     return {
-        {
-            match = validator.match_by_name({"name"}),
-            rules = { validator.rule_empty },
-        },
-        {
-            match = validator.match_by_name({"icon"}),
-            rules = { validator.rule_empty },
-        },
+        validator.check( "name", validator.match_by_name({"name"}), validator.rule_empty),
+        validator.check( "icon", validator.match_by_name({"icon"}), validator.rule_empty),
     }
 end
 
