@@ -1,6 +1,6 @@
 local misc = require("__flib__.misc")
 
-local logger = {}
+local Logger = {}
 
 local LEVEL = {
     WARNING = "warning",
@@ -44,29 +44,29 @@ end
 ---@param text string
 ---@param args table
 ---@param category string Message category
-function logger.error(text, args, category)
+function Logger.error(text, args, category)
     write_message(LEVEL.ERROR, category, text, args)
 end
 
 ---@param text string
 ---@param args table
 ---@param category string Message category
-function logger.warning(text, args, category)
+function Logger.warning(text, args, category)
     write_message(LEVEL.WARNING, category, text, args)
 end
 
 ---@param text string
 ---@param args table
 ---@param category string Message category
-function logger.info(text, args, category)
+function Logger.info(text, args, category)
     write_message(LEVEL.INFO, category, text, args)
 end
 
 ---@param text string|table
 ---@param args table
 ---@param category string Message category
-function logger.debug(text, args, category)
+function Logger.debug(text, args, category)
     write_message(LEVEL.DEBUG, category, text, args)
 end
 
-return logger
+return Logger
