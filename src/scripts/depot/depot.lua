@@ -5,6 +5,7 @@ local Train = require("scripts.lib.domain.Train")
 local Context = require("scripts.lib.domain.Context")
 local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
 local TrainDisbandTask = require("scripts.lib.domain.TrainDisbandTask")
+local TrainService = require("scripts.lib.service.TrainService")
 local persistence_storage = require("scripts.persistence_storage")
 local mod_game = require("scripts.util.game")
 
@@ -565,7 +566,7 @@ end
 ---------------------------------------------------------------------------
 
 function public.init()
-    public.register_trains()
+    TrainService.register_trains()
 end
 
 function public.load()
@@ -607,39 +608,6 @@ function public.change_trains_quantity(train_template_id, count)
     end
 
     return train_template
-end
-
----@param train_id uint
-function public.delete_train(train_id)
-    local train = persistence_storage.find_train(train_id)
-
-    if train == nil then
-        return
-    end
-
-    train:delete()
-
-    persistence_storage.add_train(train)
-
-    mod.log.debug("Train {1} mark as deleted", {train_id}, "depot.delete_train")
-end
-
-function public.register_trains()
-    mod.log.info("Try register all exists trains", {}, "depot.register_trains")
-
-    ---@param train LuaTrain
-    for _, train in ipairs(mod_game.get_trains()) do
-        private.register_train(train)
-    end
-end
-
----@param lua_train LuaTrain
----@param old_train_id_1 uint
----@param old_train_id_2 uint
-function public.register_train(lua_train, old_train_id_1, old_train_id_2)
-    private.register_train(lua_train, old_train_id_1, old_train_id_2)
-
-    private.on_ntd_register_trains_count_balancer()
 end
 
 return public

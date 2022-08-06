@@ -6,6 +6,7 @@ local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local Event = require("scripts.lib.decorator.Event")
 local EventDispatcher = require("scripts.util.EventDispatcher")
+local TrainService = require("scripts.lib.service.TrainService")
 
 local private = {}
 local public = {}
@@ -74,7 +75,7 @@ function public.entity_dismantled(event)
         end, true)
 
         if #left_carriages == 0 then
-            depot.delete_train(entity.train.id)
+            TrainService.delete_train(entity.train.id)
         end
     end
 end
@@ -105,7 +106,7 @@ end
 
 -----@param event EventData
 function public.train_create(event)
-    depot.register_train(event.train, event.old_train_id_1, event.old_train_id_2)
+    TrainService.register_train(event.train, event.old_train_id_1, event.old_train_id_2)
 end
 
 return public
