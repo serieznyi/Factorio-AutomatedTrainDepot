@@ -1,7 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
-local EventDispatcher = require("scripts.util.EventDispatcher")
+local EventDispatcher = require("scripts.lib.service.EventDispatcher")
 local MainFrame = require("scripts.gui.frame.main.MainFrame")
 local AddTemplateFrame = require("scripts.gui.frame.add_template.AddTemplateFrame")
 local SettingsFrame = require("scripts.gui.frame.settings.SettingsFrame")

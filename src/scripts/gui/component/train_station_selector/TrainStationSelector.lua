@@ -4,7 +4,7 @@ local flib_gui = require("__flib__.gui")
 local mod_table = require("scripts.util.table")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
-local EventDispatcher = require("scripts.util.EventDispatcher")
+local EventDispatcher = require("scripts.lib.service.EventDispatcher")
 
 local component_id_sequence = Sequence()
 

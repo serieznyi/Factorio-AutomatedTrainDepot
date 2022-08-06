@@ -1,6 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
-local EventDispatcher = require("scripts.util.EventDispatcher")
+local EventDispatcher = require("scripts.lib.service.EventDispatcher")
 local mod_gui = require("scripts.util.gui")
 local depot = require("scripts.depot.depot")
 local persistence_storage = require("scripts.persistence_storage")

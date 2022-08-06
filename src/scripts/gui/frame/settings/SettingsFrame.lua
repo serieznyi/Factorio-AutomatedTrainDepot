@@ -1,7 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
-local EventDispatcher = require("scripts.util.EventDispatcher")
+local EventDispatcher = require("scripts.lib.service.EventDispatcher")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.settings.structure")
 local persistence_storage = require("scripts.persistence_storage")

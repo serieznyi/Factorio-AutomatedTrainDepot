@@ -1,6 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
-local EventDispatcher = require("scripts.util.EventDispatcher")
+local EventDispatcher = require("scripts.lib.service.EventDispatcher")
 local TrainPart = require("scripts.lib.domain.TrainPart")
 local structure = require("scripts.gui.component.train_builder.structure")
 local Sequence = require("scripts.lib.Sequence")

@@ -5,7 +5,7 @@ local depot = require("scripts.depot.depot")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local Event = require("scripts.lib.decorator.Event")
-local EventDispatcher = require("scripts.util.EventDispatcher")
+local EventDispatcher = require("scripts.lib.service.EventDispatcher")
 local TrainService = require("scripts.lib.service.TrainService")
 
 local private = {}
