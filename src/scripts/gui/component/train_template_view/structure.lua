@@ -121,8 +121,8 @@ function public.get(train_template)
                     {
                         type = "button",
                         style = "button",
-                        caption = {"train-template-view-component.atd-disable-button"},
-                        tooltip = {"train-template-view-component.atd-disable-button-tooltip"},
+                        caption = {"train-template-view-component.atd-pause-button"},
+                        tooltip = {"train-template-view-component.atd-pause-button-tooltip"},
                         ref = {"disable_button"},
                         enabled = train_template.enabled,
                         actions = {
