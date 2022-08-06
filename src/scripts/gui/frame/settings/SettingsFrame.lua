@@ -193,8 +193,6 @@ end
 
 ---@param depot_settings scripts.lib.domain.DepotSettings
 function SettingsFrame:_fill_form(depot_settings)
-    mod.log.debug(depot_settings)
-
     self.refs.use_any_fuel_checkbox.state = depot_settings.use_any_fuel
 
     if self.refs.use_any_fuel_checkbox.state == true then
