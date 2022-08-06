@@ -24,8 +24,7 @@ local TrainTemplate = {
     icon = nil,
     ---@type table
     train_color = {255, 255, 255},
-    ---@type table array of train parts
-    ---@see scripts.lib.domain.TrainPart
+    ---@type scripts.lib.domain.TrainPart[]
     train = nil,
     ---@type bool
     enabled = nil,
