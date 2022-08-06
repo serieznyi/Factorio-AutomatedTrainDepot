@@ -17,7 +17,7 @@ local function validation_check_empty_fuel(field_name, form)
         return
     end
 
-    return validator.rule_empty(field_name, form)
+    return validator.check_empty(field_name, form)
 end
 
 --- @module gui.frame.SettingsFrame

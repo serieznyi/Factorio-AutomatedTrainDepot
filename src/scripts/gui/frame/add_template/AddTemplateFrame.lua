@@ -18,13 +18,13 @@ local function validation_check_empty_fuel(field_name, form)
         return
     end
 
-    return validator.rule_empty(field_name, form)
+    return validator.check_empty(field_name, form)
 end
 
 local function validation_rules()
     return {
-        validator.check( "name", validator.match_by_name({"name"}), validator.rule_empty),
-        validator.check( "icon", validator.match_by_name({"icon"}), validator.rule_empty),
+        validator.check( "name", validator.match_by_name({"name"}), validator.check_empty),
+        validator.check( "icon", validator.match_by_name({"icon"}), validator.check_empty),
         validator.check( "fuel", validator.match_by_name({"fuel"}), validation_check_empty_fuel),
     }
 end

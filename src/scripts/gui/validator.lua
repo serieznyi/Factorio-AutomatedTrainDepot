@@ -25,16 +25,10 @@ function validator.check(field, match, check)
     }
 end
 
-function validator.match_any()
-    return function(name)
-        return true
-    end
-end
-
 ---@param field_name string
 ---@param form table
 ---@param message_arg string
-function validator.rule_empty(field_name, form, message_arg)
+function validator.check_empty(field_name, form, message_arg)
     local value = form[field_name]
     local message = message_arg or {"validation-message.empty", field_name}
 

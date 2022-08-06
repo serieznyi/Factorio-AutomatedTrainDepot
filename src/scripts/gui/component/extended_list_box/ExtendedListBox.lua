@@ -119,7 +119,7 @@ function ExtendedListBox:validate_form()
             {
                 {
                     match = validator.match_by_name({"value"}),
-                    rules = { validator.rule_empty },
+                    rules = { validator.check_empty },
                 }
             },
             { value = self:_get_value(self.refs) }

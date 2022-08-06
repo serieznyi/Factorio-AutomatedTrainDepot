@@ -92,7 +92,7 @@ function TrainStationSelector:validate_form()
 
     return validator.validate(
             {
-                validator.check( "value", validator.match_by_name({"value"}), validator.rule_empty),
+                validator.check( "value", validator.match_by_name({"value"}), validator.check_empty),
             },
             { value = self:_get_value() }
     )
