@@ -54,6 +54,7 @@ function structure.get(config)
                         vertical_centering = false,
                         column_count = 2,
                         children = {
+                            -- ICON
                             {
                                 type = "label",
                                 caption = { "add-train-template-frame.atd-icon" },
@@ -79,6 +80,7 @@ function structure.get(config)
                                     }
                                 }
                             },
+                            -- NAME
                             {
                                 type = "label",
                                 caption = { "add-train-template-frame.atd-name" },
@@ -138,6 +140,7 @@ function structure.get(config)
                                     }
                                 }
                             },
+                            -- TRAIN
                             {
                                 type = "label",
                                 caption = { "add-train-template-frame.atd-train" },
@@ -160,6 +163,47 @@ function structure.get(config)
                                     }
                                 }
                             },
+                            -- FUEL
+                            {
+                                type = "label",
+                                caption = { "add-train-template-frame.atd-fuel" },
+                            },
+                            {
+                                type = "choose-elem-button",
+                                ref = {"train_fuel_chooser"},
+                                elem_type = "item",
+                                elem_filters = {
+                                    { filter="fuel" },
+                                    { filter="burnt-result", mode = "and", invert = true },
+                                },
+                                actions = {
+                                    on_elem_changed = { event = mod.defines.events.on_gui_adding_template_frame_changed }
+                                }
+
+                            },
+                            {
+                                type = "label",
+                                caption = "",
+                            },
+                            {
+                                type = "flow",
+                                direction = "horizontal",
+                                children = {
+                                    {
+                                        type = "label",
+                                        caption = {"add-train-template-frame.atd-use-any-supported-fuel"},
+                                    },
+                                    {
+                                        type = "checkbox",
+                                        state = false,
+                                        ref = { "use_any_fuel_checkbox" },
+                                        actions = {
+                                            on_checked_state_changed = { event = mod.defines.events.on_gui_adding_template_frame_changed }
+                                        }
+                                    },
+                                },
+                            },
+                            -- CLEAN STATION
                             {
                                 type = "label",
                                 caption = { "add-train-template-frame.atd-clean-train-station" },
@@ -182,6 +226,7 @@ function structure.get(config)
                                     }
                                 }
                             },
+                            -- TRAIN SCHEDULE
                             {
                                 type = "label",
                                 caption = { "add-train-template-frame.atd-working-schedule" },

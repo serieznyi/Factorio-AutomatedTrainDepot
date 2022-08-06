@@ -124,18 +124,6 @@ function Part:read_form()
         carrier.direction = direction
     elseif type == TrainPart.TYPE.LOCOMOTIVE then
         carrier.direction = direction
-        carrier.use_any_fuel = true
-        -- todo add later
-        --train_part.fuel = {
-        --    {type = "coal", amount = 1},
-        --    {type = "coal", amount = 1},
-        --    {type = "coal", amount = 1},
-        --}
-        --train_part.inventory = {
-        --    {entity = "entity1"},
-        --    {entity = "entity2"},
-        --    {entity = "entity3"},
-        --}
     end
 
     return carrier

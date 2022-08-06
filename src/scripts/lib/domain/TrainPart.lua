@@ -4,7 +4,7 @@ function get_forming_time_for_locomotive()
     local locomotive_recipe = game.recipe_prototypes["locomotive"]
     local time = locomotive_recipe.energy
 
-    --todo inventory
+    -- todo
 
     return time
 end
@@ -17,8 +17,6 @@ local TrainPart = { -- todo rename to carrier
     prototype_name = nil,
     ---@type string
     direction = nil,
-    ---@type bool
-    use_any_fuel = nil,
 }
 
 TrainPart.TYPE = {
@@ -33,7 +31,6 @@ function TrainPart:to_table()
         type = self.type,
         prototype_name = self.prototype_name,
         direction = self.direction,
-        use_any_fuel = self.use_any_fuel,
     }
 end
 
@@ -67,7 +64,6 @@ function TrainPart.from_table(data)
 
     object.prototype_name = data.prototype_name
     object.direction = data.direction
-    object.use_any_fuel = data.use_any_fuel
 
     return object
 end

@@ -39,6 +39,10 @@ local TrainTemplate = {
     force_name = nil,
     ---@type string
     surface_name = nil,
+    ---@type string item-name
+    fuel = nil,
+    ---@type bool
+    use_any_fuel = false,
 }
 
 ---@return uint train forming time in seconds (without multiplier)
@@ -78,6 +82,8 @@ function TrainTemplate:to_table()
         surface_name = self.surface_name,
         clean_station = self.clean_station,
         destination_schedule = self.destination_schedule,
+        fuel = self.fuel,
+        use_any_fuel = self.use_any_fuel,
     }
 end
 
@@ -119,6 +125,8 @@ function TrainTemplate:clone()
     copy.destination_schedule = self.destination_schedule
     copy.force_name = self.force_name
     copy.surface_name = self.surface_name
+    copy.use_any_fuel = self.use_any_fuel
+    copy.fuel = self.fuel
 
     return copy
 end
@@ -140,6 +148,8 @@ function TrainTemplate.from_table(data)
     object.surface_name = data.surface_name
     object.clean_station = data.clean_station
     object.destination_schedule = data.destination_schedule
+    object.use_any_fuel = data.use_any_fuel
+    object.fuel = data.fuel
 
     return object
 end

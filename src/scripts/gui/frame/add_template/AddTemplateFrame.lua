@@ -11,10 +11,21 @@ local TrainScheduleSelector = require("scripts.gui.component.train_schedule_sele
 local TrainBuilder = require("scripts.gui.component.train_builder.TrainBuilder")
 local validator = require("scripts.gui.validator")
 
+local function validation_check_empty_fuel(field_name, form)
+    local use_any_fuel = form["use_any_fuel"]
+
+    if use_any_fuel == true then
+        return
+    end
+
+    return validator.rule_empty(field_name, form)
+end
+
 local function validation_rules()
     return {
         validator.check( "name", validator.match_by_name({"name"}), validator.rule_empty),
         validator.check( "icon", validator.match_by_name({"icon"}), validator.rule_empty),
+        validator.check( "fuel", validator.match_by_name({"fuel"}), validation_check_empty_fuel),
     }
 end
 
@@ -51,6 +62,10 @@ local AddTemplateFrame = {
         name_rich_text_chooser_signal = nil,
         ---@type LuaGuiElement
         name_rich_text_chooser_recipe = nil,
+        ---@type LuaGuiElement
+        train_fuel_chooser = nil,
+        ---@type LuaGuiElement
+        use_any_fuel_checkbox = nil,
     },
     components = {
         ---@type gui.component.TrainStationSelector
@@ -119,13 +134,14 @@ function AddTemplateFrame:read_form()
 
     train_template.name = self.refs.name_input.text or mod.util.table.NIL
     train_template.icon = self.refs.icon_input.elem_value or mod.util.table.NIL
-    -- TODO add chooser
     train_template.train_color = { 255, 255, 255}
     train_template.train =  self.components.train_builder:read_form(self.player)
     train_template.enabled = false
     train_template.clean_station = self.components.clean_train_station_dropdown:read_form()
     train_template.destination_schedule = self.components.destination_train_schedule_dropdown:read_form()
     train_template.trains_quantity = 0
+    train_template.use_any_fuel = self.refs.use_any_fuel_checkbox.state
+    train_template.fuel = self.refs.train_fuel_chooser.elem_value
 
     return train_template
 end
@@ -182,9 +198,21 @@ function AddTemplateFrame:_handle_save_form(event)
 end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
-function AddTemplateFrame:_write_form(train_template)
-    self.refs.icon_input.elem_value = train_template.icon
-    self.refs.name_input.text = train_template.name
+---@param depot_settings scripts.lib.domain.DepotSettings
+function AddTemplateFrame:_fill_form(train_template, depot_settings)
+    if train_template ~= nil then
+        self.refs.icon_input.elem_value = train_template.icon
+        self.refs.name_input.text = train_template.name
+        self.refs.train_fuel_chooser.elem_value = train_template.fuel
+        self.refs.use_any_fuel_checkbox.state = train_template.use_any_fuel
+    elseif depot_settings ~= nil then
+        self.refs.train_fuel_chooser.elem_value = depot_settings.fuel
+        self.refs.use_any_fuel_checkbox.state = depot_settings.use_any_fuel
+    else
+        self.refs.use_any_fuel_checkbox.state = false
+    end
+
+    self.refs.train_fuel_chooser.enabled = not self.refs.use_any_fuel_checkbox.state
 end
 
 function AddTemplateFrame:_create_dimmer()
@@ -228,6 +256,13 @@ function AddTemplateFrame:_handle_form_changed(event)
     validator.render_errors(self.refs.validation_errors_container, validation_errors)
 
     submit_button.enabled = #validation_errors == 0
+
+    if self.refs.use_any_fuel_checkbox.state == true then
+        self.refs.train_fuel_chooser.elem_value = nil
+        self.refs.train_fuel_chooser.enabled = false
+    else
+        self.refs.train_fuel_chooser.enabled = true
+    end
 
     return true
 end
@@ -303,9 +338,7 @@ function AddTemplateFrame:_initialize()
     self.refs.titlebar_flow.drag_target = self.refs.window
     self.refs.footerbar_flow.drag_target = self.refs.window
 
-    if train_template ~= nil then
-        self:_write_form(train_template)
-    end
+    self:_fill_form(train_template, depot_settings)
 end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
