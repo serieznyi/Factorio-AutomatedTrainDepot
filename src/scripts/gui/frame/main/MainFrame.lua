@@ -239,6 +239,54 @@ function MainFrame:_select_train_template_view(train_template_id)
     self.components.trains_templates_view:update(train_template)
 end
 
+---@param str string
+---@return string
+function MainFrame:_extract_paths(str)
+    local extract_vars = {}
+    local cleaned_string = ""
+    local init = 1
+
+    while (true) do
+        local start, stop = string.find(str, "%[[%w_-]+%=[[%w_-]+%]", init)
+
+        if start == nil and stop == nil then
+            cleaned_string = cleaned_string .. string.sub(str, init)
+            break
+        end
+
+        table.insert(extract_vars, string.sub(str, start, stop))
+
+        cleaned_string = cleaned_string .. string.sub(str, init, start - 1) .. "{" .. #extract_vars .. "}"
+
+        init = stop + 1
+    end
+
+    return cleaned_string, extract_vars
+end
+
+---@param str string
+---@return string
+function MainFrame:_insert_paths(str, vars)
+    for i, var in ipairs(vars) do
+        str = string.gsub(str, "(%{" .. i .. "%})", var)
+    end
+
+    return str
+end
+
+--- Pads str to length len with char from right
+function MainFrame:_lpad(str, len, char)
+    if char == nil then char = ' ' end
+
+    --mod.log.debug({
+    --    str = str,
+    --    len = #str,
+    --    diff = len - #str,
+    --})
+
+    return str .. string.rep(char, len - #str)
+end
+
 ---@return gui.component.ExtendedListBoxValue
 function MainFrame:_get_trains_templates_values()
     local context = Context.from_player(self.player)
