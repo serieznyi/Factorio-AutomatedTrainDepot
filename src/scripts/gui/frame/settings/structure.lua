@@ -54,15 +54,45 @@ function structure.get(config)
                             {
                                 type = "label",
                                 style = "caption_label",
-                                caption = {"settings-frame.atd-use-any-supported-fuel"},
+                                caption = {"settings-frame.atd-default-fuel"},
+                                tooltip = {"settings-frame-description.atd-default-fuel"},
                             },
                             {
-                                type = "checkbox",
-                                state = false,
-                                ref = { "use_any_fuel_checkbox" },
-                                actions = {
-                                    on_checked_state_changed = { event = mod.defines.events.on_gui_settings_frame_changed }
-                                }
+                                type = "flow",
+                                direction = "vertical",
+                                children = {
+                                    {
+                                        type = "choose-elem-button",
+                                        ref = {"train_fuel_chooser"},
+                                        elem_type = "item",
+                                        elem_filters = {
+                                            { filter="fuel" },
+                                            { filter="burnt-result", mode = "and", invert = true },
+                                        },
+                                        actions = {
+                                            on_elem_changed = { event = mod.defines.events.on_gui_settings_frame_changed }
+                                        }
+                                    },
+                                    {
+                                        type = "flow",
+                                        direction = "horizontal",
+                                        children = {
+                                            {
+                                                type = "label",
+                                                caption = {"settings-frame.atd-use-any-supported-fuel"},
+                                                tooltip = {"settings-frame-description.atd-use-any-supported-fuel"},
+                                            },
+                                            {
+                                                type = "checkbox",
+                                                state = false,
+                                                ref = { "use_any_fuel_checkbox" },
+                                                actions = {
+                                                    on_checked_state_changed = { event = mod.defines.events.on_gui_settings_frame_changed }
+                                                }
+                                            },
+                                        },
+                                    },
+                                },
                             },
                         },
                     },

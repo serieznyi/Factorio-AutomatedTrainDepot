@@ -3,6 +3,8 @@ local DepotSettings = {
     ---@type bool
     use_any_fuel = false,
     ---@type string
+    fuel = nil,
+    ---@type string
     force_name = nil,
     ---@type string
     default_clean_station = nil,
@@ -16,6 +18,7 @@ local DepotSettings = {
 function DepotSettings:to_table()
     return {
         use_any_fuel = self.use_any_fuel,
+        fuel = self.fuel,
         default_clean_station = self.default_clean_station,
         default_destination_schedule = self.default_destination_schedule,
         force_name = self.force_name,
@@ -28,6 +31,7 @@ function DepotSettings.from_table(data)
     local settings = DepotSettings.new()
 
     settings.use_any_fuel = data.use_any_fuel
+    settings.fuel = data.fuel
     settings.default_clean_station = data.default_clean_station
     settings.default_destination_schedule = data.default_destination_schedule
     settings.force_name = data.force_name

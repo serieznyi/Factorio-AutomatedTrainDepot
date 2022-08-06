@@ -10,6 +10,16 @@ local TrainScheduleSelector = require("scripts.gui.component.train_schedule_sele
 local validator = require("scripts.gui.validator")
 local DepotSettings = require("scripts.lib.domain.DepotSettings")
 
+local function validation_check_empty_fuel(field_name, form)
+    local use_any_fuel = form["use_any_fuel"]
+
+    if use_any_fuel == true then
+        return
+    end
+
+    return validator.rule_empty(field_name, form)
+end
+
 --- @module gui.frame.SettingsFrame
 local SettingsFrame = {
     ---@type string
@@ -31,6 +41,8 @@ local SettingsFrame = {
         target_train_station_dropdown_wrapper = nil,
         ---@type LuaGuiElement
         use_any_fuel_checkbox = nil,
+        ---@type LuaGuiElement
+        train_fuel_chooser = nil,
         ---@type LuaGuiElement
         titlebar_flow = nil,
         ---@type LuaGuiElement
@@ -133,6 +145,7 @@ end
 function SettingsFrame:read_form()
     return {
         use_any_fuel = self.refs.use_any_fuel_checkbox.state,
+        fuel = self.refs.train_fuel_chooser.elem_value,
         default_clean_station = self.components.clean_train_station_dropdown_component:read_form(),
         default_destination_schedule = self.components.train_schedule_component:read_form(),
         force_name = self.player.force.name,
@@ -179,21 +192,31 @@ function SettingsFrame:_handle_save_form(event)
 end
 
 ---@param depot_settings scripts.lib.domain.DepotSettings
-function SettingsFrame:_write_form(depot_settings)
-    self.refs.use_any_fuel_checkbox.state = depot_settings.use_any_fuel
-end
+function SettingsFrame:_fill_form(depot_settings)
+    mod.log.debug(depot_settings)
 
-function SettingsFrame:_validation_rules()
-    return {}
+    self.refs.use_any_fuel_checkbox.state = depot_settings.use_any_fuel
+
+    if self.refs.use_any_fuel_checkbox.state == true then
+        self.refs.train_fuel_chooser.elem_value = nil
+        self.refs.train_fuel_chooser.enabled = false
+    else
+        self.refs.train_fuel_chooser.elem_value = depot_settings.fuel
+        self.refs.train_fuel_chooser.enabled = true
+    end
 end
 
 function SettingsFrame:_validate_form()
+    local rules = {
+        validator.check("fuel", validator.match_by_name({"fuel"}), validation_check_empty_fuel)
+    }
+
     local form_data = self:read_form(player)
 
     return flib_table.array_merge({
         self.components.clean_train_station_dropdown_component:validate_form(),
         self.components.train_schedule_component:validate_form(),
-        validator.validate(self:_validation_rules(), form_data)
+        validator.validate(rules, form_data)
     })
 end
 
@@ -205,11 +228,17 @@ function SettingsFrame:_handle_form_changed(event)
 end
 
 function SettingsFrame:_update_form()
-    local submit_button = self.refs.submit_button
     local validation_errors = self:_validate_form()
 
-    submit_button.enabled = #validation_errors == 0
+    self.refs.submit_button.enabled = #validation_errors == 0
     validator.render_errors(self.refs.validation_errors_container, validation_errors)
+
+    if self.refs.use_any_fuel_checkbox.state == true then
+        self.refs.train_fuel_chooser.elem_value = nil
+        self.refs.train_fuel_chooser.enabled = false
+    else
+        self.refs.train_fuel_chooser.enabled = true
+    end
 end
 
 ---@param depot_settings scripts.lib.domain.DepotSettings
@@ -236,7 +265,7 @@ function SettingsFrame:_initialize(depot_settings)
     )
 
     if depot_settings ~= nil then
-        self:_write_form(depot_settings)
+        self:_fill_form(depot_settings)
     end
 
     self:_update_form()
