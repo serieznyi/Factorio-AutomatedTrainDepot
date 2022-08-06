@@ -1,6 +1,9 @@
 local public = {}
 
 local TICKS_PER_SECOND = 60
+local TIME_1_SECOND = 60
+local TIME_2_SECOND = 120
+local TIME_5_MINUTE = 18000
 
 public.color = {
     orange = {r = 1, g = 0.45, b = 0, a = 0.75},
@@ -13,11 +16,11 @@ public.time_in_ticks = {
 }
 
 public.on_nth_tick = {
-    persistence_storage_gc = 18000, -- every 5 minute
-    gui_pop_up = 1, -- every tick
-    tasks_processor = 60, -- every second
-    balance_trains_count = 120, -- every 2-nd second
-    train_deploy = 5, -- every 5 tick
+    persistence_storage_gc = TIME_5_MINUTE,
+    gui_pop_up = 1,
+    tasks_processor = TIME_1_SECOND,
+    balance_trains_count = TIME_2_SECOND,
+    train_deploy = 5,
 }
 
 public.events = {
