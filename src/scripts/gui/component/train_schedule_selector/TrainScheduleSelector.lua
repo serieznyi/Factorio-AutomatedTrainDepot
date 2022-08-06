@@ -192,7 +192,7 @@ function TrainScheduleSelector:_get_schedules()
     end
 
     --- Schedules from templates
-    local templates = persistence_storage.find_train_templates(self.context)
+    local templates = persistence_storage.find_train_templates_by_context(self.context)
 
     ---@param template scripts.lib.domain.TrainTemplate
     for _, template in ipairs(templates) do

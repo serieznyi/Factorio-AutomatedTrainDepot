@@ -148,7 +148,7 @@ end
 ---@param event scripts.lib.decorator.Event
 function MainFrame:_handle_copy_train_template(event)
     local train_template_id = self.components.trains_templates_list:get_selected_id()
-    local train_template = persistence_storage.get_train_template(train_template_id)
+    local train_template = persistence_storage.find_train_template_by_id(train_template_id)
 
     persistence_storage.add_train_template(train_template:clone())
 
@@ -230,7 +230,7 @@ function MainFrame:_handle_update(event)
 end
 
 function MainFrame:_select_train_template_view(train_template_id)
-    local train_template = persistence_storage.get_train_template(train_template_id)
+    local train_template = persistence_storage.find_train_template_by_id(train_template_id)
 
     if train_template == nil then
         return
@@ -290,7 +290,7 @@ end
 ---@return gui.component.ExtendedListBoxValue
 function MainFrame:_get_trains_templates_values()
     local context = Context.from_player(self.player)
-    local trains_templates = persistence_storage.find_train_templates(context)
+    local trains_templates = persistence_storage.find_train_templates_by_context(context)
 
     ---@param t scripts.lib.domain.TrainTemplate
     return flib_table.map(

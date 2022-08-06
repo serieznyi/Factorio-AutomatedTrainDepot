@@ -89,7 +89,7 @@ function AddTemplateFrame:new(parent_frame, player, train_template_id)
     self.train_template_id = train_template_id or nil
     self.parent_frame = assert(parent_frame, "parent_frame is nil")
 
-    local train_template = persistence_storage.get_train_template(self.train_template_id)
+    local train_template = persistence_storage.find_train_template_by_id(self.train_template_id)
     local structure_config = {frame_name = self.name, train_template = train_template}
     self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })
     self.id = self.refs.window.index
@@ -306,7 +306,7 @@ function AddTemplateFrame:_initialize()
     local train_template = nil
 
     if self.train_template_id ~= nil then
-        train_template = persistence_storage.get_train_template(self.train_template_id)
+        train_template = persistence_storage.find_train_template_by_id(self.train_template_id)
     end
 
     self.components.clean_train_station_dropdown = TrainStationSelector.new(

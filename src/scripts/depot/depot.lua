@@ -73,7 +73,7 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
 
         return persistence_storage.add_train(train)
     elseif change_exists_train then
-        local old_train_entity = persistence_storage.get_train(old_train_id_1)
+        local old_train_entity = persistence_storage.find_train(old_train_id_1)
 
         local new_train_entity = old_train_entity:copy(lua_train)
 
@@ -90,7 +90,7 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
         return persistence_storage.add_train(new_train_entity)
     elseif merge_exists_train then
         local newest_train_id = math.max(old_train_id_1, old_train_id_2);
-        local newest_train = persistence_storage.get_train(newest_train_id);
+        local newest_train = persistence_storage.find_train(newest_train_id);
 
         if newest_train ~= nil then
             newest_train:delete()
@@ -99,7 +99,7 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
         end
 
         local oldest_train_id = math.min(old_train_id_1, old_train_id_2);
-        local oldest_train = persistence_storage.get_train(oldest_train_id);
+        local oldest_train = persistence_storage.find_train(oldest_train_id);
 
         local new_train_entity
 
@@ -145,7 +145,7 @@ end
 ---@param train_template scripts.lib.domain.TrainTemplate
 ---@param lua_train LuaTrain
 function private.register_train_for_template(lua_train, train_template)
-    local train = persistence_storage.get_train(lua_train.id)
+    local train = persistence_storage.find_train(lua_train.id)
 
     train:set_train_template(train_template)
 
@@ -174,7 +174,7 @@ end
 ---@param tick uint
 function private.try_deploy_train(context, task, tick)
     if task:is_state_formed() then
-        local train_template = persistence_storage.get_train_template(task.train_template_id)
+        local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
         task:start_deploy(train_template)
         persistence_storage.trains_tasks.add(task)
 
@@ -277,7 +277,7 @@ function private.process_task(task, tick)
     end
 
     if task:is_state_created() then
-        local train_template = persistence_storage.get_train_template(task.train_template_id)
+        local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
 
         task:start_forming_train(tick, multiplier, train_template)
     end
@@ -574,7 +574,7 @@ end
 
 ---@param train_template_id uint
 function public.enable_train_template(train_template_id)
-    local train_template = persistence_storage.get_train_template(train_template_id)
+    local train_template = persistence_storage.find_train_template_by_id(train_template_id)
 
     train_template.enabled = true
 
@@ -586,7 +586,7 @@ function public.enable_train_template(train_template_id)
 end
 
 function public.disable_train_template(train_template_id)
-    local train_template = persistence_storage.get_train_template(train_template_id)
+    local train_template = persistence_storage.find_train_template_by_id(train_template_id)
     train_template.enabled = false
 
     train_template = persistence_storage.add_train_template(train_template)
@@ -597,7 +597,7 @@ end
 ---@param train_template_id uint
 ---@param count int
 function public.change_trains_quantity(train_template_id, count)
-    local train_template = persistence_storage.get_train_template(train_template_id)
+    local train_template = persistence_storage.find_train_template_by_id(train_template_id)
 
     train_template:change_trains_quantity(count)
     persistence_storage.add_train_template(train_template)
@@ -611,7 +611,7 @@ end
 
 ---@param train_id uint
 function public.delete_train(train_id)
-    local train = persistence_storage.get_train(train_id)
+    local train = persistence_storage.find_train(train_id)
 
     if train == nil then
         return

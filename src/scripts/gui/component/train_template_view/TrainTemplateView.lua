@@ -162,7 +162,7 @@ function TrainTemplateView:_train_template_component_caption(train_template)
 end
 
 function TrainTemplateView:_refresh_component()
-    local train_template = persistence_storage.get_train_template(self.train_template_id)
+    local train_template = persistence_storage.find_train_template_by_id(self.train_template_id)
 
     -- update title
 
