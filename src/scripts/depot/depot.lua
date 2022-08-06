@@ -135,36 +135,6 @@ function private.get_disband_slots_count()
     return 1 -- todo depend from technologies
 end
 
----@param locomotive LuaEntity
-function private.ride_train(locomotive)
-    ---@type LuaTrain
-    local train = locomotive.train
-    local speed = math.abs(train.speed)
-    local train_driver = locomotive.get_driver()
-    local min_speed = 0.04
-    local max_speed = min_speed + 0.02
-
-    train.manual_mode = true
-
-    -- control train speed
-    if speed < min_speed then
-        train_driver.riding_state = {
-            acceleration = defines.riding.acceleration.accelerating,
-            direction = defines.riding.direction.straight,
-        }
-    elseif speed >= min_speed and speed <= max_speed then
-        train_driver.riding_state = {
-            acceleration = defines.riding.acceleration.nothing,
-            direction = defines.riding.direction.straight,
-        }
-    elseif speed >= max_speed then
-        train_driver.riding_state = {
-            acceleration = defines.riding.acceleration.braking,
-            direction = defines.riding.direction.straight,
-        }
-    end
-end
-
 ---@param train_template scripts.lib.domain.TrainTemplate
 ---@param train LuaTrain
 function private.add_train_schedule(train, train_template)
