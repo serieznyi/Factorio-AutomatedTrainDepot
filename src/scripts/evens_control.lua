@@ -5,7 +5,7 @@ local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local Event = require("scripts.lib.event.Event")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
-local TrainService = require("scripts.lib.service.TrainService")
+local train_service = require("scripts.lib.train_service")
 
 ---@param entity LuaEntity
 local function is_rolling_stock(entity)
@@ -65,7 +65,7 @@ function events_control.entity_dismantled(event)
         end, true)
 
         if #left_carriages == 0 then
-            TrainService.delete_train(entity.train.id)
+            train_service.delete_train(entity.train.id)
         end
     end
 end
@@ -96,7 +96,7 @@ end
 
 -----@param event EventData
 function events_control.train_create(event)
-    TrainService.register_train(event.train, event.old_train_id_1, event.old_train_id_2)
+    train_service.register_train(event.train, event.old_train_id_1, event.old_train_id_2)
 end
 
 return events_control

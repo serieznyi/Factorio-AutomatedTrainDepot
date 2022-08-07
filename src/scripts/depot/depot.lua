@@ -3,7 +3,7 @@ local flib_table = require("__flib__.table")
 local Context = require("scripts.lib.domain.Context")
 local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
 local TrainDisbandTask = require("scripts.lib.domain.TrainDisbandTask")
-local TrainService = require("scripts.lib.service.TrainService")
+local train_service = require("scripts.lib.train_service")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 
 local public = {}
@@ -491,7 +491,7 @@ end
 ---------------------------------------------------------------------------
 
 function public.init()
-    TrainService.register_trains()
+    train_service.register_trains()
 end
 
 function public.load()

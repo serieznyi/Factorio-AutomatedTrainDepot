@@ -11,7 +11,7 @@ local depot = require("scripts.depot.depot")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local persistence_storage = require("scripts.persistence.persistence_storage")
-local TrainService = require("scripts.lib.service.TrainService")
+local train_service = require("scripts.lib.train_service")
 
 ---------------------------------------------------------------------------
 -- -- -- INTERFACES
@@ -27,7 +27,7 @@ remote.add_interface('atd', {
 ---------------------------------------------------------------------------
 
 commands.add_command("atd-register-trains", {"command.atd-register-trains-help"}, function(_)
-    TrainService.register_trains()
+    train_service.register_trains()
 end)
 
 ---@param command CustomCommandData
