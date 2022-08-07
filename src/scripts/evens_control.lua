@@ -1,36 +1,26 @@
 local flib_table = require("__flib__.table")
 
 local depot_building = require("scripts.depot.depot_building")
-local depot = require("scripts.depot.depot")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local Event = require("scripts.lib.event.Event")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local TrainService = require("scripts.lib.service.TrainService")
 
-local private = {}
-local public = {}
-
----------------------------------------------------------------------------
--- -- -- PRIVATE
----------------------------------------------------------------------------
-
 ---@param entity LuaEntity
-function private.is_rolling_stock(entity)
+local function is_rolling_stock(entity)
     return entity.type == "locomotive" or entity.type == "cargo-wagon"
 end
 
----------------------------------------------------------------------------
--- -- -- PUBLIC
----------------------------------------------------------------------------
+local events_control = {}
 
 ---@param event EventData
-function public.reload_settings(event)
+function events_control.reload_settings(event)
     console.load(event.player_index)
 end
 
 ---@param event EventData
-function public.entity_build(event)
+function events_control.entity_build(event)
     local entity = event.created_entity
 
     if not entity or not entity.valid then
@@ -47,7 +37,7 @@ function public.entity_build(event)
 end
 
 ---@param event EventData
-function public.entity_rotated(event)
+function events_control.entity_rotated(event)
     local entity = event.entity
 
     if not entity or not entity.valid then
@@ -60,7 +50,7 @@ function public.entity_rotated(event)
 end
 
 ---@param event EventData
-function public.entity_dismantled(event)
+function events_control.entity_dismantled(event)
     local entity = event.entity
 
     if not entity or not entity.valid then
@@ -69,7 +59,7 @@ function public.entity_dismantled(event)
 
     if entity.name == mod.defines.prototypes.entity.depot_building.name then
         depot_building.destroy(entity)
-    elseif private.is_rolling_stock(entity) then
+    elseif is_rolling_stock(entity) then
         local left_carriages = flib_table.filter(entity.train.carriages, function(e)
             return e.unit_number ~= entity.unit_number
         end, true)
@@ -81,12 +71,12 @@ function public.entity_dismantled(event)
 end
 
 ---@param event EventData
-function public.handle_events(event)
+function events_control.handle_events(event)
     return EventDispatcher.dispatch(Event.new(event))
 end
 
 ---@param event EventData
-function public.open_main_frame(event)
+function events_control.open_main_frame(event)
     if not event.entity or not event.entity.valid then
         return
     end
@@ -100,13 +90,13 @@ function public.open_main_frame(event)
 end
 
 ---@param event EventData
-function public.on_gui_closed(event)
+function events_control.on_gui_closed(event)
     gui_manager.on_gui_closed(Event.new(event))
 end
 
 -----@param event EventData
-function public.train_create(event)
+function events_control.train_create(event)
     TrainService.register_train(event.train, event.old_train_id_1, event.old_train_id_2)
 end
 
-return public
+return events_control
