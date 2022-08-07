@@ -198,7 +198,7 @@ function public.find_train(train_id)
     return Train.from_table(data)
 end
 
--- -- -- OTHER
+-- -- -- DEPOT SETTINGS
 
 ---@param settings scripts.lib.domain.DepotSettings
 ---@return scripts.lib.domain.DepotSettings
@@ -223,6 +223,8 @@ function public.get_depot_settings(context)
 
     return settings and DepotSettings.from_table(settings) or nil
 end
+
+-- -- -- OTHER
 
 ---@param event NthTickEventData
 function public.collect_garbage(event)
