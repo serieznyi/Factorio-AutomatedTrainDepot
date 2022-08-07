@@ -3,6 +3,8 @@ local flib_dictionary = require("__flib__.dictionary")
 local flib_on_tick_n = require("__flib__.on-tick-n")
 local flib_gui = require("__flib__.gui")
 
+local mod_table = require("scripts.util.table")
+
 mod = require("scripts.mod")
 
 local event_handler = require("scripts.evens_control")
@@ -36,7 +38,7 @@ commands.add_command("atd-global-print", nil, function(command)
 
     local data = global[command.parameter] ~= nil and global[command.parameter] or mod.global[command.parameter]
 
-    player.print(mod.util.table.to_string(data))
+    player.print(mod_table.to_string(data))
 end)
 
 ---@param command CustomCommandData
@@ -145,7 +147,7 @@ flib_event.register(
 
 flib_event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
 
-flib_event.register(mod.util.table.array_values(mod.defines.events), event_handler.handle_events)
+flib_event.register(mod_table.array_values(mod.defines.events), event_handler.handle_events)
 
 ---------------------------------------------------------------------------
 -- -- -- REGISTER GUI EVENTS

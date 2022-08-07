@@ -1,6 +1,8 @@
-local misc = require("__flib__.misc")
+local flib_misc = require("__flib__.misc")
 
-local Logger = {}
+local mod_table = require("scripts.util.table")
+
+local logger = {}
 
 local LEVEL = {
     WARNING = "warning",
@@ -26,10 +28,10 @@ local function write_message(level, category, text, args)
     local message = PATTERN
 
     if type(text) == "table" then
-        text = mod.util.table.to_string(text)
+        text = mod_table.to_string(text)
     end
 
-    message = string.gsub(message,"%%date", game ~= nil and misc.ticks_to_timestring(game.ticks_played) or 0)
+    message = string.gsub(message,"%%date", game ~= nil and flib_misc.ticks_to_timestring(game.ticks_played) or 0)
     message = string.gsub(message,"%%level", tostring(level))
     message = string.gsub(message,"%%message", tostring(text))
     message = string.gsub(message,"%%category", tostring(category or 'default'))
@@ -44,29 +46,29 @@ end
 ---@param text string
 ---@param args table
 ---@param category string Message category
-function Logger.error(text, args, category)
+function logger.error(text, args, category)
     write_message(LEVEL.ERROR, category, text, args)
 end
 
 ---@param text string
 ---@param args table
 ---@param category string Message category
-function Logger.warning(text, args, category)
+function logger.warning(text, args, category)
     write_message(LEVEL.WARNING, category, text, args)
 end
 
 ---@param text string
 ---@param args table
 ---@param category string Message category
-function Logger.info(text, args, category)
+function logger.info(text, args, category)
     write_message(LEVEL.INFO, category, text, args)
 end
 
 ---@param text string|table
 ---@param args table
 ---@param category string Message category
-function Logger.debug(text, args, category)
+function logger.debug(text, args, category)
     write_message(LEVEL.DEBUG, category, text, args)
 end
 
-return Logger
+return logger
