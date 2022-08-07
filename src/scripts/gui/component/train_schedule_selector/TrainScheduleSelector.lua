@@ -2,10 +2,10 @@ local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
 local EventDispatcher = require("scripts.lib.service.EventDispatcher")
-local mod_table = require("scripts.util.table")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
 local persistence_storage = require("scripts.persistence_storage")
+local hash = require("scripts.util.hash")
 
 local component_id_sequence = Sequence()
 
@@ -170,7 +170,7 @@ function TrainScheduleSelector:_prepare_schedule(schedule)
     schedule.current = 1
 
     return {
-        hash = mod_table.hash_code(schedule.records),
+        hash = hash.hash_code(schedule.records),
         schedule = schedule,
         name = self:_make_schedule_name(schedule)
     }

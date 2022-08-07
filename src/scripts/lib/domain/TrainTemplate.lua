@@ -1,7 +1,7 @@
 local flib_table = require("__flib__.table")
-local mod_table = require("scripts.util.table")
 
 local TrainPart = require("scripts.lib.domain.TrainPart")
+local hash = require("scripts.util.hash")
 
 ---@param lua_train LuaTrain
 ---@return int
@@ -11,7 +11,7 @@ function lua_train_hash_code(lua_train)
         carriages = {},
     }
 
-    return mod_table.hash_code(data)
+    return hash.hash_code(data)
 end
 
 --- @module scripts.lib.domain.TrainTemplate
@@ -92,7 +92,7 @@ function TrainTemplate:train_structure_hash_code()
         carriages = {},
     }
 
-    return mod_table.hash_code(data)
+    return hash.hash_code(data)
 end
 
 ---@param value int
