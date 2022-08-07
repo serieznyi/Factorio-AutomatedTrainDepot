@@ -42,12 +42,13 @@ function private.match_train_template_id(v, train_template_id)
     return v.train_template_id == train_template_id
 end
 
----@param uncontrolled bool
+---@param controlled bool
 ---@param context scripts.lib.domain.Context
-function private.find_trains(context, uncontrolled, train_template_id)
+function private.find_trains(context, controlled, train_template_id)
+    ---@param v scripts.lib.domain.Train
     local trains = flib_table.filter(global.trains, function(v)
         return v.deleted == false and
-                v.uncontrolled_train == uncontrolled and
+                v.controlled_train == controlled and
                 private.match_context(v, context) and
                 private.match_train_template_id(v, train_template_id)
     end, true)
@@ -188,14 +189,14 @@ end
 ---@param context scripts.lib.domain.Context
 ---@return scripts.lib.domain.Train[]
 function public.find_uncontrolled_trains(context)
-    return private.find_trains(context, true)
+    return private.find_trains(context, false)
 end
 
 ---@param context scripts.lib.domain.Context
 ---@param train_template_id uint
 ---@return scripts.lib.domain.Train[]
 function public.find_controlled_trains_for_template(context, train_template_id)
-    return private.find_trains(context, false, train_template_id)
+    return private.find_trains(context, true, train_template_id)
 end
 
 ---@param train_id uint

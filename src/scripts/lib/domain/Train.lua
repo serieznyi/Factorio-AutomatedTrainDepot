@@ -14,8 +14,8 @@ local Train = {
     id = nil,
     ---@type uint
     train_template_id = nil,
-    ---@type bool
-    uncontrolled_train = true,
+    ---@type bool Train created for template
+    controlled_train = false,
     ---@type bool
     deleted = false,
     ---@type LuaTrain
@@ -31,7 +31,7 @@ local Train = {
 ---@param train_template scripts.lib.domain.TrainTemplate
 function Train:set_train_template(train_template)
     self.train_template_id = train_template.id
-    self.uncontrolled_train = false -- todo uncontrolled is train without template
+    self.controlled_train = true
 end
 
 ---@return LuaEntity|nil
@@ -70,7 +70,7 @@ function Train:to_table()
         lua_train = self.lua_train,
         surface_name = self.surface_name,
         force_name = self.force_name,
-        uncontrolled_train = self.uncontrolled_train,
+        controlled_train = self.controlled_train,
         deleted = self.deleted,
         train_template_id = self.train_template_id,
         state = self.state,
@@ -83,7 +83,7 @@ function Train:copy(new_lua_train)
     local copy = Train.from_lua_train(new_lua_train)
 
     copy.state = self.state
-    copy.uncontrolled_train = self.uncontrolled_train
+    copy.controlled_train = self.controlled_train
     copy.train_template_id = self.train_template_id
 
     return copy
@@ -97,7 +97,7 @@ function Train.from_table(data)
     train.lua_train = data.lua_train
     train.force_name = data.force_name
     train.surface_name = data.surface_name
-    train.uncontrolled_train = data.uncontrolled_train
+    train.controlled_train = data.controlled_train
     train.deleted = data.deleted
     train.train_template_id = data.train_template_id
     train.state = data.state
