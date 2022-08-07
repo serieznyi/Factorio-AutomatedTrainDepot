@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local mod_gui = require("scripts.util.gui")
-local depot = require("scripts.depot.depot")
+local depot = require("scripts.lib.depot")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.component.train_template_view.structure")

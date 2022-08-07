@@ -7,7 +7,7 @@ mod = require("scripts.mod")
 
 local event_handler = require("scripts.evens_control")
 local depot_builder = require("scripts.lib.depot_builder")
-local depot = require("scripts.depot.depot")
+local depot = require("scripts.lib.depot")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local persistence_storage = require("scripts.persistence.persistence_storage")
