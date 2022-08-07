@@ -8,7 +8,6 @@ mod.console = require("scripts.console")
 mod.util = {
     table = require("scripts.util.table"),
     gui = require("scripts.util.gui"),
-    game = require("scripts.util.game"),
 }
 
 -- global table for runtime data

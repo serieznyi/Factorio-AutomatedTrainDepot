@@ -1,7 +1,5 @@
 local flib_train = require("__flib__.train")
-local flib_table = require("__flib__.table")
 
-local mod_game = require("scripts.util.game")
 local Train = require("scripts.lib.domain.Train")
 local persistence_storage = require("scripts.persistence_storage")
 
@@ -83,6 +81,19 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
     end
 end
 
+function private.get_trains()
+    local trains = {}
+    ---@param force LuaForce
+    for _, force in pairs(game.forces) do
+        ---@param lua_train LuaTrain
+        for _, lua_train in pairs(force.get_trains()) do
+            table.insert(trains, lua_train)
+        end
+    end
+
+    return trains
+end
+
 local TrainService = {}
 
 ---@param train_id uint
@@ -113,7 +124,7 @@ function TrainService.register_trains()
     mod.log.info("Try register all exists trains", {}, "depot.register_trains")
 
     ---@param train LuaTrain
-    for _, train in ipairs(mod_game.get_trains()) do
+    for _, train in ipairs(private.get_trains()) do
         private.register_train(train)
     end
 end
