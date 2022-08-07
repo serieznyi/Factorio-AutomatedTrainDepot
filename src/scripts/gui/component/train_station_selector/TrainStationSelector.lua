@@ -1,7 +1,7 @@
 local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
-local mod_table = require("scripts.util.table")
+local util_table = require("scripts.util.table")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
@@ -175,7 +175,7 @@ function TrainStationSelector:_get_train_stations()
         return station.backer_name
     end)
 
-    train_stations_names = mod_table.array_unique(train_stations_names)
+    train_stations_names = util_table.array_unique(train_stations_names)
 
     table.sort(train_stations_names)
 

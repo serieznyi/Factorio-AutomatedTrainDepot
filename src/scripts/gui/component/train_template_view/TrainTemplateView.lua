@@ -1,7 +1,7 @@
 local flib_gui = require("__flib__.gui")
 
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
-local mod_image = require("scripts.util.image")
+local util_image = require("scripts.util.image")
 local depot = require("scripts.lib.depot")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local Context = require("scripts.lib.domain.Context")
@@ -156,7 +156,7 @@ end
 
 ---@param train_template scripts.lib.domain.TrainTemplate
 function TrainTemplateView:_train_template_component_caption(train_template)
-    local icon = mod_image.image_for_item(train_template.icon)
+    local icon = util_image.image_for_item(train_template.icon)
 
     return icon .. " " .. train_template.name
 end
@@ -178,7 +178,7 @@ function TrainTemplateView:_refresh_component()
             type = "sprite-button",
             enabled = false,
             style = "flib_slot_default",
-            sprite = mod_image.image_path_for_item(train_part.prototype_name),
+            sprite = util_image.image_path_for_item(train_part.prototype_name),
         })
     end
 

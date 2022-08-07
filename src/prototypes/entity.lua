@@ -1,5 +1,4 @@
 local prototype_defines = require("defines.index")
-local mod_table = require("scripts.util.table")
 
 ---@param selection_box BoundingBox
 ---@return BoundingBox

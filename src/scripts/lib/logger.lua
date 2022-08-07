@@ -1,6 +1,6 @@
 local flib_misc = require("__flib__.misc")
 
-local mod_table = require("scripts.util.table")
+local util_table = require("scripts.util.table")
 
 local logger = {}
 
@@ -28,7 +28,7 @@ local function write_message(level, category, text, args)
     local message = PATTERN
 
     if type(text) == "table" then
-        text = mod_table.to_string(text)
+        text = util_table.to_string(text)
     end
 
     message = string.gsub(message,"%%date", game ~= nil and flib_misc.ticks_to_timestring(game.ticks_played) or 0)

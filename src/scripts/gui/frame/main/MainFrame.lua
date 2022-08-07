@@ -7,7 +7,7 @@ local structure = require("scripts.gui.frame.main.structure")
 local TrainTemplateView = require("scripts.gui.component.train_template_view.TrainTemplateView")
 local TrainsMap = require("scripts.gui.component.trains_map.TrainsMap")
 local ExtendedListBox = require("scripts.gui.component.extended_list_box.ExtendedListBox")
-local mod_image = require("scripts.util.image")
+local util_image = require("scripts.util.image")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 
 --- @module gui.frame.MainFrame
@@ -296,7 +296,7 @@ function MainFrame:_get_trains_templates_values()
     return flib_table.map(
             trains_templates,
             function(t)
-                local icon = mod_image.image_for_item(t.icon)
+                local icon = util_image.image_for_item(t.icon)
 
                 return {
                     caption = icon .. " " .. t.name,

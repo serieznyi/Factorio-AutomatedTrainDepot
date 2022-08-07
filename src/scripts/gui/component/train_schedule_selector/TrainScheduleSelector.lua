@@ -5,7 +5,7 @@ local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
 local persistence_storage = require("scripts.persistence.persistence_storage")
-local hash = require("scripts.util.hash")
+local util_hash = require("scripts.util.hash")
 
 local component_id_sequence = Sequence()
 
@@ -170,7 +170,7 @@ function TrainScheduleSelector:_prepare_schedule(schedule)
     schedule.current = 1
 
     return {
-        hash = hash.hash_code(schedule.records),
+        hash = util_hash.hash_code(schedule.records),
         schedule = schedule,
         name = self:_make_schedule_name(schedule)
     }
