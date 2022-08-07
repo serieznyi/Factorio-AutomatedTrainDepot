@@ -1,7 +1,7 @@
 local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
-local EventDispatcher = require("scripts.lib.service.EventDispatcher")
+local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
 local persistence_storage = require("scripts.persistence_storage")
@@ -206,7 +206,7 @@ function TrainScheduleSelector:_get_schedules()
     return flib_table.filter(schedules, function() return true end, true)
 end
 
----@param e scripts.lib.decorator.Event
+---@param e scripts.lib.event.Event
 function TrainScheduleSelector:__handle_on_changed(e)
     self.on_changed(e)
 end

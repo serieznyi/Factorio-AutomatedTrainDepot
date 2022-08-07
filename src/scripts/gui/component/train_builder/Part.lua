@@ -1,6 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
-local EventDispatcher = require("scripts.lib.service.EventDispatcher")
+local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local TrainPart = require("scripts.lib.domain.TrainPart")
 local structure = require("scripts.gui.component.train_builder.structure")
 local Sequence = require("scripts.lib.Sequence")
@@ -129,7 +129,7 @@ function Part:read_form()
     return carrier
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function Part:_handle_update_train_part(event)
     local tags = event:tags()
 
@@ -144,7 +144,7 @@ function Part:_handle_update_train_part(event)
     return true
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function Part:_handle_delete_train_part(event)
     local tags = event:tags()
 
@@ -159,7 +159,7 @@ function Part:_handle_delete_train_part(event)
     return true
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function Part:_handle_change_carrier_direction(event)
     local tags = event:tags()
 

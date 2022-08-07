@@ -1,7 +1,7 @@
 local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
-local EventDispatcher = require("scripts.lib.service.EventDispatcher")
+local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
 
@@ -182,7 +182,7 @@ function ExtendedListBox:_register_event_handlers()
     end
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function ExtendedListBox:__handle_click(event)
     if self.refs == nil then
         return

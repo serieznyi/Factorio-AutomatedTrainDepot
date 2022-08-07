@@ -1,7 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
-local EventDispatcher = require("scripts.lib.service.EventDispatcher")
+local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local MainFrame = require("scripts.gui.frame.main.MainFrame")
 local AddTemplateFrame = require("scripts.gui.frame.add_template.AddTemplateFrame")
 local SettingsFrame = require("scripts.gui.frame.settings.SettingsFrame")
@@ -102,7 +102,7 @@ end
 -- -- -- EVENT HANDLERS
 ---------------------------------------------------------------------------
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function event_handlers.handle_close_frame_by_event(event)
     local event_window = get_parent_frame_for_gui_element(event.element)
 
@@ -120,7 +120,7 @@ function event_handlers.handle_close_frame_by_event(event)
     manager.close_frame(frame)
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function event_handlers.handle_add_template_frame_open(event)
     local parent_frame = frame_stack.frame_stack_last()
     ---@type LuaPlayer
@@ -131,7 +131,7 @@ function event_handlers.handle_add_template_frame_open(event)
     switch_on_frame(frame)
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function event_handlers.handle_settings_frame_open(event)
     local parent_frame = frame_stack.frame_stack_last()
     ---@type LuaPlayer
@@ -141,7 +141,7 @@ function event_handlers.handle_settings_frame_open(event)
     switch_on_frame(frame)
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function event_handlers.handle_background_dimmer_click(event)
     local owner_name = event.action_data.owner_name
 
@@ -153,7 +153,7 @@ function event_handlers.handle_background_dimmer_click(event)
     end
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function event_handlers.handle_main_frame_open(event)
     ---@type LuaPlayer
     local player = game.get_player(event.player_index)
@@ -170,7 +170,7 @@ function manager.load()
     manager.register_events()
 end
 
----@param e scripts.lib.decorator.Event
+---@param e scripts.lib.event.Event
 function manager.open_main_frame(e)
     event_handlers.handle_main_frame_open(e)
 end
@@ -223,7 +223,7 @@ function manager.close_frame(frame)
     end
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function manager.on_gui_closed(event)
     if event.element == nil or frame_stack.empty() then
         return

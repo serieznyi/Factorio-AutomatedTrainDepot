@@ -1,6 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
-local EventDispatcher = require("scripts.lib.service.EventDispatcher")
+local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local mod_gui = require("scripts.util.gui")
 local depot = require("scripts.depot.depot")
 local persistence_storage = require("scripts.persistence_storage")
@@ -146,7 +146,7 @@ function TrainTemplateView:_handle_refresh_component(e)
     return true
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 ---@return uint
 function TrainTemplateView:_get_train_quantity_change_value(event)
     local action = event.action_data

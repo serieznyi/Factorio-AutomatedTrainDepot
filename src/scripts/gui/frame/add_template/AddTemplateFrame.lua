@@ -5,7 +5,7 @@ local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.add_template.structure")
 local persistence_storage = require("scripts.persistence_storage")
-local EventDispatcher = require("scripts.lib.service.EventDispatcher")
+local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local TrainStationSelector = require("scripts.gui.component.train_station_selector.TrainStationSelector")
 local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.TrainScheduleSelector")
 local TrainBuilder = require("scripts.gui.component.train_builder.TrainBuilder")
@@ -175,7 +175,7 @@ function AddTemplateFrame:_register_event_handlers()
     end
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function AddTemplateFrame:_handle_save_form(event)
     local form_data = self:read_form()
     local validation_errors = self:_validate_form()
@@ -248,7 +248,7 @@ function AddTemplateFrame:_validate_form()
     })
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function AddTemplateFrame:_handle_form_changed(event)
     local submit_button = self.refs.submit_button
     local validation_errors = self:_validate_form()
@@ -267,7 +267,7 @@ function AddTemplateFrame:_handle_form_changed(event)
     return true
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function AddTemplateFrame:_handle_name_rick_text_changed(event)
     local name_input = self.refs.name_input
     local signal_rich = self.refs.name_rich_text_chooser_signal

@@ -40,13 +40,13 @@ end
 
 ---@param event_id uint
 function EventDispatcher.match_event(event_id)
-    ---@param e scripts.lib.decorator.Event
+    ---@param e scripts.lib.event.Event
     return function(e)
         return e.id == event_id
     end
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 ---@return bool
 function EventDispatcher.dispatch(event)
     local processed = false

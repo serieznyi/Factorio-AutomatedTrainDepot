@@ -1,6 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
---- @module scripts.lib.decorator.Event
+--- @module scripts.lib.event.Event
 local Event = {
     ---@type EventData
     original_event = nil,
@@ -19,9 +19,9 @@ local Event = {
 }
 
 ---@param event EventData
----@return scripts.lib.decorator.Event
+---@return scripts.lib.event.Event
 function Event.new(event)
-    ---@type scripts.lib.decorator.Event
+    ---@type scripts.lib.event.Event
     local self = {}
     setmetatable(self, { __index = Event, __tostring = function(o) return o:full_name() end })
 

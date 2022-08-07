@@ -4,7 +4,7 @@ local flib_gui = require("__flib__.gui")
 local mod_table = require("scripts.util.table")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
-local EventDispatcher = require("scripts.lib.service.EventDispatcher")
+local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 
 local component_id_sequence = Sequence()
 
@@ -70,7 +70,7 @@ function TrainStationSelector:read_form()
     return self:_get_value()
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function TrainStationSelector:__handle_on_changed(event)
     if self.on_changed then
         self.on_changed(event)

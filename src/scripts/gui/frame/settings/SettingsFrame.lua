@@ -1,7 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
-local EventDispatcher = require("scripts.lib.service.EventDispatcher")
+local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.settings.structure")
 local persistence_storage = require("scripts.persistence_storage")
@@ -170,7 +170,7 @@ function SettingsFrame:_register_event_handlers()
     end
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function SettingsFrame:_handle_save_form(event)
     local form_data = self:read_form()
     local validation_errors = self:_validate_form()
@@ -218,7 +218,7 @@ function SettingsFrame:_validate_form()
     })
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function SettingsFrame:_handle_form_changed(event)
     self:_update_form()
 

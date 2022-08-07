@@ -1,7 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
-local EventDispatcher = require("scripts.lib.service.EventDispatcher")
+local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.main.structure")
 local TrainTemplateView = require("scripts.gui.component.train_template_view.TrainTemplateView")
@@ -137,7 +137,7 @@ function MainFrame:destroy()
     mod.log.debug("Frame {1} destroyed", {self.name}, "gui")
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function MainFrame:_handle_open_uncontrolled_trains_map(event)
     local context = Context.from_player(self.player)
     local trains = persistence_storage.find_uncontrolled_trains(context)
@@ -145,7 +145,7 @@ function MainFrame:_handle_open_uncontrolled_trains_map(event)
     self.components.trains_map:update(trains)
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function MainFrame:_handle_copy_train_template(event)
     local train_template_id = self.components.trains_templates_list:get_selected_id()
     local train_template = persistence_storage.find_train_template_by_id(train_template_id)
@@ -207,7 +207,7 @@ function MainFrame:_initialize()
     self:update()
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function MainFrame:_handle_delete_train_template(event)
     local train_template_id = self.components.trains_templates_list:get_selected_id()
 
@@ -222,7 +222,7 @@ function MainFrame:_handle_delete_train_template(event)
     return true
 end
 
----@param event scripts.lib.decorator.Event
+---@param event scripts.lib.event.Event
 function MainFrame:_handle_update(event)
     self:update()
 
