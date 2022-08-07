@@ -7,10 +7,9 @@ local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Sequence = require("scripts.lib.Sequence")
 
 local garbage_collector = require("scripts.persistence.garbage_collector")
-local trains_tasks = require("scripts.persistence.trains_tasks")
 
 local public = {
-    trains_tasks = trains_tasks
+    trains_tasks = require("scripts.persistence.trains_tasks")
 }
 local private = {}
 
@@ -77,7 +76,7 @@ function public.init()
 
     garbage_collector.init(gc_storage_names, mod.defines.persistence.garbage_ttl)
 
-    trains_tasks.init()
+    public.trains_tasks.init()
 
     logger.debug("persistence storage was initialized")
 end
@@ -89,7 +88,7 @@ function public.load()
 
     garbage_collector.init(gc_storage_names, mod.defines.persistence.garbage_ttl)
 
-    trains_tasks.load()
+    public.trains_tasks.load()
 end
 
 -- -- -- TRAIN TEMPLATE
@@ -104,6 +103,18 @@ function public.find_train_template_by_id(id)
     end
 
     return TrainTemplate.from_table(template)
+end
+
+---@return LuaSurface[]
+function public.find_surfaces_from_train_templates()
+    local surfaces = {}
+
+    ---@param t scripts.lib.domain.TrainTemplate
+    for _, t in ipairs(global.trains_templates) do
+        table.insert(surfaces, game.get_surface(t.surface_name))
+    end
+
+    return surfaces
 end
 
 ---@param context scripts.lib.domain.Context

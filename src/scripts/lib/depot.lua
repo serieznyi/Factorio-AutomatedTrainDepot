@@ -426,10 +426,11 @@ end
 
 ---@param data NthTickEventData
 function private.balance_trains_count(data)
-    -- todo get surface/force from tasks
-    for surface_name, _ in pairs(game.surfaces) do
+    local surfaces_with_depot = persistence_storage.find_surfaces_from_train_templates()
+
+    for _, surface in ipairs(surfaces_with_depot) do
         for force_name, _ in pairs(game.forces) do
-            local context = Context.new(surface_name, force_name)
+            local context = Context.new(surface.name, force_name)
 
             private.balance_trains_count_for_context(context, data)
         end
