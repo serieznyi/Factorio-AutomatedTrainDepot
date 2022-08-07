@@ -3,6 +3,7 @@ local defines = {}
 local TICKS_PER_SECOND = 60
 local TIME_1_SECOND = 60
 local TIME_2_SECOND = 120
+local TIME_1_MINUTE = 3600
 local TIME_5_MINUTE = 18000
 
 defines.color = {
@@ -16,7 +17,7 @@ defines.time_in_ticks = {
 }
 
 defines.on_nth_tick = {
-    persistence_storage_gc = TIME_5_MINUTE,
+    persistence_storage_gc = TIME_1_MINUTE,
     gui_pop_up = 1,
     tasks_processor = TIME_1_SECOND,
     balance_trains_count = TIME_2_SECOND,
