@@ -28,19 +28,28 @@ remote.add_interface('atd', {
 -- -- -- CONSOLE COMMANDS
 ---------------------------------------------------------------------------
 
+--- Try register unregistered trains
 commands.add_command("atd-register-trains", {"command.atd-register-trains-help"}, function(_)
     train_service.register_trains()
 end)
 
+--- Log variable from global table in log file
 ---@param command CustomCommandData
-commands.add_command("atd-global-print", nil, function(command)
+commands.add_command("atd-global-log", nil, function(command)
     local player = game.get_player(command.player_index)
 
-    local data = global[command.parameter] ~= nil and global[command.parameter] or mod.global[command.parameter]
+    if command.parameter == nil or global[command.parameter] == nil then
+        return
+    end
 
-    player.print(util_table.to_string(data))
+    local data = global[command.parameter]
+
+    mod.log.debug(util_table.to_string(data))
+
+    player.print("Global data from `" .. command.parameter .. "` writed in log file")
 end)
 
+--- Show keys from global table
 ---@param command CustomCommandData
 commands.add_command("atd-global-keys", nil, function(command)
     local player = game.get_player(command.player_index)
