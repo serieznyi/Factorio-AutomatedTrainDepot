@@ -1,7 +1,7 @@
 local flib_train = require("__flib__.train")
 
 local Train = require("scripts.lib.domain.Train")
-local persistence_storage = require("scripts.persistence_storage")
+local persistence_storage = require("scripts.persistence.persistence_storage")
 
 local private = {}
 

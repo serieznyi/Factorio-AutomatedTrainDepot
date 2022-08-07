@@ -10,7 +10,7 @@ local depot_building = require("scripts.depot.depot_building")
 local depot = require("scripts.depot.depot")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
-local persistence_storage = require("scripts.persistence_storage")
+local persistence_storage = require("scripts.persistence.persistence_storage")
 local TrainService = require("scripts.lib.service.TrainService")
 
 ---------------------------------------------------------------------------

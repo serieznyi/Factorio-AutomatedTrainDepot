@@ -8,7 +8,7 @@ local TrainTemplateView = require("scripts.gui.component.train_template_view.Tra
 local TrainsMap = require("scripts.gui.component.trains_map.TrainsMap")
 local ExtendedListBox = require("scripts.gui.component.extended_list_box.ExtendedListBox")
 local mod_gui = require("scripts.util.gui")
-local persistence_storage = require("scripts.persistence_storage")
+local persistence_storage = require("scripts.persistence.persistence_storage")
 
 --- @module gui.frame.MainFrame
 local MainFrame = {

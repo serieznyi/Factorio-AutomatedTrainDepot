@@ -4,7 +4,7 @@ local flib_gui = require("__flib__.gui")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
-local persistence_storage = require("scripts.persistence_storage")
+local persistence_storage = require("scripts.persistence.persistence_storage")
 local hash = require("scripts.util.hash")
 
 local component_id_sequence = Sequence()

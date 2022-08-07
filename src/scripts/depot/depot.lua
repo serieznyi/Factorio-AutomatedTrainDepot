@@ -4,7 +4,7 @@ local Context = require("scripts.lib.domain.Context")
 local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
 local TrainDisbandTask = require("scripts.lib.domain.TrainDisbandTask")
 local TrainService = require("scripts.lib.service.TrainService")
-local persistence_storage = require("scripts.persistence_storage")
+local persistence_storage = require("scripts.persistence.persistence_storage")
 
 local public = {}
 local private = {}
