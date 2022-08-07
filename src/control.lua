@@ -6,7 +6,7 @@ local flib_gui = require("__flib__.gui")
 mod = require("scripts.mod")
 
 local event_handler = require("scripts.evens_control")
-local depot_building = require("scripts.depot.depot_building")
+local depot_builder = require("scripts.lib.depot_builder")
 local depot = require("scripts.depot.depot")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
@@ -18,8 +18,8 @@ local train_service = require("scripts.lib.train_service")
 ---------------------------------------------------------------------------
 
 remote.add_interface('atd', {
-    depot_get_output_station = depot_building.get_depot_output_station,
-    depot_get_output_signal = depot_building.get_depot_output_signal,
+    depot_get_output_station = depot_builder.get_depot_output_station,
+    depot_get_output_signal = depot_builder.get_depot_output_signal,
 })
 
 ---------------------------------------------------------------------------
@@ -85,7 +85,7 @@ flib_event.on_init(function()
     -- Initialize `global` table
     console.init()
     persistence_storage.init()
-    depot_building.init()
+    depot_builder.init()
     depot.init()
 end)
 

@@ -1,6 +1,6 @@
 local flib_table = require("__flib__.table")
 
-local depot_building = require("scripts.depot.depot_building")
+local depot_builder = require("scripts.lib.depot_builder")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local Event = require("scripts.lib.event.Event")
@@ -28,11 +28,11 @@ function events_control.entity_build(event)
     end
 
     if entity.name == "entity-ghost" and entity.ghost_name == mod.defines.prototypes.entity.depot_building.name then
-        depot_building.build_ghost(entity)
+        depot_builder.build_ghost(entity)
     elseif entity.name == mod.defines.prototypes.entity.depot_building.name then
         local player = event.player_index ~= nil and game.get_player(event.player_index) or nil
 
-        depot_building.build(entity, player)
+        depot_builder.build(entity, player)
     end
 end
 
@@ -45,7 +45,7 @@ function events_control.entity_rotated(event)
     end
 
     if entity.name == mod.defines.prototypes.entity.depot_building.name then
-        depot_building.revert_rotation(entity, event.previous_direction)
+        depot_builder.revert_rotation(entity, event.previous_direction)
     end
 end
 
@@ -58,7 +58,7 @@ function events_control.entity_dismantled(event)
     end
 
     if entity.name == mod.defines.prototypes.entity.depot_building.name then
-        depot_building.destroy(entity)
+        depot_builder.destroy(entity)
     elseif is_rolling_stock(entity) then
         local left_carriages = flib_table.filter(entity.train.carriages, function(e)
             return e.unit_number ~= entity.unit_number
