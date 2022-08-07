@@ -2,8 +2,6 @@ local flib_table = require("__flib__.table")
 
 local public = {}
 
-public.NIL = "__mod__nil"
-
 --- Convert table to string (table content view)
 ---@param table_arg table
 function public.to_string(table_arg)

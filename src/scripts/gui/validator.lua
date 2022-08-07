@@ -32,7 +32,7 @@ function validator.check_empty(field_name, form, message_arg)
     local value = form[field_name]
     local message = message_arg or {"validation-message.empty", field_name}
 
-    if value == nil or value == "" or value == {} or value == mod.util.table.NIL then
+    if value == nil or value == "" or value == {} then
         return message
     end
 

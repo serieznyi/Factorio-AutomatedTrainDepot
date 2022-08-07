@@ -132,8 +132,8 @@ function AddTemplateFrame:read_form()
     ---@type scripts.lib.domain.TrainTemplate
     local train_template = TrainTemplate.from_context(window_tags.train_template_id, context)
 
-    train_template.name = self.refs.name_input.text or mod.util.table.NIL
-    train_template.icon = self.refs.icon_input.elem_value or mod.util.table.NIL
+    train_template.name = self.refs.name_input.text
+    train_template.icon = self.refs.icon_input.elem_value
     train_template.train_color = { 255, 255, 255}
     train_template.train =  self.components.train_builder:read_form(self.player)
     train_template.enabled = false
