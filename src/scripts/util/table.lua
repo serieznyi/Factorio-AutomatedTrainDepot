@@ -1,15 +1,15 @@
 local flib_table = require("__flib__.table")
 
-local public = {}
+local atd_table = {}
 
 --- Convert table to string (table content view)
 ---@param table_arg table
-function public.to_string(table_arg)
+function atd_table.to_string(table_arg)
     return serpent.block(table_arg)
 end
 
 ---@param arrays table array of objects
-function public.objects_merge(arrays)
+function atd_table.objects_merge(arrays)
     local result = {}
     for _, array in ipairs(arrays) do
         for key, value in pairs(array) do
@@ -20,7 +20,7 @@ function public.objects_merge(arrays)
     return result
 end
 
-function public.array_values(array)
+function atd_table.array_values(array)
     local values = {}
 
     for _, v in pairs(array) do
@@ -32,7 +32,7 @@ end
 
 ---@param array table
 ---@return table
-function public.array_unique(array)
+function atd_table.array_unique(array)
     local result = {}
 
     for _, v in ipairs(array) do
@@ -42,4 +42,4 @@ function public.array_unique(array)
     return flib_table.filter(result, function(v) return true end, true)
 end
 
-return public
+return atd_table

@@ -1,21 +1,21 @@
-local public = {}
+local defines = {}
 
 local TICKS_PER_SECOND = 60
 local TIME_1_SECOND = 60
 local TIME_2_SECOND = 120
 local TIME_5_MINUTE = 18000
 
-public.color = {
+defines.color = {
     orange = {r = 1, g = 0.45, b = 0, a = 0.75},
     red = {r = 1, g = 0, b = 0, a = 0.75},
     write = {r = 1, g = 1, b = 1, a = 1},
 }
 
-public.time_in_ticks = {
+defines.time_in_ticks = {
     seconds_5 = TICKS_PER_SECOND * 5,
 }
 
-public.on_nth_tick = {
+defines.on_nth_tick = {
     persistence_storage_gc = TIME_5_MINUTE,
     gui_pop_up = 1,
     tasks_processor = TIME_1_SECOND,
@@ -23,7 +23,7 @@ public.on_nth_tick = {
     train_deploy = 5,
 }
 
-public.events = {
+defines.events = {
     on_core_train_task_changed = script.generate_event_name(),
     on_core_train_template_changed = script.generate_event_name(),
     on_core_settings_changed = script.generate_event_name(),
@@ -59,10 +59,10 @@ public.events = {
     on_gui_background_dimmer_click = script.generate_event_name(),
 }
 
-public.train_template = {
+defines.train_template = {
 }
 
-public.train = {
+defines.train = {
     state = {
         execute_schedule        = "execute_schedule",
         go_to_depot             = "go_to_depot",
@@ -74,10 +74,10 @@ public.train = {
     }
 }
 
-public.prototypes = require("prototypes.defines.index")
+defines.prototypes = require("prototypes.defines.index")
 
-public.persistence = {
-    garbage_ttl = public.on_nth_tick.persistence_storage_gc,
+defines.persistence = {
+    garbage_ttl = defines.on_nth_tick.persistence_storage_gc,
 }
 
-return public
+return defines
