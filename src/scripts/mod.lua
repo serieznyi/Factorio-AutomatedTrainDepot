@@ -1,7 +1,7 @@
 local mod = {}
 
 mod.defines = require("scripts.defines")
-mod.log = require("scripts.lib.service.Logger")
+mod.log = require("scripts.lib.logger")
 
 -- todo use global util instead require
 mod.util = {
