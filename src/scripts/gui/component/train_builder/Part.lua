@@ -1,5 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
+local logger = require("scripts.lib.logger")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local TrainPart = require("scripts.lib.domain.TrainPart")
 local structure = require("scripts.gui.component.train_builder.structure")
@@ -64,7 +65,7 @@ function Part.new(container, player, on_changed, train_part)
 
     self:_initialize(train_part)
 
-    mod.log.debug("Component {1} created", {self.name}, self.name)
+    logger.debug("Component {1} created", {self.name}, self.name)
 
     return self
 end

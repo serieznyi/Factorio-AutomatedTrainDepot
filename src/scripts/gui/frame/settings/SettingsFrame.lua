@@ -9,6 +9,7 @@ local TrainStationSelector = require("scripts.gui.component.train_station_select
 local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.TrainScheduleSelector")
 local validator = require("scripts.gui.validator")
 local DepotSettings = require("scripts.lib.domain.DepotSettings")
+local logger = require("scripts.lib.logger")
 
 local function validation_check_empty_fuel(field_name, form)
     local use_any_fuel = form["use_any_fuel"]
@@ -81,7 +82,7 @@ function SettingsFrame:new(parent_frame, player)
 
     self:_initialize(depot_settings)
 
-    mod.log.debug("Frame {1} created", {self.name}, self.name)
+    logger.debug("Frame {1} created", {self.name}, self.name)
 
     return object
 end
@@ -121,7 +122,7 @@ function SettingsFrame:_create_dimmer()
         }
     })
 
-    mod.log.debug("Frame {1} created", {dimmer_name}, self.name)
+    logger.debug("Frame {1} created", {dimmer_name}, self.name)
 end
 
 function SettingsFrame:destroy()
@@ -135,11 +136,11 @@ function SettingsFrame:destroy()
         component:destroy()
     end
 
-    mod.log.debug("Frame {1} destroyed", {self.refs.background_dimmer.name}, self.name)
+    logger.debug("Frame {1} destroyed", {self.refs.background_dimmer.name}, self.name)
     self.refs.background_dimmer.destroy()
     self.refs.window.destroy()
 
-    mod.log.debug("Frame {1} destroyed", {self.name}, self.name)
+    logger.debug("Frame {1} destroyed", {self.name}, self.name)
 end
 
 function SettingsFrame:read_form()

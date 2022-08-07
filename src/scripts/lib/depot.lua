@@ -5,6 +5,7 @@ local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
 local TrainDisbandTask = require("scripts.lib.domain.TrainDisbandTask")
 local train_service = require("scripts.lib.train_service")
 local persistence_storage = require("scripts.persistence.persistence_storage")
+local logger = require("scripts.lib.logger")
 
 local public = {}
 local private = {}
@@ -104,7 +105,7 @@ function private.try_deploy_train(context, task, tick)
         task:start_deploy(train_template)
         persistence_storage.trains_tasks.add(task)
 
-        mod.log.debug("Try deploy train for template {1}", {task.train_template_id}, "depot")
+        logger.debug("Try deploy train for template {1}", {task.train_template_id}, "depot")
     end
 
     ---@type LuaEntity
@@ -113,7 +114,7 @@ function private.try_deploy_train(context, task, tick)
     local depot_station_signal = remote.call("atd", "depot_get_output_signal", context)
 
     if depot_station_output == nil then
-        mod.log.warning("Depot station for context {1} is nil", {tostring(context)}, "depot")
+        logger.warning("Depot station for context {1} is nil", {tostring(context)}, "depot")
     end
 
     local train_template = task.train_template
@@ -326,7 +327,7 @@ function private.try_add_forming_train_task_for_template(train_template)
 
     persistence_storage.trains_tasks.add(forming_task)
 
-    mod.log.debug(
+    logger.debug(
             "Add new forming task `{1}` for template `{2}`",
             { forming_task.id, train_template.name },
             "depot"
@@ -345,7 +346,7 @@ function private.discard_forming_task(task)
 
     private.raise_task_changed_event(task)
 
-    mod.log.debug(
+    logger.debug(
             "Discard train forming task `{1}` for template `{2}`",
             { task.id, task.train_template_id},
             "depot"
@@ -386,7 +387,7 @@ function private.try_add_disband_train_task_for_template(train_template)
     -- todo balance tasks for different forces, surfaces and templates
     local context = Context.from_model(train_template)
 
-    mod.log.debug({ -- todo remove me
+    logger.debug({ -- todo remove me
         train_template_id = train_template.id,
         has_free_slot = private.has_free_disband_slot(context),
     }, {}, "try_add_disband_train_task_for_template")
@@ -406,7 +407,7 @@ function private.try_add_disband_train_task_for_template(train_template)
 
     persistence_storage.trains_tasks.add(task)
 
-    mod.log.debug(
+    logger.debug(
             "Add new disband task `{1}` for template `{2}` and train `{3}`",
             { task.id, train_template.name, train.id },
             "depot"
@@ -447,7 +448,7 @@ function private.balance_trains_count_for_context(context, data)
         local count = #trains + forming_train_tasks_count
         local diff = train_template.trains_quantity - count
 
-        mod.log.debug({ -- todo remove me
+        logger.debug({ -- todo remove me
             template_id = train_template.id,
             template_quantity = train_template.trains_quantity,
             trains_count = #trains,

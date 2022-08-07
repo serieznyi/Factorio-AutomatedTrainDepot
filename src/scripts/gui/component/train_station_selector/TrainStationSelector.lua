@@ -1,6 +1,7 @@
 local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
+local logger = require("scripts.lib.logger")
 local util_table = require("scripts.util.table")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
@@ -60,7 +61,7 @@ function TrainStationSelector.new(container, surface, force, on_changed, selecte
 
     self:_initialize(container)
 
-    mod.log.debug("Component {1} created", {self.name}, self.name)
+    logger.debug("Component {1} created", {self.name}, self.name)
 
     return self
 end
@@ -82,7 +83,7 @@ function TrainStationSelector:destroy()
 
     self.refs.drop_down.destroy()
 
-    mod.log.debug("Component {1} destroyed", {self.name}, self.name)
+    logger.debug("Component {1} destroyed", {self.name}, self.name)
 end
 
 function TrainStationSelector:validate_form()

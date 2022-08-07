@@ -1,6 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
+local logger = require("scripts.lib.logger")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.main.structure")
@@ -68,7 +69,7 @@ function MainFrame:new(player)
 
     self:_initialize()
 
-    mod.log.debug("Frame {1} created", {self.name}, self.name)
+    logger.debug("Frame {1} created", {self.name}, self.name)
 
     return object
 end
@@ -97,7 +98,7 @@ function MainFrame:_create_dimmer()
         }
     })
 
-    mod.log.debug("Frame {1} created", {dimmer_name}, self.name)
+    logger.debug("Frame {1} created", {dimmer_name}, self.name)
 end
 
 function MainFrame:opened()
@@ -130,11 +131,11 @@ function MainFrame:destroy()
         component:destroy()
     end
 
-    mod.log.debug("Frame {1} destroyed", {self.refs.background_dimmer.name}, self.name)
+    logger.debug("Frame {1} destroyed", {self.refs.background_dimmer.name}, self.name)
     self.refs.background_dimmer.destroy()
     self.refs.window.destroy()
 
-    mod.log.debug("Frame {1} destroyed", {self.name}, "gui")
+    logger.debug("Frame {1} destroyed", {self.name}, "gui")
 end
 
 ---@param event scripts.lib.event.Event
@@ -277,12 +278,6 @@ end
 --- Pads str to length len with char from right
 function MainFrame:_lpad(str, len, char)
     if char == nil then char = ' ' end
-
-    --mod.log.debug({
-    --    str = str,
-    --    len = #str,
-    --    diff = len - #str,
-    --})
 
     return str .. string.rep(char, len - #str)
 end

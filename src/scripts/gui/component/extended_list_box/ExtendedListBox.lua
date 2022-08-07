@@ -4,6 +4,7 @@ local flib_gui = require("__flib__.gui")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
+local logger = require("scripts.lib.logger")
 
 local component_id_sequence = Sequence()
 
@@ -71,7 +72,7 @@ function ExtendedListBox.new(parent, values, selected_id, required, on_item_sele
 
     self:_register_event_handlers()
 
-    mod.log.debug("Component {1} created", {self.name}, self.name)
+    logger.debug("Component {1} created", {self.name}, self.name)
 
     return self
 end

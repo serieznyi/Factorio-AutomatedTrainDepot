@@ -1,5 +1,6 @@
 local flib_direction = require('__flib__.direction')
 
+local logger = require("scripts.lib.logger")
 local Context = require('scripts.lib.domain.Context')
 
 local FORCE_DEFAULT = "player"
@@ -269,7 +270,7 @@ function private.build(context, entity)
         dependent_entities = dependent_entities
     })
 
-    mod.log.debug('Depot on surface {1} for force {2} was build', {context.surface_name, context.force_name})
+    logger.debug('Depot on surface {1} for force {2} was build', {context.surface_name, context.force_name})
 end
 
 ---@param player LuaPlayer
@@ -408,7 +409,7 @@ function public.destroy(entity)
 
     storage.delete_depot(context)
 
-    mod.log.debug('Depot on surface {1} for {2} was destroy', {context.surface_name, context.force_name})
+    logger.debug('Depot on surface {1} for {2} was destroy', {context.surface_name, context.force_name})
 end
 
 return public

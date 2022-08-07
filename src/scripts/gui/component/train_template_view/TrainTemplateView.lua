@@ -1,5 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
+local logger = require("scripts.lib.logger")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local util_image = require("scripts.util.image")
 local depot = require("scripts.lib.depot")
@@ -60,7 +61,7 @@ function TrainTemplateView.new(player, container)
 
     self:_register_event_handlers()
 
-    mod.log.debug("Component {1} created", {self.name}, self.name)
+    logger.debug("Component {1} created", {self.name}, self.name)
 
     return self
 end

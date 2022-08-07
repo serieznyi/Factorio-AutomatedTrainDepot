@@ -1,3 +1,5 @@
+local logger = require("scripts.lib.logger")
+
 local EventDispatcher = {
     handlers = {},
 }
@@ -56,7 +58,7 @@ function EventDispatcher.dispatch(event)
             if h.match(event) and h.handler(event) then
                 processed = true
 
-                mod.log.debug(
+                logger.debug(
                         "Handled event {1} for {2}",
                         { tostring(event), (h.handler_source and h.handler_source or '?') },
                         "EventDispatcher"

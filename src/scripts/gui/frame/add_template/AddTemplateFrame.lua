@@ -1,6 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
+local logger = require("scripts.lib.logger")
 local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.add_template.structure")
@@ -97,7 +98,7 @@ function AddTemplateFrame:new(parent_frame, player, train_template_id)
 
     self:_initialize()
 
-    mod.log.debug("Frame {1} created", {self.name}, "gui")
+    logger.debug("Frame {1} created", {self.name}, "gui")
 
     return object
 end
@@ -118,11 +119,11 @@ function AddTemplateFrame:destroy()
         component:destroy()
     end
 
-    mod.log.debug("Frame {1} destroyed", {self.refs.background_dimmer.name}, self.name)
+    logger.debug("Frame {1} destroyed", {self.refs.background_dimmer.name}, self.name)
     self.refs.background_dimmer.destroy()
     self.refs.window.destroy()
 
-    mod.log.debug("Frame {1} destroyed", {self.name}, self.name)
+    logger.debug("Frame {1} destroyed", {self.name}, self.name)
 end
 
 ---@return scripts.lib.domain.TrainTemplate form data
@@ -234,7 +235,7 @@ function AddTemplateFrame:_create_dimmer()
         }
     })
 
-    mod.log.debug("Frame {1} created", {dimmer_name}, self.name)
+    logger.debug("Frame {1} created", {dimmer_name}, self.name)
 end
 
 function AddTemplateFrame:_validate_form()

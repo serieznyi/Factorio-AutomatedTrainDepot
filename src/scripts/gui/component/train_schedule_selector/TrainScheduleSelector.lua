@@ -1,6 +1,7 @@
 local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
+local logger = require("scripts.lib.logger")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
@@ -78,7 +79,7 @@ function TrainScheduleSelector.new(container, context, on_changed, selected_sche
 
     self:_register_event_handlers()
 
-    mod.log.debug("Component {1} created", { self.name }, self.name)
+    logger.debug("Component {1} created", { self.name }, self.name)
 
     return self
 end

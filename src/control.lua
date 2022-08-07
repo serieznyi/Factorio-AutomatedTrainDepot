@@ -4,6 +4,7 @@ local flib_on_tick_n = require("__flib__.on-tick-n")
 local flib_gui = require("__flib__.gui")
 
 local util_table = require("scripts.util.table")
+local logger = require("scripts.lib.logger")
 
 mod = require("scripts.mod")
 
@@ -44,7 +45,7 @@ commands.add_command("atd-global-log", nil, function(command)
 
     local data = global[command.parameter]
 
-    mod.log.debug(util_table.to_string(data))
+    logger.debug(util_table.to_string(data))
 
     player.print("Global data from `" .. command.parameter .. "` writed in log file")
 end)

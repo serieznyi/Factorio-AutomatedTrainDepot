@@ -1,5 +1,6 @@
 local flib_table = require("__flib__.table")
 
+local logger = require("scripts.lib.logger")
 local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
 local TrainDisbandTask = require("scripts.lib.domain.TrainDisbandTask")
 local Sequence = require("scripts.lib.Sequence")
@@ -83,7 +84,7 @@ function public.init()
 
     global.trains_tasks = {}
 
-    mod.log.debug("trains_tasks was initialized")
+    logger.debug("trains_tasks was initialized")
 end
 
 function public.load()

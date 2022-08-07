@@ -1,6 +1,7 @@
 local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
+local logger = require("scripts.lib.logger")
 local TrainPart = require("scripts.lib.domain.TrainPart")
 local Part = require("scripts.gui.component.train_builder.Part")
 local validator = require("scripts.gui.validator")
@@ -84,7 +85,7 @@ function TrainBuilder.new(container, player, on_changed, train)
 
     self:_initialize(container, train)
 
-    mod.log.debug("Component {1} created", {self.name}, self.name)
+    logger.debug("Component {1} created", {self.name}, self.name)
 
     return self
 end
@@ -95,7 +96,7 @@ end
 function TrainBuilder:destroy()
     self.refs.container.clear()
 
-    mod.log.debug("Frame {1} destroyed", {self.name}, self.name)
+    logger.debug("Frame {1} destroyed", {self.name}, self.name)
 end
 
 function TrainBuilder:read_form()

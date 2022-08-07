@@ -1,5 +1,6 @@
 local flib_table = require("__flib__.table")
 
+local logger = require("scripts.lib.logger")
 local Train = require("scripts.lib.domain.Train")
 local DepotSettings = require("scripts.lib.domain.DepotSettings")
 local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
@@ -78,7 +79,7 @@ function public.init()
 
     trains_tasks.init()
 
-    mod.log.debug("persistence storage was initialized")
+    logger.debug("persistence storage was initialized")
 end
 
 function public.load()

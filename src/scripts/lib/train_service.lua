@@ -1,5 +1,6 @@
 local flib_train = require("__flib__.train")
 
+local logger = require("scripts.lib.logger")
 local Train = require("scripts.lib.domain.Train")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 
@@ -19,7 +20,7 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
     local merge_exists_train = old_train_id_1 ~= nil and old_train_id_2 ~= nil
 
     if not train_has_locomotive then
-        mod.log.debug("Ignore train without locomotive: Train id {1}", {lua_train.id}, "depot.register_train")
+        logger.debug("Ignore train without locomotive: Train id {1}", {lua_train.id}, "depot.register_train")
         return
     end
 
@@ -27,7 +28,7 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
         ---@type scripts.lib.domain.Train
         local train = Train.from_lua_train(lua_train)
 
-        mod.log.debug("Try register new train {1}", {train.id}, "depot.register_train")
+        logger.debug("Try register new train {1}", {train.id}, "depot.register_train")
 
         return persistence_storage.add_train(train)
     elseif change_exists_train then
@@ -37,9 +38,9 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
 
         old_train_entity:delete()
         persistence_storage.add_train(old_train_entity)
-        mod.log.debug("Train {1} mark as deleted", {old_train_id_1}, "depot.register_train")
+        logger.debug("Train {1} mark as deleted", {old_train_id_1}, "depot.register_train")
 
-        mod.log.debug(
+        logger.debug(
                 "Try register new train {1} extended from {2}",
                 {new_train_entity.id, old_train_id_1},
                 "depot.register_train"
@@ -53,7 +54,7 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
         if newest_train ~= nil then
             newest_train:delete()
             persistence_storage.add_train(newest_train)
-            mod.log.debug("Train {1} mark as deleted", {newest_train_id}, "depot.register_train")
+            logger.debug("Train {1} mark as deleted", {newest_train_id}, "depot.register_train")
         end
 
         local oldest_train_id = math.min(old_train_id_1, old_train_id_2);
@@ -66,12 +67,12 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
 
             oldest_train:delete()
             persistence_storage.add_train(oldest_train)
-            mod.log.debug("Train {1} mark as deleted", {oldest_train_id}, "depot.register_train")
+            logger.debug("Train {1} mark as deleted", {oldest_train_id}, "depot.register_train")
         else
             new_train_entity = Train.from_lua_train(lua_train)
         end
 
-        mod.log.debug(
+        logger.debug(
                 "Try register new train {1} as merge trains {2} and {3}",
                 {new_train_entity.id, old_train_id_1, old_train_id_2},
                 "depot.register_train"
@@ -108,7 +109,7 @@ function TrainService.delete_train(train_id)
 
     persistence_storage.add_train(train)
 
-    mod.log.debug("Train {1} mark as deleted", {train_id}, "depot.delete_train")
+    logger.debug("Train {1} mark as deleted", {train_id}, "depot.delete_train")
 end
 
 ---@param lua_train LuaTrain
@@ -121,7 +122,7 @@ function TrainService.register_train(lua_train, old_train_id_1, old_train_id_2)
 end
 
 function TrainService.register_trains()
-    mod.log.info("Try register all exists trains", {}, "depot.register_trains")
+    logger.info("Try register all exists trains", {}, "depot.register_trains")
 
     ---@param train LuaTrain
     for _, train in ipairs(private.get_trains()) do

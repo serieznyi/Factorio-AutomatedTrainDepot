@@ -1,3 +1,5 @@
+local logger = require("scripts.lib.logger")
+
 local public = {}
 
 local private = {
@@ -34,7 +36,7 @@ end
 function private.report()
     if private.count() > 0 then
         for name, v in pairs(private.stats) do
-            mod.log.debug("Remove entries: {1} {2}", {name, v}, "persistence_storage.gc")
+            logger.debug("Remove entries: {1} {2}", {name, v}, "persistence_storage.gc")
         end
 
         private.reset()

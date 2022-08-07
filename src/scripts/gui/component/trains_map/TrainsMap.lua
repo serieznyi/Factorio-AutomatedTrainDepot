@@ -1,5 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
+local logger = require("scripts.lib.logger")
 local structure = require("scripts.gui.component.trains_map.structure")
 local Sequence = require("scripts.lib.Sequence")
 
@@ -42,7 +43,7 @@ function TrainsMap.new(player, container, trains)
 
     self:_initialize(trains)
 
-    mod.log.debug("Component {1} created", {self.name}, self.name)
+    logger.debug("Component {1} created", {self.name}, self.name)
 
     return self
 end
