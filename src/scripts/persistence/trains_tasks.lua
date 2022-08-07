@@ -3,7 +3,7 @@ local flib_table = require("__flib__.table")
 local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
 local TrainDisbandTask = require("scripts.lib.domain.TrainDisbandTask")
 local Sequence = require("scripts.lib.Sequence")
-local gc = require("scripts.persistence.gc")
+local garbage_collector = require("scripts.persistence.garbage_collector")
 
 local public = {}
 local private = {}
@@ -103,7 +103,7 @@ function public.add(train_task)
 
     local data = train_task:to_table()
 
-    global.trains_tasks[train_task.id] = gc.with_updated_at(data)
+    global.trains_tasks[train_task.id] = garbage_collector.with_updated_at(data)
 
     return train_task
 end

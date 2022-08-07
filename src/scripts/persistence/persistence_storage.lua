@@ -5,7 +5,7 @@ local DepotSettings = require("scripts.lib.domain.DepotSettings")
 local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Sequence = require("scripts.lib.Sequence")
 
-local gc = require("scripts.persistence.gc")
+local garbage_collector = require("scripts.persistence.garbage_collector")
 local trains_tasks = require("scripts.persistence.trains_tasks")
 
 local public = {
@@ -74,7 +74,7 @@ function public.init()
     global.trains = {}
     global.depot_settings = {}
 
-    gc.init(gc_storage_names, mod.defines.persistence.garbage_ttl)
+    garbage_collector.init(gc_storage_names, mod.defines.persistence.garbage_ttl)
 
     trains_tasks.init()
 
@@ -86,7 +86,7 @@ function public.load()
         global.sequence.train_template = value
     end)
 
-    gc.init(gc_storage_names, mod.defines.persistence.garbage_ttl)
+    garbage_collector.init(gc_storage_names, mod.defines.persistence.garbage_ttl)
 
     trains_tasks.load()
 end
@@ -142,7 +142,7 @@ function public.add_train_template(train_template)
 
     local data = train_template:to_table()
 
-    global.trains_templates[train_template.id] = gc.with_updated_at(data)
+    global.trains_templates[train_template.id] = garbage_collector.with_updated_at(data)
 
     return train_template
 end
@@ -160,7 +160,7 @@ end
 function public.add_train(train)
     local data = train:to_table()
 
-    global.trains[train.id] = gc.with_updated_at(data)
+    global.trains[train.id] = garbage_collector.with_updated_at(data)
 
     return train
 end
@@ -226,7 +226,7 @@ end
 
 ---@param event NthTickEventData
 function public.collect_garbage(event)
-    gc.collect_garbage(event.tick)
+    garbage_collector.collect_garbage(event.tick)
 end
 
 return public
