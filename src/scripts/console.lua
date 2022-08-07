@@ -1,5 +1,7 @@
 local console = {}
 
+-- todo rewrite
+
 local LEVEL = {
     NONE = 1,
     WARNING = 2,
