@@ -53,6 +53,8 @@ end
 function EventDispatcher.dispatch(event)
     local processed = false
 
+    logger.debug("Taken event `{1}`", { event:full_name() }, "EventDispatcher")
+
     for _, source_handlers in pairs(EventDispatcher.handlers) do
         for _, h in ipairs(source_handlers) do
             if h.match(event) and h.handler(event) then
