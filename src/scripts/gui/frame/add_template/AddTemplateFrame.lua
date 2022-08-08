@@ -11,6 +11,7 @@ local TrainStationSelector = require("scripts.gui.component.train_station_select
 local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.TrainScheduleSelector")
 local TrainBuilder = require("scripts.gui.component.train_builder.TrainBuilder")
 local validator = require("scripts.gui.validator")
+local depot = require("scripts.lib.depot")
 
 local function validation_check_empty_fuel(field_name, form)
     local use_any_fuel = form["use_any_fuel"]
@@ -22,11 +23,28 @@ local function validation_check_empty_fuel(field_name, form)
     return validator.check_empty(field_name, form)
 end
 
+-- todo realize later
+local function validation_check_destination_schedule_reachability(field_name, form)
+    local schedule = form[field_name]
+
+    if true or schedule == nil then
+        return
+    end
+
+    if depot.is_valid_schedule(schedule) then
+        return
+    end
+
+    return {"validation-message.schedule-contains-not-reachable-path"}
+end
+
 local function validation_rules()
     return {
         validator.check( "name", validator.match_by_name({"name"}), validator.check_empty),
         validator.check( "icon", validator.match_by_name({"icon"}), validator.check_empty),
         validator.check( "fuel", validator.match_by_name({"fuel"}), validation_check_empty_fuel),
+        validator.check( "destination_schedule", validator.match_by_name({"destination_schedule"}), validator.check_empty),
+        validator.check( "destination_schedule", validator.match_by_name({"destination_schedule"}), validation_check_destination_schedule_reachability),
     }
 end
 

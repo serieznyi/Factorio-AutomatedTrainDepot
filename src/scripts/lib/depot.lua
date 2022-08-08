@@ -543,6 +543,13 @@ function public.trains_balancer_start()
     logger.debug("Start trains balancer", {}, "depot")
 end
 
+---@param schedule TrainSchedule
+function public.is_valid_schedule(schedule)
+    local is_path_readable = false
+
+    return is_path_readable
+end
+
 function public.trains_balancer_pause()
     script.on_nth_tick(mod.defines.on_nth_tick.balance_trains_count, nil)
 
