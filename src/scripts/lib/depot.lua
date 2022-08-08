@@ -504,7 +504,7 @@ function public.enable_train_template(train_template_id)
 
     train_template = persistence_storage.add_train_template(train_template)
 
-    public.enable_trains_balancer()
+    public.trains_balancer_start()
 
     return train_template
 end
@@ -514,6 +514,10 @@ function public.disable_train_template(train_template_id)
     train_template.enabled = false
 
     train_template = persistence_storage.add_train_template(train_template)
+
+    if persistence_storage.count_active_trains_templates() == 0 then
+        public.trains_balancer_pause()
+    end
 
     return train_template
 end
@@ -527,16 +531,22 @@ function public.change_trains_quantity(train_template_id, count)
     persistence_storage.add_train_template(train_template)
 
     if train_template.enabled then
-        public.enable_trains_balancer()
+        public.trains_balancer_start()
     end
 
     return train_template
 end
 
-function public.enable_trains_balancer()
+function public.trains_balancer_start()
     script.on_nth_tick(mod.defines.on_nth_tick.balance_trains_count, private.balance_trains_count)
 
-    logger.debug("Register trains balancer", {}, "depot")
+    logger.debug("Start trains balancer", {}, "depot")
+end
+
+function public.trains_balancer_pause()
+    script.on_nth_tick(mod.defines.on_nth_tick.balance_trains_count, nil)
+
+    logger.debug("Pause trains balancer", {}, "depot")
 end
 
 return public

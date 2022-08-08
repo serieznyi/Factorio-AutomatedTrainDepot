@@ -166,6 +166,15 @@ function public.delete_train_template(train_template_id)
     global.trains_templates[train_template_id] = nil
 end
 
+---@return uint
+function public.count_active_trains_templates()
+    local train_templates = flib_table.filter(global.trains_templates, function(v)
+        return v.enabled == true
+    end, true)
+
+    return #train_templates
+end
+
 -- -- -- TRAIN
 
 ---@param train scripts.lib.domain.Train

@@ -20,7 +20,7 @@ function events_control.initialize()
         {
             match = EventDispatcher.match_event(mod.defines.events.on_core_train_changed),
             handler = function(e)
-                depot.enable_trains_balancer()
+                depot.trains_balancer_start()
 
                 return true
             end
