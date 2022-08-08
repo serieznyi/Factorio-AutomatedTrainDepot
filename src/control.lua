@@ -94,7 +94,8 @@ flib_event.on_init(function()
     flib_dictionary.init()
     flib_on_tick_n.init()
 
-    -- Initialize `global` table
+    -- Initialize mod
+    events_control.initialize()
     console.init()
     persistence_storage.init()
     depot_builder.init()
@@ -103,7 +104,11 @@ end)
 
 -- Loaded save file what contains mod ; Cant write in global
 flib_event.on_load(function()
+    -- Initialize libraries
     flib_dictionary.load()
+
+    -- Initialize mod
+    events_control.initialize()
     gui_manager.load()
     depot.load()
     persistence_storage.load()

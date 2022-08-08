@@ -6,10 +6,6 @@ local persistence_storage = require("scripts.persistence.persistence_storage")
 
 local private = {}
 
-function private.on_ntd_register_trains_count_balancer()
-    script.on_nth_tick(mod.defines.on_nth_tick.balance_trains_count, private.balance_trains_count)
-end
-
 ---@param lua_train LuaTrain
 ---@param old_train_id_1 uint
 ---@param old_train_id_2 uint
@@ -118,7 +114,8 @@ end
 function TrainService.register_train(lua_train, old_train_id_1, old_train_id_2)
     private.register_train(lua_train, old_train_id_1, old_train_id_2)
 
-    private.on_ntd_register_trains_count_balancer()
+    -- balance trains if controlled train was changed (removed, damaged, ...)
+    script.raise_event(mod.defines.events.on_core_train_changed, {})
 end
 
 function TrainService.register_trains()

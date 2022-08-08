@@ -28,6 +28,7 @@ defines.events = {
     on_core_train_task_changed = script.generate_event_name(),
     on_core_train_template_changed = script.generate_event_name(),
     on_core_settings_changed = script.generate_event_name(),
+    on_core_train_changed = script.generate_event_name(),
     -- component : train builder
     on_gui_choose_train_part = script.generate_event_name(),
     on_gui_delete_train_part_click = script.generate_event_name(),

@@ -416,10 +416,6 @@ function private.try_add_disband_train_task_for_template(train_template)
     return true
 end
 
-function private.on_ntd_register_trains_count_balancer()
-    script.on_nth_tick(mod.defines.on_nth_tick.balance_trains_count, private.balance_trains_count)
-end
-
 function private.on_ntd_register_queue_processor()
     script.on_nth_tick(mod.defines.on_nth_tick.tasks_processor, private.process_queue)
 end
@@ -508,7 +504,7 @@ function public.enable_train_template(train_template_id)
 
     train_template = persistence_storage.add_train_template(train_template)
 
-    private.on_ntd_register_trains_count_balancer()
+    public.enable_trains_balancer()
 
     return train_template
 end
@@ -531,10 +527,16 @@ function public.change_trains_quantity(train_template_id, count)
     persistence_storage.add_train_template(train_template)
 
     if train_template.enabled then
-        private.on_ntd_register_trains_count_balancer()
+        public.enable_trains_balancer()
     end
 
     return train_template
+end
+
+function public.enable_trains_balancer()
+    script.on_nth_tick(mod.defines.on_nth_tick.balance_trains_count, private.balance_trains_count)
+
+    logger.debug("Register trains balancer", {}, "depot")
 end
 
 return public

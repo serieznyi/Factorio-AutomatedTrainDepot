@@ -1,6 +1,7 @@
 local flib_table = require("__flib__.table")
 
 local depot_builder = require("scripts.lib.depot_builder")
+local depot = require("scripts.lib.depot")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local Event = require("scripts.lib.event.Event")
@@ -13,6 +14,23 @@ local function is_rolling_stock(entity)
 end
 
 local events_control = {}
+
+function events_control.initialize()
+    local handlers = {
+        {
+            match = EventDispatcher.match_event(mod.defines.events.on_core_train_changed),
+            handler = function(e)
+                depot.enable_trains_balancer()
+
+                return true
+            end
+        }
+    }
+
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, "events_control")
+    end
+end
 
 ---@param event EventData
 function events_control.reload_settings(event)
