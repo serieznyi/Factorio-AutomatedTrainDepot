@@ -8,7 +8,7 @@ local logger = require("scripts.lib.logger")
 
 mod = require("scripts.mod")
 
-local event_handler = require("scripts.evens_control")
+local events_control = require("scripts.evens_control")
 local depot_builder = require("scripts.lib.depot_builder")
 local depot = require("scripts.lib.depot")
 local gui_manager = require("scripts.gui.manager")
@@ -117,7 +117,7 @@ flib_event.register(
         {
             defines.events.on_train_created
         },
-        event_handler.train_create
+        events_control.train_create
 )
 
 flib_event.register(
@@ -129,7 +129,7 @@ flib_event.register(
             defines.events.script_raised_revive,
             defines.events.on_entity_cloned
         },
-        event_handler.entity_build,
+        events_control.entity_build,
         {
             { filter="name", name= mod.defines.prototypes.entity.depot_building.name },
             { filter="ghost_name", name= mod.defines.prototypes.entity.depot_building.name },
@@ -138,7 +138,7 @@ flib_event.register(
 
 flib_event.register(
         defines.events.on_player_rotated_entity,
-        event_handler.entity_rotated
+        events_control.entity_rotated
 )
 
 flib_event.register(
@@ -148,25 +148,25 @@ flib_event.register(
             defines.events.on_entity_died,
             defines.events.script_raised_destroy,
         },
-        event_handler.entity_dismantled,
+        events_control.entity_dismantled,
         {
             { filter="name", name= mod.defines.prototypes.entity.depot_building.name },
             { filter="rolling-stock" },
         }
 )
 
-flib_event.register(defines.events.on_runtime_mod_setting_changed, event_handler.reload_settings)
+flib_event.register(defines.events.on_runtime_mod_setting_changed, events_control.reload_settings)
 
-flib_event.register(util_table.array_values(mod.defines.events), event_handler.handle_events)
+flib_event.register(util_table.array_values(mod.defines.events), events_control.handle_events)
 
 ---------------------------------------------------------------------------
 -- -- -- REGISTER GUI EVENTS
 ---------------------------------------------------------------------------
 
-flib_gui.hook_events(event_handler.handle_events)
+flib_gui.hook_events(events_control.handle_events)
 
-flib_event.register(defines.events.on_gui_opened, event_handler.open_main_frame)
-flib_event.register(defines.events.on_gui_closed, event_handler.on_gui_closed)
+flib_event.register(defines.events.on_gui_opened, events_control.open_main_frame)
+flib_event.register(defines.events.on_gui_closed, events_control.on_gui_closed)
 
 ---------------------------------------------------------------------------
 -- -- -- NTH EVENTS
