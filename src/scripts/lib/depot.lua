@@ -387,11 +387,6 @@ function private.try_add_disband_train_task_for_template(train_template)
     -- todo balance tasks for different forces, surfaces and templates
     local context = Context.from_model(train_template)
 
-    logger.debug({ -- todo remove me
-        train_template_id = train_template.id,
-        has_free_slot = private.has_free_disband_slot(context),
-    }, {}, "try_add_disband_train_task_for_template")
-
     if not private.has_free_disband_slot(context) then
         return false
     end
@@ -444,15 +439,6 @@ function private.balance_trains_count_for_context(context, data)
         local forming_train_tasks_count = persistence_storage.trains_tasks.count_forming_tasks(context, train_template.id)
         local count = #trains + forming_train_tasks_count
         local diff = train_template.trains_quantity - count
-
-        logger.debug({ -- todo remove me
-            template_id = train_template.id,
-            template_quantity = train_template.trains_quantity,
-            trains_count = #trains,
-            forming_train_tasks_count = forming_train_tasks_count,
-            trains_plus_tasks = count,
-            diff = diff,
-        }, {}, "balance_trains_count_for_context")
 
         if diff > 0 then
             for _ = 1, diff do
