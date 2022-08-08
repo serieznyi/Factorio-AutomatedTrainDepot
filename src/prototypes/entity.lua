@@ -67,13 +67,6 @@ table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
 
-prototype = table.deepcopy(data.raw["straight-rail"]["straight-rail"])
-prototype.name = prototype_defines.entity.depot_building_straight_rail.name
-configure_depot_part_prototype(prototype)
-table.insert(prototypes, prototype)
-
-------------- PROTOTYPE
-
 prototype = table.deepcopy(data.raw["rail-signal"]["rail-signal"])
 prototype.name = prototype_defines.entity.depot_building_rail_signal.name
 configure_depot_part_prototype(prototype)

@@ -118,7 +118,7 @@ function private.build_straight_rails(surface, force, start_position, direction,
 
     for _ = 1, rails_count do
         rail = surface.create_entity({
-            name = mod.defines.prototypes.entity.depot_building_straight_rail.name,
+            name = "straight-rail",
             position = start_position,
             direction = direction,
             force = force,
