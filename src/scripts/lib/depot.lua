@@ -387,7 +387,7 @@ end
 
 ---@param task scripts.lib.domain.TrainFormingTask
 ---@param tick uint
-function private.process_task(task, tick)
+function private.process_forming_task(task, tick)
     local multiplier = private.get_depot_multiplier()
 
     if not task:is_state_created() and not task:is_state_forming() then
@@ -412,14 +412,14 @@ function private.process_task(task, tick)
 end
 
 ---@param data NthTickEventData
-function private.process_queue(data)
+function private.process_tasks(data)
     local tick = data.tick
     local tasks = persistence_storage.trains_tasks.find_all_forming_tasks()
 
     -- todo not process task if depot not exists
 
     for _, task in pairs(tasks) do
-        private.process_task(task, tick)
+        private.process_forming_task(task, tick)
 
         if task:is_state_formed() then
             script.on_nth_tick(atd.defines.on_nth_tick.train_deploy, deploy.deploy_trains)
@@ -432,7 +432,7 @@ function private.process_queue(data)
 end
 
 function private.on_ntd_register_queue_processor()
-    script.on_nth_tick(atd.defines.on_nth_tick.tasks_processor, private.process_queue)
+    script.on_nth_tick(atd.defines.on_nth_tick.tasks_processor, private.process_tasks)
 end
 
 ---@param data NthTickEventData
