@@ -238,23 +238,6 @@ function private.register_train_for_template(lua_train, train_template)
     persistence_storage.add_train(train)
 end
 
----@param locomotive LuaEntity
-function private.add_depot_driver(locomotive)
-    local train_driver = locomotive.surface.create_entity({
-        name = mod.defines.prototypes.entity.depot_driver.name,
-        position = locomotive.position,
-        force = locomotive.force,
-    })
-
-    locomotive.set_driver(train_driver)
-end
-
----@param locomotive LuaEntity
-function private.remove_depot_driver(locomotive)
-    local train_driver = locomotive.get_driver()
-    train_driver.destroy()
-end
-
 ---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.TrainFormingTask
 ---@param tick uint
