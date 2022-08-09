@@ -18,7 +18,7 @@ local events_control = {}
 function events_control.initialize()
     local handlers = {
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_core_train_changed),
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_changed),
             handler = function(e)
                 depot.trains_balancer_start()
 
@@ -45,9 +45,9 @@ function events_control.entity_build(event)
         return
     end
 
-    if entity.name == "entity-ghost" and entity.ghost_name == mod.defines.prototypes.entity.depot_building.name then
+    if entity.name == "entity-ghost" and entity.ghost_name == atd.defines.prototypes.entity.depot_building.name then
         depot_builder.build_ghost(entity)
-    elseif entity.name == mod.defines.prototypes.entity.depot_building.name then
+    elseif entity.name == atd.defines.prototypes.entity.depot_building.name then
         local player = event.player_index ~= nil and game.get_player(event.player_index) or nil
 
         depot_builder.build(entity, player)
@@ -62,7 +62,7 @@ function events_control.entity_rotated(event)
         return
     end
 
-    if entity.name == mod.defines.prototypes.entity.depot_building.name then
+    if entity.name == atd.defines.prototypes.entity.depot_building.name then
         depot_builder.revert_rotation(entity, event.previous_direction)
     end
 end
@@ -75,7 +75,7 @@ function events_control.entity_dismantled(event)
         return
     end
 
-    if entity.name == mod.defines.prototypes.entity.depot_building.name then
+    if entity.name == atd.defines.prototypes.entity.depot_building.name then
         depot_builder.destroy(entity)
     elseif is_rolling_stock(entity) then
         local left_carriages = flib_table.filter(entity.train.carriages, function(e)
@@ -102,7 +102,7 @@ function events_control.open_main_frame(event)
     ---@type LuaEntity
     local entity = event.entity
 
-    if entity.name == mod.defines.prototypes.entity.depot_building.name then
+    if entity.name == atd.defines.prototypes.entity.depot_building.name then
         gui_manager.open_main_frame(Event.new(event))
     end
 end

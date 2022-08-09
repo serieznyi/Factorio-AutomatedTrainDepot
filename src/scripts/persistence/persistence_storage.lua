@@ -75,7 +75,7 @@ function public.init()
     global.trains = {}
     global.depot_settings = {}
 
-    garbage_collector.init(gc_storage_names, mod.defines.persistence.garbage_ttl)
+    garbage_collector.init(gc_storage_names, atd.defines.persistence.garbage_ttl)
 
     public.trains_tasks.init()
 
@@ -87,7 +87,7 @@ function public.load()
         global.sequence.train_template = value
     end)
 
-    garbage_collector.init(gc_storage_names, mod.defines.persistence.garbage_ttl)
+    garbage_collector.init(gc_storage_names, atd.defines.persistence.garbage_ttl)
 
     public.trains_tasks.load()
 end

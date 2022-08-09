@@ -73,15 +73,15 @@ end
 function Part:_register_event_handlers()
     local handlers = {
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_choose_train_part),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_choose_train_part),
             handler = function(e) return self:_handle_update_train_part(e) end,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_change_carrier_direction_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_change_carrier_direction_click),
             handler = function(e) return self:_handle_change_carrier_direction(e) end,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_delete_train_part_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_delete_train_part_click),
             handler = function(e) return self:_handle_delete_train_part(e) end,
         },
     }
@@ -168,7 +168,7 @@ function Part:_handle_change_carrier_direction(event)
         return false
     end
 
-    local direction = tags.direction == mod.defines.train.direction.opposite_direction and mod.defines.train.direction.in_direction or mod.defines.train.direction.opposite_direction
+    local direction = tags.direction == atd.defines.train.direction.opposite_direction and atd.defines.train.direction.in_direction or atd.defines.train.direction.opposite_direction
 
     self:_set_carrier_direction(direction)
 
@@ -224,8 +224,8 @@ function Part:_update()
     self.refs.delete_button.visible = true
 
     if has_direction then
-        self.refs.carrier_direction_left_button.visible = (current_carrier_direction == mod.defines.train.direction.in_direction)
-        self.refs.carrier_direction_right_button.visible = (current_carrier_direction == mod.defines.train.direction.opposite_direction)
+        self.refs.carrier_direction_left_button.visible = (current_carrier_direction == atd.defines.train.direction.in_direction)
+        self.refs.carrier_direction_right_button.visible = (current_carrier_direction == atd.defines.train.direction.opposite_direction)
     end
 end
 

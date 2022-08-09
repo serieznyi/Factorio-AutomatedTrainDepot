@@ -115,7 +115,7 @@ function TrainService.register_train(lua_train, old_train_id_1, old_train_id_2)
     private.register_train(lua_train, old_train_id_1, old_train_id_2)
 
     -- balance trains if controlled train was changed (removed, damaged, ...)
-    script.raise_event(mod.defines.events.on_core_train_changed, {})
+    script.raise_event(atd.defines.events.on_core_train_changed, {})
 end
 
 function TrainService.register_trains()

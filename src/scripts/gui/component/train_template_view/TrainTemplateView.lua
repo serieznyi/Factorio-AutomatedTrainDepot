@@ -90,23 +90,23 @@ end
 function TrainTemplateView:_register_event_handlers()
     local handlers = {
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_train_template_enabled),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_train_template_enabled),
             handler = function(e) return self:_handle_enable_train_template(e) end,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_train_template_disabled),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_train_template_disabled),
             handler = function(e) return self:_handle_disable_train_template(e) end,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_trains_quantity_changed),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_trains_quantity_changed),
             handler = function(e) return self:_handle_change_trains_quantity(e) end,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_core_train_task_changed),
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
             handler = function(e) return self:_handle_refresh_component(e) end,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_core_train_template_changed),
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
             handler = function(e) return self:_handle_refresh_component(e) end,
         },
     }

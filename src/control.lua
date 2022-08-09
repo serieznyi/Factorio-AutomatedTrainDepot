@@ -6,7 +6,7 @@ local flib_gui = require("__flib__.gui")
 local util_table = require("scripts.util.table")
 local logger = require("scripts.lib.logger")
 
-mod = require("scripts.mod")
+atd = require("scripts.mod")
 
 local events_control = require("scripts.evens_control")
 local depot_builder = require("scripts.lib.depot_builder")
@@ -60,7 +60,7 @@ commands.add_command("atd-global-keys", nil, function(command)
         table.insert(data, {name = i, type = "persistence"})
     end
 
-    for i, _ in pairs(mod.global) do
+    for i, _ in pairs(atd.global) do
         table.insert(data, {name = i, type = "in-memory"})
     end
 
@@ -136,8 +136,8 @@ flib_event.register(
         },
         events_control.entity_build,
         {
-            { filter="name", name= mod.defines.prototypes.entity.depot_building.name },
-            { filter="ghost_name", name= mod.defines.prototypes.entity.depot_building.name },
+            { filter="name", name= atd.defines.prototypes.entity.depot_building.name },
+            { filter="ghost_name", name= atd.defines.prototypes.entity.depot_building.name },
         }
 )
 
@@ -155,14 +155,14 @@ flib_event.register(
         },
         events_control.entity_dismantled,
         {
-            { filter="name", name= mod.defines.prototypes.entity.depot_building.name },
+            { filter="name", name= atd.defines.prototypes.entity.depot_building.name },
             { filter="rolling-stock" },
         }
 )
 
 flib_event.register(defines.events.on_runtime_mod_setting_changed, events_control.reload_settings)
 
-flib_event.register(util_table.array_values(mod.defines.events), events_control.handle_events)
+flib_event.register(util_table.array_values(atd.defines.events), events_control.handle_events)
 
 ---------------------------------------------------------------------------
 -- -- -- REGISTER GUI EVENTS
@@ -178,7 +178,7 @@ flib_event.register(defines.events.on_gui_closed, events_control.on_gui_closed)
 ---------------------------------------------------------------------------
 
 -- todo check performance
-flib_event.on_nth_tick(mod.defines.on_nth_tick.persistence_storage_gc, persistence_storage.collect_garbage)
+flib_event.on_nth_tick(atd.defines.on_nth_tick.persistence_storage_gc, persistence_storage.collect_garbage)
 
 ---------------------------------------------------------------------------
 -- -- -- OTHER

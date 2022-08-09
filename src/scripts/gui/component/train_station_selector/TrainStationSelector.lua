@@ -128,7 +128,7 @@ function TrainStationSelector:_structure(values)
         ref = {"drop_down"},
         items = values,
         actions = {
-            on_selection_state_changed = { event = mod.defines.events.on_gui_trains_station_selector_changed },
+            on_selection_state_changed = { event = atd.defines.events.on_gui_trains_station_selector_changed },
         },
     }
 end
@@ -136,7 +136,7 @@ end
 function TrainStationSelector:_register_event_handlers()
     local handlers = {
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_trains_station_selector_changed),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_trains_station_selector_changed),
             handler = function(e) return self:__handle_on_changed(e) end
         },
     }
@@ -155,8 +155,8 @@ end
 ---@return table
 function TrainStationSelector:_exclude_depot_train_stations(train_stations)
     local depot_train_stations_prototype_names = {
-        mod.defines.prototypes.entity.depot_building_train_stop_input.name,
-        mod.defines.prototypes.entity.depot_building_train_stop_output.name,
+        atd.defines.prototypes.entity.depot_building_train_stop_input.name,
+        atd.defines.prototypes.entity.depot_building_train_stop_output.name,
     }
 
     local function is_not_depot_train_station(station)

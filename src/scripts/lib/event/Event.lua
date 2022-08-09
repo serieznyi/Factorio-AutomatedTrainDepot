@@ -79,7 +79,7 @@ function Event:_event_id_to_name(id)
 end
 
 function Event:_load_event_names()
-    local events_set = { defines.events, mod.defines.events }
+    local events_set = { defines.events, atd.defines.events }
 
     Event._event_names = {}
 

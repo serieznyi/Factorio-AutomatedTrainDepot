@@ -248,7 +248,7 @@ function deploy.try_deploy_train(context, task, tick)
         local train_part = train_template.train[task.deploying_cursor]
 
         local carrier_direction
-        if train_part.direction == mod.defines.train.direction.in_direction then
+        if train_part.direction == atd.defines.train.direction.in_direction then
             carrier_direction = depot_station_output.direction
         else
             carrier_direction = flib_direction.opposite(depot_station_output.direction)
@@ -310,7 +310,7 @@ function deploy.deploy_trains(data)
     end
 
     if persistence_storage.trains_tasks.count_forming_tasks_ready_for_deploy() == 0 then
-        script.on_nth_tick(mod.defines.on_nth_tick.train_deploy, nil)
+        script.on_nth_tick(atd.defines.on_nth_tick.train_deploy, nil)
     end
 end
 
@@ -357,7 +357,7 @@ function private.raise_task_changed_event(train_task)
 
     for _, player in ipairs(force.players) do
         script.raise_event(
-                mod.defines.events.on_core_train_task_changed,
+                atd.defines.events.on_core_train_task_changed,
                 { train_task_id = train_task.id, player_index = player.index }
         )
     end
@@ -422,17 +422,17 @@ function private.process_queue(data)
         private.process_task(task, tick)
 
         if task:is_state_formed() then
-            script.on_nth_tick(mod.defines.on_nth_tick.train_deploy, deploy.deploy_trains)
+            script.on_nth_tick(atd.defines.on_nth_tick.train_deploy, deploy.deploy_trains)
         end
     end
 
     if persistence_storage.trains_tasks.total_count_forming_tasks() == 0 then
-        script.on_nth_tick(mod.defines.on_nth_tick.tasks_processor, nil)
+        script.on_nth_tick(atd.defines.on_nth_tick.tasks_processor, nil)
     end
 end
 
 function private.on_ntd_register_queue_processor()
-    script.on_nth_tick(mod.defines.on_nth_tick.tasks_processor, private.process_queue)
+    script.on_nth_tick(atd.defines.on_nth_tick.tasks_processor, private.process_queue)
 end
 
 ---@param data NthTickEventData
@@ -552,7 +552,7 @@ function public.change_trains_quantity(train_template_id, count)
 end
 
 function public.trains_balancer_start()
-    script.on_nth_tick(mod.defines.on_nth_tick.balance_trains_count, private.balance_trains_count)
+    script.on_nth_tick(atd.defines.on_nth_tick.balance_trains_count, private.balance_trains_count)
 
     logger.debug("Start trains balancer", {}, "depot")
 end
@@ -565,7 +565,7 @@ function public.is_valid_schedule(schedule)
 end
 
 function public.trains_balancer_pause()
-    script.on_nth_tick(mod.defines.on_nth_tick.balance_trains_count, nil)
+    script.on_nth_tick(atd.defines.on_nth_tick.balance_trains_count, nil)
 
     logger.debug("Pause trains balancer", {}, "depot")
 end

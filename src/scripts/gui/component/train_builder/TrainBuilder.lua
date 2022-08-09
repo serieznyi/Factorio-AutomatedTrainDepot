@@ -38,7 +38,7 @@ local function validation_check_main_locomotive_wrong_direction(field_name, form
         return
     end
 
-    if carrier.direction == mod.defines.train.direction.in_direction then
+    if carrier.direction == atd.defines.train.direction.in_direction then
         return
     end
 

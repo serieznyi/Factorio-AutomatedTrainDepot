@@ -135,7 +135,7 @@ end
 function TrainScheduleSelector:_register_event_handlers()
     local handlers = {
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_train_schedule_selector_changed),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_train_schedule_selector_changed),
             handler = function(e) return self:__handle_on_changed(e) end
         },
     }
@@ -222,7 +222,7 @@ function TrainScheduleSelector:_structure(values)
                 type = "drop-down",
                 ref = {"drop_down"},
                 items = values,
-                actions = { on_selection_state_changed = { event = mod.defines.events.on_gui_train_schedule_selector_changed },
+                actions = { on_selection_state_changed = { event = atd.defines.events.on_gui_train_schedule_selector_changed },
                 }
             },
         }

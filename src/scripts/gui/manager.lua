@@ -122,31 +122,31 @@ end
 function manager.register_events()
     local handlers = {
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_close_main_frame_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_close_main_frame_click),
             handler = event_handlers.handle_close_frame_by_event,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_close_add_template_frame_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_close_add_template_frame_click),
             handler = event_handlers.handle_close_frame_by_event,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_settings_frame_close_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_settings_frame_close_click),
             handler = event_handlers.handle_close_frame_by_event,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_open_adding_template_frame_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_open_adding_template_frame_click),
             handler = event_handlers.handle_add_template_frame_open,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_open_editing_template_frame_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_open_editing_template_frame_click),
             handler = event_handlers.handle_add_template_frame_open,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_open_settings_frame_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_open_settings_frame_click),
             handler = event_handlers.handle_settings_frame_open,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_background_dimmer_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_background_dimmer_click),
             handler = event_handlers.handle_background_dimmer_click,
         },
     }

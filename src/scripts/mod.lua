@@ -1,11 +1,11 @@
-local mod = {}
+local atd = {}
 
-mod.defines = require("scripts.defines")
+atd.defines = require("scripts.defines")
 
 -- global table for runtime data
-mod.global = {
+atd.global = {
     frames = {},
     frames_stack = {},
 }
 
-return mod
+return atd

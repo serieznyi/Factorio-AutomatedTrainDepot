@@ -37,7 +37,7 @@ function structure.get(config)
                         tooltip = {"main-frame.atd-open-settings"},
                         sprite = "atd_sprite_settings",
                         actions = {
-                            on_click = { event = mod.defines.events.on_gui_open_settings_frame_click }
+                            on_click = { event = atd.defines.events.on_gui_open_settings_frame_click }
                         }
                     },
                     {
@@ -49,7 +49,7 @@ function structure.get(config)
                         hovered_sprite = "utility/close_black",
                         clicked_sprite = "utility/close_black",
                         actions = {
-                            on_click = { event = mod.defines.events.on_gui_close_main_frame_click }
+                            on_click = { event = atd.defines.events.on_gui_close_main_frame_click }
                         }
                     },
                 }
@@ -105,7 +105,7 @@ function structure.get(config)
                                                             tooltip = {"main-frame.atd-add-new-train-template"},
                                                             sprite = "atd_sprite_add",
                                                             actions = {
-                                                                on_click = { event = mod.defines.events.on_gui_open_adding_template_frame_click }
+                                                                on_click = { event = atd.defines.events.on_gui_open_adding_template_frame_click }
                                                             },
                                                         },
                                                         {
@@ -116,7 +116,7 @@ function structure.get(config)
                                                             sprite = "atd_sprite_edit",
                                                             enabled = false,
                                                             actions = {
-                                                                on_click = { event = mod.defines.events.on_gui_open_editing_template_frame_click }
+                                                                on_click = { event = atd.defines.events.on_gui_open_editing_template_frame_click }
                                                             },
                                                         },
                                                         {
@@ -127,7 +127,7 @@ function structure.get(config)
                                                             sprite = "atd_sprite_trash",
                                                             enabled = false,
                                                             actions = {
-                                                                on_click = { event = mod.defines.events.on_gui_delete_train_template_click }
+                                                                on_click = { event = atd.defines.events.on_gui_delete_train_template_click }
                                                             },
                                                         },
                                                         {
@@ -138,7 +138,7 @@ function structure.get(config)
                                                             sprite = "atd_sprite_copy",
                                                             enabled = false,
                                                             actions = {
-                                                                on_click = { event = mod.defines.events.on_gui_copy_train_template_click }
+                                                                on_click = { event = atd.defines.events.on_gui_copy_train_template_click }
                                                             },
                                                         },
                                                     }
@@ -173,7 +173,7 @@ function structure.get(config)
                             type = "tab",
                             caption = {"main-frame.atd-tab-map"},
                             actions = {
-                                on_click = { event = mod.defines.events.on_gui_open_uncontrolled_trains_map_click }
+                                on_click = { event = atd.defines.events.on_gui_open_uncontrolled_trains_map_click }
                             }
                         },
                         content = {

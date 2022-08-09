@@ -70,7 +70,7 @@ function structure.get(config)
                                         ref = {"icon_input"},
                                         elem_type = "item",
                                         actions = {
-                                            on_elem_changed = { event = mod.defines.events.on_gui_adding_template_frame_changed }
+                                            on_elem_changed = { event = atd.defines.events.on_gui_adding_template_frame_changed }
                                         }
                                     },
                                     {
@@ -96,8 +96,8 @@ function structure.get(config)
                                         type = "textfield",
                                         ref = {"name_input"},
                                         actions = {
-                                            on_text_changed = { event = mod.defines.events.on_gui_adding_template_frame_changed },
-                                            on_confirmed = { event = mod.defines.events.on_gui_adding_template_frame_changed },
+                                            on_text_changed = { event = atd.defines.events.on_gui_adding_template_frame_changed },
+                                            on_confirmed = { event = atd.defines.events.on_gui_adding_template_frame_changed },
                                         }
                                     },
                                     {
@@ -123,7 +123,7 @@ function structure.get(config)
                                                         ref = {"name_rich_text_chooser_signal"},
                                                         elem_type = "signal",
                                                         actions = {
-                                                            on_elem_changed = { event = mod.defines.events.on_gui_name_rich_text_changed }
+                                                            on_elem_changed = { event = atd.defines.events.on_gui_name_rich_text_changed }
                                                         }
                                                     },
                                                     {
@@ -131,7 +131,7 @@ function structure.get(config)
                                                         ref = {"name_rich_text_chooser_recipe"},
                                                         elem_type = "recipe",
                                                         actions = {
-                                                            on_elem_changed = { event = mod.defines.events.on_gui_name_rich_text_changed }
+                                                            on_elem_changed = { event = atd.defines.events.on_gui_name_rich_text_changed }
                                                         }
                                                     },
                                                 }
@@ -177,7 +177,7 @@ function structure.get(config)
                                     { filter="burnt-result", mode = "and", invert = true },
                                 },
                                 actions = {
-                                    on_elem_changed = { event = mod.defines.events.on_gui_adding_template_frame_changed }
+                                    on_elem_changed = { event = atd.defines.events.on_gui_adding_template_frame_changed }
                                 }
 
                             },
@@ -198,7 +198,7 @@ function structure.get(config)
                                         state = false,
                                         ref = { "use_any_fuel_checkbox" },
                                         actions = {
-                                            on_checked_state_changed = { event = mod.defines.events.on_gui_adding_template_frame_changed }
+                                            on_checked_state_changed = { event = atd.defines.events.on_gui_adding_template_frame_changed }
                                         }
                                     },
                                 },
@@ -269,7 +269,7 @@ function structure.get(config)
                         style = "back_button",
                         caption = { "gui.atd-cancel" },
                         actions = {
-                            on_click = { event = mod.defines.events.on_gui_close_add_template_frame_click },
+                            on_click = { event = atd.defines.events.on_gui_close_add_template_frame_click },
                         },
                     },
                     {
@@ -284,7 +284,7 @@ function structure.get(config)
                         ref = {"submit_button"},
                         enabled = false,
                         actions = {
-                            on_click = { event = mod.defines.events.on_gui_save_adding_template_frame_click },
+                            on_click = { event = atd.defines.events.on_gui_save_adding_template_frame_click },
                         },
                     },
                 }

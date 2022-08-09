@@ -5,7 +5,7 @@ local Context = require('scripts.lib.domain.Context')
 
 local FORCE_DEFAULT = "player"
 
-local rotate_relative_position = { --todo move to mod.direction module
+local rotate_relative_position = { --todo move to atd.direction module
     [defines.direction.north] = function(x, y)
         return x, y
     end,
@@ -94,7 +94,7 @@ function private.build_rail_signal(rail_entity, direction)
     local force = rail_entity.force
     local x, y = rotate_relative_position[direction](1.5, 0)
     local rail_signal = rail_entity.surface.create_entity({
-        name = mod.defines.prototypes.entity.depot_building_rail_signal.name,
+        name = atd.defines.prototypes.entity.depot_building_rail_signal.name,
         position = { rail_entity.position.x + x, rail_entity.position.y + y },
         direction = flib_direction.opposite(direction),
         force = force,
@@ -192,7 +192,7 @@ function private.build(context, entity)
 
     x, y = rotate_relative_position[entity.direction](0.5, 2.5)
     local depot_signals_input = surface.create_entity({
-        name = mod.defines.prototypes.entity.depot_building_input.name,
+        name = atd.defines.prototypes.entity.depot_building_input.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = entity.direction,
         force = force,
@@ -202,7 +202,7 @@ function private.build(context, entity)
 
     x, y = rotate_relative_position[entity.direction](-0.5, 2.5)
     local depot_signals_output = surface.create_entity({
-        name = mod.defines.prototypes.entity.depot_building_output.name,
+        name = atd.defines.prototypes.entity.depot_building_output.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = entity.direction,
         force = force,
@@ -213,7 +213,7 @@ function private.build(context, entity)
     -- Input station, rails and signals
     x, y = rotate_relative_position[entity.direction](6, 0)
     local depot_station_input = surface.create_entity({
-        name = mod.defines.prototypes.entity.depot_building_train_stop_input.name,
+        name = atd.defines.prototypes.entity.depot_building_train_stop_input.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = entity.direction,
         force = force,
@@ -239,7 +239,7 @@ function private.build(context, entity)
     -- Output station, rails and signals
     x, y = rotate_relative_position[entity.direction](-6, 0)
     local depot_station_output = surface.create_entity({
-        name = mod.defines.prototypes.entity.depot_building_train_stop_output.name,
+        name = atd.defines.prototypes.entity.depot_building_train_stop_output.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = flib_direction.opposite(entity.direction),
         force = force,
@@ -276,7 +276,7 @@ end
 ---@param player LuaPlayer
 function private.return_depot_in_inventory(player)
     local inventory = player.get_main_inventory()
-    inventory.insert({name=mod.defines.prototypes.item.depot_building.name, count=1})
+    inventory.insert({ name= atd.defines.prototypes.item.depot_building.name, count=1})
 end
 
 ---@param entity LuaEntity
@@ -299,7 +299,7 @@ function private.try_break_building(entity)
         end
 
         -- todo translate it
-        private.entity_flying_text(entity, error_message, mod.defines.color.write)
+        private.entity_flying_text(entity, error_message, atd.defines.color.write)
 
         entity.destroy()
     end
@@ -347,7 +347,7 @@ function public.revert_rotation(entity, old_direction)
     entity.direction = old_direction
 
     -- todo translate it
-    private.entity_flying_text(entity, "Builded depot cant be rotated", mod.defines.color.write)
+    private.entity_flying_text(entity, "Builded depot cant be rotated", atd.defines.color.write)
 end
 
 ---@param entity LuaEntity

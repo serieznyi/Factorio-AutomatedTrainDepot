@@ -176,15 +176,15 @@ end
 function AddTemplateFrame:_register_event_handlers()
     local handlers = {
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_adding_template_frame_changed),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_adding_template_frame_changed),
             handler = function(e) return self:_handle_form_changed(e) end,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_name_rich_text_changed),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_name_rich_text_changed),
             handler = function(e) return self:_handle_name_rick_text_changed(e) end,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_save_adding_template_frame_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_save_adding_template_frame_click),
             handler = function(e) return self:_handle_save_form(e) end,
         },
     }
@@ -202,12 +202,12 @@ function AddTemplateFrame:_handle_save_form(event)
     if #validation_errors == 0 then
         local train_template = persistence_storage.add_train_template(form_data)
 
-        script.raise_event(mod.defines.events.on_core_train_template_changed, {
+        script.raise_event(atd.defines.events.on_core_train_template_changed, {
             player_index = event.player_index,
             train_template_id = train_template.id
         })
 
-        script.raise_event(mod.defines.events.on_gui_close_add_template_frame_click, {
+        script.raise_event(atd.defines.events.on_gui_close_add_template_frame_click, {
             player_index = event.player_index,
             element = event.element,
         })
@@ -243,7 +243,7 @@ function AddTemplateFrame:_create_dimmer()
         name = dimmer_name,
         style = true and "atd_frame_semitransparent" or "atd_frame_transparent",
         actions = {
-            on_click = { event = mod.defines.events.on_gui_background_dimmer_click, owner_name = self.name }
+            on_click = { event = atd.defines.events.on_gui_background_dimmer_click, owner_name = self.name }
         },
         style_mods = {
             size = {

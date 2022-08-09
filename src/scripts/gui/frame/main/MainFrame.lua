@@ -88,7 +88,7 @@ function MainFrame:_create_dimmer()
         name = dimmer_name,
         style = false and "atd_frame_semitransparent" or "atd_frame_transparent",
         actions = {
-            on_click = { event = mod.defines.events.on_gui_background_dimmer_click, owner_name = self.name }
+            on_click = { event = atd.defines.events.on_gui_background_dimmer_click, owner_name = self.name }
         },
         style_mods = {
             size = {
@@ -305,19 +305,19 @@ end
 function MainFrame:_register_event_handlers()
     local handlers = {
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_delete_train_template_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_delete_train_template_click),
             handler = function(e) return self:_handle_delete_train_template(e) end,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_core_train_template_changed),
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
             handler = function(e) return self:_handle_update(e) end,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_open_uncontrolled_trains_map_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_open_uncontrolled_trains_map_click),
             handler = function(e) return self:_handle_open_uncontrolled_trains_map(e) end
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_copy_train_template_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_copy_train_template_click),
             handler = function(e) return self:_handle_copy_train_template(e) end
         },
     }

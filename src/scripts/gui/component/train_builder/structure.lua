@@ -17,7 +17,7 @@ function structure.get(train_part_id)
                     {filter="rolling-stock"},
                 },
                 actions = {
-                    on_elem_changed = { event = mod.defines.events.on_gui_choose_train_part },
+                    on_elem_changed = { event = atd.defines.events.on_gui_choose_train_part },
                 }
             },
             {
@@ -29,31 +29,31 @@ function structure.get(train_part_id)
                 style = "flib_slot_button_red",
                 sprite = "atd_sprite_trash",
                 actions = {
-                    on_click = { event = mod.defines.events.on_gui_delete_train_part_click }
+                    on_click = { event = atd.defines.events.on_gui_delete_train_part_click }
                 }
             },
             {
                 type = "sprite-button",
                 visible = false,
-                tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.in_direction, current_direction = mod.defines.train.direction.in_direction },
+                tags = { train_part_id = train_part_id, direction = atd.defines.train.direction.in_direction, current_direction = atd.defines.train.direction.in_direction },
                 ref = {"carrier_direction_left_button"},
                 tooltip = {"add-train-template-frame.atd-сhange-direction-of-locomotive"},
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_left",
                 actions = {
-                    on_click = { event = mod.defines.events.on_gui_change_carrier_direction_click },
+                    on_click = { event = atd.defines.events.on_gui_change_carrier_direction_click },
                 }
             },
             {
                 type = "sprite-button",
-                tags = { train_part_id = train_part_id, direction = mod.defines.train.direction.opposite_direction, current_direction = mod.defines.train.direction.in_direction },
+                tags = { train_part_id = train_part_id, direction = atd.defines.train.direction.opposite_direction, current_direction = atd.defines.train.direction.in_direction },
                 ref = {"carrier_direction_right_button"},
                 visible = false,
                 tooltip = {"add-train-template-frame.atd-сhange-direction-of-locomotive"},
                 style = "flib_slot_button_default",
                 sprite = "atd_sprite_arrow_right",
                 actions = {
-                    on_click = { event = mod.defines.events.on_gui_change_carrier_direction_click },
+                    on_click = { event = atd.defines.events.on_gui_change_carrier_direction_click },
                 }
             },
         }

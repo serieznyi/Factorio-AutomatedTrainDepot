@@ -112,7 +112,7 @@ function SettingsFrame:_create_dimmer()
         name = dimmer_name,
         style = true and "atd_frame_semitransparent" or "atd_frame_transparent",
         actions = {
-            on_click = { event = mod.defines.events.on_gui_background_dimmer_click, owner_name = self.name }
+            on_click = { event = atd.defines.events.on_gui_background_dimmer_click, owner_name = self.name }
         },
         style_mods = {
             size = {
@@ -157,11 +157,11 @@ end
 function SettingsFrame:_register_event_handlers()
     local handlers = {
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_settings_frame_changed),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_settings_frame_changed),
             handler = function(e) return self:_handle_form_changed(e) end,
         },
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_settings_frame_save_click),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_settings_frame_save_click),
             handler = function(e) return self:_handle_save_form(e) end,
         },
     }
@@ -180,11 +180,11 @@ function SettingsFrame:_handle_save_form(event)
         persistence_storage.set_depot_settings(DepotSettings.from_table(form_data))
     end
 
-    script.raise_event(mod.defines.events.on_core_settings_changed, {
+    script.raise_event(atd.defines.events.on_core_settings_changed, {
         player_index = event.player_index,
     })
 
-    script.raise_event(mod.defines.events.on_gui_settings_frame_close_click, {
+    script.raise_event(atd.defines.events.on_gui_settings_frame_close_click, {
         player_index = event.player_index,
         element = event.element,
     })

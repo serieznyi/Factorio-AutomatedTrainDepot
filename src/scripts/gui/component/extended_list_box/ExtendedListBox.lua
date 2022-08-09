@@ -157,7 +157,7 @@ function ExtendedListBox:refresh(new_values)
             tooltip = value.tooltip,
             tags = tags,
             actions = {
-                on_click = { event = mod.defines.events.on_gui_extended_list_box_item_selected }
+                on_click = { event = atd.defines.events.on_gui_extended_list_box_item_selected }
             }
         })
     end
@@ -173,7 +173,7 @@ end
 function ExtendedListBox:_register_event_handlers()
     local handlers = {
         {
-            match = EventDispatcher.match_event(mod.defines.events.on_gui_extended_list_box_item_selected),
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_extended_list_box_item_selected),
             handler = function(e) return self:__handle_click(e) end
         },
     }
