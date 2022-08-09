@@ -1,4 +1,5 @@
 local flib_table = require("__flib__.table")
+local flib_direction = require("__flib__.direction")
 
 local Context = require("scripts.lib.domain.Context")
 local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
@@ -23,13 +24,6 @@ local rotate_relative_position = {
     [defines.direction.west] = function(x, y)
         return y, x * -1
     end,
-}
-
-local opposite = {
-    [defines.direction.north] = defines.direction.south,
-    [defines.direction.east] = defines.direction.west,
-    [defines.direction.south] = defines.direction.north,
-    [defines.direction.west] = defines.direction.east,
 }
 
 ---------------------------------------------------------------------------
@@ -135,7 +129,7 @@ function private.try_deploy_train(context, task, tick)
         if train_part.direction == mod.defines.train.direction.in_direction then
             carrier_direction = depot_station_output.direction
         else
-            carrier_direction = opposite[depot_station_output.direction]
+            carrier_direction = flib_direction.opposite(depot_station_output.direction)
         end
 
         local entity_data = {
