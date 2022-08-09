@@ -114,14 +114,19 @@ end
 function public.find_forming_tasks(context, train_template_id)
     assert(context, "context is nil")
 
-    local rows = private.find_trains_tasks(
-            context,
-            TrainFormingTask.defines.type,
-            train_template_id,
-            nil
-    )
+    local rows = private.find_trains_tasks(context, TrainFormingTask.defines.type, train_template_id, nil)
 
     return flib_table.map(rows, TrainFormingTask.from_table)
+end
+
+---@param train_template_id uint
+---@param context scripts.lib.domain.Context
+function public.find_disbanding_tasks(context, train_template_id)
+    assert(context, "context is nil")
+
+    local rows = private.find_trains_tasks(context, TrainDisbandTask.defines.type, train_template_id, nil)
+
+    return flib_table.map(rows, TrainDisbandTask.from_table)
 end
 
 function public.count_deploying_tasks(context)

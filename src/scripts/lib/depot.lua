@@ -58,10 +58,6 @@ function private.get_disband_slots_total_count()
     return 2 -- todo depend from technologies
 end
 
-function private.get_disband_slots_count()
-    return 1 -- todo depend from technologies
-end
-
 ---@param train_template scripts.lib.domain.TrainTemplate
 ---@param train LuaTrain
 function private.add_train_schedule(train, train_template)
@@ -353,6 +349,21 @@ function private.discard_forming_task(task)
     )
 end
 
+---@param task scripts.lib.domain.TrainDisbandTask
+function private.discard_disbanding_task(task)
+    task:delete()
+
+    persistence_storage.trains_tasks.add(task)
+
+    private.raise_task_changed_event(task)
+
+    logger.debug(
+            "Discard train disband task `{1}` for template `{2}`",
+            { task.id, task.train_template_id},
+            "depot"
+    )
+end
+
 ---@param train_template scripts.lib.domain.TrainTemplate
 function private.try_discard_forming_train_task_for_template(train_template)
     local context = Context.from_model(train_template)
@@ -364,6 +375,23 @@ function private.try_discard_forming_train_task_for_template(train_template)
     ---@param task scripts.lib.domain.TrainFormingTask
     for _, task in pairs(tasks) do
         if task:is_state_forming() or task:is_state_created() then
+            private.discard_forming_task(task)
+
+            return true
+        end
+    end
+
+    return false
+end
+
+---@param train_template scripts.lib.domain.TrainTemplate
+function private.try_discard_disbanding_train_task_for_template(train_template)
+    local context = Context.from_model(train_template)
+    local tasks = persistence_storage.trains_tasks.find_disbanding_tasks(context, train_template.id)
+
+    ---@param task scripts.lib.domain.TrainDisbandTask
+    for _, task in pairs(tasks) do
+        if task:is_state_created() then
             private.discard_forming_task(task)
 
             return true
@@ -437,35 +465,43 @@ function private.balance_trains_count_for_context(context, data)
     for _, train_template in pairs(train_templates) do
         local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
         local forming_train_tasks_count = persistence_storage.trains_tasks.count_forming_tasks(context, train_template.id)
-        local count = #trains + forming_train_tasks_count
-        local diff = train_template.trains_quantity - count
+        local disband_train_tasks_count = persistence_storage.trains_tasks.count_disband_tasks(context, train_template.id)
+        local potential_count = #trains + forming_train_tasks_count - disband_train_tasks_count
+        local diff = train_template.trains_quantity - potential_count
 
         if diff > 0 then
             for _ = 1, diff do
-                if not private.try_add_forming_train_task_for_template(train_template) then
+                if not private.try_discard_disbanding_train_task_for_template(train_template) then
                     break
                 end
+
+                diff = diff - 1
+            end
+
+            if diff > 0 then
+                private.try_add_forming_train_task_for_template(train_template)
             end
         elseif diff < 0 then
-            local count_for_delete = diff * -1
+            local delete_count = diff * -1
 
-            for _ = 1, count_for_delete do
+            for _ = 1, delete_count do
                 if not private.try_discard_forming_train_task_for_template(train_template) then
                     break
                 end
 
-                count_for_delete = count_for_delete - 1
+                delete_count = delete_count - 1
             end
 
-            if count_for_delete > 0 then
-                if not private.try_add_disband_train_task_for_template(train_template) then
-                    break
-                end
+            if delete_count > 0 then
+                private.try_add_disband_train_task_for_template(train_template)
             end
         end
     end
 
-    if persistence_storage.trains_tasks.count_forming_tasks(context) > 0 then
+    local total_forming_tasks_count = persistence_storage.trains_tasks.count_forming_tasks(context)
+    local total_disband_tasks_count = persistence_storage.trains_tasks.count_disband_tasks(context)
+
+    if total_forming_tasks_count + total_disband_tasks_count > 0 then
         private.on_ntd_register_queue_processor()
     end
 end
