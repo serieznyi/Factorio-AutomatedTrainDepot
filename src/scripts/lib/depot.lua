@@ -12,6 +12,7 @@ local public = {}
 local private = {}
 local forming = {}
 local disband = {}
+local deploy = {}
 
 local rotate_relative_position = {
     [defines.direction.north] = function(x, y)
@@ -204,44 +205,13 @@ function disband.try_discard_disbanding_train_task_for_template(train_template)
 end
 
 ---------------------------------------------------------------------------
--- -- -- PRIVATE
+-- -- -- DEPLOY
 ---------------------------------------------------------------------------
-
----@param train_task scripts.lib.domain.TrainFormingTask|scripts.lib.domain.TrainDisbandTask
-function private.raise_task_changed_event(train_task)
-    ---@type LuaForce
-    local force = game.forces[train_task.force_name]
-
-    for _, player in ipairs(force.players) do
-        script.raise_event(
-                mod.defines.events.on_core_train_task_changed,
-                { train_task_id = train_task.id, player_index = player.index }
-        )
-    end
-
-end
-
----@param train_template scripts.lib.domain.TrainTemplate
----@param train LuaTrain
-function private.add_train_schedule(train, train_template)
-    train.schedule = flib_table.deep_copy(train_template.destination_schedule)
-    train.manual_mode = false
-end
-
----@param train_template scripts.lib.domain.TrainTemplate
----@param lua_train LuaTrain
-function private.register_train_for_template(lua_train, train_template)
-    local train = persistence_storage.find_train(lua_train.id)
-
-    train:set_train_template(train_template)
-
-    persistence_storage.add_train(train)
-end
 
 ---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.TrainFormingTask
 ---@param tick uint
-function private.try_deploy_train(context, task, tick)
+function deploy.try_deploy_train(context, task, tick)
     if task:is_state_formed() then
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
         task:start_deploy(train_template)
@@ -332,6 +302,85 @@ function private.try_deploy_train(context, task, tick)
     persistence_storage.trains_tasks.add(task)
 end
 
+---@param data NthTickEventData
+function deploy.deploy_trains(data)
+    ---@param context scripts.lib.domain.Context
+    for _, context in ipairs(forming.get_forming_tasks_contexts()) do
+        deploy.deploy_trains_for_context(context, data)
+    end
+
+    if persistence_storage.trains_tasks.count_forming_tasks_ready_for_deploy() == 0 then
+        script.on_nth_tick(mod.defines.on_nth_tick.train_deploy, nil)
+    end
+end
+
+---@param context scripts.lib.domain.Context
+function deploy.is_deploy_slot_empty(context)
+    return persistence_storage.trains_tasks.count_deploying_tasks(context) == 0
+end
+
+---@param context scripts.lib.domain.Context
+---@param task scripts.lib.domain.TrainFormingTask
+---@param tick uint
+function deploy.deploy_task(context, task, tick)
+    if not task:is_state_deploying() and not task:is_state_formed() then
+        return
+    end
+
+    if task:is_state_formed() and not deploy.is_deploy_slot_empty(context) then
+        return
+    end
+
+    deploy.try_deploy_train(context, task, tick)
+end
+
+---@param context scripts.lib.domain.Context
+---@param data NthTickEventData
+function deploy.deploy_trains_for_context(context, data)
+    local tick = data.tick
+    local tasks = persistence_storage.trains_tasks.find_forming_tasks_ready_for_deploy(context)
+
+    ---@param task scripts.lib.domain.TrainFormingTask
+    for _, task in pairs(tasks) do
+        deploy.deploy_task(context, task, tick)
+    end
+end
+
+---------------------------------------------------------------------------
+-- -- -- PRIVATE
+---------------------------------------------------------------------------
+
+---@param train_task scripts.lib.domain.TrainFormingTask|scripts.lib.domain.TrainDisbandTask
+function private.raise_task_changed_event(train_task)
+    ---@type LuaForce
+    local force = game.forces[train_task.force_name]
+
+    for _, player in ipairs(force.players) do
+        script.raise_event(
+                mod.defines.events.on_core_train_task_changed,
+                { train_task_id = train_task.id, player_index = player.index }
+        )
+    end
+
+end
+
+---@param train_template scripts.lib.domain.TrainTemplate
+---@param train LuaTrain
+function private.add_train_schedule(train, train_template)
+    train.schedule = flib_table.deep_copy(train_template.destination_schedule)
+    train.manual_mode = false
+end
+
+---@param train_template scripts.lib.domain.TrainTemplate
+---@param lua_train LuaTrain
+function private.register_train_for_template(lua_train, train_template)
+    local train = persistence_storage.find_train(lua_train.id)
+
+    train:set_train_template(train_template)
+
+    persistence_storage.add_train(train)
+end
+
 function private.get_depot_multiplier()
     return 1.0 -- todo depended from technologies
 end
@@ -363,50 +412,6 @@ function private.process_task(task, tick)
 end
 
 ---@param data NthTickEventData
-function private.deploy_trains(data)
-    ---@param context scripts.lib.domain.Context
-    for _, context in ipairs(forming.get_forming_tasks_contexts()) do
-        private.deploy_trains_for_context(context, data)
-    end
-
-    if persistence_storage.trains_tasks.count_forming_tasks_ready_for_deploy() == 0 then
-        script.on_nth_tick(mod.defines.on_nth_tick.train_deploy, nil)
-    end
-end
-
----@param context scripts.lib.domain.Context
-function private.is_deploy_slot_empty(context)
-    return persistence_storage.trains_tasks.count_deploying_tasks(context) == 0
-end
-
----@param context scripts.lib.domain.Context
----@param task scripts.lib.domain.TrainFormingTask
----@param tick uint
-function private.deploy_task(context, task, tick)
-    if not task:is_state_deploying() and not task:is_state_formed() then
-        return
-    end
-
-    if task:is_state_formed() and not private.is_deploy_slot_empty(context) then
-        return
-    end
-
-    private.try_deploy_train(context, task, tick)
-end
-
----@param context scripts.lib.domain.Context
----@param data NthTickEventData
-function private.deploy_trains_for_context(context, data)
-    local tick = data.tick
-    local tasks = persistence_storage.trains_tasks.find_forming_tasks_ready_for_deploy(context)
-
-    ---@param task scripts.lib.domain.TrainFormingTask
-    for _, task in pairs(tasks) do
-        private.deploy_task(context, task, tick)
-    end
-end
-
----@param data NthTickEventData
 function private.process_queue(data)
     local tick = data.tick
     local tasks = persistence_storage.trains_tasks.find_all_forming_tasks()
@@ -417,7 +422,7 @@ function private.process_queue(data)
         private.process_task(task, tick)
 
         if task:is_state_formed() then
-            script.on_nth_tick(mod.defines.on_nth_tick.train_deploy, private.deploy_trains)
+            script.on_nth_tick(mod.defines.on_nth_tick.train_deploy, deploy.deploy_trains)
         end
     end
 
