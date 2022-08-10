@@ -2,6 +2,7 @@ local flib_direction = require('__flib__.direction')
 
 local logger = require("scripts.lib.logger")
 local Context = require('scripts.lib.domain.Context')
+local persistence_storage = require("scripts.persistence.persistence_storage")
 
 local FORCE_DEFAULT = "player"
 
@@ -40,6 +41,8 @@ function storage.save_depot(context, depot)
     end
 
     global.depot[context.surface_name][context.force_name] = depot
+
+    persistence_storage.depot_build_at(context)
 end
 
 ---@param context scripts.lib.domain.Context
@@ -60,6 +63,8 @@ function storage.delete_depot(context)
     end
 
     global.depot[context.surface_name][context.force_name] = nil
+
+    persistence_storage.depot_destroyed_at(context)
 end
 
 ---------------------------------------------------------------------------

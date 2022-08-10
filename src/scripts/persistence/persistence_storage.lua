@@ -1,10 +1,12 @@
 local flib_table = require("__flib__.table")
 
+local atd_table = require("scripts.util.table")
 local logger = require("scripts.lib.logger")
 local Train = require("scripts.lib.domain.Train")
 local DepotSettings = require("scripts.lib.domain.DepotSettings")
 local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
 local Sequence = require("scripts.lib.Sequence")
+local Context = require("scripts.lib.domain.Context")
 
 local garbage_collector = require("scripts.persistence.garbage_collector")
 
@@ -74,6 +76,7 @@ function public.init()
     global.trains_templates = {}
     global.trains = {}
     global.depot_settings = {}
+    global.depot_on_surfaces = {}
 
     garbage_collector.init(gc_storage_names, atd.defines.persistence.garbage_ttl)
 
@@ -106,16 +109,16 @@ function public.find_train_template_by_id(id)
     return TrainTemplate.from_table(template)
 end
 
----@return LuaSurface[]
-function public.find_surfaces_from_train_templates()
-    local surfaces = {}
+---@return scripts.lib.domain.Context[]
+function public.find_contexts_from_train_templates()
+    local contexts = {}
 
     ---@param t scripts.lib.domain.TrainTemplate
     for _, t in ipairs(global.trains_templates) do
-        table.insert(surfaces, game.get_surface(t.surface_name))
+        table.insert(contexts, Context.new(t.surface_name, t.force_name))
     end
 
-    return surfaces
+    return atd_table.array_unique(contexts)
 end
 
 ---@param context scripts.lib.domain.Context
@@ -251,6 +254,38 @@ end
 ---@param event NthTickEventData
 function public.collect_garbage(event)
     garbage_collector.collect_garbage(event.tick)
+end
+
+---@param context scripts.lib.domain.Context
+function public.depot_build_at(context)
+    if global.depot_build_on == nil then -- todo tmp . remove later
+        global.depot_build_on = {}
+    end
+
+    if global.depot_build_on[context.force_name] == nil then
+        global.depot_build_on[context.force_name] = {}
+    end
+
+    global.depot_build_on[context.force_name][context.surface_name] = true
+end
+
+---@param context scripts.lib.domain.Context
+function public.depot_destroyed_at(context)
+    if global.depot_build_on == nil or global.depot_build_on[context.force_name] == nil then  -- todo tmp . remove later
+        return
+    end
+
+    global.depot_build_on[context.force_name][context.surface_name] = nil
+end
+
+---@param context scripts.lib.domain.Context
+function public.is_depot_exists_at(context)
+    if global.depot_build_on == nil then -- todo tmp . remove later
+        return false
+    end
+
+    return global.depot_build_on[context.force_name] ~= nil
+            and global.depot_build_on[context.force_name][context.surface_name] ~= nil
 end
 
 return public

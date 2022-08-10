@@ -30,13 +30,13 @@ function atd_table.array_values(array)
     return values
 end
 
----@param array table
+---@param array table every row must realize __tostring
 ---@return table
 function atd_table.array_unique(array)
     local result = {}
 
     for _, v in ipairs(array) do
-        result[v] = v
+        result[tostring(v)] = v
     end
 
     return flib_table.filter(result, function(v) return true end, true)

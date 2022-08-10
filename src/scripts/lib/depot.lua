@@ -435,16 +435,22 @@ function private.on_ntd_register_queue_processor()
     script.on_nth_tick(atd.defines.on_nth_tick.tasks_processor, private.process_tasks)
 end
 
+function private.find_contexts_with_depot()
+    return flib_table.filter(
+        persistence_storage.find_contexts_from_train_templates(),
+        function(c)
+            return persistence_storage.is_depot_exists_at(c)
+        end,
+        true
+    )
+end
+
 ---@param data NthTickEventData
 function private.balance_trains_count(data)
-    local surfaces_with_depot = persistence_storage.find_surfaces_from_train_templates()
+    local contexts_with_depot = private.find_contexts_with_depot()
 
-    for _, surface in ipairs(surfaces_with_depot) do
-        for force_name, _ in pairs(game.forces) do
-            local context = Context.new(surface.name, force_name)
-
-            private.balance_trains_count_for_context(context, data)
-        end
+    for _, c in ipairs(contexts_with_depot) do
+        private.balance_trains_count_for_context(c, data)
     end
 end
 

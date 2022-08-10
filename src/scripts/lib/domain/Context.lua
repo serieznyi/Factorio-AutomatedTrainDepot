@@ -5,6 +5,7 @@ function to_string(obj)
     return obj.surface_name .. ":" .. obj.force_name
 end
 
+--- Context is force on surface
 --- @module scripts.lib.domain.Context
 local Context = {
     ---@type string
@@ -51,6 +52,16 @@ function Context.from_train(lua_train)
     local carrier = Train.get_any_carrier(lua_train)
 
     return Context.from_entity(carrier)
+end
+
+---@type LuaForce
+function Context:force()
+    return game.forces[self.force_name]
+end
+
+---@type LuaSurface
+function Context:surface()
+    return game.surfaces[self.surface_name]
 end
 
 ---@param surface_name string
