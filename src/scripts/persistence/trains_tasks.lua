@@ -151,17 +151,6 @@ function public.find_disbanding_tasks(context, train_template_id)
     return flib_table.map(rows, private.hydrate_task)
 end
 
----@param context scripts.lib.domain.Context
-function public.find_tasks(context)
-    assert(context, "context is nil")
-
-    local rows = private.find_trains_tasks(context)
-
-    -- todo forgot filter by activity
-
-    return flib_table.map(rows, private.hydrate_task)
-end
-
 function public.count_deploying_tasks(context)
     assert(context, "context is nil")
 

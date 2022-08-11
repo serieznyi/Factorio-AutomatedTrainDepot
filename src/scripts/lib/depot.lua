@@ -459,18 +459,6 @@ function private.balance_trains_count(data)
 end
 
 ---@param context scripts.lib.domain.Context
-function private.remove_active_tasks_for(context)
-    local tasks = persistence_storage.trains_tasks.find_tasks(context)
-
-    ---@param t scripts.lib.domain.Task
-    for _, t in ipairs(tasks) do
-        t:delete()
-
-        persistence_storage.trains_tasks.add(t)
-    end
-end
-
----@param context scripts.lib.domain.Context
 ---@param data NthTickEventData
 function private.balance_trains_count_for_context(context, data)
     local train_templates = persistence_storage.find_enabled_train_templates(context)
@@ -521,18 +509,7 @@ function private.balance_trains_count_for_context(context, data)
 end
 
 function private.register_event_handlers()
-    local handlers = {
-        {
-            match = EventDispatcher.match_event(atd.defines.events.on_core_depot_building_removed),
-            ---@param e scripts.lib.event.Event
-            handler = function(e)
-                local context = Context.new(e.original_event.surface_name, e.original_event.force_name)
-                private.remove_active_tasks_for(context)
-
-                return true
-            end
-        }
-    }
+    local handlers = {}
 
     for _, h in ipairs(handlers) do
         EventDispatcher.register_handler(h.match, h.handler, "depot")
