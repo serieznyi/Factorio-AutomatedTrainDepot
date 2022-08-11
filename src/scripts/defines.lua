@@ -9,7 +9,7 @@ local TIME_5_MINUTE = 18000
 defines.color = {
     orange = {r = 1, g = 0.45, b = 0, a = 0.75},
     red = {r = 1, g = 0, b = 0, a = 0.75},
-    write = {r = 1, g = 1, b = 1, a = 1},
+    white = { r = 1, g = 1, b = 1, a = 1},
 }
 
 defines.time_in_ticks = {

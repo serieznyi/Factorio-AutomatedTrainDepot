@@ -157,6 +157,8 @@ function public.find_tasks(context)
 
     local rows = private.find_trains_tasks(context)
 
+    -- todo forgot filter by activity
+
     return flib_table.map(rows, private.hydrate_task)
 end
 
@@ -244,6 +246,11 @@ function public.count_forming_tasks_ready_for_deploy()
     )
 
     return #rows
+end
+
+---@param context scripts.lib.domain.Context
+function public.has_tasks(context)
+    return #private.find_trains_tasks(context) > 0
 end
 
 return public

@@ -85,6 +85,12 @@ function private.entity_flying_text(entity, text, color)
 end
 
 ---@param entity LuaEntity
+---@param text table
+function private.flying_message(entity, text)
+    private.entity_flying_text(entity, text, atd.defines.color.white)
+end
+
+---@param entity LuaEntity
 function private.shadow_entity(entity)
     entity.force = FORCE_DEFAULT -- todo pass force as argument
     entity.operable = false
@@ -295,21 +301,40 @@ function private.try_break_building(entity)
     if wrong_place or depot_exists then
         broken = true
 
-        local error_message
-
         if depot_exists then
-            error_message = "Only one depot can be placed on surface"
+            private.flying_message(entity, { "flying-text.atd-only-one-depot-per-surface"})
         else
-            error_message = "Wrong place"
+            private.flying_message(entity, { "flying-text.atd-depot-wrong-place"})
         end
-
-        -- todo translate it
-        private.entity_flying_text(entity, error_message, atd.defines.color.write)
 
         entity.destroy()
     end
 
     return broken
+end
+
+---@param entity LuaEntity
+---@return bool true
+function private.can_destroy(entity)
+    local context = Context.from_entity(entity)
+    local has_tasks = persistence_storage.trains_tasks.has_tasks(context)
+
+    return not has_tasks
+end
+
+---@param entity LuaEntity
+function private.restore_main_entity(entity)
+    entity.surface.create_entity({
+        name = entity.name,
+        position = entity.position,
+        direction = entity.direction,
+        force = entity.force,
+        raise_built = false,
+    })
+
+    private.flying_message(entity, { "flying-text.atd-cant-remove-depot-with-active-tasks"})
+
+    logger.debug("Restore depot building after removing", {}, "depot_building")
 end
 
 ---------------------------------------------------------------------------
@@ -389,6 +414,12 @@ end
 ---@param entity LuaEntity
 ---@return void
 function public.destroy(entity)
+    if not private.can_destroy(entity) then
+        private.restore_main_entity(entity)
+
+        return
+    end
+
     local context = Context.from_entity(entity)
 
     local depot = storage.get_depot(context)
