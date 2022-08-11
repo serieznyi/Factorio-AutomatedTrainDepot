@@ -71,6 +71,20 @@ function private.find_trains_tasks(context, type, train_template_id, state)
     return rows
 end
 
+---@param task_data table
+---@return scripts.lib.domain.TrainDisbandTask|scripts.lib.domain.TrainFormingTask|nil
+function private.hydrate_task(task_data)
+    if task_data.type == TrainFormingTask.type then
+        return TrainFormingTask.from_table(task_data)
+    end
+
+    if task_data.type == TrainDisbandTask.type then
+        return TrainDisbandTask.from_table(task_data)
+    end
+
+    return nil
+end
+
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
@@ -116,7 +130,7 @@ function public.find_forming_tasks(context, train_template_id)
 
     local rows = private.find_trains_tasks(context, TrainFormingTask.defines.type, train_template_id, nil)
 
-    return flib_table.map(rows, TrainFormingTask.from_table)
+    return flib_table.map(rows, private.hydrate_task)
 end
 
 ---@param train_template_id uint
@@ -126,7 +140,7 @@ function public.find_disbanding_tasks(context, train_template_id)
 
     local rows = private.find_trains_tasks(context, TrainDisbandTask.defines.type, train_template_id, nil)
 
-    return flib_table.map(rows, TrainDisbandTask.from_table)
+    return flib_table.map(rows, private.hydrate_task)
 end
 
 function public.count_deploying_tasks(context)
@@ -189,7 +203,7 @@ function public.find_all_forming_tasks()
         return v.deleted == false and v.type == TrainFormingTask.defines.type
     end, true)
 
-    return flib_table.map(rows, TrainFormingTask.from_table)
+    return flib_table.map(rows, private.hydrate_task)
 end
 
 ---@param context scripts.lib.domain.Context|nil
@@ -201,7 +215,7 @@ function public.find_forming_tasks_ready_for_deploy(context)
             {TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploying}
     )
 
-    return flib_table.map(rows, TrainFormingTask.from_table)
+    return flib_table.map(rows, private.hydrate_task)
 end
 
 function public.count_forming_tasks_ready_for_deploy()
