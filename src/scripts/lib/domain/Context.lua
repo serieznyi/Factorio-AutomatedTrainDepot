@@ -24,6 +24,7 @@ function Context:is_same(surface_name, force_name)
 end
 
 ---@param lua_entity LuaEntity
+---@return scripts.lib.domain.Context
 function Context.from_entity(lua_entity)
     return Context.new(
             lua_entity.surface.name,
@@ -31,7 +32,7 @@ function Context.from_entity(lua_entity)
     )
 end
 
----@param entity table
+---@param entity tabl---@return scripts.lib.domain.Context
 function Context.from_model(entity)
     return Context.new(
             entity.surface_name,
@@ -40,6 +41,7 @@ function Context.from_model(entity)
 end
 
 ---@param player LuaPlayer
+---@return scripts.lib.domain.Context
 function Context.from_player(player)
     return Context.new(
         player.surface.name,
@@ -48,6 +50,7 @@ function Context.from_player(player)
 end
 
 ---@param lua_train LuaTrain
+---@return scripts.lib.domain.Context
 function Context.from_train(lua_train)
     local carrier = Train.get_any_carrier(lua_train)
 
