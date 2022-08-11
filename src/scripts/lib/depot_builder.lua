@@ -347,15 +347,6 @@ function private.is_depot_part(entity)
 end
 
 ---@param entity LuaEntity
----@param old_direction defines.direction
-function public.revert_rotation(entity, old_direction)
-    entity.direction = old_direction
-
-    -- todo translate it
-    private.entity_flying_text(entity, "Builded depot cant be rotated", atd.defines.color.write)
-end
-
----@param entity LuaEntity
 ---@param player LuaPlayer
 function public.build(entity, player)
     if private.try_break_building(entity) then
