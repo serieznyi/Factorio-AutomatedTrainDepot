@@ -1,6 +1,7 @@
 local flib_table = require("__flib__.table")
 local flib_direction = require("__flib__.direction")
 
+local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local Context = require("scripts.lib.domain.Context")
 local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
 local TrainDisbandTask = require("scripts.lib.domain.TrainDisbandTask")
@@ -74,7 +75,10 @@ function forming.get_forming_tasks_contexts()
 
     ---@param task scripts.lib.domain.TrainFormingTask
     for _, task in pairs(tasks) do
-        table.insert(contexts, Context.from_model(task))
+        local context = Context.from_model(task)
+        if persistence_storage.is_depot_exists_at(context) then
+            table.insert(contexts, context)
+        end
     end
 
     return contexts
@@ -455,6 +459,18 @@ function private.balance_trains_count(data)
 end
 
 ---@param context scripts.lib.domain.Context
+function private.remove_active_tasks_for(context)
+    local tasks = persistence_storage.trains_tasks.find_tasks(context)
+
+    ---@param t scripts.lib.domain.Task
+    for _, t in ipairs(tasks) do
+        t:delete()
+
+        persistence_storage.trains_tasks.add(t)
+    end
+end
+
+---@param context scripts.lib.domain.Context
 ---@param data NthTickEventData
 function private.balance_trains_count_for_context(context, data)
     local train_templates = persistence_storage.find_enabled_train_templates(context)
@@ -504,16 +520,37 @@ function private.balance_trains_count_for_context(context, data)
     end
 end
 
+function private.register_event_handlers()
+    local handlers = {
+        {
+            match = EventDispatcher.match_event(atd.defines.events.on_core_depot_building_removed),
+            ---@param e scripts.lib.event.Event
+            handler = function(e)
+                local context = Context.new(e.original_event.surface_name, e.original_event.force_name)
+                private.remove_active_tasks_for(context)
+
+                return true
+            end
+        }
+    }
+
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, "depot")
+    end
+end
+
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
 
 function public.init()
     train_service.register_trains()
+
+    private.register_event_handlers()
 end
 
 function public.load()
-
+    private.register_event_handlers()
 end
 
 ---@param train_template_id uint

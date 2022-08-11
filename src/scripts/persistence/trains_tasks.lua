@@ -27,6 +27,16 @@ function private.match_context(v, context)
 end
 
 ---@param v table
+---@param type string
+function private.match_type(v, type)
+    if type == nil then
+        return true
+    end
+
+    return v.type == type
+end
+
+---@param v table
 ---@param train_template_id uint
 function private.match_train_template_id(v, train_template_id)
     if train_template_id == nil then
@@ -57,12 +67,10 @@ end
 ---@param train_template_id uint
 ---@param state table|string
 function private.find_trains_tasks(context, type, train_template_id, state)
-    assert(type, "type is nil")
-
     ---@param v scripts.lib.domain.TrainDisbandTask|scripts.lib.domain.TrainDisbandTask
     local rows = flib_table.filter(global.trains_tasks, function(v)
         return v.deleted == false and
-                v.type == type and
+                private.match_type(v, type) and
                 private.match_context(v, context) and
                 private.match_train_template_id(v, train_template_id) and
                 private.match_state(v, state)
@@ -139,6 +147,15 @@ function public.find_disbanding_tasks(context, train_template_id)
     assert(context, "context is nil")
 
     local rows = private.find_trains_tasks(context, TrainDisbandTask.defines.type, train_template_id, nil)
+
+    return flib_table.map(rows, private.hydrate_task)
+end
+
+---@param context scripts.lib.domain.Context
+function public.find_tasks(context)
+    assert(context, "context is nil")
+
+    local rows = private.find_trains_tasks(context)
 
     return flib_table.map(rows, private.hydrate_task)
 end

@@ -414,7 +414,9 @@ function public.destroy(entity)
 
     storage.delete_depot(context)
 
-    script.raise_event(atd.defines.events.on_core_depot_building_removed, { context = context })
+    script.raise_event(atd.defines.events.on_core_depot_building_removed, {
+        surface_name = context.surface_name, force_name = context.force_name
+    })
 
     logger.debug('Depot on surface {1} for {2} was destroy', {context.surface_name, context.force_name})
 end
