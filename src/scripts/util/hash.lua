@@ -9,18 +9,11 @@ local function hash_string(value)
     return hash
 end
 
-local  function number_to_integer(value)
-    local value_str = tostring(value)
-    local fraction = string.match(value_str, '[%d]+[.]*([%d]*)')
-    local fraction_size = fraction ~= "" and string.len(fraction) or 0
-    local precision = tonumber("1" .. string.rep("0", fraction_size))
-
-    return tonumber(value * precision)
-end
-
 ---@param value number
 local function hash_number(value)
-    return number_to_integer(value)
+    local str = tostring(value):gsub('%.', '')
+
+    return tonumber(str)
 end
 
 ---@param value boolean
