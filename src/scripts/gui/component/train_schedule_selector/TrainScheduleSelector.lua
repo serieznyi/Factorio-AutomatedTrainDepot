@@ -169,11 +169,12 @@ function TrainScheduleSelector:_prepare_schedule(schedule)
     ---@type TrainSchedule
     schedule = flib_table.deep_copy(schedule)
     schedule.current = 1
+    local schedule_name = self:_make_schedule_name(schedule)
 
     return {
-        hash = util_hash.hash_code(schedule.records),
+        hash = util_hash.hash_code({schedule.records, schedule_name}),
         schedule = schedule,
-        name = self:_make_schedule_name(schedule)
+        name = schedule_name
     }
 end
 
