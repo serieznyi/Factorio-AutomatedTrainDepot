@@ -178,7 +178,7 @@ function private.get_guideline(entity, direction)
     error('logical error')
 end
 
----@param position Position
+---@param position MapPosition
 ---@return bool
 function private.is_wrong_place(position)
     local function is_odd(number) return number % 2 == 1 end
@@ -194,7 +194,7 @@ function private.build(context, entity)
     local surface = entity.surface
     ---@type LuaForce
     local force = entity.force
-    ---@type Position
+    ---@type MapPosition
     local guideline_coordinate = private.get_guideline(entity)
     local x, y
     local DEPOT_RAILS_COUNT = 8
