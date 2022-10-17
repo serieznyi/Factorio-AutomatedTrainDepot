@@ -1,4 +1,4 @@
-local Train = require("Train")
+local Train = require("entity.Train")
 
 ---@param obj scripts.lib.domain.Context
 function to_string(obj)
