@@ -579,6 +579,8 @@ end
 function public.is_valid_schedule(schedule)
     local is_path_readable = false
 
+    --- todo add realisation
+
     return is_path_readable
 end
 
