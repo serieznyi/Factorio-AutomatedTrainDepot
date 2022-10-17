@@ -1,6 +1,6 @@
 local flib_table = require("__flib__.table")
 
-local TrainPart = require("scripts.lib.domain.entity.train.TrainPart")
+local RollingStock = require("scripts.lib.domain.entity.train.RollingStock")
 local util_hash = require("scripts.util.hash")
 
 ---@param lua_train LuaTrain
@@ -24,7 +24,7 @@ local TrainTemplate = {
     icon = nil,
     ---@type table
     train_color = {255, 255, 255},
-    ---@type scripts.lib.domain.entity.train.TrainPart[]
+    ---@type scripts.lib.domain.entity.train.RollingStock[]
     train = nil,
     ---@type bool
     enabled = nil,
@@ -48,9 +48,9 @@ local TrainTemplate = {
 function TrainTemplate:get_forming_time()
     local time = 0
 
-    ---@param part scripts.lib.domain.entity.train.TrainPart
-    for _, part in ipairs(self.train) do
-        time = time + part:get_forming_time()
+    ---@param rolling_stock scripts.lib.domain.entity.train.RollingStock
+    for _, rolling_stock in ipairs(self.train) do
+        time = time + rolling_stock:get_forming_time()
     end
 
     return time
@@ -71,9 +71,9 @@ function TrainTemplate:to_table()
         name = self.name,
         icon = self.icon,
         train_color = self.train_color,
-        ---@param train_part scripts.lib.domain.entity.train.TrainPart
-        train = flib_table.map(self.train or {}, function(train_part)
-            return train_part:to_table()
+        ---@param rolling_stock scripts.lib.domain.entity.train.RollingStock
+        train = flib_table.map(self.train or {}, function(rolling_stock)
+            return rolling_stock:to_table()
         end),
         enabled = self.enabled,
         trains_quantity = self.trains_quantity,
@@ -137,9 +137,9 @@ function TrainTemplate.from_table(data)
     object.name = data.name
     object.icon = data.icon
     object.train_color = data.train_color
-    ---@param train_part scripts.lib.domain.entity.train.TrainPart
-    object.train = flib_table.map(data.train or {}, function(train_part)
-        return TrainPart.from_table(train_part)
+    ---@param rolling_stock scripts.lib.domain.entity.train.RollingStock
+    object.train = flib_table.map(data.train or {}, function(rolling_stock)
+        return RollingStock.from_table(rolling_stock)
     end)
     object.enabled = data.enabled
     object.trains_quantity = data.trains_quantity

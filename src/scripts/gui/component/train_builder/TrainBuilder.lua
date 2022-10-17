@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
 local logger = require("scripts.lib.logger")
-local TrainPart = require("scripts.lib.domain.entity.train.TrainPart")
+local RollingStock = require("scripts.lib.domain.entity.train.RollingStock")
 local Part = require("scripts.gui.component.train_builder.Part")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
@@ -10,10 +10,10 @@ local Sequence = require("scripts.lib.Sequence")
 local component_id_sequence = Sequence()
 
 local function validation_check_has_main_locomotive(field_name, form)
-    ---@type scripts.lib.domain.entity.train.TrainPart
-    local carrier = form[field_name][1]
+    ---@type scripts.lib.domain.entity.train.RollingStock
+    local rolling_stock = form[field_name][1]
 
-    if not carrier or carrier.type == TrainPart.TYPE.LOCOMOTIVE then
+    if not rolling_stock or rolling_stock.type == RollingStock.TYPE.LOCOMOTIVE then
         return
     end
 
@@ -31,14 +31,14 @@ local function validation_check_empty_train(field_name, form)
 end
 
 local function validation_check_main_locomotive_wrong_direction(field_name, form)
-    ---@type scripts.lib.domain.entity.train.TrainPart
-    local carrier = form[field_name][1]
+    ---@type scripts.lib.domain.entity.train.RollingStock
+    local rolling_stock = form[field_name][1]
 
-    if not carrier or carrier.type ~= TrainPart.TYPE.LOCOMOTIVE then
+    if not rolling_stock or rolling_stock.type ~= RollingStock.TYPE.LOCOMOTIVE then
         return
     end
 
-    if carrier.direction == atd.defines.train.direction.in_direction then
+    if rolling_stock.direction == atd.defines.train.direction.in_direction then
         return
     end
 
@@ -66,7 +66,7 @@ local TrainBuilder = {
 ---@param on_changed function
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
----@param train table of scripts.lib.domain.TrainPart[]
+---@param train table of scripts.lib.domain.train.RollingStock[]
 function TrainBuilder.new(container, player, on_changed, train)
     ---@type gui.component.TrainBuilder
     local self = {}
@@ -127,13 +127,13 @@ function TrainBuilder:validate_form()
 end
 
 ---@param container LuaGuiElement
----@param train table of scripts.lib.domain.TrainPart[]
+---@param train scripts.lib.domain.entity.train.RollingStock[]
 function TrainBuilder:_initialize(container, train)
     self.refs = flib_gui.build(container, { self:_structure() })
 
     if train ~= nil then
-        for _, carrier in ipairs(train) do
-            self:_add_new_part(carrier)
+        for _, rolling_stock in ipairs(train) do
+            self:_add_new_part(rolling_stock)
         end
     end
 
@@ -145,14 +145,14 @@ function TrainBuilder:_get_last_part()
     return self.parts[#self.parts]
 end
 
----@param train_part scripts.lib.domain.entity.train.TrainPart
+---@param rolling_stock scripts.lib.domain.entity.train.RollingStock
 ---@return gui.component.TrainBuilder.Part
-function TrainBuilder:_add_new_part(train_part)
+function TrainBuilder:_add_new_part(rolling_stock)
     local part = Part.new(
             self.refs.container,
             self.player,
             function(part) return self:_process_part_changing(part) end,
-            train_part
+            rolling_stock
     )
 
     self:_add_part(part)

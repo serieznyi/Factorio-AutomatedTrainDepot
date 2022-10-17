@@ -9,8 +9,8 @@ function get_forming_time_for_locomotive()
     return time
 end
 
---- @module scripts.lib.domain.entity.train.TrainPart
-local TrainPart = { -- todo rename to carrier
+--- @module scripts.lib.domain.entity.train.RollingStock
+local RollingStock = {
     ---@type string
     type = nil,
     ---@type string
@@ -19,14 +19,14 @@ local TrainPart = { -- todo rename to carrier
     direction = nil,
 }
 
-TrainPart.TYPE = {
+RollingStock.TYPE = {
     LOCOMOTIVE = "locomotive",
     CARGO = "cargo",
     ARTILLERY = "artillery",
 }
 
 ---@return table
-function TrainPart:to_table()
+function RollingStock:to_table()
     return {
         type = self.type,
         prototype_name = self.prototype_name,
@@ -35,18 +35,18 @@ function TrainPart:to_table()
 end
 
 ---@type bool
-function TrainPart:is_locomotive()
-    return self.type == TrainPart.TYPE.LOCOMOTIVE
+function RollingStock:is_locomotive()
+    return self.type == RollingStock.TYPE.LOCOMOTIVE
 end
 
 ---@type bool
-function TrainPart:has_direction()
-    return self.type == TrainPart.TYPE.LOCOMOTIVE or self.type == TrainPart.TYPE.ARTILLERY
+function RollingStock:has_direction()
+    return self.type == RollingStock.TYPE.LOCOMOTIVE or self.type == RollingStock.TYPE.ARTILLERY
 end
 
 ---@return uint train part forming time in seconds (without multiplier)
-function TrainPart:get_forming_time()
-    if self.type == TrainPart.TYPE.CARGO then
+function RollingStock:get_forming_time()
+    if self.type == RollingStock.TYPE.CARGO then
         ---@type LuaRecipe
         local cargo_wagon_recipe = game.recipe_prototypes["cargo-wagon"]
 
@@ -59,8 +59,8 @@ function TrainPart:get_forming_time()
 end
 
 ---@param data table
-function TrainPart.from_table(data)
-    local object = TrainPart.new(data.type)
+function RollingStock.from_table(data)
+    local object = RollingStock.new(data.type)
 
     object.prototype_name = data.prototype_name
     object.direction = data.direction
@@ -69,10 +69,10 @@ function TrainPart.from_table(data)
 end
 
 ---@param type string
-function TrainPart.new(type, prototype_name)
-    ---@type scripts.lib.domain.entity.train.TrainPart
+function RollingStock.new(type, prototype_name)
+    ---@type scripts.lib.domain.entity.train.RollingStock
     local self = {}
-    setmetatable(self, { __index = TrainPart })
+    setmetatable(self, { __index = RollingStock })
 
     self.type = type
     self.prototype_name = prototype_name
@@ -80,4 +80,4 @@ function TrainPart.new(type, prototype_name)
     return self
 end
 
-return TrainPart
+return RollingStock

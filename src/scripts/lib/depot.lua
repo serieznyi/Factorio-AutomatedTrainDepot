@@ -248,7 +248,7 @@ function deploy.try_deploy_train(context, task, tick)
     if task:is_state_deploying() and  result_train_length ~= target_train_length then
         -- try build next train part
 
-        ---@type scripts.lib.domain.entity.train.TrainPart
+        ---@type scripts.lib.domain.entity.train.RollingStock
         local train_part = train_template.train[task.deploying_cursor]
 
         local carrier_direction

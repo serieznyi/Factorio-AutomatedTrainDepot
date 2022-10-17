@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 
 local logger = require("scripts.lib.logger")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
-local TrainPart = require("scripts.lib.domain.entity.train.TrainPart")
+local RollingStock = require("scripts.lib.domain.entity.train.RollingStock")
 local structure = require("scripts.gui.component.train_builder.structure")
 local Sequence = require("scripts.lib.Sequence")
 
@@ -40,11 +40,11 @@ local Part = {
     },
 }
 
----@param train_part scripts.lib.domain.entity.train.TrainPart
+---@param rolling_stock scripts.lib.domain.entity.train.RollingStock
 ---@param on_changed function
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
-function Part.new(container, player, on_changed, train_part)
+function Part.new(container, player, on_changed, rolling_stock)
     ---@type gui.component.TrainBuilder.Part
     local self = {}
     setmetatable(self, { __index = Part, __eq = compare})
@@ -63,7 +63,7 @@ function Part.new(container, player, on_changed, train_part)
         self.on_changed = on_changed
     end
 
-    self:_initialize(train_part)
+    self:_initialize(rolling_stock)
 
     logger.debug("Component {1} created", {self.name}, self.name)
 
@@ -116,18 +116,18 @@ function Part:read_form()
     end
 
     local type = self:_get_train_part_type_from_item_name(item_name)
-    ---@type scripts.lib.domain.entity.train.TrainPart
-    local carrier = TrainPart.new(type, item_name)
+    ---@type scripts.lib.domain.entity.train.RollingStock
+    local rolling_stock = RollingStock.new(type, item_name)
     local tags = flib_gui.get_tags(self.refs.carrier_direction_right_button)
     local direction = tags.current_direction
 
-    if type == TrainPart.TYPE.ARTILLERY then
-        carrier.direction = direction
-    elseif type == TrainPart.TYPE.LOCOMOTIVE then
-        carrier.direction = direction
+    if type == RollingStock.TYPE.ARTILLERY then
+        rolling_stock.direction = direction
+    elseif type == RollingStock.TYPE.LOCOMOTIVE then
+        rolling_stock.direction = direction
     end
 
-    return carrier
+    return rolling_stock
 end
 
 ---@param event scripts.lib.event.Event
@@ -193,17 +193,17 @@ function Part:_get_train_part_id(element)
     return tags.train_part_id
 end
 
----@param train_part scripts.lib.domain.entity.train.TrainPart
-function Part:_initialize(train_part)
+---@param rolling_stock scripts.lib.domain.entity.train.RollingStock
+function Part:_initialize(rolling_stock)
     self:_register_event_handlers()
 
     self.refs = flib_gui.build(self.container, { structure.get(self.id) })
 
-    if train_part ~= nil then
-        self.refs.part_chooser.elem_value = train_part.prototype_name
+    if rolling_stock ~= nil then
+        self.refs.part_chooser.elem_value = rolling_stock.prototype_name
 
-        if train_part:has_direction() then
-            self:_set_carrier_direction(train_part.direction)
+        if rolling_stock:has_direction() then
+            self:_set_carrier_direction(rolling_stock.direction)
         end
     end
 
@@ -219,7 +219,7 @@ function Part:_update()
     end
 
     local type = self:_get_train_part_type_from_item_name(self.refs.part_chooser.elem_value)
-    local has_direction = type ~= TrainPart.TYPE.CARGO
+    local has_direction = type ~= RollingStock.TYPE.CARGO
 
     self.refs.delete_button.visible = true
 
@@ -237,10 +237,10 @@ function Part:_get_train_part_type_from_item_name(value)
     local prototype = game.entity_prototypes[value]
 
     local map = {
-        ["locomotive"] = TrainPart.TYPE.LOCOMOTIVE,
-        ["artillery-wagon"] = TrainPart.TYPE.ARTILLERY,
-        ["cargo-wagon"] = TrainPart.TYPE.CARGO,
-        ["fluid-wagon"] = TrainPart.TYPE.CARGO,
+        ["locomotive"] = RollingStock.TYPE.LOCOMOTIVE,
+        ["artillery-wagon"] = RollingStock.TYPE.ARTILLERY,
+        ["cargo-wagon"] = RollingStock.TYPE.CARGO,
+        ["fluid-wagon"] = RollingStock.TYPE.CARGO,
     }
 
     return map[prototype.type]
