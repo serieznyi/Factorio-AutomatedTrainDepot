@@ -521,8 +521,6 @@ end
 ---------------------------------------------------------------------------
 
 function public.init()
-    train_service.register_trains()
-
     private.register_event_handlers()
 end
 

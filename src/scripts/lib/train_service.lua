@@ -6,6 +6,13 @@ local persistence_storage = require("scripts.persistence.persistence_storage")
 
 local TrainService = {}
 
+function TrainService.init()
+    TrainService.register_trains()
+end
+
+function TrainService.load()
+end
+
 ---@param train_id uint
 function TrainService.delete_train(train_id)
     local train = persistence_storage.find_train(train_id)

@@ -100,6 +100,7 @@ flib_event.on_init(function()
     persistence_storage.init()
     depot_builder.init()
     depot.init()
+    train_service.init()
 end)
 
 -- Loaded save file what contains mod ; Cant write in global
@@ -111,6 +112,7 @@ flib_event.on_load(function()
     events_control.initialize()
     gui_manager.load()
     depot.load()
+    train_service.load()
     persistence_storage.load()
 end)
 
