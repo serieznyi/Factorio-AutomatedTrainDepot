@@ -32,7 +32,8 @@ function Context.from_entity(lua_entity)
     )
 end
 
----@param entity tabl---@return scripts.lib.domain.Context
+---@param entity table
+---@return scripts.lib.domain.Context
 function Context.from_model(entity)
     return Context.new(
             entity.surface_name,
