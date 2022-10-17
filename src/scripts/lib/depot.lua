@@ -401,7 +401,7 @@ function private.process_forming_task(task, tick)
     if task:is_state_created() then
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
 
-        task:start_forming_train(tick, multiplier, train_template)
+        task:start_forming(tick, multiplier, train_template)
     end
 
     if task:is_forming_time_left(tick) then

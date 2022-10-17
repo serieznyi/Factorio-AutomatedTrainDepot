@@ -77,7 +77,7 @@ end
 ---@param multiplier double
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@return table
-function TrainFormingTask:start_forming_train(tick, multiplier, train_template)
+function TrainFormingTask:start_forming(tick, multiplier, train_template)
     assert(tick, "tick is nil")
 
     assert(self.state == defines.state.created, "wrong state")
@@ -105,6 +105,7 @@ function TrainFormingTask:deployed()
 end
 
 ---@type uint progress in percent
+---@return uint
 function TrainFormingTask:progress()
     if self.state == defines.state.created then
         return 0
@@ -122,6 +123,7 @@ function TrainFormingTask:set_main_locomotive(entity)
 end
 
 ---@param tick uint
+---@return bool
 function TrainFormingTask:is_forming_time_left(tick)
     return tick > self.forming_end_at
 end
