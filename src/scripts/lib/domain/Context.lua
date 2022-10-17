@@ -1,5 +1,3 @@
-local Train = require("entity.Train")
-
 ---@param obj scripts.lib.domain.Context
 function to_string(obj)
     return obj.surface_name .. ":" .. obj.force_name
@@ -48,14 +46,6 @@ function Context.from_player(player)
         player.surface.name,
         player.force.name
     )
-end
-
----@param lua_train LuaTrain
----@return scripts.lib.domain.Context
-function Context.from_train(lua_train)
-    local carrier = Train.get_any_carrier(lua_train)
-
-    return Context.from_entity(carrier)
 end
 
 ---@type LuaForce
