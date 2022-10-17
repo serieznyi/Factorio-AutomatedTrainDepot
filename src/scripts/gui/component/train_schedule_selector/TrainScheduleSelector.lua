@@ -43,7 +43,7 @@ local TrainScheduleSelector = {
 ---@param context scripts.lib.domain.Context
 ---@param on_changed function
 ---@param selected_schedule TrainSchedule
----@return scripts.lib.domain.entity.train.Train
+---@return scripts.lib.domain.entity.Train
 function TrainScheduleSelector.new(container, context, on_changed, selected_schedule, required)
     ---@type gui.component.TrainScheduleSelector
     local self = {}
@@ -196,7 +196,7 @@ function TrainScheduleSelector:_get_schedules()
     --- Schedules from templates
     local templates = persistence_storage.find_train_templates_by_context(self.context)
 
-    ---@param template scripts.lib.domain.entity.TrainTemplate
+    ---@param template scripts.lib.domain.entity.template.TrainTemplate
     for _, template in ipairs(templates) do
         ---@type TrainSchedule
         local schedule = self:_prepare_schedule(template.destination_schedule)

@@ -9,7 +9,7 @@ function get_forming_time_for_locomotive()
     return time
 end
 
---- @module scripts.lib.domain.entity.train.RollingStock
+--- @module scripts.lib.domain.entity.template.RollingStock
 local RollingStock = {
     ---@type string
     type = nil,
@@ -70,7 +70,7 @@ end
 
 ---@param type string
 function RollingStock.new(type, prototype_name)
-    ---@type scripts.lib.domain.entity.train.RollingStock
+    ---@type scripts.lib.domain.entity.template.RollingStock
     local self = {}
     setmetatable(self, { __index = RollingStock })
 

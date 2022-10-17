@@ -25,7 +25,7 @@ local TrainFormingTask = {
     surface_name = nil,
     ---@type uint
     train_template_id = nil,
-    ---@type scripts.lib.domain.entity.TrainTemplate snapshot of train template
+    ---@type scripts.lib.domain.entity.template.TrainTemplate snapshot of train template
     train_template = nil,
     ---@type uint ticks needed to forming train
     required_forming_ticks = nil,
@@ -75,7 +75,7 @@ end
 
 ---@param tick uint
 ---@param multiplier double
----@param train_template scripts.lib.domain.entity.TrainTemplate
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@return table
 function TrainFormingTask:start_forming_train(tick, multiplier, train_template)
     assert(tick, "tick is nil")
@@ -89,7 +89,7 @@ function TrainFormingTask:start_forming_train(tick, multiplier, train_template)
     self.forming_end_at = tick + self.required_forming_ticks
 end
 
----@param train_template scripts.lib.domain.entity.TrainTemplate
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 function TrainFormingTask:start_deploy(train_template)
     self.state = defines.state.deploying
     self.train_template = train_template
@@ -170,7 +170,7 @@ function TrainFormingTask.from_table(data)
 end
 
 ---@return scripts.lib.domain.entity.task.TrainFormingTask
----@param train_template scripts.lib.domain.entity.TrainTemplate
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 function TrainFormingTask.from_train_template(train_template)
     assert(train_template, "train_template is nil")
 

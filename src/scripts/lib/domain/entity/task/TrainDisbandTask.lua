@@ -63,7 +63,7 @@ end
 
 ---@param tick uint
 ---@param multiplier double
----@param train_template scripts.lib.domain.entity.TrainTemplate
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@return table
 function TrainDisbandTask:start_disband_train(tick, multiplier, train_template)
     assert(tick, "tick is nil")
@@ -146,7 +146,7 @@ function TrainDisbandTask.from_table(data)
 end
 
 ---@return scripts.lib.domain.entity.task.TrainDisbandTask
----@param train scripts.lib.domain.entity.train.Train
+---@param train scripts.lib.domain.entity.Train
 function TrainDisbandTask.from_train(train)
     assert(train, "train is nil")
 

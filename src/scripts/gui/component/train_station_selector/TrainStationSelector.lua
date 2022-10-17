@@ -37,7 +37,7 @@ local TrainStationSelector = {
 ---@param surface LuaSurface
 ---@param on_changed function
 ---@param selected_station_name string
----@return scripts.lib.domain.entity.train.Train
+---@return scripts.lib.domain.entity.Train
 ---@param container LuaGuiElement
 function TrainStationSelector.new(container, surface, force, on_changed, selected_station_name, required)
     ---@type gui.component.TrainStationSelector

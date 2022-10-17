@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 
 local logger = require("scripts.lib.logger")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
-local RollingStock = require("scripts.lib.domain.entity.train.RollingStock")
+local RollingStock = require("scripts.lib.domain.entity.template.RollingStock")
 local structure = require("scripts.gui.component.train_builder.structure")
 local Sequence = require("scripts.lib.Sequence")
 
@@ -40,7 +40,7 @@ local Part = {
     },
 }
 
----@param rolling_stock scripts.lib.domain.entity.train.RollingStock
+---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
 ---@param on_changed function
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
@@ -116,7 +116,7 @@ function Part:read_form()
     end
 
     local type = self:_get_train_part_type_from_item_name(item_name)
-    ---@type scripts.lib.domain.entity.train.RollingStock
+    ---@type scripts.lib.domain.entity.template.RollingStock
     local rolling_stock = RollingStock.new(type, item_name)
     local tags = flib_gui.get_tags(self.refs.carrier_direction_right_button)
     local direction = tags.current_direction
@@ -193,7 +193,7 @@ function Part:_get_train_part_id(element)
     return tags.train_part_id
 end
 
----@param rolling_stock scripts.lib.domain.entity.train.RollingStock
+---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
 function Part:_initialize(rolling_stock)
     self:_register_event_handlers()
 

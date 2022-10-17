@@ -1,6 +1,6 @@
 local flib_table = require("__flib__.table")
 
-local RollingStock = require("scripts.lib.domain.entity.train.RollingStock")
+local RollingStock = require("scripts.lib.domain.entity.template.RollingStock")
 local util_hash = require("scripts.util.hash")
 
 ---@param lua_train LuaTrain
@@ -14,7 +14,7 @@ function lua_train_hash_code(lua_train)
     return util_hash.hash_code(data)
 end
 
---- @module scripts.lib.domain.entity.TrainTemplate
+--- @module scripts.lib.domain.entity.template.TrainTemplate
 local TrainTemplate = {
     ---@type uint
     id = nil,
@@ -24,7 +24,7 @@ local TrainTemplate = {
     icon = nil,
     ---@type table
     train_color = {255, 255, 255},
-    ---@type scripts.lib.domain.entity.train.RollingStock[]
+    ---@type scripts.lib.domain.entity.template.RollingStock[]
     train = nil,
     ---@type bool
     enabled = nil,
@@ -48,7 +48,7 @@ local TrainTemplate = {
 function TrainTemplate:get_forming_time()
     local time = 0
 
-    ---@param rolling_stock scripts.lib.domain.entity.train.RollingStock
+    ---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
     for _, rolling_stock in ipairs(self.train) do
         time = time + rolling_stock:get_forming_time()
     end
@@ -71,7 +71,7 @@ function TrainTemplate:to_table()
         name = self.name,
         icon = self.icon,
         train_color = self.train_color,
-        ---@param rolling_stock scripts.lib.domain.entity.train.RollingStock
+        ---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
         train = flib_table.map(self.train or {}, function(rolling_stock)
             return rolling_stock:to_table()
         end),
@@ -137,7 +137,7 @@ function TrainTemplate.from_table(data)
     object.name = data.name
     object.icon = data.icon
     object.train_color = data.train_color
-    ---@param rolling_stock scripts.lib.domain.entity.train.RollingStock
+    ---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
     object.train = flib_table.map(data.train or {}, function(rolling_stock)
         return RollingStock.from_table(rolling_stock)
     end)
@@ -153,7 +153,7 @@ function TrainTemplate.from_table(data)
     return object
 end
 
----@return scripts.lib.domain.entity.TrainTemplate
+---@return scripts.lib.domain.entity.template.TrainTemplate
 ---@param context scripts.lib.domain.Context
 function TrainTemplate.from_context(id, context)
     return TrainTemplate.new(id, context.surface_name, context.force_name)
@@ -163,7 +163,7 @@ end
 ---@param surface_name string
 ---@param force_name string
 function TrainTemplate.new(id, surface_name, force_name)
-    ---@type scripts.lib.domain.entity.TrainTemplate
+    ---@type scripts.lib.domain.entity.template.TrainTemplate
     local self = {}
     setmetatable(self, { __index = TrainTemplate })
 

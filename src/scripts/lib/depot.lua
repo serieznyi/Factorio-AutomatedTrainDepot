@@ -47,7 +47,7 @@ function forming.has_free_forming_slot(context)
     return slots_count > tasks_count
 end
 
----@param train_template scripts.lib.domain.entity.TrainTemplate
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 function forming.try_add_forming_train_task_for_template(train_template)
     -- todo balance tasks for different forces, surfaces and templates
     local context = Context.from_model(train_template)
@@ -101,7 +101,7 @@ function forming.discard_forming_task(task)
     )
 end
 
----@param train_template scripts.lib.domain.entity.TrainTemplate
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 function forming.try_discard_forming_train_task_for_template(train_template)
     local context = Context.from_model(train_template)
     local tasks = persistence_storage.trains_tasks.find_forming_tasks(
@@ -138,7 +138,7 @@ function disband.has_free_disband_slot(context)
     return slots_count > tasks_count
 end
 
----@param train_template scripts.lib.domain.entity.TrainTemplate
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 function disband.try_add_disband_train_task_for_template(train_template)
     -- todo balance tasks for different forces, surfaces and templates
     local context = Context.from_model(train_template)
@@ -147,7 +147,7 @@ function disband.try_add_disband_train_task_for_template(train_template)
         return false
     end
 
-    ---@type scripts.lib.domain.entity.train.Train
+    ---@type scripts.lib.domain.entity.Train
     local train = disband.try_get_train_for_disband(train_template)
 
     if train == nil then
@@ -167,8 +167,8 @@ function disband.try_add_disband_train_task_for_template(train_template)
     return true
 end
 
----@param train_template scripts.lib.domain.entity.TrainTemplate
----@return scripts.lib.domain.entity.train.Train
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+---@return scripts.lib.domain.entity.Train
 function disband.try_get_train_for_disband(train_template)
     local context = Context.from_model(train_template)
     local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
@@ -191,7 +191,7 @@ function disband.discard_disbanding_task(task)
     )
 end
 
----@param train_template scripts.lib.domain.entity.TrainTemplate
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 function disband.try_discard_disbanding_train_task_for_template(train_template)
     local context = Context.from_model(train_template)
     local tasks = persistence_storage.trains_tasks.find_disbanding_tasks(context, train_template.id)
@@ -248,7 +248,7 @@ function deploy.try_deploy_train(context, task, tick)
     if task:is_state_deploying() and  result_train_length ~= target_train_length then
         -- try build next train part
 
-        ---@type scripts.lib.domain.entity.train.RollingStock
+        ---@type scripts.lib.domain.entity.template.RollingStock
         local train_part = train_template.train[task.deploying_cursor]
 
         local carrier_direction
@@ -368,14 +368,14 @@ function private.raise_task_changed_event(train_task)
 
 end
 
----@param train_template scripts.lib.domain.entity.TrainTemplate
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@param train LuaTrain
 function private.add_train_schedule(train, train_template)
     train.schedule = flib_table.deep_copy(train_template.destination_schedule)
     train.manual_mode = false
 end
 
----@param train_template scripts.lib.domain.entity.TrainTemplate
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@param lua_train LuaTrain
 function private.register_train_for_template(lua_train, train_template)
     local train = persistence_storage.find_train(lua_train.id)
@@ -463,7 +463,7 @@ end
 function private.balance_trains_count_for_context(context, data)
     local train_templates = persistence_storage.find_enabled_train_templates(context)
 
-    ---@param train_template scripts.lib.domain.entity.TrainTemplate
+    ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
     for _, train_template in pairs(train_templates) do
         local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
         local forming_train_tasks_count = persistence_storage.trains_tasks.count_forming_tasks(context, train_template.id)

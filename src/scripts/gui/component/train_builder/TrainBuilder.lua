@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
 local logger = require("scripts.lib.logger")
-local RollingStock = require("scripts.lib.domain.entity.train.RollingStock")
+local RollingStock = require("scripts.lib.domain.entity.template.RollingStock")
 local Part = require("scripts.gui.component.train_builder.Part")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
@@ -10,7 +10,7 @@ local Sequence = require("scripts.lib.Sequence")
 local component_id_sequence = Sequence()
 
 local function validation_check_has_main_locomotive(field_name, form)
-    ---@type scripts.lib.domain.entity.train.RollingStock
+    ---@type scripts.lib.domain.entity.template.RollingStock
     local rolling_stock = form[field_name][1]
 
     if not rolling_stock or rolling_stock.type == RollingStock.TYPE.LOCOMOTIVE then
@@ -31,7 +31,7 @@ local function validation_check_empty_train(field_name, form)
 end
 
 local function validation_check_main_locomotive_wrong_direction(field_name, form)
-    ---@type scripts.lib.domain.entity.train.RollingStock
+    ---@type scripts.lib.domain.entity.template.RollingStock
     local rolling_stock = form[field_name][1]
 
     if not rolling_stock or rolling_stock.type ~= RollingStock.TYPE.LOCOMOTIVE then
@@ -127,7 +127,7 @@ function TrainBuilder:validate_form()
 end
 
 ---@param container LuaGuiElement
----@param train scripts.lib.domain.entity.train.RollingStock[]
+---@param train scripts.lib.domain.entity.template.RollingStock[]
 function TrainBuilder:_initialize(container, train)
     self.refs = flib_gui.build(container, { self:_structure() })
 
@@ -145,7 +145,7 @@ function TrainBuilder:_get_last_part()
     return self.parts[#self.parts]
 end
 
----@param rolling_stock scripts.lib.domain.entity.train.RollingStock
+---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
 ---@return gui.component.TrainBuilder.Part
 function TrainBuilder:_add_new_part(rolling_stock)
     local part = Part.new(
