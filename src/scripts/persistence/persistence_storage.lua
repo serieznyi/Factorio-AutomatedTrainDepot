@@ -2,7 +2,7 @@ local flib_table = require("__flib__.table")
 
 local atd_table = require("scripts.util.table")
 local logger = require("scripts.lib.logger")
-local Train = require("scripts.lib.domain.entity.Train")
+local Train = require("scripts.lib.domain.entity.train.Train")
 local DepotSettings = require("scripts.lib.domain.entity.DepotSettings")
 local TrainTemplate = require("scripts.lib.domain.entity.TrainTemplate")
 local Sequence = require("scripts.lib.Sequence")
@@ -47,7 +47,7 @@ end
 ---@param controlled bool
 ---@param context scripts.lib.domain.Context
 function private.find_trains(context, controlled, train_template_id)
-    ---@param v scripts.lib.domain.entity.Train
+    ---@param v scripts.lib.domain.entity.train.Train
     local trains = flib_table.filter(global.trains, function(v)
         return v.deleted == false and
                 v.controlled_train == controlled and
@@ -180,8 +180,8 @@ end
 
 -- -- -- TRAIN
 
----@param train scripts.lib.domain.entity.Train
----@return scripts.lib.domain.entity.Train
+---@param train scripts.lib.domain.entity.train.Train
+---@return scripts.lib.domain.entity.train.Train
 function public.add_train(train)
     local data = train:to_table()
 
@@ -199,20 +199,20 @@ function public.count_uncontrolled_trains(context)
 end
 
 ---@param context scripts.lib.domain.Context
----@return scripts.lib.domain.entity.Train[]
+---@return scripts.lib.domain.entity.train.Train[]
 function public.find_uncontrolled_trains(context)
     return private.find_trains(context, false)
 end
 
 ---@param context scripts.lib.domain.Context
 ---@param train_template_id uint
----@return scripts.lib.domain.entity.Train[]
+---@return scripts.lib.domain.entity.train.Train[]
 function public.find_controlled_trains_for_template(context, train_template_id)
     return private.find_trains(context, true, train_template_id)
 end
 
 ---@param train_id uint
----@return scripts.lib.domain.entity.Train
+---@return scripts.lib.domain.entity.train.Train
 function public.find_train(train_id)
     local data = global.trains[train_id]
 

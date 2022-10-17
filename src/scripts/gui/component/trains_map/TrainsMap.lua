@@ -72,7 +72,7 @@ function TrainsMap:_refresh_component(trains)
 
     trains_table.clear()
 
-    -----@param train scripts.lib.domain.entity.Train
+    -----@param train scripts.lib.domain.entity.train.Train
     for _, train in ipairs(trains) do
         local locomotive = train:get_main_locomotive()
 

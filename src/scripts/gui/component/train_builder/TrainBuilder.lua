@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
 local logger = require("scripts.lib.logger")
-local TrainPart = require("scripts.lib.domain.entity.TrainPart")
+local TrainPart = require("scripts.lib.domain.entity.train.TrainPart")
 local Part = require("scripts.gui.component.train_builder.Part")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
@@ -10,7 +10,7 @@ local Sequence = require("scripts.lib.Sequence")
 local component_id_sequence = Sequence()
 
 local function validation_check_has_main_locomotive(field_name, form)
-    ---@type scripts.lib.domain.entity.TrainPart
+    ---@type scripts.lib.domain.entity.train.TrainPart
     local carrier = form[field_name][1]
 
     if not carrier or carrier.type == TrainPart.TYPE.LOCOMOTIVE then
@@ -31,7 +31,7 @@ local function validation_check_empty_train(field_name, form)
 end
 
 local function validation_check_main_locomotive_wrong_direction(field_name, form)
-    ---@type scripts.lib.domain.entity.TrainPart
+    ---@type scripts.lib.domain.entity.train.TrainPart
     local carrier = form[field_name][1]
 
     if not carrier or carrier.type ~= TrainPart.TYPE.LOCOMOTIVE then
@@ -145,7 +145,7 @@ function TrainBuilder:_get_last_part()
     return self.parts[#self.parts]
 end
 
----@param train_part scripts.lib.domain.entity.TrainPart
+---@param train_part scripts.lib.domain.entity.train.TrainPart
 ---@return gui.component.TrainBuilder.Part
 function TrainBuilder:_add_new_part(train_part)
     local part = Part.new(

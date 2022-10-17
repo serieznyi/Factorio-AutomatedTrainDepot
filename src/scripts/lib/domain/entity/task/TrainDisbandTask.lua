@@ -146,7 +146,7 @@ function TrainDisbandTask.from_table(data)
 end
 
 ---@return scripts.lib.domain.entity.task.TrainDisbandTask
----@param train scripts.lib.domain.entity.Train
+---@param train scripts.lib.domain.entity.train.Train
 function TrainDisbandTask.from_train(train)
     assert(train, "train is nil")
 

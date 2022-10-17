@@ -147,7 +147,7 @@ function disband.try_add_disband_train_task_for_template(train_template)
         return false
     end
 
-    ---@type scripts.lib.domain.entity.Train
+    ---@type scripts.lib.domain.entity.train.Train
     local train = disband.try_get_train_for_disband(train_template)
 
     if train == nil then
@@ -168,7 +168,7 @@ function disband.try_add_disband_train_task_for_template(train_template)
 end
 
 ---@param train_template scripts.lib.domain.entity.TrainTemplate
----@return scripts.lib.domain.entity.Train
+---@return scripts.lib.domain.entity.train.Train
 function disband.try_get_train_for_disband(train_template)
     local context = Context.from_model(train_template)
     local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
@@ -248,7 +248,7 @@ function deploy.try_deploy_train(context, task, tick)
     if task:is_state_deploying() and  result_train_length ~= target_train_length then
         -- try build next train part
 
-        ---@type scripts.lib.domain.entity.TrainPart
+        ---@type scripts.lib.domain.entity.train.TrainPart
         local train_part = train_template.train[task.deploying_cursor]
 
         local carrier_direction

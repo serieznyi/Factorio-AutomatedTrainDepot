@@ -173,7 +173,7 @@ function TrainTemplateView:_refresh_component()
 
     self.refs.train_view.clear()
 
-    ---@param train_part scripts.lib.domain.entity.TrainPart
+    ---@param train_part scripts.lib.domain.entity.train.TrainPart
     for _, train_part in pairs(train_template.train) do
         flib_gui.add(self.refs.train_view, {
             type = "sprite-button",

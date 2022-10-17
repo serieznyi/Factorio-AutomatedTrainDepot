@@ -43,7 +43,7 @@ local TrainScheduleSelector = {
 ---@param context scripts.lib.domain.Context
 ---@param on_changed function
 ---@param selected_schedule TrainSchedule
----@return scripts.lib.domain.entity.Train
+---@return scripts.lib.domain.entity.train.Train
 function TrainScheduleSelector.new(container, context, on_changed, selected_schedule, required)
     ---@type gui.component.TrainScheduleSelector
     local self = {}

@@ -8,7 +8,7 @@ local constants = {
     }
 }
 
---- @module scripts.lib.domain.entity.Train
+--- @module scripts.lib.domain.entity.train.Train
 local Train = {
     ---@type uint
     id = nil,
@@ -78,7 +78,7 @@ function Train:to_table()
 end
 
 ---@param new_lua_train LuaTrain
----@return scripts.lib.domain.entity.Train
+---@return scripts.lib.domain.entity.train.Train
 function Train:copy(new_lua_train)
     local copy = Train.from_lua_train(new_lua_train)
 
@@ -106,7 +106,7 @@ function Train.from_table(data)
 end
 
 ---@param lua_train LuaTrain
----@return scripts.lib.domain.entity.Train
+---@return scripts.lib.domain.entity.train.Train
 function Train.from_lua_train(lua_train)
     local train = Train.new()
 
@@ -125,9 +125,9 @@ function Train.get_any_carrier(lua_train)
     return front_locomotive or back_locomotive or wagon
 end
 
----@return scripts.lib.domain.entity.Train
+---@return scripts.lib.domain.entity.train.Train
 function Train.new()
-    ---@type scripts.lib.domain.entity.Train
+    ---@type scripts.lib.domain.entity.train.Train
     local self = {}
     setmetatable(self, { __index = Train })
 

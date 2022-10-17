@@ -9,7 +9,7 @@ function get_forming_time_for_locomotive()
     return time
 end
 
---- @module scripts.lib.domain.entity.TrainPart
+--- @module scripts.lib.domain.entity.train.TrainPart
 local TrainPart = { -- todo rename to carrier
     ---@type string
     type = nil,
@@ -70,7 +70,7 @@ end
 
 ---@param type string
 function TrainPart.new(type, prototype_name)
-    ---@type scripts.lib.domain.entity.TrainPart
+    ---@type scripts.lib.domain.entity.train.TrainPart
     local self = {}
     setmetatable(self, { __index = TrainPart })
 

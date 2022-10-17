@@ -1,6 +1,6 @@
 local flib_table = require("__flib__.table")
 
-local TrainPart = require("scripts.lib.domain.entity.TrainPart")
+local TrainPart = require("scripts.lib.domain.entity.train.TrainPart")
 local util_hash = require("scripts.util.hash")
 
 ---@param lua_train LuaTrain
@@ -24,7 +24,7 @@ local TrainTemplate = {
     icon = nil,
     ---@type table
     train_color = {255, 255, 255},
-    ---@type scripts.lib.domain.entity.TrainPart[]
+    ---@type scripts.lib.domain.entity.train.TrainPart[]
     train = nil,
     ---@type bool
     enabled = nil,
@@ -48,7 +48,7 @@ local TrainTemplate = {
 function TrainTemplate:get_forming_time()
     local time = 0
 
-    ---@param part scripts.lib.domain.entity.TrainPart
+    ---@param part scripts.lib.domain.entity.train.TrainPart
     for _, part in ipairs(self.train) do
         time = time + part:get_forming_time()
     end
@@ -71,7 +71,7 @@ function TrainTemplate:to_table()
         name = self.name,
         icon = self.icon,
         train_color = self.train_color,
-        ---@param train_part scripts.lib.domain.entity.TrainPart
+        ---@param train_part scripts.lib.domain.entity.train.TrainPart
         train = flib_table.map(self.train or {}, function(train_part)
             return train_part:to_table()
         end),
@@ -137,7 +137,7 @@ function TrainTemplate.from_table(data)
     object.name = data.name
     object.icon = data.icon
     object.train_color = data.train_color
-    ---@param train_part scripts.lib.domain.entity.TrainPart
+    ---@param train_part scripts.lib.domain.entity.train.TrainPart
     object.train = flib_table.map(data.train or {}, function(train_part)
         return TrainPart.from_table(train_part)
     end)
