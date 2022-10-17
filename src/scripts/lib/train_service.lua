@@ -4,12 +4,46 @@ local logger = require("scripts.lib.logger")
 local Train = require("scripts.lib.domain.entity.Train")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 
-local private = {}
+local TrainService = {}
+
+---@param train_id uint
+function TrainService.delete_train(train_id)
+    local train = persistence_storage.find_train(train_id)
+
+    if train == nil then
+        return
+    end
+
+    train:delete()
+
+    persistence_storage.add_train(train)
+
+    logger.debug("Train {1} mark as deleted", {train_id}, "depot.delete_train")
+end
 
 ---@param lua_train LuaTrain
 ---@param old_train_id_1 uint
 ---@param old_train_id_2 uint
-function private.register_train(lua_train, old_train_id_1, old_train_id_2)
+function TrainService.register_train(lua_train, old_train_id_1, old_train_id_2)
+    TrainService._register_train(lua_train, old_train_id_1, old_train_id_2)
+
+    -- balance trains if controlled train was changed (removed, damaged, ...)
+    script.raise_event(atd.defines.events.on_core_train_changed, {})
+end
+
+function TrainService.register_trains()
+    logger.info("Try register all exists trains", {}, "depot.register_trains")
+
+    ---@param train LuaTrain
+    for _, train in ipairs(TrainService._get_trains()) do
+        TrainService._register_train(train)
+    end
+end
+
+---@param lua_train LuaTrain
+---@param old_train_id_1 uint
+---@param old_train_id_2 uint
+function TrainService._register_train(lua_train, old_train_id_1, old_train_id_2)
     local train_has_locomotive = flib_train.get_main_locomotive(lua_train) ~= nil
     local create_new_locomotive = old_train_id_1 == nil and old_train_id_2 == nil and train_has_locomotive
     local change_exists_train = old_train_id_1 ~= nil and old_train_id_2 == nil
@@ -28,6 +62,8 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
 
         return persistence_storage.add_train(train)
     elseif change_exists_train then
+        -- todo mark as unregistered ?
+        -- todo use train_structure_hash ?
         local old_train_entity = persistence_storage.find_train(old_train_id_1)
 
         local new_train_entity = old_train_entity:copy(lua_train)
@@ -44,6 +80,8 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
 
         return persistence_storage.add_train(new_train_entity)
     elseif merge_exists_train then
+        -- todo mark as unregistered ?
+        -- todo use train_structure_hash ?
         local newest_train_id = math.max(old_train_id_1, old_train_id_2);
         local newest_train = persistence_storage.find_train(newest_train_id);
 
@@ -78,7 +116,7 @@ function private.register_train(lua_train, old_train_id_1, old_train_id_2)
     end
 end
 
-function private.get_trains()
+function TrainService._get_trains()
     local trains = {}
     ---@param force LuaForce
     for _, force in pairs(game.forces) do
@@ -89,42 +127,6 @@ function private.get_trains()
     end
 
     return trains
-end
-
-local TrainService = {}
-
----@param train_id uint
-function TrainService.delete_train(train_id)
-    local train = persistence_storage.find_train(train_id)
-
-    if train == nil then
-        return
-    end
-
-    train:delete()
-
-    persistence_storage.add_train(train)
-
-    logger.debug("Train {1} mark as deleted", {train_id}, "depot.delete_train")
-end
-
----@param lua_train LuaTrain
----@param old_train_id_1 uint
----@param old_train_id_2 uint
-function TrainService.register_train(lua_train, old_train_id_1, old_train_id_2)
-    private.register_train(lua_train, old_train_id_1, old_train_id_2)
-
-    -- balance trains if controlled train was changed (removed, damaged, ...)
-    script.raise_event(atd.defines.events.on_core_train_changed, {})
-end
-
-function TrainService.register_trains()
-    logger.info("Try register all exists trains", {}, "depot.register_trains")
-
-    ---@param train LuaTrain
-    for _, train in ipairs(private.get_trains()) do
-        private.register_train(train)
-    end
 end
 
 return TrainService
