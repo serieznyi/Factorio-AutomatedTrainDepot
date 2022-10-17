@@ -1,6 +1,6 @@
 local public = {}
 
----@param train_template scripts.lib.domain.TrainTemplate
+---@param train_template scripts.lib.domain.entity.TrainTemplate
 function public.get(train_template)
     local QUANTITY_ONE = 1
     local QUANTITY_FIVE = 5

@@ -1,6 +1,6 @@
 local flib_table = require("__flib__.table")
 
-local TrainPart = require("scripts.lib.domain.TrainPart")
+local TrainPart = require("scripts.lib.domain.entity.TrainPart")
 local util_hash = require("scripts.util.hash")
 
 ---@param lua_train LuaTrain
@@ -14,7 +14,7 @@ function lua_train_hash_code(lua_train)
     return util_hash.hash_code(data)
 end
 
---- @module scripts.lib.domain.TrainTemplate
+--- @module scripts.lib.domain.entity.TrainTemplate
 local TrainTemplate = {
     ---@type uint
     id = nil,
@@ -24,7 +24,7 @@ local TrainTemplate = {
     icon = nil,
     ---@type table
     train_color = {255, 255, 255},
-    ---@type scripts.lib.domain.TrainPart[]
+    ---@type scripts.lib.domain.entity.TrainPart[]
     train = nil,
     ---@type bool
     enabled = nil,
@@ -48,7 +48,7 @@ local TrainTemplate = {
 function TrainTemplate:get_forming_time()
     local time = 0
 
-    ---@param part scripts.lib.domain.TrainPart
+    ---@param part scripts.lib.domain.entity.TrainPart
     for _, part in ipairs(self.train) do
         time = time + part:get_forming_time()
     end
@@ -71,7 +71,7 @@ function TrainTemplate:to_table()
         name = self.name,
         icon = self.icon,
         train_color = self.train_color,
-        ---@param train_part scripts.lib.domain.TrainPart
+        ---@param train_part scripts.lib.domain.entity.TrainPart
         train = flib_table.map(self.train or {}, function(train_part)
             return train_part:to_table()
         end),
@@ -137,7 +137,7 @@ function TrainTemplate.from_table(data)
     object.name = data.name
     object.icon = data.icon
     object.train_color = data.train_color
-    ---@param train_part scripts.lib.domain.TrainPart
+    ---@param train_part scripts.lib.domain.entity.TrainPart
     object.train = flib_table.map(data.train or {}, function(train_part)
         return TrainPart.from_table(train_part)
     end)
@@ -153,7 +153,7 @@ function TrainTemplate.from_table(data)
     return object
 end
 
----@return scripts.lib.domain.TrainTemplate
+---@return scripts.lib.domain.entity.TrainTemplate
 ---@param context scripts.lib.domain.Context
 function TrainTemplate.from_context(id, context)
     return TrainTemplate.new(id, context.surface_name, context.force_name)
@@ -163,7 +163,7 @@ end
 ---@param surface_name string
 ---@param force_name string
 function TrainTemplate.new(id, surface_name, force_name)
-    ---@type scripts.lib.domain.TrainTemplate
+    ---@type scripts.lib.domain.entity.TrainTemplate
     local self = {}
     setmetatable(self, { __index = TrainTemplate })
 

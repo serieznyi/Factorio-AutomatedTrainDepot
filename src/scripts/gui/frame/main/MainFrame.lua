@@ -287,7 +287,7 @@ function MainFrame:_get_trains_templates_values()
     local context = Context.from_player(self.player)
     local trains_templates = persistence_storage.find_train_templates_by_context(context)
 
-    ---@param t scripts.lib.domain.TrainTemplate
+    ---@param t scripts.lib.domain.entity.TrainTemplate
     return flib_table.map(
             trains_templates,
             function(t)

@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 local flib_table = require("__flib__.table")
 
 local logger = require("scripts.lib.logger")
-local TrainTemplate = require("scripts.lib.domain.TrainTemplate")
+local TrainTemplate = require("scripts.lib.domain.entity.TrainTemplate")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.frame.add_template.structure")
 local persistence_storage = require("scripts.persistence.persistence_storage")
@@ -144,11 +144,11 @@ function AddTemplateFrame:destroy()
     logger.debug("Frame {1} destroyed", {self.name}, self.name)
 end
 
----@return scripts.lib.domain.TrainTemplate form data
+---@return scripts.lib.domain.entity.TrainTemplate form data
 function AddTemplateFrame:read_form()
     local window_tags = flib_gui.get_tags(self.refs.window)
     local context = Context.from_player(self.player)
-    ---@type scripts.lib.domain.TrainTemplate
+    ---@type scripts.lib.domain.entity.TrainTemplate
     local train_template = TrainTemplate.from_context(window_tags.train_template_id, context)
 
     train_template.name = self.refs.name_input.text
@@ -216,8 +216,8 @@ function AddTemplateFrame:_handle_save_form(event)
     return true
 end
 
----@param train_template scripts.lib.domain.TrainTemplate
----@param depot_settings scripts.lib.domain.DepotSettings
+---@param train_template scripts.lib.domain.entity.TrainTemplate
+---@param depot_settings scripts.lib.domain.entity.DepotSettings
 function AddTemplateFrame:_fill_form(train_template, depot_settings)
     if train_template ~= nil then
         self.refs.icon_input.elem_value = train_template.icon
@@ -321,7 +321,7 @@ function AddTemplateFrame:_initialize()
 
     local context = Context.from_player(self.player)
     local depot_settings = persistence_storage.get_depot_settings(context)
-    ---@type scripts.lib.domain.TrainTemplate
+    ---@type scripts.lib.domain.entity.TrainTemplate
     local train_template = nil
 
     if self.train_template_id ~= nil then
@@ -360,8 +360,8 @@ function AddTemplateFrame:_initialize()
     self:_fill_form(train_template, depot_settings)
 end
 
----@param train_template scripts.lib.domain.TrainTemplate
----@param depot_settings scripts.lib.domain.DepotSettings
+---@param train_template scripts.lib.domain.entity.TrainTemplate
+---@param depot_settings scripts.lib.domain.entity.DepotSettings
 function AddTemplateFrame:_get_selected_schedule(train_template, depot_settings)
     local selected_schedule = nil
 

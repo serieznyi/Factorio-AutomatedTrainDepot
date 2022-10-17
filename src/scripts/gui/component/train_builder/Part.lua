@@ -2,7 +2,7 @@ local flib_gui = require("__flib__.gui")
 
 local logger = require("scripts.lib.logger")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
-local TrainPart = require("scripts.lib.domain.TrainPart")
+local TrainPart = require("scripts.lib.domain.entity.TrainPart")
 local structure = require("scripts.gui.component.train_builder.structure")
 local Sequence = require("scripts.lib.Sequence")
 
@@ -40,7 +40,7 @@ local Part = {
     },
 }
 
----@param train_part scripts.lib.domain.TrainPart
+---@param train_part scripts.lib.domain.entity.TrainPart
 ---@param on_changed function
 ---@param player LuaPlayer
 ---@param container LuaGuiElement
@@ -116,7 +116,7 @@ function Part:read_form()
     end
 
     local type = self:_get_train_part_type_from_item_name(item_name)
-    ---@type scripts.lib.domain.TrainPart
+    ---@type scripts.lib.domain.entity.TrainPart
     local carrier = TrainPart.new(type, item_name)
     local tags = flib_gui.get_tags(self.refs.carrier_direction_right_button)
     local direction = tags.current_direction
@@ -193,7 +193,7 @@ function Part:_get_train_part_id(element)
     return tags.train_part_id
 end
 
----@param train_part scripts.lib.domain.TrainPart
+---@param train_part scripts.lib.domain.entity.TrainPart
 function Part:_initialize(train_part)
     self:_register_event_handlers()
 

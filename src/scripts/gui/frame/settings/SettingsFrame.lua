@@ -8,7 +8,7 @@ local persistence_storage = require("scripts.persistence.persistence_storage")
 local TrainStationSelector = require("scripts.gui.component.train_station_selector.TrainStationSelector")
 local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.TrainScheduleSelector")
 local validator = require("scripts.gui.validator")
-local DepotSettings = require("scripts.lib.domain.DepotSettings")
+local DepotSettings = require("scripts.lib.domain.entity.DepotSettings")
 local logger = require("scripts.lib.logger")
 
 local function validation_check_empty_fuel(field_name, form)
@@ -192,7 +192,7 @@ function SettingsFrame:_handle_save_form(event)
     return true
 end
 
----@param depot_settings scripts.lib.domain.DepotSettings
+---@param depot_settings scripts.lib.domain.entity.DepotSettings
 function SettingsFrame:_fill_form(depot_settings)
     self.refs.use_any_fuel_checkbox.state = depot_settings.use_any_fuel
 
@@ -240,7 +240,7 @@ function SettingsFrame:_update_form()
     end
 end
 
----@param depot_settings scripts.lib.domain.DepotSettings
+---@param depot_settings scripts.lib.domain.entity.DepotSettings
 function SettingsFrame:_initialize(depot_settings)
     self:_register_event_handlers()
 

@@ -41,7 +41,7 @@ local ExtendedListBox = {
 ---@param selected_id uint
 ---@param on_item_selected_closure function
 ---@param parent LuaGuiElement
----@return scripts.lib.domain.Train
+---@return scripts.lib.domain.entity.Train
 function ExtendedListBox.new(parent, values, selected_id, required, on_item_selected_closure)
     ---@type gui.component.ExtendedListBox
     local self = {}

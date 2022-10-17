@@ -12,3 +12,4 @@
  - remove gui and components data for user what logout/ban/deleted
  - copy train part on Ctrl + Click
  - close frame by Esc
+ - останавливать задачу по постройке поезда, если ему некуда ехать, пути заблокированы, все станции назначения заняты

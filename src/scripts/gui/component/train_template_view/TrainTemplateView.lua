@@ -74,7 +74,7 @@ function TrainTemplateView:destroy()
     end
 end
 
----@param train_template scripts.lib.domain.TrainTemplate
+---@param train_template scripts.lib.domain.entity.TrainTemplate
 function TrainTemplateView:update(train_template)
     if self.refs.train_template_container ~= nil then
         self.refs.train_template_container.destroy()
@@ -155,7 +155,7 @@ function TrainTemplateView:_get_train_quantity_change_value(event)
     return event.action_data ~= nil and action.count or nil
 end
 
----@param train_template scripts.lib.domain.TrainTemplate
+---@param train_template scripts.lib.domain.entity.TrainTemplate
 function TrainTemplateView:_train_template_component_caption(train_template)
     local icon = util_image.image_for_item(train_template.icon)
 
@@ -173,7 +173,7 @@ function TrainTemplateView:_refresh_component()
 
     self.refs.train_view.clear()
 
-    ---@param train_part scripts.lib.domain.TrainPart
+    ---@param train_part scripts.lib.domain.entity.TrainPart
     for _, train_part in pairs(train_template.train) do
         flib_gui.add(self.refs.train_view, {
             type = "sprite-button",
@@ -199,7 +199,7 @@ function TrainTemplateView:_refresh_component()
 
     self.refs.tasks_progress_container.clear()
 
-    ---@param task scripts.lib.domain.TrainFormingTask
+    ---@param task scripts.lib.domain.entity.TrainFormingTask
     for _, task in ipairs(tasks) do
         flib_gui.add(self.refs.tasks_progress_container, {
             type = "progressbar",

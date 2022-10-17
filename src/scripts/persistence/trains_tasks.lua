@@ -1,8 +1,8 @@
 local flib_table = require("__flib__.table")
 
 local logger = require("scripts.lib.logger")
-local TrainFormingTask = require("scripts.lib.domain.TrainFormingTask")
-local TrainDisbandTask = require("scripts.lib.domain.TrainDisbandTask")
+local TrainFormingTask = require("scripts.lib.domain.entity.TrainFormingTask")
+local TrainDisbandTask = require("scripts.lib.domain.entity.TrainDisbandTask")
 local Sequence = require("scripts.lib.Sequence")
 local garbage_collector = require("scripts.persistence.garbage_collector")
 
@@ -67,7 +67,7 @@ end
 ---@param train_template_id uint
 ---@param state table|string
 function private.find_trains_tasks(context, type, train_template_id, state)
-    ---@param v scripts.lib.domain.TrainDisbandTask|scripts.lib.domain.TrainDisbandTask
+    ---@param v scripts.lib.domain.entity.TrainDisbandTask|scripts.lib.domain.entity.TrainDisbandTask
     local rows = flib_table.filter(global.trains_tasks, function(v)
         return v.deleted == false and
                 private.match_type(v, type) and
@@ -80,7 +80,7 @@ function private.find_trains_tasks(context, type, train_template_id, state)
 end
 
 ---@param task_data table
----@return scripts.lib.domain.TrainDisbandTask|scripts.lib.domain.TrainFormingTask|nil
+---@return scripts.lib.domain.entity.TrainDisbandTask|scripts.lib.domain.entity.TrainFormingTask|nil
 function private.hydrate_task(task_data)
     if task_data.type == TrainFormingTask.type then
         return TrainFormingTask.from_table(task_data)
@@ -115,8 +115,8 @@ function public.load()
     end)
 end
 
----@param train_task scripts.lib.domain.TrainFormingTask|scripts.lib.domain.TrainDisbandTask
----@return scripts.lib.domain.TrainFormingTask|scripts.lib.domain.TrainDisbandTask
+---@param train_task scripts.lib.domain.entity.TrainFormingTask|scripts.lib.domain.entity.TrainDisbandTask
+---@return scripts.lib.domain.entity.TrainFormingTask|scripts.lib.domain.entity.TrainDisbandTask
 function public.add(train_task)
     assert(train_task, "train-task is nil")
 

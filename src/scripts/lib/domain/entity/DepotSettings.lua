@@ -1,4 +1,4 @@
---- @module scripts.lib.domain.DepotSettings
+--- @module scripts.lib.domain.entity.DepotSettings
 local DepotSettings = {
     ---@type bool
     use_any_fuel = false,
@@ -50,9 +50,9 @@ function DepotSettings.from_context(context)
     return settings
 end
 
----@return scripts.lib.domain.DepotSettings
+---@return scripts.lib.domain.entity.DepotSettings
 function DepotSettings.new()
-    ---@type scripts.lib.domain.DepotSettings
+    ---@type scripts.lib.domain.entity.DepotSettings
     local self = {}
     setmetatable(self, { __index = DepotSettings })
 
