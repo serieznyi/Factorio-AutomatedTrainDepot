@@ -5,7 +5,6 @@ local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local Context = require("scripts.lib.domain.Context")
 local TrainFormingTask = require("scripts.lib.domain.entity.task.TrainFormingTask")
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
-local train_service = require("scripts.lib.train_service")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local logger = require("scripts.lib.logger")
 
