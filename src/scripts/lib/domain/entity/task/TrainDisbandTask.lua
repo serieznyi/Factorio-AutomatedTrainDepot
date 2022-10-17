@@ -9,7 +9,7 @@ local defines = {
     }
 }
 
---- @module scripts.lib.domain.entity.TrainDisbandTask
+--- @module scripts.lib.domain.entity.task.TrainDisbandTask
 local TrainDisbandTask = {
     ---@type table
     defines = defines,
@@ -129,8 +129,8 @@ function TrainDisbandTask:is_state_disbanded()
     return self.state == defines.state.disbanded
 end
 
----@param data table|scripts.lib.domain.entity.TrainDisbandTask
----@return scripts.lib.domain.entity.TrainDisbandTask
+---@param data table|scripts.lib.domain.entity.task.TrainDisbandTask
+---@return scripts.lib.domain.entity.task.TrainDisbandTask
 function TrainDisbandTask.from_table(data)
     local object = TrainDisbandTask.new(data.surface_name, data.force_name, data.train_id)
 
@@ -145,7 +145,7 @@ function TrainDisbandTask.from_table(data)
     return object
 end
 
----@return scripts.lib.domain.entity.TrainDisbandTask
+---@return scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param train scripts.lib.domain.entity.Train
 function TrainDisbandTask.from_train(train)
     assert(train, "train is nil")
@@ -158,9 +158,9 @@ end
 ---@param surface_name string
 ---@param force_name string
 ---@param train_id uint
----@return scripts.lib.domain.entity.TrainDisbandTask
+---@return scripts.lib.domain.entity.task.TrainDisbandTask
 function TrainDisbandTask.new(surface_name, force_name, train_id)
-    ---@type scripts.lib.domain.entity.TrainDisbandTask
+    ---@type scripts.lib.domain.entity.task.TrainDisbandTask
     local self = {}
     setmetatable(self, { __index = TrainDisbandTask })
 

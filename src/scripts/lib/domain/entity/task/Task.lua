@@ -1,4 +1,4 @@
---- @module scripts.lib.domain.entity.Task
+--- @module scripts.lib.domain.entity.task.Task
 local Task = {
     ---@type uint
     type = defines.type,

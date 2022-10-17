@@ -199,7 +199,7 @@ function TrainTemplateView:_refresh_component()
 
     self.refs.tasks_progress_container.clear()
 
-    ---@param task scripts.lib.domain.entity.TrainFormingTask
+    ---@param task scripts.lib.domain.entity.task.TrainFormingTask
     for _, task in ipairs(tasks) do
         flib_gui.add(self.refs.tasks_progress_container, {
             type = "progressbar",

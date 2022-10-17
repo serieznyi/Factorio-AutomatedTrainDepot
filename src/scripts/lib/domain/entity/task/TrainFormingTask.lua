@@ -9,7 +9,7 @@ local defines = {
     }
 }
 
---- @module scripts.lib.domain.entity.TrainFormingTask
+--- @module scripts.lib.domain.entity.task.TrainFormingTask
 local TrainFormingTask = {
     ---@type table
     defines = defines,
@@ -151,8 +151,8 @@ function TrainFormingTask:is_state_deployed()
     return self.state == defines.state.deployed
 end
 
----@param data table|scripts.lib.domain.entity.TrainFormingTask
----@return scripts.lib.domain.entity.TrainFormingTask
+---@param data table|scripts.lib.domain.entity.task.TrainFormingTask
+---@return scripts.lib.domain.entity.task.TrainFormingTask
 function TrainFormingTask.from_table(data)
     local object = TrainFormingTask.new(data.surface_name, data.force_name, data.train_template_id)
 
@@ -169,7 +169,7 @@ function TrainFormingTask.from_table(data)
     return object
 end
 
----@return scripts.lib.domain.entity.TrainFormingTask
+---@return scripts.lib.domain.entity.task.TrainFormingTask
 ---@param train_template scripts.lib.domain.entity.TrainTemplate
 function TrainFormingTask.from_train_template(train_template)
     assert(train_template, "train_template is nil")
@@ -182,9 +182,9 @@ end
 ---@param surface_name string
 ---@param force_name string
 ---@param train_template_id uint
----@return scripts.lib.domain.entity.TrainFormingTask
+---@return scripts.lib.domain.entity.task.TrainFormingTask
 function TrainFormingTask.new(surface_name, force_name, train_template_id)
-    ---@type scripts.lib.domain.entity.TrainFormingTask
+    ---@type scripts.lib.domain.entity.task.TrainFormingTask
     local self = {}
     setmetatable(self, { __index = TrainFormingTask })
 
