@@ -207,10 +207,17 @@ function public.total_count_forming_tasks()
     return #tasks
 end
 
+---@return scripts.lib.domain.entity.task.TrainFormingTask[]|scripts.lib.domain.entity.task.TrainDisbandTask[]
+function public.find_all_tasks()
+    local rows = flib_table.filter(global.trains_tasks, function(v) return v.deleted == false end, true)
+
+    return flib_table.map(rows, private.hydrate_task)
+end
+
 ---@return uint
-function public.find_all_forming_tasks()
+function public.find_all_disbanding_tasks()
     local rows = flib_table.filter(global.trains_tasks, function(v)
-        return v.deleted == false and v.type == TrainFormingTask.defines.type
+        return v.deleted == false and v.type == TrainDisbandTask.defines.type
     end, true)
 
     return flib_table.map(rows, private.hydrate_task)

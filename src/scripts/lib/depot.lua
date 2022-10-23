@@ -6,6 +6,8 @@ local Context = require("scripts.lib.domain.Context")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local trains_balancer = require("scripts.lib.trains_balancer")
 local logger = require("scripts.lib.logger")
+local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
+local TrainFormingTask = require("scripts.lib.domain.entity.task.TrainFormingTask")
 
 local public = {}
 local private = {}
@@ -31,16 +33,13 @@ local rotate_relative_position = {
 -- -- -- FORMING
 ---------------------------------------------------------------------------
 
-function forming.get_forming_tasks_contexts()
+function forming.get_contexts_from_tasks()
     local contexts = {}
-    local tasks = persistence_storage.trains_tasks.find_all_forming_tasks()
+    local tasks = persistence_storage.trains_tasks.find_all_tasks()
 
     ---@param task scripts.lib.domain.entity.task.TrainFormingTask
     for _, task in pairs(tasks) do
-        local context = Context.from_model(task)
-        if persistence_storage.is_depot_exists_at(context) then
-            table.insert(contexts, context)
-        end
+        table.insert(contexts, Context.from_model(task))
     end
 
     return contexts
@@ -145,7 +144,7 @@ end
 ---@param data NthTickEventData
 function deploy.deploy_trains(data)
     ---@param context scripts.lib.domain.Context
-    for _, context in ipairs(forming.get_forming_tasks_contexts()) do
+    for _, context in ipairs(forming.get_contexts_from_tasks()) do
         deploy.deploy_trains_for_context(context, data)
     end
 
@@ -177,6 +176,11 @@ end
 ---@param context scripts.lib.domain.Context
 ---@param data NthTickEventData
 function deploy.deploy_trains_for_context(context, data)
+    if not persistence_storage.is_depot_exists_at(context) then
+        -- todo remove formed tasks if depot was destroyed and reset all finished tasks
+        return
+    end
+
     local tick = data.tick
     local tasks = persistence_storage.trains_tasks.find_forming_tasks_ready_for_deploy(context)
 
@@ -253,6 +257,13 @@ function private.get_depot_multiplier()
     return 1.0 -- todo depended from technologies
 end
 
+---@param task scripts.lib.domain.entity.task.TrainDisbandTask
+---@param tick uint
+function private.process_disbanding_task(task, tick)
+    -- todo
+    logger.debug("try disband train")
+end
+
 ---@param task scripts.lib.domain.entity.task.TrainFormingTask
 ---@param tick uint
 function private.process_forming_task(task, tick)
@@ -276,22 +287,25 @@ function private.process_forming_task(task, tick)
 
     private.raise_task_changed_event(task)
 
+    if task:is_state_formed() then
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, deploy.deploy_trains)
+    end
+
     return true
 end
 
 ---@param data NthTickEventData
 function private.train_manipulations(data)
     local tick = data.tick
-    local tasks = persistence_storage.trains_tasks.find_all_forming_tasks()
-
-    -- todo not process task if depot not exists
-    -- todo add processing disband task
+    local tasks = persistence_storage.trains_tasks.find_all_tasks()
 
     for _, task in pairs(tasks) do
-        private.process_forming_task(task, tick)
+        -- todo skip task if depot not exists
 
-        if task:is_state_formed() then
-            script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, deploy.deploy_trains)
+        if task.type == TrainFormingTask.type then
+            private.process_forming_task(task, tick)
+        elseif task.type == TrainDisbandTask.type then
+            private.process_disbanding_task(task, tick)
         end
     end
 
