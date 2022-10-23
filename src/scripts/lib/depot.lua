@@ -3,15 +3,13 @@ local flib_direction = require("__flib__.direction")
 
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local Context = require("scripts.lib.domain.Context")
-local TrainFormingTask = require("scripts.lib.domain.entity.task.TrainFormingTask")
-local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
 local persistence_storage = require("scripts.persistence.persistence_storage")
+local trains_balancer = require("scripts.lib.trains_balancer")
 local logger = require("scripts.lib.logger")
 
 local public = {}
 local private = {}
 local forming = {}
-local disband = {}
 local deploy = {}
 
 local rotate_relative_position = {
@@ -33,41 +31,6 @@ local rotate_relative_position = {
 -- -- -- FORMING
 ---------------------------------------------------------------------------
 
-function forming.get_forming_slots_total_count()
-    return 2 -- todo depend from technologies
-end
-
----@param context scripts.lib.domain.Context
----@return bool
-function forming.has_free_forming_slot(context)
-    local tasks_count = persistence_storage.trains_tasks.count_forming_tasks(context)
-    local slots_count = forming.get_forming_slots_total_count()
-
-    return slots_count > tasks_count
-end
-
----@param train_template scripts.lib.domain.entity.template.TrainTemplate
-function forming.try_add_forming_train_task_for_template(train_template)
-    -- todo balance tasks for different forces, surfaces and templates
-    local context = Context.from_model(train_template)
-
-    if not forming.has_free_forming_slot(context) then
-        return false
-    end
-
-    local forming_task = TrainFormingTask.from_train_template(train_template)
-
-    persistence_storage.trains_tasks.add(forming_task)
-
-    logger.debug(
-            "Add new forming task `{1}` for template `{2}`",
-            { forming_task.id, train_template.name },
-            "depot"
-    )
-
-    return true
-end
-
 function forming.get_forming_tasks_contexts()
     local contexts = {}
     local tasks = persistence_storage.trains_tasks.find_all_forming_tasks()
@@ -81,130 +44,6 @@ function forming.get_forming_tasks_contexts()
     end
 
     return contexts
-end
-
----@param task scripts.lib.domain.entity.task.TrainFormingTask
-function forming.discard_forming_task(task)
-    task:delete()
-
-    -- todo discard reserved inventory items
-
-    persistence_storage.trains_tasks.add(task)
-
-    private.raise_task_changed_event(task)
-
-    logger.debug(
-            "Discard train forming task `{1}` for template `{2}`",
-            { task.id, task.train_template_id},
-            "depot"
-    )
-end
-
----@param train_template scripts.lib.domain.entity.template.TrainTemplate
-function forming.try_discard_forming_train_task_for_template(train_template)
-    local context = Context.from_model(train_template)
-    local tasks = persistence_storage.trains_tasks.find_forming_tasks(
-            context,
-            train_template.id
-    )
-
-    ---@param task scripts.lib.domain.entity.task.TrainFormingTask
-    for _, task in pairs(tasks) do
-        if task:is_state_forming() or task:is_state_created() then
-            forming.discard_forming_task(task)
-
-            return true
-        end
-    end
-
-    return false
-end
-
----------------------------------------------------------------------------
--- -- -- DISBAND
----------------------------------------------------------------------------
-
-function disband.get_disband_slots_total_count()
-    return 2 -- todo depend from technologies
-end
-
----@param context scripts.lib.domain.Context
----@return bool
-function disband.has_free_disband_slot(context)
-    local tasks_count = persistence_storage.trains_tasks.count_disband_tasks(context)
-    local slots_count = disband.get_disband_slots_total_count()
-
-    return slots_count > tasks_count
-end
-
----@param train_template scripts.lib.domain.entity.template.TrainTemplate
-function disband.try_add_disband_train_task_for_template(train_template)
-    -- todo balance tasks for different forces, surfaces and templates
-    local context = Context.from_model(train_template)
-
-    if not disband.has_free_disband_slot(context) then
-        return false
-    end
-
-    ---@type scripts.lib.domain.entity.Train
-    local train = disband.try_get_train_for_disband(train_template)
-
-    if train == nil then
-        return false
-    end
-
-    local task = TrainDisbandTask.from_train(train)
-
-    persistence_storage.trains_tasks.add(task)
-
-    logger.debug(
-            "Add new disband task `{1}` for template `{2}` and train `{3}`",
-            { task.id, train_template.name, train.id },
-            "depot"
-    )
-
-    return true
-end
-
----@param train_template scripts.lib.domain.entity.template.TrainTemplate
----@return scripts.lib.domain.entity.Train
-function disband.try_get_train_for_disband(train_template)
-    local context = Context.from_model(train_template)
-    local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
-
-    return #trains > 0 and trains[1] or nil
-end
-
----@param task scripts.lib.domain.entity.task.TrainDisbandTask
-function disband.discard_disbanding_task(task)
-    task:delete()
-
-    persistence_storage.trains_tasks.add(task)
-
-    private.raise_task_changed_event(task)
-
-    logger.debug(
-            "Discard train disband task `{1}` for template `{2}`",
-            { task.id, task.train_template_id},
-            "depot"
-    )
-end
-
----@param train_template scripts.lib.domain.entity.template.TrainTemplate
-function disband.try_discard_disbanding_train_task_for_template(train_template)
-    local context = Context.from_model(train_template)
-    local tasks = persistence_storage.trains_tasks.find_disbanding_tasks(context, train_template.id)
-
-    ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
-    for _, task in pairs(tasks) do
-        if task:is_state_created() then
-            forming.discard_forming_task(task)
-
-            return true
-        end
-    end
-
-    return false
 end
 
 ---------------------------------------------------------------------------
@@ -355,12 +194,40 @@ end
 
 ---@param train_task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
 function private.raise_task_changed_event(train_task)
+    -- todo duplicity
+    logger.debug(
+            "Changed train task (`1`) `{2}` for template `{3}`",
+            { train_task.type, train_task.id, train_task.train_template_id },
+            "depot"
+    )
+
     ---@type LuaForce
     local force = game.forces[train_task.force_name]
 
     for _, player in ipairs(force.players) do
         script.raise_event(
                 atd.defines.events.on_core_train_task_changed,
+                { train_task_id = train_task.id, player_index = player.index }
+        )
+    end
+
+end
+
+---@param train_task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
+function private.raise_task_deleted_event(train_task)
+    -- todo duplicity
+    logger.debug(
+            "Deleted train task (`1`) `{2}` for template `{3}`",
+            { train_task.type, train_task.id, train_task.train_template_id },
+            "train_balancer"
+    )
+
+    ---@type LuaForce
+    local force = game.forces[train_task.force_name]
+
+    for _, player in ipairs(force.players) do
+        script.raise_event(
+                atd.defines.events.on_core_train_task_deleted,
                 { train_task_id = train_task.id, player_index = player.index }
         )
     end
@@ -420,6 +287,7 @@ function private.process_tasks(data)
     local tasks = persistence_storage.trains_tasks.find_all_forming_tasks()
 
     -- todo not process task if depot not exists
+    -- todo add processing disband task
 
     for _, task in pairs(tasks) do
         private.process_forming_task(task, tick)
@@ -438,77 +306,22 @@ function private.on_ntd_register_queue_processor()
     script.on_nth_tick(atd.defines.on_nth_tick.tasks_processor, private.process_tasks)
 end
 
-function private.find_contexts_with_depot()
-    return flib_table.filter(
-        persistence_storage.find_contexts_from_train_templates(),
-        function(c)
-            return persistence_storage.is_depot_exists_at(c)
-        end,
-        true
-    )
-end
-
----@param data NthTickEventData
-function private.balance_trains_count(data)
-    local contexts_with_depot = private.find_contexts_with_depot()
-
-    for _, c in ipairs(contexts_with_depot) do
-        private.balance_trains_count_for_context(c, data)
-    end
-end
-
----@param context scripts.lib.domain.Context
----@param data NthTickEventData
-function private.balance_trains_count_for_context(context, data)
-    local train_templates = persistence_storage.find_enabled_train_templates(context)
-
-    ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
-    for _, train_template in pairs(train_templates) do
-        local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
-        local forming_train_tasks_count = persistence_storage.trains_tasks.count_forming_tasks(context, train_template.id)
-        local disband_train_tasks_count = persistence_storage.trains_tasks.count_disband_tasks(context, train_template.id)
-        local potential_count = #trains + forming_train_tasks_count - disband_train_tasks_count
-        local diff = train_template.trains_quantity - potential_count
-
-        if diff > 0 then
-            for _ = 1, diff do
-                if not disband.try_discard_disbanding_train_task_for_template(train_template) then
-                    break
-                end
-
-                diff = diff - 1
-            end
-
-            if diff > 0 then
-                forming.try_add_forming_train_task_for_template(train_template)
-            end
-        elseif diff < 0 then
-            local delete_count = diff * -1
-
-            for _ = 1, delete_count do
-                if not forming.try_discard_forming_train_task_for_template(train_template) then
-                    break
-                end
-
-                delete_count = delete_count - 1
-            end
-
-            if delete_count > 0 then
-                disband.try_add_disband_train_task_for_template(train_template)
-            end
-        end
-    end
-
-    local total_forming_tasks_count = persistence_storage.trains_tasks.count_forming_tasks(context)
-    local total_disband_tasks_count = persistence_storage.trains_tasks.count_disband_tasks(context)
-
-    if total_forming_tasks_count + total_disband_tasks_count > 0 then
-        private.on_ntd_register_queue_processor()
-    end
+---@param e scripts.lib.event.Event
+function private._handle_start_task_processor(e)
+    private.on_ntd_register_queue_processor()
 end
 
 function private.register_event_handlers()
-    local handlers = {}
+    local handlers = {
+        {
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_deleted),
+            handler = function(e) return private._handle_start_task_processor(e) end,
+        },
+        {
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_added),
+            handler = function(e) return private._handle_start_task_processor(e) end,
+        },
+    }
 
     for _, h in ipairs(handlers) do
         EventDispatcher.register_handler(h.match, h.handler, "depot")
@@ -569,7 +382,7 @@ function public.change_trains_quantity(train_template_id, count)
 end
 
 function public.trains_balancer_start()
-    script.on_nth_tick(atd.defines.on_nth_tick.balance_trains_count, private.balance_trains_count)
+    script.on_nth_tick(atd.defines.on_nth_tick.balance_trains_count, trains_balancer.balance_trains_quantity)
 
     logger.debug("Start trains balancer", {}, "depot")
 end

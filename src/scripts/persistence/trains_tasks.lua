@@ -133,6 +133,7 @@ end
 
 ---@param train_template_id uint
 ---@param context scripts.lib.domain.Context
+---@return scripts.lib.domain.entity.task.TrainFormingTask[]
 function public.find_forming_tasks(context, train_template_id)
     assert(context, "context is nil")
 
@@ -143,6 +144,7 @@ end
 
 ---@param train_template_id uint
 ---@param context scripts.lib.domain.Context
+---@return scripts.lib.domain.entity.task.TrainDisbandTask[]
 function public.find_disbanding_tasks(context, train_template_id)
     assert(context, "context is nil")
 
