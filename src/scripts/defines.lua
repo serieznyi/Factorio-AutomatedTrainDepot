@@ -18,7 +18,7 @@ defines.time_in_ticks = {
 
 defines.on_nth_tick = {
     persistence_storage_gc = TIME_1_MINUTE,
-    tasks_processor = TIME_1_SECOND,
+    tasks_processor = 10,
     balance_trains_count = TIME_2_SECOND,
     train_deploy = 5,
 }
