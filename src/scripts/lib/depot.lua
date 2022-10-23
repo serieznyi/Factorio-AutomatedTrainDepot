@@ -113,11 +113,9 @@ function deploy.try_deploy_train(context, task, tick)
                     private.add_train_schedule(task.main_locomotive.train, train_template)
                 end
 
-                -- add fuel todo fill by fuel from template
+                -- todo fill by fuel from template
                 local inventory = carrier.get_inventory(defines.inventory.fuel)
                 inventory.insert({name = "coal", count = 50})
-
-                -- todo add inventory
             end
 
             carrier.train.manual_mode = false
@@ -152,7 +150,7 @@ function deploy.deploy_trains(data)
     end
 
     if persistence_storage.trains_tasks.count_forming_tasks_ready_for_deploy() == 0 then
-        script.on_nth_tick(atd.defines.on_nth_tick.train_deploy, nil)
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, nil)
     end
 end
 
@@ -282,7 +280,7 @@ function private.process_forming_task(task, tick)
 end
 
 ---@param data NthTickEventData
-function private.process_tasks(data)
+function private.train_manipulations(data)
     local tick = data.tick
     local tasks = persistence_storage.trains_tasks.find_all_forming_tasks()
 
@@ -293,22 +291,22 @@ function private.process_tasks(data)
         private.process_forming_task(task, tick)
 
         if task:is_state_formed() then
-            script.on_nth_tick(atd.defines.on_nth_tick.train_deploy, deploy.deploy_trains)
+            script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, deploy.deploy_trains)
         end
     end
 
     if persistence_storage.trains_tasks.total_count_forming_tasks() == 0 then
-        script.on_nth_tick(atd.defines.on_nth_tick.tasks_processor, nil)
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, nil)
     end
 end
 
-function private.on_ntd_register_queue_processor()
-    script.on_nth_tick(atd.defines.on_nth_tick.tasks_processor, private.process_tasks)
+function private.on_ntd_trains_manipulation()
+    script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, private.train_manipulations)
 end
 
 ---@param e scripts.lib.event.Event
-function private._handle_start_task_processor(e)
-    private.on_ntd_register_queue_processor()
+function private._handle_trains_manipulations(e)
+    private.on_ntd_trains_manipulation()
 end
 
 function private._handle_trains_balancer_check_activity(e)
@@ -330,11 +328,11 @@ function private.register_event_handlers()
     local handlers = {
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_deleted),
-            handler = function(e) return private._handle_start_task_processor(e) end,
+            handler = function(e) return private._handle_trains_manipulations(e) end,
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_added),
-            handler = function(e) return private._handle_start_task_processor(e) end,
+            handler = function(e) return private._handle_trains_manipulations(e) end,
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
