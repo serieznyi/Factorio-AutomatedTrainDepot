@@ -3,7 +3,7 @@ local flib_gui = require("__flib__.gui")
 local logger = require("scripts.lib.logger")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local util_image = require("scripts.util.image")
-local depot = require("scripts.lib.depot")
+local train_task_service = require("scripts.lib.train_task_service")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.component.train_template_view.structure")
@@ -117,7 +117,7 @@ function TrainTemplateView:_register_event_handlers()
 end
 
 function TrainTemplateView:_handle_enable_train_template(e)
-    local train_template = depot.enable_train_template(self.train_template_id)
+    local train_template = train_task_service.enable_train_template(self.train_template_id)
 
     self:_refresh_component(train_template)
 
@@ -125,7 +125,7 @@ function TrainTemplateView:_handle_enable_train_template(e)
 end
 
 function TrainTemplateView:_handle_disable_train_template(e)
-    local train_template = depot.disable_train_template(self.train_template_id)
+    local train_template = train_task_service.disable_train_template(self.train_template_id)
 
     self:_refresh_component(train_template)
 
@@ -134,7 +134,7 @@ end
 
 function TrainTemplateView:_handle_change_trains_quantity(e)
     local count = self:_get_train_quantity_change_value(e)
-    depot.change_trains_quantity(self.train_template_id, count)
+    train_task_service.change_trains_quantity(self.train_template_id, count)
 
     self:_refresh_component()
 

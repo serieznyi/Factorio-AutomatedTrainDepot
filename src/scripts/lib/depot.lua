@@ -219,7 +219,7 @@ function private.raise_task_deleted_event(train_task)
     logger.debug(
             "Deleted train task (`1`) `{2}` for template `{3}`",
             { train_task.type, train_task.id, train_task.train_template_id },
-            "train_balancer"
+            "depot"
     )
 
     ---@type LuaForce
@@ -311,6 +311,21 @@ function private._handle_start_task_processor(e)
     private.on_ntd_register_queue_processor()
 end
 
+function private._handle_trains_balancer_check_activity(e)
+    private.trains_balancer_check_activity()
+end
+
+function private.trains_balancer_check_activity()
+
+    if persistence_storage.count_active_trains_templates() == 0 then
+        script.on_nth_tick(atd.defines.on_nth_tick.balance_trains_count, nil)
+        logger.debug("Pause trains balancer", {}, "depot")
+    else
+        script.on_nth_tick(atd.defines.on_nth_tick.balance_trains_count, trains_balancer.balance_trains_quantity)
+        logger.debug("Start trains balancer", {}, "depot")
+    end
+end
+
 function private.register_event_handlers()
     local handlers = {
         {
@@ -321,6 +336,14 @@ function private.register_event_handlers()
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_added),
             handler = function(e) return private._handle_start_task_processor(e) end,
         },
+        {
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
+            handler = function(e) return private._handle_trains_balancer_check_activity(e) end,
+        },
+        {
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_changed),
+            handler = function(e) return private._handle_trains_balancer_check_activity(e) end,
+        }
     }
 
     for _, h in ipairs(handlers) do
@@ -340,66 +363,13 @@ function public.load()
     private.register_event_handlers()
 end
 
----@param train_template_id uint
-function public.enable_train_template(train_template_id)
-    local train_template = persistence_storage.find_train_template_by_id(train_template_id)
-
-    train_template.enabled = true
-
-    train_template = persistence_storage.add_train_template(train_template)
-
-    public.trains_balancer_start()
-
-    return train_template
-end
-
-function public.disable_train_template(train_template_id)
-    local train_template = persistence_storage.find_train_template_by_id(train_template_id)
-    train_template.enabled = false
-
-    train_template = persistence_storage.add_train_template(train_template)
-
-    if persistence_storage.count_active_trains_templates() == 0 then
-        public.trains_balancer_pause()
-    end
-
-    return train_template
-end
-
----@param train_template_id uint
----@param count int
-function public.change_trains_quantity(train_template_id, count)
-    local train_template = persistence_storage.find_train_template_by_id(train_template_id)
-
-    train_template:change_trains_quantity(count)
-    persistence_storage.add_train_template(train_template)
-
-    if train_template.enabled then
-        public.trains_balancer_start()
-    end
-
-    return train_template
-end
-
-function public.trains_balancer_start()
-    script.on_nth_tick(atd.defines.on_nth_tick.balance_trains_count, trains_balancer.balance_trains_quantity)
-
-    logger.debug("Start trains balancer", {}, "depot")
-end
-
 ---@param schedule TrainSchedule
 function public.is_valid_schedule(schedule)
     local is_path_readable = false
 
-    --- todo add realisation
+    -- todo add realisation
 
     return is_path_readable
-end
-
-function public.trains_balancer_pause()
-    script.on_nth_tick(atd.defines.on_nth_tick.balance_trains_count, nil)
-
-    logger.debug("Pause trains balancer", {}, "depot")
 end
 
 return public

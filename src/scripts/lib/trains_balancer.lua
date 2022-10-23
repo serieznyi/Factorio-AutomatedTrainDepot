@@ -1,6 +1,5 @@
 local flib_table = require("__flib__.table")
 
-local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local Context = require("scripts.lib.domain.Context")
 local TrainFormingTask = require("scripts.lib.domain.entity.task.TrainFormingTask")
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")

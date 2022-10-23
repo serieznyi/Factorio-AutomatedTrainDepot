@@ -1,7 +1,6 @@
 local flib_table = require("__flib__.table")
 
 local depot_builder = require("scripts.lib.depot_builder")
-local depot = require("scripts.lib.depot")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local Event = require("scripts.lib.event.Event")
@@ -16,16 +15,7 @@ end
 local events_control = {}
 
 function events_control.initialize()
-    local handlers = {
-        {
-            match = EventDispatcher.match_event(atd.defines.events.on_core_train_changed),
-            handler = function(e)
-                depot.trains_balancer_start()
-
-                return true
-            end
-        }
-    }
+    local handlers = {}
 
     for _, h in ipairs(handlers) do
         EventDispatcher.register_handler(h.match, h.handler, "events_control")
