@@ -39,46 +39,58 @@ function TrainsBalancer._calculate_trains_diff(train_template)
 end
 
 ---@param context scripts.lib.domain.Context
----@param data NthTickEventData
-function TrainsBalancer._balance_trains_count_for_context(context, data)
+---@param _ NthTickEventData
+function TrainsBalancer._balance_trains_count_for_context(context, _)
     local train_templates = persistence_storage.find_enabled_train_templates(context)
 
     ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
     for _, train_template in pairs(train_templates) do
-        local necessary_trains_quantity = TrainsBalancer._calculate_trains_diff(train_template)
+        local trains_quantity_diff = TrainsBalancer._calculate_trains_diff(train_template)
 
-        if necessary_trains_quantity > 0 then
-            for _ = 1, necessary_trains_quantity do
-                if not TrainsBalancer._try_discard_disbanding_train_task_for_template(train_template) then
-                    break
-                end
-
-                necessary_trains_quantity = necessary_trains_quantity - 1
-            end
-
-            if necessary_trains_quantity > 0 then
-                TrainsBalancer._try_add_forming_train_task_for_template(train_template)
-            end
-        elseif necessary_trains_quantity < 0 then
-            local delete_count = necessary_trains_quantity * -1
-
-            for _ = 1, delete_count do
-                if not TrainsBalancer._try_discard_forming_train_task_for_template(train_template) then
-                    break
-                end
-
-                delete_count = delete_count - 1
-            end
-
-            if delete_count > 0 then
-                TrainsBalancer._try_add_disband_train_task_for_template(train_template)
-            end
+        if trains_quantity_diff > 0 then
+            TrainsBalancer._cancel_disband_train_task(train_template, trains_quantity_diff)
+        elseif trains_quantity_diff < 0 then
+            TrainsBalancer._cancel_forming_train_task(train_template, trains_quantity_diff * -1)
         end
     end
 end
 
+
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
-function TrainsBalancer._try_add_disband_train_task_for_template(train_template)
+---@param missing_amount_trains uint
+function TrainsBalancer._cancel_disband_train_task(train_template, missing_amount_trains)
+    for _ = 1, missing_amount_trains do
+        if not TrainsBalancer._try_cancel_disband_train_task(train_template) then
+            break
+        end
+
+        missing_amount_trains = missing_amount_trains - 1
+    end
+
+    if missing_amount_trains > 0 then
+        TrainsBalancer._try_add_forming_train_task(train_template)
+    end
+end
+
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+---@param number_of_unnecessary_trains uint
+function TrainsBalancer._cancel_forming_train_task(train_template, number_of_unnecessary_trains)
+
+    for _ = 1, number_of_unnecessary_trains do
+        if not TrainsBalancer._try_cancel_forming_train_task(train_template) then
+            break
+        end
+
+        number_of_unnecessary_trains = number_of_unnecessary_trains - 1
+    end
+
+    if number_of_unnecessary_trains > 0 then
+        TrainsBalancer._try_add_disband_train_task(train_template)
+    end
+end
+
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+function TrainsBalancer._try_add_disband_train_task(train_template)
     -- todo balance tasks for different forces, surfaces and templates
     local context = Context.from_model(train_template)
 
@@ -107,13 +119,13 @@ function TrainsBalancer._try_add_disband_train_task_for_template(train_template)
 end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
-function TrainsBalancer._try_discard_disbanding_train_task_for_template(train_template)
+function TrainsBalancer._try_cancel_disband_train_task(train_template)
     local context = Context.from_model(train_template)
     local tasks = persistence_storage.trains_tasks.find_disbanding_tasks(context, train_template.id)
 
     for _, task in pairs(tasks) do
         if task:can_cancel() then
-            TrainsBalancer._discard_task(task)
+            TrainsBalancer._cancel_task(task)
 
             return true
         end
@@ -123,7 +135,7 @@ function TrainsBalancer._try_discard_disbanding_train_task_for_template(train_te
 end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
-function TrainsBalancer._try_add_forming_train_task_for_template(train_template)
+function TrainsBalancer._try_add_forming_train_task(train_template)
     -- todo balance tasks for different forces, surfaces and templates
     local context = Context.from_model(train_template)
 
@@ -141,13 +153,13 @@ function TrainsBalancer._try_add_forming_train_task_for_template(train_template)
 end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
-function TrainsBalancer._try_discard_forming_train_task_for_template(train_template)
+function TrainsBalancer._try_cancel_forming_train_task(train_template)
     local context = Context.from_model(train_template)
     local tasks = persistence_storage.trains_tasks.find_forming_tasks(context, train_template.id)
 
     for _, task in pairs(tasks) do
         if task:can_cancel() then
-            TrainsBalancer._discard_task(task)
+            TrainsBalancer._cancel_task(task)
 
             return true
         end
@@ -193,7 +205,7 @@ function TrainsBalancer._try_choose_train_for_disband(train_template)
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
-function TrainsBalancer._discard_task(task)
+function TrainsBalancer._cancel_task(task)
     task:delete()
 
     persistence_storage.trains_tasks.add(task)
