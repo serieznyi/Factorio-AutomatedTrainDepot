@@ -129,6 +129,11 @@ function TrainDisbandTask:is_state_disbanded()
     return self.state == defines.state.disbanded
 end
 
+---@return bool
+function TrainDisbandTask:can_cancel()
+    return TrainDisbandTask:is_state_created() or TrainDisbandTask:is_state_train_taking()
+end
+
 ---@param data table|scripts.lib.domain.entity.task.TrainDisbandTask
 ---@return scripts.lib.domain.entity.task.TrainDisbandTask
 function TrainDisbandTask.from_table(data)

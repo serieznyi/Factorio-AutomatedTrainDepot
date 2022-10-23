@@ -48,7 +48,6 @@ function TrainsBalancer._balance_trains_count_for_context(context, data)
         local necessary_trains_quantity = TrainsBalancer._calculate_trains_diff(train_template)
 
         if necessary_trains_quantity > 0 then
-            -- todo maybe it logic not necessary
             for _ = 1, necessary_trains_quantity do
                 if not TrainsBalancer._try_discard_disbanding_train_task_for_template(train_template) then
                     break
@@ -63,7 +62,6 @@ function TrainsBalancer._balance_trains_count_for_context(context, data)
         elseif necessary_trains_quantity < 0 then
             local delete_count = necessary_trains_quantity * -1
 
-            -- todo maybe it logic not necessary
             for _ = 1, delete_count do
                 if not TrainsBalancer._try_discard_forming_train_task_for_template(train_template) then
                     break
@@ -114,8 +112,7 @@ function TrainsBalancer._try_discard_disbanding_train_task_for_template(train_te
     local tasks = persistence_storage.trains_tasks.find_disbanding_tasks(context, train_template.id)
 
     for _, task in pairs(tasks) do
-        if task:is_state_created() then
-            --- todo call wrong method
+        if task:can_cancel() then
             TrainsBalancer._discard_task(task)
 
             return true
@@ -149,8 +146,7 @@ function TrainsBalancer._try_discard_forming_train_task_for_template(train_templ
     local tasks = persistence_storage.trains_tasks.find_forming_tasks(context, train_template.id)
 
     for _, task in pairs(tasks) do
-        -- todo add task:is_can_discard()
-        if task:is_state_created() or task:is_state_forming() then
+        if task:can_cancel() then
             TrainsBalancer._discard_task(task)
 
             return true

@@ -144,6 +144,11 @@ function TrainFormingTask:is_state_forming()
 end
 
 ---@return bool
+function TrainFormingTask:can_cancel()
+    return TrainFormingTask:is_state_created() or TrainFormingTask:is_state_forming()
+end
+
+---@return bool
 function TrainFormingTask:is_state_deploying()
     return self.state == defines.state.deploying
 end
