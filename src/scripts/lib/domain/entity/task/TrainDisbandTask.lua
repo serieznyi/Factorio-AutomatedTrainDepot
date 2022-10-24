@@ -202,13 +202,10 @@ function TrainDisbandTask.new(surface_name, force_name, train_id, train_template
     local self = {}
     setmetatable(self, { __index = TrainDisbandTask })
 
-    assert(surface_name, "surface_name is nil")
-    self.surface_name = surface_name
+    self.surface_name = assert(surface_name, "surface_name is nil")
+    self.force_name = assert(force_name, "force_name is nil")
 
-    assert(force_name, "force_name is nil")
-    self.force_name = force_name
-
-    assert(train_id == nil and train_template_id == nil, "train_id and train_template_id is nil")
+    assert(train_id ~= nil or train_template_id ~= nil, "train_id and train_template_id is nil")
     self.train_id = train_id
     self.train_template_id = train_template_id
 
