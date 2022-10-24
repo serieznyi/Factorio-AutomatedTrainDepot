@@ -125,7 +125,6 @@ function deploy.try_deploy_train(context, task, tick)
         if not deploy.output_station_free(depot_station_output) then
             task:complete()
             task:delete()
-            private.register_train_for_template(main_locomotive.train, train_template)
         end
     end
 
@@ -257,8 +256,25 @@ function private.get_depot_multiplier()
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
+---@return void
+function private.try_bind_train_template_with_disband_task(task)
+    local train_id = task.train_id
+    local train = persistence_storage.find_train(train_id)
+
+    if train.train_template_id ~= nil then
+        task.train_template_id = train.train_template_id
+    end
+end
+
+---@param task scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
 function private.process_disbanding_task(task, tick)
+    logger.debug(task, {}, "process_disbanding_task")
+
+    if task.train_template_id == nil then
+        private.try_bind_train_template_with_disband_task(task)
+    end
+
     -- todo
     logger.debug("try disband train")
 end
@@ -299,8 +315,6 @@ function private.train_manipulations(data)
     local tasks = persistence_storage.trains_tasks.find_all_tasks()
 
     for _, task in pairs(tasks) do
-        -- todo skip task if depot not exists
-
         if task.type == TrainFormingTask.type then
             private.process_forming_task(task, tick)
         elseif task.type == TrainDisbandTask.type then

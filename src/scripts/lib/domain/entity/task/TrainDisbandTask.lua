@@ -39,7 +39,9 @@ local TrainDisbandTask = {
     ---@type uint ticks left to forming train
     disband_end_at = nil,
     ---@type uint
-    train_id = nil
+    train_id = nil,
+    ---@type uint
+    train_template_id = nil,
 }
 
 ---@return table
