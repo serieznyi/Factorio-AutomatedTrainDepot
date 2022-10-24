@@ -101,8 +101,8 @@ function public.get(train_template)
                                     },
                                     {
                                         type = "scroll-pane",
-                                        horizontal_scroll_policy = "auto",
-                                        vertical_scroll_policy = "never",
+                                        horizontal_scroll_policy = "never",
+                                        vertical_scroll_policy = "auto",
                                         ref = { "form_tasks_progress_container" },
                                     },
                                 },
@@ -128,8 +128,8 @@ function public.get(train_template)
                                     },
                                     {
                                         type = "scroll-pane",
-                                        horizontal_scroll_policy = "auto",
-                                        vertical_scroll_policy = "never",
+                                        horizontal_scroll_policy = "never",
+                                        vertical_scroll_policy = "auto",
                                         ref = { "disband_tasks_progress_container" },
                                     },
                                 },
