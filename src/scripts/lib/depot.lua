@@ -262,7 +262,9 @@ function private.try_bind_train_template_with_disband_task(task)
     local train = persistence_storage.find_train(train_id)
 
     if train.train_template_id ~= nil then
-        task.train_template_id = train.train_template_id
+        task:bind_with_template(train.train_template_id)
+
+        persistence_storage.trains_tasks.add(task)
     end
 end
 
