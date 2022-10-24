@@ -1,5 +1,6 @@
 local flib_table = require("__flib__.table")
 
+local util_table = require("scripts.util.table")
 local logger = require("scripts.lib.logger")
 local TrainFormingTask = require("scripts.lib.domain.entity.task.TrainFormingTask")
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
@@ -7,81 +8,86 @@ local Sequence = require("scripts.lib.Sequence")
 local garbage_collector = require("scripts.persistence.garbage_collector")
 
 local public = {}
-local private = {}
 
 ---@type scripts.lib.Sequence
 local train_task_sequence
 
----------------------------------------------------------------------------
--- -- -- PRIVATE
----------------------------------------------------------------------------
-
----@param v table
 ---@param context scripts.lib.domain.Context
-function private.match_context(v, context)
-    if context == nil then
-        return true
-    end
+---@return function
+local function match_context(context)
+    return function(v)
+        if context == nil then
+            return true
+        end
 
-    return context:is_same(v.surface_name, v.force_name)
+        return context:is_same(v.surface_name, v.force_name)
+    end
+end
+
+---@return function
+local function match_type_disband()
+    return function(v)
+        return v.type == TrainDisbandTask.defines.type
+    end
+end
+
+---@return function
+local function match_type_form()
+    return function(v)
+        return v.type == TrainFormingTask.defines.type
+    end
 end
 
 ---@param v table
----@param type string
-function private.match_type(v, type)
-    if type == nil then
-        return true
+---@return function
+local function match_not_deleted()
+    return function(v)
+        return v.deleted == false
     end
-
-    return v.type == type
 end
 
 ---@param v table
 ---@param train_template_id uint
-function private.match_train_template_id(v, train_template_id)
-    if train_template_id == nil then
-        return true
-    end
+---@return bool
+local function match_train_template_id(train_template_id)
+    return function(v)
+        if train_template_id == nil then
+            return true
+        end
 
-    return v.train_template_id == train_template_id
+        return v.train_template_id == train_template_id
+    end
 end
 
----@param v table
 ---@param state string
-function private.match_state(v, state)
-    if state == nil then
-        return true
-    end
+---@return function
+local function match_state(...)
+    local args = {...}
 
-    if type(state) == "string" then
-        return v.state == state
-    elseif type(state) == "table" then
-        return flib_table.find(state, v.state) ~= nil
-    end
+    return function(v)
+        for _, state in ipairs(args) do
+            if v.state == state then
+                return true
+            end
+        end
 
-    return v.state == state
+        return false
+    end
 end
 
----@param context scripts.lib.domain.Context
----@param type string
----@param train_template_id uint
----@param state table|string
-function private.find_trains_tasks(context, type, train_template_id, state)
-    ---@param v scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainDisbandTask
-    local rows = flib_table.filter(global.trains_tasks, function(v)
-        return v.deleted == false and
-                private.match_type(v, type) and
-                private.match_context(v, context) and
-                private.match_train_template_id(v, train_template_id) and
-                private.match_state(v, state)
-    end, true)
+local function rows(...)
+    local filtered = global.trains_tasks
 
-    return rows
+    for _, v in ipairs{...} do
+        filtered = flib_table.filter(filtered, v, true)
+    end
+
+    return util_table.array_values(filtered)
 end
 
 ---@param task_data table
 ---@return scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormingTask|nil
-function private.hydrate_task(task_data)
+local function hydrate_task(task_data)
     if task_data.type == TrainFormingTask.type then
         return TrainFormingTask.from_table(task_data)
     end
@@ -90,7 +96,13 @@ function private.hydrate_task(task_data)
         return TrainDisbandTask.from_table(task_data)
     end
 
-    return nil
+    assert(nil, "unknown task type")
+end
+
+---@param row table
+---@return scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormingTask|nil
+local function hydrate(row)
+    return flib_table.map(row, hydrate_task)
 end
 
 ---------------------------------------------------------------------------
@@ -136,10 +148,16 @@ end
 ---@return scripts.lib.domain.entity.task.TrainFormingTask[]
 function public.find_forming_tasks(context, train_template_id)
     assert(context, "context is nil")
+    assert(train_template_id, "train_template_id is nil")
 
-    local rows = private.find_trains_tasks(context, TrainFormingTask.defines.type, train_template_id, nil)
+    local filtered = rows(
+        match_not_deleted(),
+        match_context(context),
+        match_type_form(),
+        match_train_template_id(train_template_id)
+    )
 
-    return flib_table.map(rows, private.hydrate_task)
+    return hydrate(filtered)
 end
 
 ---@param train_template_id uint
@@ -147,39 +165,45 @@ end
 ---@return scripts.lib.domain.entity.task.TrainDisbandTask[]
 function public.find_disbanding_tasks(context, train_template_id)
     assert(context, "context is nil")
+    assert(train_template_id, "train_template_id is nil")
 
-    local rows = private.find_trains_tasks(context, TrainDisbandTask.defines.type, train_template_id, nil)
+    local filtered = rows(
+        match_not_deleted(),
+        match_context(context),
+        match_type_disband(),
+        match_train_template_id(train_template_id)
+    )
 
-    return flib_table.map(rows, private.hydrate_task)
+    return hydrate(filtered)
 end
 
 function public.count_deploying_tasks(context)
     assert(context, "context is nil")
 
-    local rows = private.find_trains_tasks(
-            context,
-            TrainFormingTask.defines.type,
-            nil,
-            TrainFormingTask.defines.state.deploy
+    local filtered = rows(
+        match_not_deleted(),
+        match_context(context),
+        match_type_form(),
+        match_state(TrainFormingTask.defines.state.deploy)
     )
 
-    return #rows
+    return #filtered
 end
 
 ---@param context scripts.lib.domain.Context
----@param train_template_id uint
+---@param train_template_id uint|nil
 ---@return uint
 function public.count_forming_tasks(context, train_template_id)
     assert(context, "context is nil")
 
-    local tasks = private.find_trains_tasks(
-            context,
-            TrainFormingTask.defines.type,
-            train_template_id,
-            nil
+    local filtered = rows(
+        match_not_deleted(),
+        match_context(context),
+        match_type_form(),
+        match_train_template_id(train_template_id)
     )
 
-    return #tasks
+    return #filtered
 end
 
 ---@param context scripts.lib.domain.Context
@@ -188,76 +212,77 @@ end
 function public.count_disband_tasks(context, train_template_id)
     assert(context, "context is nil")
 
-    local tasks = private.find_trains_tasks(
-            context,
-            TrainDisbandTask.defines.type,
-            train_template_id,
-            nil
+    local filtered = rows(
+        match_not_deleted(),
+        match_context(context),
+        match_type_disband(),
+        match_train_template_id(train_template_id)
     )
 
-    return #tasks
+    return #filtered
 end
 
 function public.total_count_forming_tasks()
-    local tasks = flib_table.filter(global.trains_tasks, function(v)
-        return v.deleted == false and
-                v.type == TrainFormingTask.defines.type
-    end, true)
-
-    return #tasks
+    return #rows(match_not_deleted(), match_type_form())
 end
 
 ---@return scripts.lib.domain.entity.task.TrainFormingTask[]|scripts.lib.domain.entity.task.TrainDisbandTask[]
 function public.find_all_tasks()
-    local rows = flib_table.filter(global.trains_tasks, function(v) return v.deleted == false end, true)
+    local filtered = rows(
+        match_not_deleted()
+    )
 
-    return flib_table.map(rows, private.hydrate_task)
+    return hydrate(filtered)
 end
 
 ---@param context scripts.lib.domain.Context
 ---@param train_template_id uint
 ---@return scripts.lib.domain.entity.task.TrainFormingTask[]|scripts.lib.domain.entity.task.TrainDisbandTask[]
 function public.find_all_tasks_for_template(context, train_template_id)
-    local rows = private.find_trains_tasks(context, nil, train_template_id, nil)
+    local filtered = rows(
+        match_not_deleted(),
+        match_context(context),
+        match_train_template_id(train_template_id)
+    )
 
-    return flib_table.map(rows, private.hydrate_task)
+    return hydrate(filtered)
 end
 
 ---@return uint
 function public.find_all_disbanding_tasks()
-    local rows = flib_table.filter(global.trains_tasks, function(v)
-        return v.deleted == false and v.type == TrainDisbandTask.defines.type
-    end, true)
+    local filtered = rows(
+        match_not_deleted(),
+        match_type_disband()
+    )
 
-    return flib_table.map(rows, private.hydrate_task)
+    return hydrate(filtered)
 end
 
 ---@param context scripts.lib.domain.Context|nil
 function public.find_forming_tasks_ready_for_deploy(context)
-    local rows = private.find_trains_tasks(
-            context,
-            TrainFormingTask.type,
-            nil,
-            {TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploy}
+    local filtered = rows(
+        match_not_deleted(),
+        match_context(context),
+        match_type_form(),
+        match_state(TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploy)
     )
 
-    return flib_table.map(rows, private.hydrate_task)
+    return hydrate(filtered)
 end
 
 function public.count_forming_tasks_ready_for_deploy()
-    local rows = private.find_trains_tasks(
-            nil,
-            TrainFormingTask.type,
-            nil,
-            {TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploy}
+    local filtered = rows(
+        match_not_deleted(),
+        match_type_form(),
+        match_state(TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploy)
     )
 
-    return #rows
+    return #filtered
 end
 
 ---@param context scripts.lib.domain.Context
 function public.has_tasks(context)
-    return #private.find_trains_tasks(context) > 0
+    return #rows(match_context(context))
 end
 
 return public
