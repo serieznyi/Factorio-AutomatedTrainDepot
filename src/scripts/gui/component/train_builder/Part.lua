@@ -53,11 +53,9 @@ function Part.new(container, player, on_changed, rolling_stock)
 
     self.name = "train_part_component_" .. self.id
 
-    self.player = player or nil
-    assert(self.player, "player is nil")
+    self.player = assert(player, "player is nil")
 
-    self.container = container
-    assert(self.container, "container is nil")
+    self.container = assert(container, "container is nil")
 
     if on_changed ~= nil then
         self.on_changed = on_changed

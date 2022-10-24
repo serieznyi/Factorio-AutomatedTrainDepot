@@ -68,11 +68,10 @@ end
 ---@param storage_names table list of keys in global
 ---@param ttl uint
 function public.init(storage_names, ttl)
-    assert(ttl, "ttl is nil")
     assert(type(storage_names) == "table", "storage_names must be table")
 
     private.names = storage_names
-    private.ttl = ttl
+    private.ttl = assert(ttl, "ttl is nil")
 
     private.init()
 end

@@ -59,8 +59,7 @@ function MainFrame:new(player)
     setmetatable(object, self)
     self.__index = self
 
-    self.player = player or nil
-    assert(self.player, "player is nil")
+    self.player = assert(player, "player is nil")
 
     local structure_config = {frame_name = self.name, width = self.width, height = self.height}
     self.refs = flib_gui.build(self.player.gui.screen, { structure.get(structure_config) })

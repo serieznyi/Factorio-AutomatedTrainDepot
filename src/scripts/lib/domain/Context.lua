@@ -66,11 +66,8 @@ function Context.new(surface_name, force_name)
     local self = {}
     setmetatable(self, { __index = Context, __tostring = to_string })
 
-    self.surface_name = surface_name or nil
-    assert(self.surface_name, "surface_name is nil")
-
-    self.force_name = force_name or nil
-    assert(self.force_name, "force_name is nil")
+    self.surface_name = assert(surface_name, "surface_name is nil")
+    self.force_name = assert(force_name, "force_name is nil")
 
     return self
 end

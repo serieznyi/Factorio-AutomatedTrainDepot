@@ -206,14 +206,9 @@ function TrainFormingTask.new(surface_name, force_name, train_template_id)
     local self = {}
     setmetatable(self, { __index = TrainFormingTask })
 
-    assert(surface_name, "surface_name is nil")
-    self.surface_name = surface_name
-
-    assert(force_name, "force_name is nil")
-    self.force_name = force_name
-
-    assert(train_template_id, "train_template_id is nil")
-    self.train_template_id = train_template_id
+    self.surface_name = assert(surface_name, "surface_name is nil")
+    self.force_name = assert(force_name, "force_name is nil")
+    self.train_template_id = assert(train_template_id, "train_template_id is nil")
 
     return self
 end

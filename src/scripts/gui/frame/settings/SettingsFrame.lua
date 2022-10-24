@@ -67,10 +67,7 @@ function SettingsFrame:new(parent_frame, player)
     object = {}
     setmetatable(object, self)
     self.__index = self
-
-    self.player = player
-    assert(self.player, "player is nil")
-
+    self.player = assert(player, "player is nil")
     self.parent_frame = parent_frame
 
     local context = Context.from_player(self.player)

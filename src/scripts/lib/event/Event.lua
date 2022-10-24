@@ -25,9 +25,7 @@ function Event.new(event)
     local self = {}
     setmetatable(self, { __index = Event, __tostring = function(o) return o:full_name() end })
 
-    assert(event, "event is nil")
-    self.original_event = event
-
+    self.original_event = assert(event, "event is nil")
     self.action_data = flib_gui.read_action(self.original_event)
     self.custom_name = self.action_data and self.action_data.event or nil
     self.id = self.custom_name and self.custom_name or self.original_event.name

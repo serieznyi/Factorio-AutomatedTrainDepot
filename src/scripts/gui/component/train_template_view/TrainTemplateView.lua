@@ -61,8 +61,7 @@ function TrainTemplateView.new(player, container)
 
     self.name = "train_template_view_component_" .. self.id
 
-    self.player = player or nil
-    assert(self.player, "player is nil")
+    self.player = assert(player, "player is nil")
 
     self.container = container
 

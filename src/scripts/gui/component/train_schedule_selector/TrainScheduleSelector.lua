@@ -50,18 +50,10 @@ function TrainScheduleSelector.new(container, context, on_changed, selected_sche
     setmetatable(self, { __index = TrainScheduleSelector })
 
     self.id = component_id_sequence:next()
-
     self.name = "train_schedule_selector_" .. self.id
-
     self.context = assert(context, "context is empty")
-
-    force = game.forces[context.force_name]
-    assert(force, "force is empty")
-    self.force = force
-
-    surface = game.surfaces[context.surface_name]
-    assert(surface, "surface is empty")
-    self.surface = surface
+    self.force = assert(game.forces[context.force_name], "force is empty")
+    self.surface = assert(game.surfaces[context.surface_name], "surface is empty")
 
     if selected_schedule ~= nil then
         self.selected_schedule = self:_prepare_schedule(selected_schedule)

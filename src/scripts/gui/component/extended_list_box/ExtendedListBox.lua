@@ -51,8 +51,7 @@ function ExtendedListBox.new(parent, values, selected_id, required, on_item_sele
 
     self.name = "extended_list_box_" .. self.id
 
-    assert(values, "values is nil")
-    self.values = values
+    self.values = assert(values, "values is nil")
 
     self.on_item_selected_closure = on_item_selected_closure
 

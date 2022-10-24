@@ -90,7 +90,7 @@ function TrainDisbandTask:start_disband_train(tick, multiplier, train_template)
     assert(multiplier, "multiplier is nil")
     assert(train_template, "train_template is nil")
 
-    assert(self.state == defines.state.train_took, "wrong state")
+    assert(self.state == defines.state.wait_train, "wrong state")
 
     self.state = defines.state.disbanding
 

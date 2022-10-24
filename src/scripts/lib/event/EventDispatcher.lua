@@ -16,10 +16,10 @@ function EventDispatcher.register_handler(match, handler, source_name)
         EventDispatcher.handlers[source_name] = {}
     end
 
-    table.insert(EventDispatcher.handlers[source_name], {
-        match = match,
-        handler = handler,
-    })
+    table.insert(
+        EventDispatcher.handlers[source_name],
+        {match = match, handler = handler}
+    )
 end
 
 ---@param source_name string

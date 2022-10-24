@@ -35,11 +35,9 @@ function TrainsMap.new(player, container, trains)
 
     self.name = "trains_map_" .. self.id
 
-    assert(player, "player is nil")
-    self.player = player
+    self.player = assert(player, "player is nil")
 
-    assert(container, "container is nil")
-    self.container = container
+    self.container = assert(container, "container is nil")
 
     self:_initialize(trains)
 

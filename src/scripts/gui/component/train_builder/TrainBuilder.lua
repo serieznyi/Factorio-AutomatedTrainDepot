@@ -72,8 +72,7 @@ function TrainBuilder.new(container, player, on_changed, train)
     local self = {}
     setmetatable(self, { __index = TrainBuilder })
 
-    self.player = player or nil
-    assert(self.player, "player is nil")
+    self.player = assert(player, "player is nil")
 
     self.id = component_id_sequence:next()
 
