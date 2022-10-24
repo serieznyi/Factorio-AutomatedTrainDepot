@@ -129,6 +129,8 @@ function deploy.try_deploy_train(context, task, tick)
     end
 
     persistence_storage.trains_tasks.add(task)
+
+    private.raise_task_changed_event(task)
 end
 
 ---@param depot_station_output LuaEntity
