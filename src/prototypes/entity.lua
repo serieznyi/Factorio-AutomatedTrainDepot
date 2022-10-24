@@ -94,10 +94,4 @@ prototype.name = prototype_defines.entity.depot_building_train_stop_output.name
 configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
-------------- PROTOTYPE
-prototype = table.deepcopy(data.raw["character"]["character"])
-prototype.name = prototype_defines.entity.depot_driver.name
-prototype.collision_mask = { "ghost-layer"}
-table.insert(prototypes, prototype)
-
 data:extend(prototypes)
