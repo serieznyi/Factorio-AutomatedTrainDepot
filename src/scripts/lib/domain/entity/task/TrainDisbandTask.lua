@@ -56,6 +56,7 @@ function TrainDisbandTask:to_table()
         required_forming_ticks = self.required_disband_ticks,
         forming_end_at = self.disband_end_at,
         train_id = self.train_id,
+        train_template_id = self.train_template_id,
     }
 end
 
@@ -149,6 +150,11 @@ function TrainDisbandTask:can_cancel()
     return self:is_state_created() or self:is_state_try_choose_train()
 end
 
+---@param train_template_id uint
+function TrainDisbandTask:bind_with_template(train_template_id)
+    self.train_template_id = train_template_id
+end
+
 ---@param data table|scripts.lib.domain.entity.task.TrainDisbandTask
 ---@return scripts.lib.domain.entity.task.TrainDisbandTask
 function TrainDisbandTask.from_table(data)
@@ -161,6 +167,7 @@ function TrainDisbandTask.from_table(data)
     object.required_disband_ticks = data.required_disband_ticks
     object.disband_end_at = data.disband_end_at
     object.train_id = data.train_id
+    object.train_template_id = data.train_template_id
 
     return object
 end
