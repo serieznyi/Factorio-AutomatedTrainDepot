@@ -146,7 +146,7 @@ end
 
 ---@return bool
 function TrainDisbandTask:can_cancel()
-    return TrainDisbandTask:is_state_created() or TrainDisbandTask:is_state_try_choose_train()
+    return self:is_state_created() or self:is_state_try_choose_train()
 end
 
 ---@param data table|scripts.lib.domain.entity.task.TrainDisbandTask

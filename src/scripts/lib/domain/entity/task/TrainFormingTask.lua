@@ -156,7 +156,7 @@ end
 
 ---@return bool
 function TrainFormingTask:can_cancel()
-    return TrainFormingTask:is_state_created() or TrainFormingTask:is_state_form()
+    return self:is_state_created() or self:is_state_form()
 end
 
 ---@return bool
