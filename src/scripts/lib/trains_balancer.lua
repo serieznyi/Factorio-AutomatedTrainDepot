@@ -97,14 +97,7 @@ function TrainsBalancer._try_add_disband_train_task(train_template)
         return false
     end
 
-    ---@type scripts.lib.domain.entity.Train
-    local train = TrainsBalancer._try_choose_train_for_disband(train_template)
-
-    if train == nil then
-        return false
-    end
-
-    local task = TrainDisbandTask.from_train(train)
+    local task = TrainDisbandTask.from_train_template(train_template)
 
     persistence_storage.trains_tasks.add(task)
 
@@ -191,16 +184,6 @@ end
 
 function TrainsBalancer._get_disband_slots_total_count()
     return 2 -- todo depend from technologies
-end
-
----@param train_template scripts.lib.domain.entity.template.TrainTemplate
----@return scripts.lib.domain.entity.Train
-function TrainsBalancer._try_choose_train_for_disband(train_template)
-    local context = Context.from_model(train_template)
-    local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
-
-    -- todo add more logic for getting train (empty train, train in depot, ...)
-    return #trains > 0 and trains[1] or nil
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask

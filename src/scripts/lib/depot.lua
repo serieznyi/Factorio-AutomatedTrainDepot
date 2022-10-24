@@ -268,13 +268,27 @@ function private.try_bind_train_template_with_disband_task(task)
     end
 end
 
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+---@return scripts.lib.domain.entity.Train
+function private._try_choose_train_for_disband(train_template)
+    local context = Context.from_model(train_template)
+    local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
+
+    -- todo add more logic for getting train (empty train, train in depot, ...)
+    return #trains > 0 and trains[1] or nil
+end
+
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
 function private.process_disbanding_task(task, tick)
     logger.debug(task, {}, "process_disbanding_task")
 
-    if task.train_template_id == nil then
+    if task:is_state_created() and task.train_template_id == nil then
         private.try_bind_train_template_with_disband_task(task)
+    end
+
+    if task:is_state_created() then
+
     end
 
     -- todo

@@ -172,21 +172,32 @@ function TrainDisbandTask.from_table(data)
     return object
 end
 
----@return scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param train scripts.lib.domain.entity.Train
+---@return scripts.lib.domain.entity.task.TrainDisbandTask
 function TrainDisbandTask.from_train(train)
     assert(train, "train is nil")
 
-    local task = TrainDisbandTask.new(train.surface_name, train.force_name, train.id)
+    return TrainDisbandTask.new(train.surface_name, train.force_name, train.id)
+end
 
-    return task
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+---@return scripts.lib.domain.entity.task.TrainDisbandTask
+function TrainDisbandTask.from_train_template(train_template)
+    assert(train_template, "train_template is nil")
+
+    return TrainDisbandTask.new(
+        train_template.surface_name,
+        train_template.force_name,
+        nil,
+        train_template.id
+    )
 end
 
 ---@param surface_name string
 ---@param force_name string
 ---@param train_id uint
 ---@return scripts.lib.domain.entity.task.TrainDisbandTask
-function TrainDisbandTask.new(surface_name, force_name, train_id)
+function TrainDisbandTask.new(surface_name, force_name, train_id, train_template_id)
     ---@type scripts.lib.domain.entity.task.TrainDisbandTask
     local self = {}
     setmetatable(self, { __index = TrainDisbandTask })
@@ -197,8 +208,9 @@ function TrainDisbandTask.new(surface_name, force_name, train_id)
     assert(force_name, "force_name is nil")
     self.force_name = force_name
 
-    assert(train_id, "train_id is nil")
+    assert(train_id == nil and train_template_id == nil, "train_id and train_template_id is nil")
     self.train_id = train_id
+    self.train_template_id = train_template_id
 
     return self
 end
