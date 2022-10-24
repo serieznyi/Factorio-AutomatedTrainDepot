@@ -151,8 +151,6 @@ end
 
 ---@param context scripts.lib.domain.Context
 function deploy.is_deploy_slot_empty(context)
-    logger.debug(persistence_storage.trains_tasks.count_deploying_tasks(context), {}, "count_deploying_tasks")
-
     return persistence_storage.trains_tasks.count_deploying_tasks(context) == 0
 end
 
