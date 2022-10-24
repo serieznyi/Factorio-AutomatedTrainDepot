@@ -1,19 +1,30 @@
+---@class train_disband_task_defines
+---@field type string
+---@field state train_form_task_defines_state
+
+---@class train_disband_task_defines_state
+---@field created string
+---@field try_choose_train string
+---@field wait_train string
+---@field disband string
+---@field completed string
+
 local defines = {
     type = "disband",
     state = {
         created = "created", -- from(nil)
-        train_taking = "train_taking", -- from(created)
-        train_took = "train_took", -- from(train_taking)
-        disbanding = "disbanding", -- from(train_took)
-        disbanded = "disbanded", -- from(disbanding)
+        try_choose_train = "try_choose_train", -- from(created)
+        wait_train = "wait_train", -- from(try_choose_train)
+        disband = "disband", -- from(wait_train)
+        completed = "completed", -- from(disband)
     }
 }
 
 --- @module scripts.lib.domain.entity.task.TrainDisbandTask
 local TrainDisbandTask = {
-    ---@type table
+    ---@type train_disband_task_defines
     defines = defines,
-    ---@type uint
+    ---@type string
     type = defines.type,
     ---@type string
     state = defines.state.created,
@@ -51,14 +62,20 @@ function TrainDisbandTask:delete()
     self.deleted = true
 end
 
----@return table
-function TrainDisbandTask:state_disbanded()
-    self.state = defines.state.disbanded
+function TrainDisbandTask:state_try_choose_train()
+    self.state = defines.state.try_choose_train
 end
 
----@return table
-function TrainDisbandTask:state_train_took()
-    self.state = defines.state.train_took
+function TrainDisbandTask:state_wait_train()
+    self.state = defines.state.wait_train
+end
+
+function TrainDisbandTask:state_disband()
+    self.state = defines.state.disband
+end
+
+function TrainDisbandTask:state_completed()
+    self.state = defines.state.completed
 end
 
 ---@param tick uint
@@ -77,10 +94,6 @@ function TrainDisbandTask:start_disband_train(tick, multiplier, train_template)
     self.required_disband_ticks = train_template:get_disband_time() * 60 * multiplier
 
     self.disband_end_at = tick + self.required_disband_ticks
-end
-
-function TrainDisbandTask:state_train_taking()
-    self.state = defines.state.deploying
 end
 
 function TrainDisbandTask:disbanded()
@@ -110,23 +123,23 @@ function TrainDisbandTask:is_state_created()
 end
 
 ---@return bool
-function TrainDisbandTask:is_state_disbanded()
-    return self.state == defines.state.disbanded
+function TrainDisbandTask:is_state_try_choose_train()
+    return self.state == defines.state.try_choose_train
 end
 
 ---@return bool
-function TrainDisbandTask:is_state_train_taking()
-    return self.state == defines.state.train_taking
+function TrainDisbandTask:is_state_wait_train()
+    return self.state == defines.state.wait_train
 end
 
 ---@return bool
-function TrainDisbandTask:is_state_train_took()
-    return self.state == defines.state.train_took
+function TrainDisbandTask:is_state_disband()
+    return self.state == defines.state.disband
 end
 
 ---@return bool
-function TrainDisbandTask:is_state_disbanded()
-    return self.state == defines.state.disbanded
+function TrainDisbandTask:is_state_completed()
+    return self.state == defines.state.completed
 end
 
 ---@return bool

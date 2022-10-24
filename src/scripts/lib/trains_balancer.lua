@@ -48,17 +48,16 @@ function TrainsBalancer._balance_trains_count_for_context(context, _)
         local trains_quantity_diff = TrainsBalancer._calculate_trains_diff(train_template)
 
         if trains_quantity_diff > 0 then
-            TrainsBalancer._cancel_disband_train_task(train_template, trains_quantity_diff)
+            TrainsBalancer._form_train(train_template, trains_quantity_diff)
         elseif trains_quantity_diff < 0 then
-            TrainsBalancer._cancel_forming_train_task(train_template, trains_quantity_diff * -1)
+            TrainsBalancer._disband_train(train_template, trains_quantity_diff * -1)
         end
     end
 end
 
-
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@param missing_amount_trains uint
-function TrainsBalancer._cancel_disband_train_task(train_template, missing_amount_trains)
+function TrainsBalancer._form_train(train_template, missing_amount_trains)
     for _ = 1, missing_amount_trains do
         if not TrainsBalancer._try_cancel_disband_train_task(train_template) then
             break
@@ -74,7 +73,7 @@ end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@param number_of_unnecessary_trains uint
-function TrainsBalancer._cancel_forming_train_task(train_template, number_of_unnecessary_trains)
+function TrainsBalancer._disband_train(train_template, number_of_unnecessary_trains)
 
     for _ = 1, number_of_unnecessary_trains do
         if not TrainsBalancer._try_cancel_forming_train_task(train_template) then

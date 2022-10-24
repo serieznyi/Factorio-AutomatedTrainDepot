@@ -37,7 +37,6 @@ function forming.get_contexts_from_tasks()
     local contexts = {}
     local tasks = persistence_storage.trains_tasks.find_all_tasks()
 
-    ---@param task scripts.lib.domain.entity.task.TrainFormingTask
     for _, task in pairs(tasks) do
         table.insert(contexts, Context.from_model(task))
     end
@@ -82,7 +81,7 @@ function deploy.try_deploy_train(context, task, tick)
     local result_train_length = main_locomotive ~= nil and #main_locomotive.train.carriages or 0
     local target_train_length = #train_template.train
 
-    if task:is_state_deploying() and  result_train_length ~= target_train_length then
+    if task:is_state_deploy() and  result_train_length ~= target_train_length then
         -- try build next train part
 
         ---@type scripts.lib.domain.entity.template.RollingStock
@@ -122,7 +121,7 @@ function deploy.try_deploy_train(context, task, tick)
             task:deploying_cursor_next()
         end
 
-    elseif task:is_state_deploying() and result_train_length == target_train_length then
+    elseif task:is_state_deploy() and result_train_length == target_train_length then
         local trains_in_block = false
         for _, rail in ipairs(depot_station_signal.get_connected_rails()) do
             if rail.trains_in_block > 0 then
@@ -132,7 +131,7 @@ function deploy.try_deploy_train(context, task, tick)
         end
 
         if not trains_in_block then
-            task:deployed()
+            task:complete()
             task:delete()
             private.register_train_for_template(main_locomotive.train, train_template)
         end
@@ -155,6 +154,8 @@ end
 
 ---@param context scripts.lib.domain.Context
 function deploy.is_deploy_slot_empty(context)
+    logger.debug(persistence_storage.trains_tasks.count_deploying_tasks(context), {}, "count_deploying_tasks")
+
     return persistence_storage.trains_tasks.count_deploying_tasks(context) == 0
 end
 
@@ -162,7 +163,7 @@ end
 ---@param task scripts.lib.domain.entity.task.TrainFormingTask
 ---@param tick uint
 function deploy.deploy_task(context, task, tick)
-    if not task:is_state_deploying() and not task:is_state_formed() then
+    if not task:is_state_deploy() and not task:is_state_formed() then
         return
     end
 
@@ -269,7 +270,7 @@ end
 function private.process_forming_task(task, tick)
     local multiplier = private.get_depot_multiplier()
 
-    if not task:is_state_created() and not task:is_state_forming() then
+    if not task:is_state_created() and not task:is_state_form() then
         return false
     end
 

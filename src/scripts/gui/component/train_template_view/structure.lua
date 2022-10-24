@@ -39,15 +39,102 @@ function public.get(train_template)
                     horizontally_stretchable = true,
                 },
                 children = {
+                    -- train view
                     {
-                        type = "flow",
-                        direction = "horizontal",
-                        ref = { "train_view" },
+                        type = "scroll-pane",
+                        horizontal_scroll_policy = "auto",
+                        vertical_scroll_policy = "never",
+                        style_mods = {
+                            bottom_padding = 20,
+                        },
+                        children = {
+                            {
+                                type = "flow",
+                                direction = "horizontal",
+                                ref = { "train_view" },
+                            },
+                        }
                     },
+                    -- tasks
                     {
                         type = "flow",
                         direction = "horizontal",
-                        ref = { "tasks_progress_container" },
+                        children = {
+                            {
+                                type = "flow",
+                                direction = "vertical",
+                                style_mods = {
+                                    vertically_stretchable = true,
+                                    horizontally_stretchable = true,
+                                },
+                                children = {
+                                    {
+                                        type = "label",
+                                        caption = {"train-template-view-component.atd-info"},
+                                        style = "frame_title",
+                                        ignored_by_interaction = true
+                                    },
+                                    {
+                                        type = "frame",
+                                        -- todo add info
+                                    },
+                                },
+                            },
+                            {
+                                type = "line",
+                                direction = "vertical",
+                            },
+                            -- form tasks
+                            {
+                                type = "flow",
+                                direction = "vertical",
+                                style_mods = {
+                                    vertically_stretchable = true,
+                                    horizontally_stretchable = true,
+                                },
+                                children = {
+                                    {
+                                        type = "label",
+                                        caption = {"train-template-view-component.atd-form"},
+                                        style = "frame_title",
+                                        ignored_by_interaction = true
+                                    },
+                                    {
+                                        type = "scroll-pane",
+                                        horizontal_scroll_policy = "auto",
+                                        vertical_scroll_policy = "never",
+                                        ref = { "form_tasks_progress_container" },
+                                    },
+                                },
+                            },
+                            {
+                                type = "line",
+                                direction = "vertical",
+                            },
+                            -- disband tasks
+                            {
+                                type = "flow",
+                                direction = "vertical",
+                                style_mods = {
+                                    vertically_stretchable = true,
+                                    horizontally_stretchable = true,
+                                },
+                                children = {
+                                    {
+                                        type = "label",
+                                        caption = {"train-template-view-component.atd-disband"},
+                                        style = "frame_title",
+                                        ignored_by_interaction = true
+                                    },
+                                    {
+                                        type = "scroll-pane",
+                                        horizontal_scroll_policy = "auto",
+                                        vertical_scroll_policy = "never",
+                                        ref = { "disband_tasks_progress_container" },
+                                    },
+                                },
+                            },
+                        },
                     }
                 }
             },

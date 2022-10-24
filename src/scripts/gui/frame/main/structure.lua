@@ -10,7 +10,9 @@ function structure.get(config)
         visible = false,
         style_mods = {
             natural_width = config.width,
+            maximal_width = config.width,
             natural_height = config.height,
+            maximal_height = config.height,
         },
         children = {
             -- Titlebar

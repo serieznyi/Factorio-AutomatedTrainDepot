@@ -60,8 +60,8 @@ end
 function TrainTemplate:get_disband_time()
     local time = self:get_forming_time()
 
-    -- disband time is 75% from forming time
-    return math.ceil(time * 0.75)
+    -- disband time is 85% from forming time
+    return math.ceil(time * 0.85)
 end
 
 ---@return table

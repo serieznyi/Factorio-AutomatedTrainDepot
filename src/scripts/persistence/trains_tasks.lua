@@ -160,7 +160,7 @@ function public.count_deploying_tasks(context)
             context,
             TrainFormingTask.defines.type,
             nil,
-            TrainFormingTask.defines.state.deploying
+            TrainFormingTask.defines.state.deploy
     )
 
     return #rows
@@ -214,6 +214,15 @@ function public.find_all_tasks()
     return flib_table.map(rows, private.hydrate_task)
 end
 
+---@param context scripts.lib.domain.Context
+---@param train_template_id uint
+---@return scripts.lib.domain.entity.task.TrainFormingTask[]|scripts.lib.domain.entity.task.TrainDisbandTask[]
+function public.find_all_tasks_for_template(context, train_template_id)
+    local rows = private.find_trains_tasks(context, nil, train_template_id, nil)
+
+    return flib_table.map(rows, private.hydrate_task)
+end
+
 ---@return uint
 function public.find_all_disbanding_tasks()
     local rows = flib_table.filter(global.trains_tasks, function(v)
@@ -229,7 +238,7 @@ function public.find_forming_tasks_ready_for_deploy(context)
             context,
             TrainFormingTask.type,
             nil,
-            {TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploying}
+            {TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploy}
     )
 
     return flib_table.map(rows, private.hydrate_task)
@@ -240,7 +249,7 @@ function public.count_forming_tasks_ready_for_deploy()
             nil,
             TrainFormingTask.type,
             nil,
-            {TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploying}
+            {TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploy}
     )
 
     return #rows

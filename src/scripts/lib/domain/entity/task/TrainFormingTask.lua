@@ -1,19 +1,30 @@
+---@class train_form_task_defines
+---@field type string
+---@field state train_form_task_defines_state
+
+---@class train_form_task_defines_state
+---@field created string
+---@field form string
+---@field formed string
+---@field deploy string
+---@field completed string
+
 local defines = {
     type = "forming",
     state = {
         created = "created", -- from(nil)
-        forming = "forming", -- from(created)
-        formed = "formed", -- from(forming)
-        deploying = "deploying", -- from(formed)
-        deployed = "deployed", -- from(deploying)
+        form = "form", -- from(created)
+        formed = "formed", -- from(form)
+        deploy = "deploy", -- from(formed)
+        completed = "completed", -- from(deploy)
     }
 }
 
 --- @module scripts.lib.domain.entity.task.TrainFormingTask
 local TrainFormingTask = {
-    ---@type table
+    ---@type train_form_task_defines
     defines = defines,
-    ---@type uint
+    ---@type string
     type = defines.type,
     ---@type string
     state = defines.state.created,
@@ -82,7 +93,7 @@ function TrainFormingTask:start_forming(tick, multiplier, train_template)
 
     assert(self.state == defines.state.created, "wrong state")
 
-    self.state = defines.state.forming
+    self.state = defines.state.form
 
     self.required_forming_ticks = train_template:get_forming_time() * 60 * multiplier
 
@@ -91,7 +102,7 @@ end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 function TrainFormingTask:start_deploy(train_template)
-    self.state = defines.state.deploying
+    self.state = defines.state.deploy
     self.train_template = train_template
 end
 
@@ -99,9 +110,9 @@ function TrainFormingTask:deploying_cursor_next()
     self.deploying_cursor = self.deploying_cursor + 1
 end
 
-function TrainFormingTask:deployed()
+function TrainFormingTask:complete()
     self.main_locomotive = nil
-    self.state = defines.state.deployed
+    self.state = defines.state.completed
 end
 
 ---@type uint progress in percent
@@ -139,23 +150,23 @@ function TrainFormingTask:is_state_formed()
 end
 
 ---@return bool
-function TrainFormingTask:is_state_forming()
-    return self.state == defines.state.forming
+function TrainFormingTask:is_state_form()
+    return self.state == defines.state.form
 end
 
 ---@return bool
 function TrainFormingTask:can_cancel()
-    return TrainFormingTask:is_state_created() or TrainFormingTask:is_state_forming()
+    return TrainFormingTask:is_state_created() or TrainFormingTask:is_state_form()
 end
 
 ---@return bool
-function TrainFormingTask:is_state_deploying()
-    return self.state == defines.state.deploying
+function TrainFormingTask:is_state_deploy()
+    return self.state == defines.state.deploy
 end
 
 ---@return bool
-function TrainFormingTask:is_state_deployed()
-    return self.state == defines.state.deployed
+function TrainFormingTask:is_state_completed()
+    return self.state == defines.state.completed
 end
 
 ---@param data table|scripts.lib.domain.entity.task.TrainFormingTask

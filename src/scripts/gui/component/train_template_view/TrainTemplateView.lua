@@ -1,4 +1,5 @@
 local flib_gui = require("__flib__.gui")
+local flib_table = require("__flib__.table")
 
 local logger = require("scripts.lib.logger")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
@@ -8,6 +9,8 @@ local persistence_storage = require("scripts.persistence.persistence_storage")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.component.train_template_view.structure")
 local Sequence = require("scripts.lib.Sequence")
+local TrainFormingTask = require("scripts.lib.domain.entity.task.TrainFormingTask")
+local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
 
 local component_id_sequence = Sequence()
 
@@ -28,6 +31,10 @@ local TrainTemplateView = {
         train_view = nil,
         ---@type LuaGuiElement
         tasks_progress_container = nil,
+        ---@type LuaGuiElement
+        form_tasks_progress_container = nil,
+        ---@type LuaGuiElement
+        disband_tasks_progress_container = nil,
         ---@type LuaGuiElement
         footerbar_flow = nil,
         ---@type LuaGuiElement
@@ -195,17 +202,52 @@ function TrainTemplateView:_refresh_component()
     -- update tasks view
 
     local context = Context.from_player(self.player)
-    local tasks = persistence_storage.trains_tasks.find_forming_tasks(context, train_template.id)
+    local tasks = persistence_storage.trains_tasks.find_all_tasks_for_template(context, train_template.id)
 
-    self.refs.tasks_progress_container.clear()
+    self:_refresh_tasks(tasks)
+end
+
+---@param tasks scripts.lib.domain.entity.task.TrainDisbandTask[]|scripts.lib.domain.entity.task.TrainFormingTask[]
+function TrainTemplateView:_refresh_tasks(tasks)
+    self.refs.form_tasks_progress_container.clear()
+
+    local form_tasks = flib_table.filter(tasks, function(t) return t.type == TrainFormingTask.type end, true)
 
     ---@param task scripts.lib.domain.entity.task.TrainFormingTask
-    for _, task in ipairs(tasks) do
-        flib_gui.add(self.refs.tasks_progress_container, {
-            type = "progressbar",
-            value = task:progress() * 0.01
+    for _, task in pairs(form_tasks) do
+        flib_gui.add(self.refs.form_tasks_progress_container, {
+            type = "flow",
+            direction = "vertical",
+            children = {
+                {
+                    type="frame",
+                    direction = "vertical",
+                    style = "inside_shallow_frame_with_padding",
+                    style_mods = {
+                        vertically_squashable = true,
+                        horizontally_squashable = true,
+                    },
+                    children = {
+                        {
+                            type = "label",
+                            caption = {"train-template-view-component.atd-state", {"train-form-task-state.atd-" .. task.state}},
+                        },
+                        {
+                            type = "progressbar",
+                            value = task:progress() * 0.01,
+                            style_mods = {
+                                horizontally_stretchable = true,
+                            },
+                        }
+                    }
+                },
+            },
         })
     end
+
+    self.refs.disband_tasks_progress_container.clear()
+    local disband_tasks = flib_table.filter(tasks, function(t) return t.type == TrainDisbandTask.type end, true)
+    -- todo add
 end
 
 return TrainTemplateView

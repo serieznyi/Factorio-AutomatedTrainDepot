@@ -1,14 +1,3 @@
----@return uint forming time in seconds for locomotive (without multiplier)
-function get_forming_time_for_locomotive()
-    ---@type LuaRecipe
-    local locomotive_recipe = game.recipe_prototypes["locomotive"]
-    local time = locomotive_recipe.energy
-
-    -- todo
-
-    return time
-end
-
 --- @module scripts.lib.domain.entity.template.RollingStock
 local RollingStock = {
     ---@type string
@@ -46,16 +35,10 @@ end
 
 ---@return uint train part forming time in seconds (without multiplier)
 function RollingStock:get_forming_time()
-    if self.type == RollingStock.TYPE.CARGO then
-        ---@type LuaRecipe
-        local cargo_wagon_recipe = game.recipe_prototypes["cargo-wagon"]
+    ---@type LuaRecipe
+    local recipe = game.recipe_prototypes[self.prototype_name]
 
-        -- todo use different type for different cargo type ?
-
-        return cargo_wagon_recipe.energy
-    end
-
-    return get_forming_time_for_locomotive()
+    return recipe.energy
 end
 
 ---@param data table
