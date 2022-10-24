@@ -218,6 +218,9 @@ function TrainTemplateView:_refresh_tasks(tasks)
         flib_gui.add(self.refs.form_tasks_progress_container, {
             type = "flow",
             direction = "vertical",
+            style_mods = {
+                bottom_padding = 5,
+            },
             children = {
                 {
                     type="frame",
