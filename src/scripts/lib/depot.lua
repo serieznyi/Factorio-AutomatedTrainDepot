@@ -120,6 +120,8 @@ function deploy.try_deploy_train(context, task, tick)
         end
 
     elseif task:is_state_deploy() and result_train_length == target_train_length then
+        private.register_train_for_template(main_locomotive.train, train_template)
+
         if not deploy.output_station_free(depot_station_output) then
             task:complete()
             task:delete()
