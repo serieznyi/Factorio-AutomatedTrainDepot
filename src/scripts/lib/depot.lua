@@ -281,8 +281,6 @@ end
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
 function private.process_disbanding_task(task, tick)
-    logger.debug(task, {}, "process_disbanding_task")
-
     if task:is_state_created() and task.train_template_id == nil then
         private.try_bind_train_template_with_disband_task(task)
     end
@@ -292,7 +290,6 @@ function private.process_disbanding_task(task, tick)
     end
 
     -- todo
-    logger.debug(task, {}, "try disband train")
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormingTask
