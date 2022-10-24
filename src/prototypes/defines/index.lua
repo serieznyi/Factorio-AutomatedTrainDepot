@@ -12,6 +12,9 @@ return {
         depot_building_rail_signal = {
             name = "atd-building-rail-signal-entity",
         },
+        depot_building_rail_chain_signal = {
+            name = "atd-building-rail-chain-signal-entity",
+        },
         depot_building_output = {
             name = "atd-building-output-entity",
         },

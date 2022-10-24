@@ -101,11 +101,11 @@ end
 
 ---@param rail_entity LuaEntity
 ---@param direction defines.direction
-function private.build_rail_signal(rail_entity, direction)
+function private.build_rail_signal(signal_entity, rail_entity, direction)
     local force = rail_entity.force
     local x, y = rotate_relative_position[direction](1.5, 0)
     local rail_signal = rail_entity.surface.create_entity({
-        name = atd.defines.prototypes.entity.depot_building_rail_signal.name,
+        name = signal_entity,
         position = { rail_entity.position.x + x, rail_entity.position.y + y },
         direction = flib_direction.opposite(direction),
         force = force,
@@ -118,7 +118,7 @@ end
 
 ---@param surface LuaSurface
 ---@param force LuaForce
----@param start_position Position
+---@param start_position MapPosition
 ---@param direction uint
 ---@param rails_count int
 ---@return table list of build rails
@@ -221,7 +221,7 @@ function private.build(context, entity)
     private.shadow_entity(depot_signals_output)
     table.insert(dependent_entities, depot_signals_output)
 
-    -- Input station, rails and signals
+    -- Input station, rails and signal
     x, y = rotate_relative_position[entity.direction](6, 0)
     local depot_station_input = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building_train_stop_input.name,
@@ -244,10 +244,14 @@ function private.build(context, entity)
     for _,v in ipairs(input_rails) do table.insert(dependent_entities, v) end
     local last_input_rail = input_rails[#input_rails]
 
-    local input_rail_signal = private.build_rail_signal(last_input_rail, depot_station_input.direction)
+    local input_rail_signal = private.build_rail_signal(
+            atd.defines.prototypes.entity.depot_building_rail_signal.name,
+            last_input_rail,
+            depot_station_input.direction
+    )
     table.insert(dependent_entities, input_rail_signal)
 
-    -- Output station, rails and signals
+    -- Output station, rails and signal
     x, y = rotate_relative_position[entity.direction](-6, 0)
     local depot_station_output = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building_train_stop_output.name,
@@ -271,7 +275,11 @@ function private.build(context, entity)
     for _,v in ipairs(output_rails) do table.insert(dependent_entities, v) end
     local last_output_rail = output_rails[#output_rails]
 
-    local output_rail_signal = private.build_rail_signal(last_output_rail, depot_station_output.direction)
+    local output_rail_signal = private.build_rail_signal(
+            atd.defines.prototypes.entity.depot_building_rail_chain_signal.name,
+            last_output_rail,
+            depot_station_output.direction
+    )
     table.insert(dependent_entities, output_rail_signal)
 
     storage.save_depot(context, {

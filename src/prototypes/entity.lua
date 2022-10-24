@@ -73,6 +73,13 @@ configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
+
+prototype = table.deepcopy(data.raw["rail-chain-signal"]["rail-chain-signal"])
+prototype.name = prototype_defines.entity.depot_building_rail_chain_signal.name
+configure_depot_part_prototype(prototype)
+table.insert(prototypes, prototype)
+
+------------- PROTOTYPE
 prototype = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 prototype.name = prototype_defines.entity.depot_building_output.name
 configure_depot_part_prototype(prototype)
