@@ -113,6 +113,14 @@ function TrainTemplateView:_register_event_handlers()
             handler = function(e) return self:_handle_refresh_component(e) end,
         },
         {
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_deleted),
+            handler = function(e) return self:_handle_refresh_component(e) end,
+        },
+        {
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_added),
+            handler = function(e) return self:_handle_refresh_component(e) end,
+        },
+        {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
             handler = function(e) return self:_handle_refresh_component(e) end,
         },
@@ -215,42 +223,60 @@ function TrainTemplateView:_refresh_tasks(tasks)
 
     ---@param task scripts.lib.domain.entity.task.TrainFormingTask
     for _, task in pairs(form_tasks) do
-        flib_gui.add(self.refs.form_tasks_progress_container, {
-            type = "flow",
-            direction = "vertical",
-            style_mods = {
-                bottom_padding = 5,
-            },
-            children = {
-                {
-                    type="frame",
-                    direction = "vertical",
-                    style = "inside_shallow_frame_with_padding",
-                    style_mods = {
-                        vertically_squashable = true,
-                        horizontally_squashable = true,
-                    },
-                    children = {
-                        {
-                            type = "label",
-                            caption = {"train-template-view-component.atd-state", {"train-form-task-state.atd-" .. task.state}},
-                        },
-                        {
-                            type = "progressbar",
-                            value = task:progress() * 0.01,
-                            style_mods = {
-                                horizontally_stretchable = true,
-                            },
-                        }
-                    }
-                },
-            },
-        })
+        flib_gui.add(self.refs.form_tasks_progress_container, self:_build_task_block(task))
     end
 
     self.refs.disband_tasks_progress_container.clear()
     local disband_tasks = flib_table.filter(tasks, function(t) return t.type == TrainDisbandTask.type end, true)
-    -- todo add
+
+    ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
+    for _, task in pairs(disband_tasks) do
+        flib_gui.add(self.refs.disband_tasks_progress_container, self:_build_task_block(task))
+    end
+end
+
+---@param task scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormingTask
+---@return table
+function TrainTemplateView:_build_task_block(task)
+    local state_text = nil
+
+    if task.type == TrainFormingTask.type then
+        state_text = {"train-form-task-state.atd-" .. task.state}
+    else
+        state_text = {"train-disband-task-state.atd-" .. task.state}
+    end
+
+    return {
+        type = "flow",
+        direction = "vertical",
+        style_mods = {
+            bottom_padding = 5,
+        },
+        children = {
+            {
+                type="frame",
+                direction = "vertical",
+                style = "inside_shallow_frame_with_padding",
+                style_mods = {
+                    vertically_squashable = true,
+                    horizontally_squashable = true,
+                },
+                children = {
+                    {
+                        type = "label",
+                        caption = {"train-template-view-component.atd-state", state_text},
+                    },
+                    {
+                        type = "progressbar",
+                        value = task:progress() * 0.01,
+                        style_mods = {
+                            horizontally_stretchable = true,
+                        },
+                    }
+                }
+            },
+        },
+    }
 end
 
 return TrainTemplateView

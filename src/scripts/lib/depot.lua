@@ -278,7 +278,7 @@ function private.process_disbanding_task(task, tick)
     end
 
     -- todo
-    logger.debug("try disband train")
+    logger.debug(task, {}, "try disband train")
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormingTask
