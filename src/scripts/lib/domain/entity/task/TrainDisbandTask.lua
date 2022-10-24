@@ -158,7 +158,7 @@ end
 ---@param data table|scripts.lib.domain.entity.task.TrainDisbandTask
 ---@return scripts.lib.domain.entity.task.TrainDisbandTask
 function TrainDisbandTask.from_table(data)
-    local object = TrainDisbandTask.new(data.surface_name, data.force_name, data.train_id)
+    local object = TrainDisbandTask.new(data.surface_name, data.force_name, data.train_id, data.train_template_id)
 
     object.id = data.id
     object.type = data.type

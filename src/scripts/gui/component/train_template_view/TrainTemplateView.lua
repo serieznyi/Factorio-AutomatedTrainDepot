@@ -131,17 +131,17 @@ function TrainTemplateView:_register_event_handlers()
 end
 
 function TrainTemplateView:_handle_enable_train_template(e)
-    local train_template = train_template_service.enable_train_template(self.train_template_id)
+    train_template_service.enable_train_template(self.train_template_id)
 
-    self:_refresh_component(train_template)
+    self:_refresh_component()
 
     return true
 end
 
 function TrainTemplateView:_handle_disable_train_template(e)
-    local train_template = train_template_service.disable_train_template(self.train_template_id)
+    train_template_service.disable_train_template(self.train_template_id)
 
-    self:_refresh_component(train_template)
+    self:_refresh_component()
 
     return true
 end
