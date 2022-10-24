@@ -62,8 +62,6 @@ function deploy.try_deploy_train(context, task, tick)
 
     ---@type LuaEntity
     local depot_station_output = remote.call("atd", "depot_get_output_station", context)
-    ---@type LuaEntity
-    local depot_station_signal = remote.call("atd", "depot_get_output_signal", context)
 
     if depot_station_output == nil then
         logger.warning("Depot station for context {1} is nil", {tostring(context)}, "depot")
@@ -81,7 +79,7 @@ function deploy.try_deploy_train(context, task, tick)
     local result_train_length = main_locomotive ~= nil and #main_locomotive.train.carriages or 0
     local target_train_length = #train_template.train
 
-    if task:is_state_deploy() and  result_train_length ~= target_train_length then
+    if task:is_state_deploy() and result_train_length ~= target_train_length then
         -- try build next train part
 
         ---@type scripts.lib.domain.entity.template.RollingStock
@@ -122,15 +120,7 @@ function deploy.try_deploy_train(context, task, tick)
         end
 
     elseif task:is_state_deploy() and result_train_length == target_train_length then
-        local trains_in_block = false
-        for _, rail in ipairs(depot_station_signal.get_connected_rails()) do
-            if rail.trains_in_block > 0 then
-                trains_in_block = true
-                break
-            end
-        end
-
-        if not trains_in_block then
+        if not deploy.output_station_free(depot_station_output) then
             task:complete()
             task:delete()
             private.register_train_for_template(main_locomotive.train, train_template)
@@ -138,6 +128,12 @@ function deploy.try_deploy_train(context, task, tick)
     end
 
     persistence_storage.trains_tasks.add(task)
+end
+
+---@param depot_station_output LuaEntity
+---@return bool
+function deploy.output_station_free(depot_station_output)
+    return depot_station_output.connected_rail.trains_in_block > 0
 end
 
 ---@param data NthTickEventData
