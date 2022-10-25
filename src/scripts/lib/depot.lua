@@ -95,7 +95,7 @@ function Depot._process_disbanding_task(task, tick)
     end
 
     if task:is_state_try_choose_train() then
-        if Depot._try_bind_train_with_disband_task() then
+        if Depot._try_bind_train_with_disband_task(task) then
             task:state_wait_train()
         end
     end
