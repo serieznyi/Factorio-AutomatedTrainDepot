@@ -1,3 +1,5 @@
+local util_table = require("scripts.util.table")
+
 ---@class train_disband_task_defines
 ---@field type string
 ---@field state train_form_task_defines_state
@@ -49,19 +51,7 @@ local TrainDisbandTask = {
 
 ---@return table
 function TrainDisbandTask:to_table()
-    return {
-        id = self.id,
-        type = self.type,
-        state = self.state,
-        deleted = self.deleted,
-        force_name = self.force_name,
-        surface_name = self.surface_name,
-        required_forming_ticks = self.required_disband_ticks,
-        forming_end_at = self.disband_end_at,
-        train_id = self.train_id,
-        train_template_id = self.train_template_id,
-        completed_at = self.completed_at,
-    }
+    return self
 end
 
 ---@return table
@@ -164,15 +154,7 @@ end
 function TrainDisbandTask.from_table(data)
     local object = TrainDisbandTask.new(data.surface_name, data.force_name, data.train_id, data.train_template_id)
 
-    object.id = data.id
-    object.type = data.type
-    object.state = data.state
-    object.deleted = data.deleted
-    object.required_disband_ticks = data.required_disband_ticks
-    object.disband_end_at = data.disband_end_at
-    object.train_id = data.train_id
-    object.train_template_id = data.train_template_id
-    object.completed_at = data.completed_at
+    util_table.fill_assoc(object, data)
 
     return object
 end

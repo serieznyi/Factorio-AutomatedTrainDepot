@@ -2,6 +2,7 @@ local flib_table = require("__flib__.table")
 
 local RollingStock = require("scripts.lib.domain.entity.template.RollingStock")
 local util_hash = require("scripts.util.hash")
+local util_table = require("scripts.util.table")
 
 ---@param lua_train LuaTrain
 ---@return int
@@ -66,24 +67,15 @@ end
 
 ---@return table
 function TrainTemplate:to_table()
-    return {
-        id = self.id,
-        name = self.name,
-        icon = self.icon,
-        train_color = self.train_color,
-        ---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
-        train = flib_table.map(self.train or {}, function(rolling_stock)
-            return rolling_stock:to_table()
-        end),
-        enabled = self.enabled,
-        trains_quantity = self.trains_quantity,
-        force_name = self.force_name,
-        surface_name = self.surface_name,
-        clean_station = self.clean_station,
-        destination_schedule = self.destination_schedule,
-        fuel = self.fuel,
-        use_any_fuel = self.use_any_fuel,
-    }
+    local data = {}
+
+    util_table.fill_assoc(data, self)
+
+    data["train"] = flib_table.map(self.train or {}, function(rolling_stock)
+        return rolling_stock:to_table()
+    end)
+
+    return data
 end
 
 function TrainTemplate:train_structure_hash_code()
@@ -134,21 +126,12 @@ end
 function TrainTemplate.from_table(data)
     local object = TrainTemplate.new(data.id)
 
-    object.name = data.name
-    object.icon = data.icon
-    object.train_color = data.train_color
+    util_table.fill_assoc(object, data)
+
     ---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
     object.train = flib_table.map(data.train or {}, function(rolling_stock)
         return RollingStock.from_table(rolling_stock)
     end)
-    object.enabled = data.enabled
-    object.trains_quantity = data.trains_quantity
-    object.force_name = data.force_name
-    object.surface_name = data.surface_name
-    object.clean_station = data.clean_station
-    object.destination_schedule = data.destination_schedule
-    object.use_any_fuel = data.use_any_fuel
-    object.fuel = data.fuel
 
     return object
 end

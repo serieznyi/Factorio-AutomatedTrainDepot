@@ -42,4 +42,12 @@ function atd_table.array_unique(array)
     return flib_table.filter(result, function(v) return true end, true)
 end
 
+---@param target table table what will be filled
+---@param source table source table for fill
+function atd_table.fill_assoc(target, source)
+    for k, v in pairs(source) do
+        target[k] = v
+    end
+end
+
 return atd_table

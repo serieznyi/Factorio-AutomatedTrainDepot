@@ -1,5 +1,7 @@
 local flib_train = require("__flib__.train")
 
+local util_table = require("scripts.util.table")
+
 local constants = {
     state = {
         process_schedule = "process_schedule",
@@ -65,16 +67,7 @@ end
 
 ---@return table
 function Train:to_table()
-    return {
-        id = self.id,
-        lua_train = self.lua_train,
-        surface_name = self.surface_name,
-        force_name = self.force_name,
-        controlled_train = self.controlled_train,
-        deleted = self.deleted,
-        train_template_id = self.train_template_id,
-        state = self.state,
-    }
+    return self
 end
 
 ---@param new_lua_train LuaTrain
@@ -91,18 +84,11 @@ end
 
 ---@param data table
 function Train.from_table(data)
-    local train = Train.new()
+    local object = Train.new()
 
-    train.id = data.id
-    train.lua_train = data.lua_train
-    train.force_name = data.force_name
-    train.surface_name = data.surface_name
-    train.controlled_train = data.controlled_train
-    train.deleted = data.deleted
-    train.train_template_id = data.train_template_id
-    train.state = data.state
+    util_table.fill_assoc(object, data)
 
-    return train
+    return object
 end
 
 ---@param lua_train LuaTrain

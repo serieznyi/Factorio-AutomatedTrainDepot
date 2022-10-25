@@ -1,3 +1,5 @@
+local util_table = require("scripts.util.table")
+
 ---@class train_form_task_defines
 ---@field type string
 ---@field state train_form_task_defines_state
@@ -52,21 +54,7 @@ local TrainFormingTask = {
 
 ---@return table
 function TrainFormingTask:to_table()
-    return {
-        id = self.id,
-        type = self.type,
-        train_template_id = self.train_template_id,
-        train_template = self.train_template,
-        state = self.state,
-        deleted = self.deleted,
-        force_name = self.force_name,
-        surface_name = self.surface_name,
-        required_forming_ticks = self.required_forming_ticks,
-        forming_end_at = self.forming_end_at,
-        deploying_cursor = self.deploying_cursor,
-        main_locomotive = self.main_locomotive,
-        completed_at = self.completed_at,
-    }
+    return self
 end
 
 ---@return table
@@ -179,16 +167,7 @@ end
 function TrainFormingTask.from_table(data)
     local object = TrainFormingTask.new(data.surface_name, data.force_name, data.train_template_id)
 
-    object.id = data.id
-    object.type = data.type
-    object.train_template = data.train_template
-    object.main_locomotive = data.main_locomotive
-    object.state = data.state
-    object.deleted = data.deleted
-    object.required_forming_ticks = data.required_forming_ticks
-    object.forming_end_at = data.forming_end_at
-    object.deploying_cursor = data.deploying_cursor
-    object.completed_at = data.completed_at
+    util_table.fill_assoc(object, data)
 
     return object
 end

@@ -1,3 +1,5 @@
+local util_table = require("scripts.util.table")
+
 --- @module scripts.lib.domain.entity.template.RollingStock
 local RollingStock = {
     ---@type string
@@ -16,11 +18,7 @@ RollingStock.TYPE = {
 
 ---@return table
 function RollingStock:to_table()
-    return {
-        type = self.type,
-        prototype_name = self.prototype_name,
-        direction = self.direction,
-    }
+    return self
 end
 
 ---@type bool
@@ -45,8 +43,7 @@ end
 function RollingStock.from_table(data)
     local object = RollingStock.new(data.type)
 
-    object.prototype_name = data.prototype_name
-    object.direction = data.direction
+    util_table.fill_assoc(object, data)
 
     return object
 end
