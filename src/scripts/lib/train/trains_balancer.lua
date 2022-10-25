@@ -101,6 +101,8 @@ function TrainsBalancer._try_add_disband_train_task(train_template)
 
     persistence_storage.trains_tasks.add(task)
 
+    TrainsBalancer._raise_task_added_event(task)
+
     logger.debug(
             "Add new disband task `{1}` for template `{2}`",
             { task.id, train_template.name},
