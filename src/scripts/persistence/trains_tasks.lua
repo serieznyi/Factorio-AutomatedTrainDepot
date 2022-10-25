@@ -185,19 +185,6 @@ function public.find_disbanding_tasks(context, train_template_id)
     return hydrate(filtered)
 end
 
-function public.count_deploying_tasks(context)
-    assert(context, "context is nil")
-
-    local filtered = rows(
-        match_not_deleted(),
-        match_context(context),
-        match_type_form(),
-        match_state(TrainFormingTask.defines.state.deploy)
-    )
-
-    return #filtered
-end
-
 ---@param context scripts.lib.domain.Context
 ---@param train_template_id uint|nil
 ---@return uint
@@ -284,21 +271,11 @@ end
 ---@param context scripts.lib.domain.Context
 ---@param train_template_id uint
 ---@return scripts.lib.domain.entity.task.TrainFormingTask[]|scripts.lib.domain.entity.task.TrainDisbandTask[]
-function public.find_all_tasks_for_template(context, train_template_id)
+function public.find_template_tasks(context, train_template_id)
     local filtered = rows(
         match_not_deleted(),
         match_context(context),
         match_train_template_id(train_template_id)
-    )
-
-    return hydrate(filtered)
-end
-
----@return uint
-function public.find_all_disbanding_tasks()
-    local filtered = rows(
-        match_not_deleted(),
-        match_type_disband()
     )
 
     return hydrate(filtered)
