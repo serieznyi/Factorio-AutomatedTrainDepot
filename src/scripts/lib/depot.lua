@@ -7,16 +7,28 @@ local logger = require("scripts.lib.logger")
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
 local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
 
-local public = {}
-local private = {}
+local Depot = {}
 
----------------------------------------------------------------------------
--- -- -- PRIVATE
----------------------------------------------------------------------------
+function Depot.init()
+    Depot._register_event_handlers()
+end
+
+function Depot.load()
+    Depot._register_event_handlers()
+end
+
+---@param schedule TrainSchedule
+function Depot.is_valid_schedule(schedule)
+    local is_path_readable = false
+
+    -- todo add realisation
+
+    return is_path_readable
+end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
-function private.try_remove_completed_task(task, tick)
+function Depot._try_remove_completed_task(task, tick)
     if not task:is_state_completed() then
         return
     end
@@ -28,12 +40,12 @@ function private.try_remove_completed_task(task, tick)
 
         persistence_storage.trains_tasks.add(task)
 
-        private.raise_task_changed_event(task)
+        Depot._raise_task_changed_event(task)
     end
 end
 
 ---@param train_task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
-function private.raise_task_changed_event(train_task)
+function Depot._raise_task_changed_event(train_task)
     -- todo duplicity
 
     ---@type LuaForce
@@ -48,13 +60,13 @@ function private.raise_task_changed_event(train_task)
 
 end
 
-function private.get_depot_multiplier()
+function Depot._get_depot_multiplier()
     return 1.0 -- todo depended from technologies
 end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@return scripts.lib.domain.entity.Train
-function private._try_choose_train_for_disband(train_template)
+function Depot._try_choose_train_for_disband(train_template)
     local context = Context.from_model(train_template)
     local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
 
@@ -63,7 +75,7 @@ function private._try_choose_train_for_disband(train_template)
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
-function private._try_bind_train_with_disband_task(task)
+function Depot._try_bind_train_with_disband_task(task)
     -- todo add search train logic
 
     return false
@@ -71,7 +83,7 @@ end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
-function private.process_disbanding_task(task, tick)
+function Depot._process_disbanding_task(task, tick)
     -- Disband uncontrolled train
     if task:is_state_created() and task.train_id ~= nil then
         task:state_wait_train()
@@ -83,7 +95,7 @@ function private.process_disbanding_task(task, tick)
     end
 
     if task:is_state_try_choose_train() then
-        if private._try_bind_train_with_disband_task() then
+        if Depot._try_bind_train_with_disband_task() then
             task:state_wait_train()
         end
     end
@@ -102,13 +114,13 @@ function private.process_disbanding_task(task, tick)
 
     persistence_storage.trains_tasks.add(task)
 
-    private.raise_task_changed_event(task)
+    Depot._raise_task_changed_event(task)
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param tick uint
-function private.process_form_task(task, tick)
-    local multiplier = private.get_depot_multiplier()
+function Depot._process_form_task(task, tick)
+    local multiplier = Depot._get_depot_multiplier()
 
     if not task:is_state_created() and not task:is_state_form() then
         return false
@@ -126,7 +138,7 @@ function private.process_form_task(task, tick)
 
     persistence_storage.trains_tasks.add(task)
 
-    private.raise_task_changed_event(task)
+    Depot._raise_task_changed_event(task)
 
     if task:is_state_formed() then
         -- todo raise event
@@ -137,18 +149,18 @@ function private.process_form_task(task, tick)
 end
 
 ---@param data NthTickEventData
-function private.train_manipulations(data)
+function Depot._train_manipulations(data)
     local tick = data.tick
     local tasks = persistence_storage.trains_tasks.find_all_tasks()
 
     for _, task in pairs(tasks) do
         if task.type == TrainFormTask.type then
-            private.process_form_task(task, tick)
+            Depot._process_form_task(task, tick)
         elseif task.type == TrainDisbandTask.type then
-            private.process_disbanding_task(task, tick)
+            Depot._process_disbanding_task(task, tick)
         end
 
-        private.try_remove_completed_task(task, data.tick)
+        Depot._try_remove_completed_task(task, data.tick)
     end
 
     if persistence_storage.trains_tasks.total_count_form_tasks() == 0 then
@@ -156,24 +168,24 @@ function private.train_manipulations(data)
     end
 end
 
-function private.on_ntd_trains_manipulation()
-    script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, private.train_manipulations)
+function Depot._on_ntd_trains_manipulation()
+    script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, Depot._train_manipulations)
 end
 
 ---@param e scripts.lib.event.Event
-function private._handle_trains_manipulations(e)
-    private.on_ntd_trains_manipulation()
+function Depot._handle_trains_manipulations(e)
+    Depot._on_ntd_trains_manipulation()
 end
 
-function private._handle_trains_balancer_check_activity(e)
-    private.trains_balancer_check_activity()
+function Depot._handle_trains_balancer_check_activity(e)
+    Depot._trains_balancer_check_activity()
 end
 
-function private._handle_trains_constructor_check_activity(e)
-    private.trains_constructor_check_activity()
+function Depot._handle_trains_constructor_check_activity(e)
+    Depot._trains_constructor_check_activity()
 end
 
-function private.trains_balancer_check_activity()
+function Depot._trains_balancer_check_activity()
     if persistence_storage.count_active_trains_templates() == 0 then
         script.on_nth_tick(atd.defines.on_nth_tick.balance_trains_count, nil)
         logger.debug("Unregister trains balancer", {}, "depot")
@@ -183,7 +195,7 @@ function private.trains_balancer_check_activity()
     end
 end
 
-function private.trains_constructor_check_activity()
+function Depot._trains_constructor_check_activity()
     if persistence_storage.trains_tasks.count_form_tasks_ready_for_deploy() == 0 then
         script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, nil)
         logger.debug("Register trains constructor", {}, "depot")
@@ -193,23 +205,23 @@ function private.trains_constructor_check_activity()
     end
 end
 
-function private.register_event_handlers()
+function Depot._register_event_handlers()
     local handlers = {
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
-            handler = function(e) return private._handle_trains_manipulations(e) end,
+            handler = function(e) return Depot._handle_trains_manipulations(e) end,
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
-            handler = function(e) return private._handle_trains_balancer_check_activity(e) end,
+            handler = function(e) return Depot._handle_trains_balancer_check_activity(e) end,
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_changed),
-            handler = function(e) return private._handle_trains_balancer_check_activity(e) end,
+            handler = function(e) return Depot._handle_trains_balancer_check_activity(e) end,
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
-            handler = function(e) return private._handle_trains_constructor_check_activity(e) end,
+            handler = function(e) return Depot._handle_trains_constructor_check_activity(e) end,
         },
     }
 
@@ -218,25 +230,4 @@ function private.register_event_handlers()
     end
 end
 
----------------------------------------------------------------------------
--- -- -- PUBLIC
----------------------------------------------------------------------------
-
-function public.init()
-    private.register_event_handlers()
-end
-
-function public.load()
-    private.register_event_handlers()
-end
-
----@param schedule TrainSchedule
-function public.is_valid_schedule(schedule)
-    local is_path_readable = false
-
-    -- todo add realisation
-
-    return is_path_readable
-end
-
-return public
+return Depot
