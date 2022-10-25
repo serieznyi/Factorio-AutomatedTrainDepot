@@ -5,7 +5,7 @@ local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local Event = require("scripts.lib.event.Event")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
-local train_service = require("scripts.lib.train_service")
+local train_service = require("scripts.lib.train.train_service")
 
 ---@param entity LuaEntity
 local function is_rolling_stock(entity)

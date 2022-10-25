@@ -14,7 +14,7 @@ local depot = require("scripts.lib.depot")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local persistence_storage = require("scripts.persistence.persistence_storage")
-local train_service = require("scripts.lib.train_service")
+local train_service = require("scripts.lib.train.train_service")
 
 ---------------------------------------------------------------------------
 -- -- -- INTERFACES
