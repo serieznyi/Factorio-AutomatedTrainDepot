@@ -45,7 +45,7 @@ local TrainFormTask = {
     ---@type uint ticks left to form train
     form_end_at = nil,
     ---@type uint
-    deploying_cursor = 1,
+    deploy_cursor = 1,
     ---@type LuaEntity
     main_locomotive = nil,
     ---@type uint
@@ -54,7 +54,21 @@ local TrainFormTask = {
 
 ---@return table
 function TrainFormTask:to_table()
-    return self
+    return {
+        id = self.id,
+        type = self.type,
+        train_template_id = self.train_template_id,
+        train_template = self.train_template,
+        state = self.state,
+        deleted = self.deleted,
+        force_name = self.force_name,
+        surface_name = self.surface_name,
+        required_form_ticks = self.required_form_ticks,
+        form_end_at = self.form_end_at,
+        deploy_cursor = self.deploy_cursor,
+        main_locomotive = self.main_locomotive,
+        completed_at = self.completed_at,
+    }
 end
 
 ---@return table
@@ -100,10 +114,10 @@ function TrainFormTask:state_deploy(train_template)
     self.train_template = assert(train_template, "train_template is empty")
 end
 
-function TrainFormTask:deploying_cursor_next()
+function TrainFormTask:deploy_cursor_next()
     assert(self:is_state_deploy(), "wrong state")
 
-    self.deploying_cursor = self.deploying_cursor + 1
+    self.deploy_cursor = self.deploy_cursor + 1
 end
 
 ---@param tick

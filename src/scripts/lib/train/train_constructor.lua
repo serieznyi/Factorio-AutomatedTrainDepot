@@ -113,7 +113,7 @@ function TrainsBuilder._deploy_train(context, task, tick)
         -- try build next train part
 
         ---@type scripts.lib.domain.entity.template.RollingStock
-        local train_part = train_template.train[task.deploying_cursor]
+        local train_part = train_template.train[task.deploy_cursor]
 
         local carrier_direction
         if train_part.direction == atd.defines.train.direction.in_direction then
@@ -133,7 +133,7 @@ function TrainsBuilder._deploy_train(context, task, tick)
             local carrier = surface.create_entity(entity_data)
 
             if train_part:is_locomotive() then
-                if task.deploying_cursor == 1 then
+                if task.deploy_cursor == 1 then
                     task:set_main_locomotive(carrier)
 
                     TrainsBuilder._add_train_schedule(task.main_locomotive.train, train_template)
@@ -146,7 +146,7 @@ function TrainsBuilder._deploy_train(context, task, tick)
 
             carrier.train.manual_mode = false
 
-            task:deploying_cursor_next()
+            task:deploy_cursor_next()
         end
 
     elseif task:is_state_deploy() and result_train_length == target_train_length then

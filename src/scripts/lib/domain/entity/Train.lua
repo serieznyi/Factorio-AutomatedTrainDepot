@@ -67,7 +67,16 @@ end
 
 ---@return table
 function Train:to_table()
-    return self
+    return {
+        id = self.id,
+        lua_train = self.lua_train,
+        surface_name = self.surface_name,
+        force_name = self.force_name,
+        controlled_train = self.controlled_train,
+        deleted = self.deleted,
+        train_template_id = self.train_template_id,
+        state = self.state,
+    }
 end
 
 ---@param new_lua_train LuaTrain

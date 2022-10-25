@@ -51,7 +51,19 @@ local TrainDisbandTask = {
 
 ---@return table
 function TrainDisbandTask:to_table()
-    return self
+    return {
+        id = self.id,
+        type = self.type,
+        state = self.state,
+        deleted = self.deleted,
+        force_name = self.force_name,
+        surface_name = self.surface_name,
+        required_disband_ticks = self.required_disband_ticks,
+        disband_end_at = self.disband_end_at,
+        train_id = self.train_id,
+        train_template_id = self.train_template_id,
+        completed_at = self.completed_at,
+    }
 end
 
 ---@return table

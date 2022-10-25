@@ -67,15 +67,24 @@ end
 
 ---@return table
 function TrainTemplate:to_table()
-    local data = {}
-
-    util_table.fill_assoc(data, self)
-
-    data["train"] = flib_table.map(self.train or {}, function(rolling_stock)
-        return rolling_stock:to_table()
-    end)
-
-    return data
+    return {
+        id = self.id,
+        name = self.name,
+        icon = self.icon,
+        train_color = self.train_color,
+        ---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
+        train = flib_table.map(self.train or {}, function(rolling_stock)
+            return rolling_stock:to_table()
+        end),
+        enabled = self.enabled,
+        trains_quantity = self.trains_quantity,
+        force_name = self.force_name,
+        surface_name = self.surface_name,
+        clean_station = self.clean_station,
+        destination_schedule = self.destination_schedule,
+        fuel = self.fuel,
+        use_any_fuel = self.use_any_fuel,
+    }
 end
 
 function TrainTemplate:train_structure_hash_code()

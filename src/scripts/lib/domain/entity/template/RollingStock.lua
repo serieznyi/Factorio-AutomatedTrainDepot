@@ -18,7 +18,11 @@ RollingStock.TYPE = {
 
 ---@return table
 function RollingStock:to_table()
-    return self
+    return {
+        type = self.type,
+        prototype_name = self.prototype_name,
+        direction = self.direction,
+    }
 end
 
 ---@type bool

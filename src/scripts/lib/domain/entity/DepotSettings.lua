@@ -18,7 +18,14 @@ local DepotSettings = {
 
 ---@return table
 function DepotSettings:to_table()
-    return self
+    return {
+        use_any_fuel = self.use_any_fuel,
+        fuel = self.fuel,
+        default_clean_station = self.default_clean_station,
+        default_destination_schedule = self.default_destination_schedule,
+        force_name = self.force_name,
+        surface_name = self.surface_name,
+    }
 end
 
 ---@param data table
