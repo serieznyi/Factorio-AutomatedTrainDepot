@@ -59,11 +59,15 @@ end
 
 ---@return table
 function TrainFormTask:delete()
+    assert(self:can_cancel() or self.state == defines.state.completed, "cant delete ongoing task")
+
     self.deleted = true
 end
 
 ---@return table
 function TrainFormTask:state_formed()
+    assert(self.state == defines.state.form, "wrong state")
+
     self.state = defines.state.formed
 end
 
@@ -79,30 +83,33 @@ end
 ---@param multiplier double
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@return table
-function TrainFormTask:start_form(tick, multiplier, train_template)
+function TrainFormTask:state_form(tick, multiplier, train_template)
     assert(tick, "tick is nil")
-
     assert(self.state == defines.state.created, "wrong state")
 
     self.state = defines.state.form
-
     self.required_form_ticks = train_template:get_form_time() * 60 * multiplier
-
     self.form_end_at = tick + self.required_form_ticks
 end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
-function TrainFormTask:start_deploy(train_template)
+function TrainFormTask:state_deploy(train_template)
+    assert(self.state == defines.state.formed, "wrong state")
+
     self.state = defines.state.deploy
-    self.train_template = train_template
+    self.train_template = assert(train_template, "train_template is empty")
 end
 
 function TrainFormTask:deploying_cursor_next()
+    assert(self:is_state_deploy(), "wrong state")
+
     self.deploying_cursor = self.deploying_cursor + 1
 end
 
 ---@param tick
 function TrainFormTask:complete(tick)
+    assert(self.state == defines.state.deploy, "wrong state")
+
     self.main_locomotive = nil
     self.state = defines.state.completed
     self.completed_at = assert(tick, "tick is empty")
@@ -172,14 +179,12 @@ function TrainFormTask.from_table(data)
     return object
 end
 
----@return scripts.lib.domain.entity.task.TrainFormTask
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+---@return scripts.lib.domain.entity.task.TrainFormTask
 function TrainFormTask.from_train_template(train_template)
     assert(train_template, "train_template is nil")
 
-    local task = TrainFormTask.new(train_template.surface_name, train_template.force_name, train_template.id)
-
-    return task
+    return TrainFormTask.new(train_template.surface_name, train_template.force_name, train_template.id)
 end
 
 ---@param surface_name string

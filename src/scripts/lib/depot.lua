@@ -83,7 +83,7 @@ end
 function deploy.deploy_train(context, task, tick)
     if task:is_state_formed() then
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
-        task:start_deploy(train_template)
+        task:state_deploy(train_template)
         persistence_storage.trains_tasks.add(task)
 
         logger.debug("Try deploy train for template {1}", {task.train_template_id}, "depot")
@@ -303,7 +303,7 @@ function private.process_form_task(task, tick)
     if task:is_state_created() then
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
 
-        task:start_form(tick, multiplier, train_template)
+        task:state_form(tick, multiplier, train_template)
     end
 
     if task:is_form_time_left(tick) then
