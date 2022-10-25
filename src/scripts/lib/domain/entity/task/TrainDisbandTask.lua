@@ -56,22 +56,32 @@ end
 
 ---@return table
 function TrainDisbandTask:delete()
+    assert(self:can_cancel() or self.state == defines.state.completed, "cant delete ongoing task")
+
     self.deleted = true
 end
 
 function TrainDisbandTask:state_try_choose_train()
+    assert(self.state == defines.state.created, "wrong state")
+
     self.state = defines.state.try_choose_train
 end
 
 function TrainDisbandTask:state_wait_train()
+    assert(self.state == defines.state.try_choose_train, "wrong state")
+
     self.state = defines.state.wait_train
 end
 
 function TrainDisbandTask:state_take_apart()
+    assert(self.state == defines.state.wait_train, "wrong state")
+
     self.state = defines.state.take_apart
 end
 
 function TrainDisbandTask:state_completed()
+    assert(self.state == defines.state.disband, "wrong state")
+
     self.state = defines.state.completed
 end
 
@@ -79,7 +89,8 @@ end
 ---@param multiplier double
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@return table
-function TrainDisbandTask:start_disband_train(tick, multiplier, train_template)
+function TrainDisbandTask:state_disband(tick, multiplier, train_template)
+    assert(self.state == defines.state.take_apart, "wrong state")
     assert(tick, "tick is nil")
     assert(multiplier, "multiplier is nil")
     assert(train_template, "train_template is nil")
@@ -91,10 +102,6 @@ function TrainDisbandTask:start_disband_train(tick, multiplier, train_template)
     self.required_disband_ticks = train_template:get_disband_time() * 60 * multiplier
 
     self.disband_end_at = tick + self.required_disband_ticks
-end
-
-function TrainDisbandTask:disbanded()
-    self.state = defines.state.disbanded
 end
 
 ---@type uint progress in percent
@@ -146,7 +153,7 @@ end
 
 ---@param train_template_id uint
 function TrainDisbandTask:bind_with_template(train_template_id)
-    self.train_template_id = train_template_id
+    self.train_template_id = assert(train_template_id, "train_template is nil")
 end
 
 ---@param data table|scripts.lib.domain.entity.task.TrainDisbandTask
