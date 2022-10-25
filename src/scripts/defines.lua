@@ -27,8 +27,6 @@ defines.on_nth_tick = {
 
 defines.events = {
     on_core_train_task_changed = script.generate_event_name(),
-    on_core_train_task_deleted = script.generate_event_name(),
-    on_core_train_task_added = script.generate_event_name(),
     on_core_train_template_changed = script.generate_event_name(),
     on_core_settings_changed = script.generate_event_name(),
     on_core_train_changed = script.generate_event_name(),

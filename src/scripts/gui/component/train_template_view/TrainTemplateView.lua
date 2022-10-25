@@ -112,14 +112,6 @@ function TrainTemplateView:_register_event_handlers()
             handler = function(e) return self:_handle_refresh_component(e) end,
         },
         {
-            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_deleted),
-            handler = function(e) return self:_handle_refresh_component(e) end,
-        },
-        {
-            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_added),
-            handler = function(e) return self:_handle_refresh_component(e) end,
-        },
-        {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
             handler = function(e) return self:_handle_refresh_component(e) end,
         },

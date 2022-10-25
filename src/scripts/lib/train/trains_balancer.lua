@@ -101,7 +101,7 @@ function TrainsBalancer._try_add_disband_train_task(train_template)
 
     persistence_storage.trains_tasks.add(task)
 
-    TrainsBalancer._raise_task_added_event(task)
+    TrainsBalancer._raise_task_changed_event(task)
 
     logger.debug(
             "Add new disband task `{1}` for template `{2}`",
@@ -141,7 +141,7 @@ function TrainsBalancer._try_add_forming_train_task(train_template)
 
     persistence_storage.trains_tasks.add(forming_task)
 
-    TrainsBalancer._raise_task_added_event(forming_task)
+    TrainsBalancer._raise_task_changed_event(forming_task)
 
     return true
 end
@@ -194,43 +194,23 @@ function TrainsBalancer._cancel_task(task)
 
     persistence_storage.trains_tasks.add(task)
 
-    TrainsBalancer._raise_task_deleted_event(task)
-end
-
----@param train_task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
-function TrainsBalancer._raise_task_deleted_event(train_task)
-    logger.debug(
-            "Deleted train task (`1`) `{2}` for template `{3}`",
-            { train_task.type, train_task.id, train_task.train_template_id },
-            "train_balancer"
-    )
-
-    ---@type LuaForce
-    local force = game.forces[train_task.force_name]
-
-    for _, player in ipairs(force.players) do
-        script.raise_event(
-                atd.defines.events.on_core_train_task_deleted,
-                { train_task_id = train_task.id, player_index = player.index }
-        )
-    end
-
+    TrainsBalancer._raise_task_changed_event(task)
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
-function TrainsBalancer._raise_task_added_event(task)
+function TrainsBalancer._raise_task_changed_event(task)
     ---@type LuaForce
     local force = game.forces[task.force_name]
 
     logger.debug(
-            "Added train task (`1`) `{2}` for template `{3}`",
+            "Changed train task (`1`) `{2}` for template `{3}`",
             { task.type, task.id, task.train_template_id },
             "train_balancer"
     )
 
     for _, player in ipairs(force.players) do
         script.raise_event(
-                atd.defines.events.on_core_train_task_added,
+                atd.defines.events.on_core_train_task_changed,
                 { train_task_id = task.id, player_index = player.index }
         )
     end

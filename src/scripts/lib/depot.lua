@@ -210,29 +210,8 @@ function private.raise_task_changed_event(train_task)
 
     for _, player in ipairs(force.players) do
         script.raise_event(
-                atd.defines.events.on_core_train_task_changed,
-                { train_task_id = train_task.id, player_index = player.index }
-        )
-    end
-
-end
-
----@param train_task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
-function private.raise_task_deleted_event(train_task)
-    -- todo duplicity
-    logger.debug(
-            "Deleted train task (`1`) `{2}` for template `{3}`",
-            { train_task.type, train_task.id, train_task.train_template_id },
-            "depot"
-    )
-
-    ---@type LuaForce
-    local force = game.forces[train_task.force_name]
-
-    for _, player in ipairs(force.players) do
-        script.raise_event(
-                atd.defines.events.on_core_train_task_deleted,
-                { train_task_id = train_task.id, player_index = player.index }
+            atd.defines.events.on_core_train_task_changed,
+            { train_task_id = train_task.id, player_index = player.index }
         )
     end
 
@@ -374,11 +353,7 @@ end
 function private.register_event_handlers()
     local handlers = {
         {
-            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_deleted),
-            handler = function(e) return private._handle_trains_manipulations(e) end,
-        },
-        {
-            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_added),
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
             handler = function(e) return private._handle_trains_manipulations(e) end,
         },
         {
