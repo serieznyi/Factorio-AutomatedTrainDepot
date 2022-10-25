@@ -189,10 +189,10 @@ end
 function Depot._trains_constructor_check_activity()
     if persistence_storage.trains_tasks.count_form_tasks_ready_for_deploy() == 0 then
         script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, nil)
-        logger.debug("Register trains constructor", {}, "depot")
+        logger.debug("Unregister trains constructor", {}, "depot")
     else
         script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, train_constructor.construct)
-        logger.debug("Unregister trains constructor", {}, "depot")
+        logger.debug("Register trains constructor", {}, "depot")
     end
 end
 
@@ -201,10 +201,10 @@ function Depot._train_manipulations_check_activity()
 
     if count_tasks == 0 then
         script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, nil)
-        logger.debug("Register trains manipulations", {}, "depot")
+        logger.debug("Unregister trains manipulations", {}, "depot")
     else
         script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, Depot._train_manipulations)
-        logger.debug("Unregister trains manipulations", {}, "depot")
+        logger.debug("Register trains manipulations", {}, "depot")
     end
 end
 
