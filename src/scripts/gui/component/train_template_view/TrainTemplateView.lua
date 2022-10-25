@@ -1,5 +1,4 @@
 local flib_gui = require("__flib__.gui")
-local flib_table = require("__flib__.table")
 
 local logger = require("scripts.lib.logger")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
@@ -208,30 +207,70 @@ function TrainTemplateView:_refresh_component()
 
     -- update tasks view
 
-    local context = Context.from_player(self.player)
-    local tasks = persistence_storage.trains_tasks.find_all_tasks_for_template(context, train_template.id)
-
-    self:_refresh_tasks(tasks)
+    self:_refresh_tasks()
 end
 
----@param tasks scripts.lib.domain.entity.task.TrainDisbandTask[]|scripts.lib.domain.entity.task.TrainFormingTask[]
-function TrainTemplateView:_refresh_tasks(tasks)
-    self.refs.form_tasks_progress_container.clear()
+function TrainTemplateView:_refresh_tasks()
+    local context = Context.from_player(self.player)
 
-    local form_tasks = flib_table.filter(tasks, function(t) return t.type == TrainFormingTask.type end, true)
+    self.refs.form_tasks_progress_container.clear()
+    local form_tasks = persistence_storage.trains_tasks.find_forming_tasks(context, self.train_template_id)
+    local planned_amount_form_tasks = train_template_service.planned_amount_form_tasks(self.train_template_id)
 
     ---@param task scripts.lib.domain.entity.task.TrainFormingTask
     for _, task in pairs(form_tasks) do
         flib_gui.add(self.refs.form_tasks_progress_container, self:_build_task_block(task))
     end
 
+    if planned_amount_form_tasks > 0 then
+        flib_gui.add(self.refs.form_tasks_progress_container, self:_build_future_tasks_block(planned_amount_form_tasks))
+    end
+
     self.refs.disband_tasks_progress_container.clear()
-    local disband_tasks = flib_table.filter(tasks, function(t) return t.type == TrainDisbandTask.type end, true)
+    local disband_tasks = persistence_storage.trains_tasks.find_disbanding_tasks(context, self.train_template_id)
+    local planned_amount_disband_tasks = train_template_service.planned_amount_disband_tasks(self.train_template_id)
 
     ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
     for _, task in pairs(disband_tasks) do
         flib_gui.add(self.refs.disband_tasks_progress_container, self:_build_task_block(task))
     end
+
+    if planned_amount_disband_tasks > 0 then
+        flib_gui.add(self.refs.disband_tasks_progress_container, self:_build_future_tasks_block(planned_amount_disband_tasks))
+    end
+end
+
+---@param amount uint
+---@return table
+function TrainTemplateView:_build_future_tasks_block(amount)
+    return {
+        type = "flow",
+        direction = "vertical",
+        style_mods = {
+            bottom_padding = 5,
+        },
+        children = {
+            {
+                type="frame",
+                direction = "vertical",
+                style = "inside_shallow_frame_with_padding",
+                style_mods = {
+                    vertically_squashable = true,
+                    horizontally_squashable = true,
+                },
+                children = {
+                    {
+                        type = "label",
+                        caption = {"train-template-view-component.atd-state", {"train-template-view-component.atd-wait"}},
+                    },
+                    {
+                        type = "label",
+                        caption = amount,
+                    },
+                }
+            },
+        },
+    }
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormingTask
