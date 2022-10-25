@@ -162,23 +162,14 @@ function Depot._train_manipulations(data)
 
         Depot._try_remove_completed_task(task, data.tick)
     end
-
-    if persistence_storage.trains_tasks.total_count_form_tasks() == 0 then
-        script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, nil)
-    end
-end
-
-function Depot._on_ntd_trains_manipulation()
-    script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, Depot._train_manipulations)
-end
-
----@param e scripts.lib.event.Event
-function Depot._handle_trains_manipulations(e)
-    Depot._on_ntd_trains_manipulation()
 end
 
 function Depot._handle_trains_balancer_check_activity(e)
     Depot._trains_balancer_check_activity()
+end
+
+function Depot._handle_train_manipulations_check_activity(e)
+    Depot._train_manipulations_check_activity()
 end
 
 function Depot._handle_trains_constructor_check_activity(e)
@@ -205,12 +196,20 @@ function Depot._trains_constructor_check_activity()
     end
 end
 
+function Depot._train_manipulations_check_activity()
+    local count_tasks = persistence_storage.trains_tasks.total_count_tasks()
+
+    if count_tasks == 0 then
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, nil)
+        logger.debug("Register trains manipulations", {}, "depot")
+    else
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, Depot._train_manipulations)
+        logger.debug("Unregister trains manipulations", {}, "depot")
+    end
+end
+
 function Depot._register_event_handlers()
     local handlers = {
-        {
-            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
-            handler = function(e) return Depot._handle_trains_manipulations(e) end,
-        },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
             handler = function(e) return Depot._handle_trains_balancer_check_activity(e) end,
@@ -222,6 +221,10 @@ function Depot._register_event_handlers()
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
             handler = function(e) return Depot._handle_trains_constructor_check_activity(e) end,
+        },
+        {
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
+            handler = function(e) return Depot._handle_train_manipulations_check_activity(e) end,
         },
     }
 

@@ -255,6 +255,14 @@ function public.count_active_disband_tasks(context, train_template_id)
     return #filtered
 end
 
+function public.total_count_tasks()
+    local filtered = rows(
+        match_not_deleted()
+    )
+
+    return #filtered
+end
+
 function public.total_count_form_tasks()
     return #rows(match_not_deleted(), match_type_form())
 end
