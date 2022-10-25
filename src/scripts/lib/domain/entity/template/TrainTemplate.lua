@@ -45,13 +45,13 @@ local TrainTemplate = {
     use_any_fuel = false,
 }
 
----@return uint train forming time in seconds (without multiplier)
-function TrainTemplate:get_forming_time()
+---@return uint train form time in seconds (without multiplier)
+function TrainTemplate:get_form_time()
     local time = 0
 
     ---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
     for _, rolling_stock in ipairs(self.train) do
-        time = time + rolling_stock:get_forming_time()
+        time = time + rolling_stock:get_form_time()
     end
 
     return time
@@ -59,9 +59,9 @@ end
 
 ---@return uint train disband time in seconds (without multiplier)
 function TrainTemplate:get_disband_time()
-    local time = self:get_forming_time()
+    local time = self:get_form_time()
 
-    -- disband time is 85% from forming time
+    -- disband time is 85% from form time
     return math.ceil(time * 0.85)
 end
 

@@ -15,7 +15,7 @@ end
 function TrainTemplateService.planned_quantity_form_tasks(train_template_id)
     local train_template = persistence_storage.find_train_template_by_id(train_template_id)
     local context = Context.from_model(train_template)
-    local tasks_quantity = persistence_storage.trains_tasks.count_forming_tasks(context, train_template.id)
+    local tasks_quantity = persistence_storage.trains_tasks.count_form_tasks(context, train_template.id)
     local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
 
     return train_template.trains_quantity - tasks_quantity - #trains

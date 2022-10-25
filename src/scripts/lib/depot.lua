@@ -7,7 +7,7 @@ local persistence_storage = require("scripts.persistence.persistence_storage")
 local trains_balancer = require("scripts.lib.train.trains_balancer")
 local logger = require("scripts.lib.logger")
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
-local TrainFormingTask = require("scripts.lib.domain.entity.task.TrainFormingTask")
+local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
 
 local public = {}
 local private = {}
@@ -49,7 +49,7 @@ end
 ---------------------------------------------------------------------------
 
 ---@param context scripts.lib.domain.Context
----@param task scripts.lib.domain.entity.task.TrainFormingTask
+---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param tick uint
 function deploy.try_deploy_train(context, task, tick)
     if task:is_state_formed() and not deploy.is_deploy_slot_free(context) then
@@ -59,7 +59,7 @@ function deploy.try_deploy_train(context, task, tick)
     deploy.deploy_train(context, task, tick)
 end
 
----@param task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
+---@param task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
 function deploy.try_remove_completed_task(task, tick)
     if not task:is_state_completed() then
@@ -78,7 +78,7 @@ function deploy.try_remove_completed_task(task, tick)
 end
 
 ---@param context scripts.lib.domain.Context
----@param task scripts.lib.domain.entity.task.TrainFormingTask
+---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param tick uint
 function deploy.deploy_train(context, task, tick)
     if task:is_state_formed() then
@@ -175,7 +175,7 @@ function deploy.deploy_trains(data)
         deploy.deploy_trains_for_context(context, data)
     end
 
-    if persistence_storage.trains_tasks.count_forming_tasks_ready_for_deploy() == 0 then
+    if persistence_storage.trains_tasks.count_form_tasks_ready_for_deploy() == 0 then
         script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, nil)
     end
 end
@@ -189,9 +189,9 @@ function deploy.deploy_trains_for_context(context, data)
     end
 
     local tick = data.tick
-    local tasks = persistence_storage.trains_tasks.find_forming_tasks_ready_for_deploy(context)
+    local tasks = persistence_storage.trains_tasks.find_form_tasks_ready_for_deploy(context)
 
-    ---@param task scripts.lib.domain.entity.task.TrainFormingTask
+    ---@param task scripts.lib.domain.entity.task.TrainFormTask
     for _, task in pairs(tasks) do
         deploy.try_deploy_train(context, task, tick)
     end
@@ -201,7 +201,7 @@ end
 -- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
----@param train_task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
+---@param train_task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
 function private.raise_task_changed_event(train_task)
     -- todo duplicity
 
@@ -291,9 +291,9 @@ function private.process_disbanding_task(task, tick)
     private.raise_task_changed_event(task)
 end
 
----@param task scripts.lib.domain.entity.task.TrainFormingTask
+---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param tick uint
-function private.process_forming_task(task, tick)
+function private.process_form_task(task, tick)
     local multiplier = private.get_depot_multiplier()
 
     if not task:is_state_created() and not task:is_state_form() then
@@ -303,10 +303,10 @@ function private.process_forming_task(task, tick)
     if task:is_state_created() then
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
 
-        task:start_forming(tick, multiplier, train_template)
+        task:start_form(tick, multiplier, train_template)
     end
 
-    if task:is_forming_time_left(tick) then
+    if task:is_form_time_left(tick) then
         task:state_formed()
     end
 
@@ -328,8 +328,8 @@ function private.train_manipulations(data)
     local tasks = persistence_storage.trains_tasks.find_all_tasks()
 
     for _, task in pairs(tasks) do
-        if task.type == TrainFormingTask.type then
-            private.process_forming_task(task, tick)
+        if task.type == TrainFormTask.type then
+            private.process_form_task(task, tick)
         elseif task.type == TrainDisbandTask.type then
             private.process_disbanding_task(task, tick)
         end
@@ -337,7 +337,7 @@ function private.train_manipulations(data)
         deploy.try_remove_completed_task(task, data.tick)
     end
 
-    if persistence_storage.trains_tasks.total_count_forming_tasks() == 0 then
+    if persistence_storage.trains_tasks.total_count_form_tasks() == 0 then
         script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, nil)
     end
 end

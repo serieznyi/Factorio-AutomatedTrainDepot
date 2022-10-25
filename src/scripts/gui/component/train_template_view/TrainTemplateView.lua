@@ -8,7 +8,7 @@ local persistence_storage = require("scripts.persistence.persistence_storage")
 local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.component.train_template_view.structure")
 local Sequence = require("scripts.lib.Sequence")
-local TrainFormingTask = require("scripts.lib.domain.entity.task.TrainFormingTask")
+local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
 
 local component_id_sequence = Sequence()
 
@@ -209,10 +209,10 @@ function TrainTemplateView:_refresh_tasks()
     local context = Context.from_player(self.player)
 
     self.refs.form_tasks_progress_container.clear()
-    local form_tasks = persistence_storage.trains_tasks.find_forming_tasks(context, self.train_template_id)
+    local form_tasks = persistence_storage.trains_tasks.find_form_tasks(context, self.train_template_id)
     local planned_amount_form_tasks = train_template_service.planned_quantity_form_tasks(self.train_template_id)
 
-    ---@param task scripts.lib.domain.entity.task.TrainFormingTask
+    ---@param task scripts.lib.domain.entity.task.TrainFormTask
     for _, task in pairs(form_tasks) do
         flib_gui.add(self.refs.form_tasks_progress_container, self:_build_task_block(task))
     end
@@ -292,12 +292,12 @@ function TrainTemplateView:_build_future_tasks_block(amount)
     }
 end
 
----@param task scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormingTask
+---@param task scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormTask
 ---@return table
 function TrainTemplateView:_build_task_block(task)
     local state_text = nil
 
-    if task.type == TrainFormingTask.type then
+    if task.type == TrainFormTask.type then
         state_text = {"train-form-task-state.atd-" .. task.state}
     else
         state_text = {"train-disband-task-state.atd-" .. task.state}

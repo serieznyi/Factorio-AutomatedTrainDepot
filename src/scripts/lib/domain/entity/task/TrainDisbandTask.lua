@@ -37,9 +37,9 @@ local TrainDisbandTask = {
     force_name = nil,
     ---@type string
     surface_name = nil,
-    ---@type uint ticks needed to forming train
+    ---@type uint ticks needed to disband train
     required_disband_ticks = nil,
-    ---@type uint ticks left to forming train
+    ---@type uint ticks left to disband train
     disband_end_at = nil,
     ---@type uint
     completed_at = nil,

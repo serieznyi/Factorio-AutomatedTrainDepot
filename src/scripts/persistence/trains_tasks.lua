@@ -2,7 +2,7 @@ local flib_table = require("__flib__.table")
 
 local util_table = require("scripts.util.table")
 local logger = require("scripts.lib.logger")
-local TrainFormingTask = require("scripts.lib.domain.entity.task.TrainFormingTask")
+local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
 local Sequence = require("scripts.lib.Sequence")
 local garbage_collector = require("scripts.persistence.garbage_collector")
@@ -34,7 +34,7 @@ end
 ---@return function
 local function match_type_form()
     return function(v)
-        return v.type == TrainFormingTask.defines.type
+        return v.type == TrainFormTask.defines.type
     end
 end
 
@@ -94,10 +94,10 @@ local function rows(...)
 end
 
 ---@param task_data table
----@return scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormingTask|nil
+---@return scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormTask|nil
 local function hydrate_task(task_data)
-    if task_data.type == TrainFormingTask.type then
-        return TrainFormingTask.from_table(task_data)
+    if task_data.type == TrainFormTask.type then
+        return TrainFormTask.from_table(task_data)
     end
 
     if task_data.type == TrainDisbandTask.type then
@@ -108,7 +108,7 @@ local function hydrate_task(task_data)
 end
 
 ---@param row table
----@return scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormingTask|nil
+---@return scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormTask|nil
 local function hydrate(row)
     return flib_table.map(row, hydrate_task)
 end
@@ -135,8 +135,8 @@ function public.load()
     end)
 end
 
----@param train_task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
----@return scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
+---@param train_task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
+---@return scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
 function public.add(train_task)
     assert(train_task, "train-task is nil")
 
@@ -153,8 +153,8 @@ end
 
 ---@param train_template_id uint
 ---@param context scripts.lib.domain.Context
----@return scripts.lib.domain.entity.task.TrainFormingTask[]
-function public.find_forming_tasks(context, train_template_id)
+---@return scripts.lib.domain.entity.task.TrainFormTask[]
+function public.find_form_tasks(context, train_template_id)
     assert(context, "context is nil")
     assert(train_template_id, "train_template_id is nil")
 
@@ -188,7 +188,7 @@ end
 ---@param context scripts.lib.domain.Context
 ---@param train_template_id uint|nil
 ---@return uint
-function public.count_forming_tasks(context, train_template_id)
+function public.count_form_tasks(context, train_template_id)
     assert(context, "context is nil")
 
     local filtered = rows(
@@ -204,7 +204,7 @@ end
 ---@param context scripts.lib.domain.Context
 ---@param train_template_id uint|nil
 ---@return uint
-function public.count_active_forming_tasks(context, train_template_id)
+function public.count_active_form_tasks(context, train_template_id)
     assert(context, "context is nil")
 
     local filtered = rows(
@@ -213,7 +213,7 @@ function public.count_active_forming_tasks(context, train_template_id)
         match_type_form(),
         match_train_template_id(train_template_id),
         match_not(
-            match_state(TrainFormingTask.defines.state.completed)
+            match_state(TrainFormTask.defines.state.completed)
         )
     )
 
@@ -255,11 +255,11 @@ function public.count_active_disband_tasks(context, train_template_id)
     return #filtered
 end
 
-function public.total_count_forming_tasks()
+function public.total_count_form_tasks()
     return #rows(match_not_deleted(), match_type_form())
 end
 
----@return scripts.lib.domain.entity.task.TrainFormingTask[]|scripts.lib.domain.entity.task.TrainDisbandTask[]
+---@return scripts.lib.domain.entity.task.TrainFormTask[]|scripts.lib.domain.entity.task.TrainDisbandTask[]
 function public.find_all_tasks()
     local filtered = rows(
         match_not_deleted()
@@ -270,7 +270,7 @@ end
 
 ---@param context scripts.lib.domain.Context
 ---@param train_template_id uint
----@return scripts.lib.domain.entity.task.TrainFormingTask[]|scripts.lib.domain.entity.task.TrainDisbandTask[]
+---@return scripts.lib.domain.entity.task.TrainFormTask[]|scripts.lib.domain.entity.task.TrainDisbandTask[]
 function public.find_template_tasks(context, train_template_id)
     local filtered = rows(
         match_not_deleted(),
@@ -282,25 +282,25 @@ function public.find_template_tasks(context, train_template_id)
 end
 
 ---@param context scripts.lib.domain.Context|nil
-function public.find_forming_tasks_ready_for_deploy(context)
+function public.find_form_tasks_ready_for_deploy(context)
     local filtered = rows(
         match_not_deleted(),
         match_context(context),
         match_type_form(),
         match_state(
-            TrainFormingTask.defines.state.formed,
-            TrainFormingTask.defines.state.deploy
+            TrainFormTask.defines.state.formed,
+            TrainFormTask.defines.state.deploy
         )
     )
 
     return hydrate(filtered)
 end
 
-function public.count_forming_tasks_ready_for_deploy()
+function public.count_form_tasks_ready_for_deploy()
     local filtered = rows(
         match_not_deleted(),
         match_type_form(),
-        match_state(TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploy)
+        match_state(TrainFormTask.defines.state.formed, TrainFormTask.defines.state.deploy)
     )
 
     return #filtered

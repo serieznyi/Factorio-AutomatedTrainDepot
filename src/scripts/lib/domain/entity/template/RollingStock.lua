@@ -31,8 +31,8 @@ function RollingStock:has_direction()
     return self.type == RollingStock.TYPE.LOCOMOTIVE or self.type == RollingStock.TYPE.ARTILLERY
 end
 
----@return uint train part forming time in seconds (without multiplier)
-function RollingStock:get_forming_time()
+---@return uint train part form time in seconds (without multiplier)
+function RollingStock:get_form_time()
     ---@type LuaRecipe
     local recipe = game.recipe_prototypes[self.prototype_name]
 

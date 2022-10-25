@@ -1,7 +1,7 @@
 local flib_table = require("__flib__.table")
 
 local Context = require("scripts.lib.domain.Context")
-local TrainFormingTask = require("scripts.lib.domain.entity.task.TrainFormingTask")
+local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local logger = require("scripts.lib.logger")
@@ -31,9 +31,9 @@ end
 function TrainsBalancer._calculate_trains_diff(train_template)
     local context = Context.from_model(train_template)
     local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
-    local forming_tasks_quantity = persistence_storage.trains_tasks.count_active_forming_tasks(context, train_template.id)
+    local form_tasks_quantity = persistence_storage.trains_tasks.count_active_form_tasks(context, train_template.id)
     local disband_tasks_quantity = persistence_storage.trains_tasks.count_active_disband_tasks(context, train_template.id)
-    local potential_trains_quantity = #trains + forming_tasks_quantity - disband_tasks_quantity
+    local potential_trains_quantity = #trains + form_tasks_quantity - disband_tasks_quantity
 
     return train_template.trains_quantity - potential_trains_quantity
 end
@@ -67,7 +67,7 @@ function TrainsBalancer._form_train(train_template, missing_amount_trains)
     end
 
     if missing_amount_trains > 0 then
-        TrainsBalancer._try_add_forming_train_task(train_template)
+        TrainsBalancer._try_add_form_train_task(train_template)
     end
 end
 
@@ -76,7 +76,7 @@ end
 function TrainsBalancer._disband_train(train_template, number_of_unnecessary_trains)
 
     for _ = 1, number_of_unnecessary_trains do
-        if not TrainsBalancer._try_cancel_forming_train_task(train_template) then
+        if not TrainsBalancer._try_cancel_form_train_task(train_template) then
             break
         end
 
@@ -129,27 +129,27 @@ function TrainsBalancer._try_cancel_disband_train_task(train_template)
 end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
-function TrainsBalancer._try_add_forming_train_task(train_template)
+function TrainsBalancer._try_add_form_train_task(train_template)
     -- todo balance tasks for different forces, surfaces and templates
     local context = Context.from_model(train_template)
 
-    if not TrainsBalancer._has_free_forming_slot(context) then
+    if not TrainsBalancer._has_free_form_slot(context) then
         return false
     end
 
-    local forming_task = TrainFormingTask.from_train_template(train_template)
+    local form_task = TrainFormTask.from_train_template(train_template)
 
-    persistence_storage.trains_tasks.add(forming_task)
+    persistence_storage.trains_tasks.add(form_task)
 
-    TrainsBalancer._raise_task_changed_event(forming_task)
+    TrainsBalancer._raise_task_changed_event(form_task)
 
     return true
 end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
-function TrainsBalancer._try_cancel_forming_train_task(train_template)
+function TrainsBalancer._try_cancel_form_train_task(train_template)
     local context = Context.from_model(train_template)
-    local tasks = persistence_storage.trains_tasks.find_forming_tasks(context, train_template.id)
+    local tasks = persistence_storage.trains_tasks.find_form_tasks(context, train_template.id)
 
     for _, task in pairs(tasks) do
         if task:can_cancel() then
@@ -164,9 +164,9 @@ end
 
 ---@param context scripts.lib.domain.Context
 ---@return bool
-function TrainsBalancer._has_free_forming_slot(context)
-    local tasks_count = persistence_storage.trains_tasks.count_forming_tasks(context)
-    local slots_count = TrainsBalancer._get_forming_slots_total_count()
+function TrainsBalancer._has_free_form_slot(context)
+    local tasks_count = persistence_storage.trains_tasks.count_form_tasks(context)
+    local slots_count = TrainsBalancer._get_form_slots_total_count()
 
     return slots_count > tasks_count
 end
@@ -180,7 +180,7 @@ function TrainsBalancer._has_free_disband_slot(context)
     return slots_count > tasks_count
 end
 
-function TrainsBalancer._get_forming_slots_total_count()
+function TrainsBalancer._get_form_slots_total_count()
     return 2 -- todo depend from technologies
 end
 
@@ -188,7 +188,7 @@ function TrainsBalancer._get_disband_slots_total_count()
     return 2 -- todo depend from technologies
 end
 
----@param task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
+---@param task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
 function TrainsBalancer._cancel_task(task)
     task:delete()
 
@@ -197,7 +197,7 @@ function TrainsBalancer._cancel_task(task)
     TrainsBalancer._raise_task_changed_event(task)
 end
 
----@param task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
+---@param task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
 function TrainsBalancer._raise_task_changed_event(task)
     ---@type LuaForce
     local force = game.forces[task.force_name]
