@@ -9,15 +9,14 @@ local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
 
 local public = {}
 local private = {}
-local deploy = {}
 
 ---------------------------------------------------------------------------
--- -- -- DEPLOY
+-- -- -- PRIVATE
 ---------------------------------------------------------------------------
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
-function deploy.try_remove_completed_task(task, tick)
+function private.try_remove_completed_task(task, tick)
     if not task:is_state_completed() then
         return
     end
@@ -32,10 +31,6 @@ function deploy.try_remove_completed_task(task, tick)
         private.raise_task_changed_event(task)
     end
 end
-
----------------------------------------------------------------------------
--- -- -- PRIVATE
----------------------------------------------------------------------------
 
 ---@param train_task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
 function private.raise_task_changed_event(train_task)
@@ -153,7 +148,7 @@ function private.train_manipulations(data)
             private.process_disbanding_task(task, tick)
         end
 
-        deploy.try_remove_completed_task(task, data.tick)
+        private.try_remove_completed_task(task, data.tick)
     end
 
     if persistence_storage.trains_tasks.total_count_form_tasks() == 0 then
