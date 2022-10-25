@@ -75,6 +75,14 @@ local function match_state(...)
     end
 end
 
+---@param func function
+---@return function
+local function match_not(func)
+    return function(v)
+        return not func(v)
+    end
+end
+
 local function rows(...)
     local filtered = global.trains_tasks
 
@@ -207,6 +215,25 @@ function public.count_forming_tasks(context, train_template_id)
 end
 
 ---@param context scripts.lib.domain.Context
+---@param train_template_id uint|nil
+---@return uint
+function public.count_active_forming_tasks(context, train_template_id)
+    assert(context, "context is nil")
+
+    local filtered = rows(
+        match_not_deleted(),
+        match_context(context),
+        match_type_form(),
+        match_train_template_id(train_template_id),
+        match_not(
+            match_state(TrainFormingTask.defines.state.completed)
+        )
+    )
+
+    return #filtered
+end
+
+---@param context scripts.lib.domain.Context
 ---@param train_template_id uint
 ---@return uint
 function public.count_disband_tasks(context, train_template_id)
@@ -217,6 +244,25 @@ function public.count_disband_tasks(context, train_template_id)
         match_context(context),
         match_type_disband(),
         match_train_template_id(train_template_id)
+    )
+
+    return #filtered
+end
+
+---@param context scripts.lib.domain.Context
+---@param train_template_id uint
+---@return uint
+function public.count_active_disband_tasks(context, train_template_id)
+    assert(context, "context is nil")
+
+    local filtered = rows(
+        match_not_deleted(),
+        match_context(context),
+        match_type_disband(),
+        match_train_template_id(train_template_id),
+        match_not(
+            match_state(TrainDisbandTask.defines.state.completed)
+        )
     )
 
     return #filtered

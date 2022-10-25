@@ -31,8 +31,8 @@ end
 function TrainsBalancer._calculate_trains_diff(train_template)
     local context = Context.from_model(train_template)
     local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
-    local forming_tasks_quantity = persistence_storage.trains_tasks.count_forming_tasks(context, train_template.id)
-    local disband_tasks_quantity = persistence_storage.trains_tasks.count_disband_tasks(context, train_template.id)
+    local forming_tasks_quantity = persistence_storage.trains_tasks.count_active_forming_tasks(context, train_template.id)
+    local disband_tasks_quantity = persistence_storage.trains_tasks.count_active_disband_tasks(context, train_template.id)
     local potential_trains_quantity = #trains + forming_tasks_quantity - disband_tasks_quantity
 
     return train_template.trains_quantity - potential_trains_quantity
