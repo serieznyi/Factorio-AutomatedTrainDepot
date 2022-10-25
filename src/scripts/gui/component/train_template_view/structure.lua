@@ -1,5 +1,21 @@
 local public = {}
 
+---@param caption table|string
+local function block_header(caption)
+    return {
+        type = "frame",
+        style = "subheader_frame",
+        style_mods = {
+            horizontally_stretchable = true,
+        },
+        {
+            type = "label",
+            caption = caption,
+            style = "frame_title",
+        },
+    }
+end
+
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 function public.get(train_template)
     local QUANTITY_ONE = 1
@@ -61,22 +77,19 @@ function public.get(train_template)
                         direction = "horizontal",
                         children = {
                             {
-                                type = "flow",
+                                type = "frame",
                                 direction = "vertical",
+                                style = "inside_shallow_frame",
                                 style_mods = {
                                     vertically_stretchable = true,
                                     horizontally_stretchable = true,
                                 },
                                 children = {
+                                    block_header({"train-template-view-component.atd-info"}),
                                     {
-                                        type = "label",
-                                        caption = {"train-template-view-component.atd-info"},
-                                        style = "frame_title",
-                                        ignored_by_interaction = true
-                                    },
-                                    {
-                                        type = "frame",
-                                        -- todo add info
+                                        type = "flow",
+                                        direction = "vertical",
+                                        ref = { "tasks_info_block" },
                                     },
                                 },
                             },
@@ -86,19 +99,15 @@ function public.get(train_template)
                             },
                             -- form tasks
                             {
-                                type = "flow",
+                                type = "frame",
                                 direction = "vertical",
+                                style = "inside_shallow_frame",
                                 style_mods = {
                                     vertically_stretchable = true,
                                     horizontally_stretchable = true,
                                 },
                                 children = {
-                                    {
-                                        type = "label",
-                                        caption = {"train-template-view-component.atd-form"},
-                                        style = "frame_title",
-                                        ignored_by_interaction = true
-                                    },
+                                    block_header({"train-template-view-component.atd-form"}),
                                     {
                                         type = "scroll-pane",
                                         horizontal_scroll_policy = "never",
@@ -113,19 +122,15 @@ function public.get(train_template)
                             },
                             -- disband tasks
                             {
-                                type = "flow",
+                                type = "frame",
                                 direction = "vertical",
+                                style = "inside_shallow_frame",
                                 style_mods = {
                                     vertically_stretchable = true,
                                     horizontally_stretchable = true,
                                 },
                                 children = {
-                                    {
-                                        type = "label",
-                                        caption = {"train-template-view-component.atd-disband"},
-                                        style = "frame_title",
-                                        ignored_by_interaction = true
-                                    },
+                                    block_header({"train-template-view-component.atd-disband"}),
                                     {
                                         type = "scroll-pane",
                                         horizontal_scroll_policy = "never",

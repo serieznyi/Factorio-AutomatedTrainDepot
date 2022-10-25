@@ -12,7 +12,7 @@ end
 
 ---@param train_template_id uint
 ---@return uint
-function TrainTemplateService.planned_amount_form_tasks(train_template_id)
+function TrainTemplateService.planned_quantity_form_tasks(train_template_id)
     local train_template = persistence_storage.find_train_template_by_id(train_template_id)
     local context = Context.from_model(train_template)
     local tasks_quantity = persistence_storage.trains_tasks.count_forming_tasks(context, train_template.id)
@@ -23,7 +23,7 @@ end
 
 ---@param train_template_id uint
 ---@return uint
-function TrainTemplateService.planned_amount_disband_tasks(train_template_id)
+function TrainTemplateService.planned_quantity_disband_tasks(train_template_id)
     local train_template = persistence_storage.find_train_template_by_id(train_template_id)
     local context = Context.from_model(train_template)
     local tasks_quantity = persistence_storage.trains_tasks.count_disband_tasks(context, train_template.id)

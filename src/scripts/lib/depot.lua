@@ -72,6 +72,8 @@ function deploy.try_remove_completed_task(task, tick)
         task:delete()
 
         persistence_storage.trains_tasks.add(task)
+
+        private.raise_task_changed_event(task)
     end
 end
 

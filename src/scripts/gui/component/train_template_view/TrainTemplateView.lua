@@ -9,7 +9,6 @@ local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.component.train_template_view.structure")
 local Sequence = require("scripts.lib.Sequence")
 local TrainFormingTask = require("scripts.lib.domain.entity.task.TrainFormingTask")
-local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
 
 local component_id_sequence = Sequence()
 
@@ -42,6 +41,8 @@ local TrainTemplateView = {
         disable_button = nil,
         ---@type LuaGuiElement
         enable_button = nil,
+        ---@type LuaGuiElement
+        tasks_info_block = nil,
     },
     ---@type uint
     train_template_id = nil,
@@ -208,6 +209,8 @@ function TrainTemplateView:_refresh_component()
     -- update tasks view
 
     self:_refresh_tasks()
+
+    self:_refresh_info_block()
 end
 
 function TrainTemplateView:_refresh_tasks()
@@ -215,7 +218,7 @@ function TrainTemplateView:_refresh_tasks()
 
     self.refs.form_tasks_progress_container.clear()
     local form_tasks = persistence_storage.trains_tasks.find_forming_tasks(context, self.train_template_id)
-    local planned_amount_form_tasks = train_template_service.planned_amount_form_tasks(self.train_template_id)
+    local planned_amount_form_tasks = train_template_service.planned_quantity_form_tasks(self.train_template_id)
 
     ---@param task scripts.lib.domain.entity.task.TrainFormingTask
     for _, task in pairs(form_tasks) do
@@ -228,7 +231,7 @@ function TrainTemplateView:_refresh_tasks()
 
     self.refs.disband_tasks_progress_container.clear()
     local disband_tasks = persistence_storage.trains_tasks.find_disbanding_tasks(context, self.train_template_id)
-    local planned_amount_disband_tasks = train_template_service.planned_amount_disband_tasks(self.train_template_id)
+    local planned_amount_disband_tasks = train_template_service.planned_quantity_disband_tasks(self.train_template_id)
 
     ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
     for _, task in pairs(disband_tasks) do
@@ -240,23 +243,47 @@ function TrainTemplateView:_refresh_tasks()
     end
 end
 
+function TrainTemplateView:_refresh_info_block()
+    local context = Context.from_player(self.player)
+    local train_template = persistence_storage.find_train_template_by_id(self.train_template_id)
+    local real_trains_quantity = #persistence_storage.find_controlled_trains_for_template(context, self.train_template_id)
+    local potential_trains_quantity = train_template.trains_quantity
+
+    self.refs.tasks_info_block.clear()
+
+    flib_gui.add(self.refs.tasks_info_block, {
+        type = "label",
+        caption = { "train-template-view-component-info-block.atd-potential-trains-quantity", potential_trains_quantity },
+        style_mods = {
+            font_color = {255, 255, 0}
+        },
+    })
+
+    flib_gui.add(self.refs.tasks_info_block, {
+        type = "label",
+        caption = { "train-template-view-component-info-block.atd-real-trains-quantity", real_trains_quantity },
+        style_mods = {
+            font_color = {255, 0, 255}
+        },
+    })
+end
+
 ---@param amount uint
 ---@return table
 function TrainTemplateView:_build_future_tasks_block(amount)
     return {
-        type = "flow",
+        type = "frame",
         direction = "vertical",
         style_mods = {
             bottom_padding = 5,
         },
         children = {
             {
-                type="frame",
+                type="flow",
                 direction = "vertical",
-                style = "inside_shallow_frame_with_padding",
                 style_mods = {
                     vertically_squashable = true,
-                    horizontally_squashable = true,
+                    horizontally_stretchable = true,
                 },
                 children = {
                     {
@@ -285,19 +312,18 @@ function TrainTemplateView:_build_task_block(task)
     end
 
     return {
-        type = "flow",
+        type = "frame",
         direction = "vertical",
         style_mods = {
             bottom_padding = 5,
         },
         children = {
             {
-                type="frame",
+                type="flow",
                 direction = "vertical",
-                style = "inside_shallow_frame_with_padding",
                 style_mods = {
                     vertically_squashable = true,
-                    horizontally_squashable = true,
+                    horizontally_stretchable = true,
                 },
                 children = {
                     {
