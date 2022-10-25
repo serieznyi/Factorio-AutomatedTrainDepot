@@ -43,6 +43,8 @@ end
 function TrainsBalancer._balance_trains_count_for_context(context, _)
     local train_templates = persistence_storage.find_enabled_train_templates(context)
 
+    -- todo balance templates randomly
+
     ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
     for _, train_template in pairs(train_templates) do
         local trains_quantity_diff = TrainsBalancer._calculate_trains_diff(train_template)
