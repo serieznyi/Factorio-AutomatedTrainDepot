@@ -238,19 +238,6 @@ function private.get_depot_multiplier()
     return 1.0 -- todo depended from technologies
 end
 
----@param task scripts.lib.domain.entity.task.TrainDisbandTask
----@return void
-function private.try_bind_train_template_with_disband_task(task)
-    local train_id = task.train_id
-    local train = persistence_storage.find_train(train_id)
-
-    if train.train_template_id ~= nil then
-        task:bind_with_template(train.train_template_id)
-
-        persistence_storage.trains_tasks.add(task)
-    end
-end
-
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@return scripts.lib.domain.entity.Train
 function private._try_choose_train_for_disband(train_template)
@@ -262,17 +249,46 @@ function private._try_choose_train_for_disband(train_template)
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
+function private._try_bind_train_with_disband_task(task)
+    -- todo add search train logic
+
+    return false
+end
+
+---@param task scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
 function private.process_disbanding_task(task, tick)
-    if task:is_state_created() and task.train_template_id == nil then
-        private.try_bind_train_template_with_disband_task(task)
+    -- Disband uncontrolled train
+    if task:is_state_created() and task.train_id ~= nil then
+        task:state_wait_train()
     end
 
-    if task:is_state_created() then
-
+    -- Disband controlled train
+    if task:is_state_created() and task.train_id == nil then
+        task:state_try_choose_train()
     end
 
-    -- todo
+    if task:is_state_try_choose_train() then
+        if private._try_bind_train_with_disband_task() then
+            task:state_wait_train()
+        end
+    end
+
+    if task:is_state_wait_train() then
+        -- todo add logic for drive train to depot
+    end
+
+    if task:is_state_disband() then
+        -- todo add logic for disband train
+
+        if false then
+            task:state_completed()
+        end
+    end
+
+    persistence_storage.trains_tasks.add(task)
+
+    private.raise_task_changed_event(task)
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormingTask
@@ -340,7 +356,6 @@ function private._handle_trains_balancer_check_activity(e)
 end
 
 function private.trains_balancer_check_activity()
-
     if persistence_storage.count_active_trains_templates() == 0 then
         script.on_nth_tick(atd.defines.on_nth_tick.balance_trains_count, nil)
         logger.debug("Pause trains balancer", {}, "depot")

@@ -15,7 +15,8 @@ local defines = {
         created = "created", -- from(nil)
         try_choose_train = "try_choose_train", -- from(created)
         wait_train = "wait_train", -- from(try_choose_train)
-        disband = "disband", -- from(wait_train)
+        take_apart = "take_apart", -- from(wait_train)
+        disband = "disband", -- from(take_apart)
         completed = "completed", -- from(disband)
     }
 }
@@ -76,8 +77,8 @@ function TrainDisbandTask:state_wait_train()
     self.state = defines.state.wait_train
 end
 
-function TrainDisbandTask:state_disband()
-    self.state = defines.state.disband
+function TrainDisbandTask:state_take_apart()
+    self.state = defines.state.take_apart
 end
 
 function TrainDisbandTask:state_completed()
