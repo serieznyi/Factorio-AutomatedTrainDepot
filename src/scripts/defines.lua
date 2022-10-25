@@ -13,6 +13,8 @@ defines.color = {
 }
 
 defines.time_in_ticks = {
+    seconds_1 = TICKS_PER_SECOND * 1,
+    seconds_2 = TICKS_PER_SECOND * 2,
     seconds_5 = TICKS_PER_SECOND * 5,
 }
 

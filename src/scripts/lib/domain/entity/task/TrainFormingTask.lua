@@ -46,6 +46,8 @@ local TrainFormingTask = {
     deploying_cursor = 1,
     ---@type LuaEntity
     main_locomotive = nil,
+    ---@type uint
+    completed_at = nil,
 }
 
 ---@return table
@@ -63,6 +65,7 @@ function TrainFormingTask:to_table()
         forming_end_at = self.forming_end_at,
         deploying_cursor = self.deploying_cursor,
         main_locomotive = self.main_locomotive,
+        completed_at = self.completed_at,
     }
 end
 
@@ -110,9 +113,11 @@ function TrainFormingTask:deploying_cursor_next()
     self.deploying_cursor = self.deploying_cursor + 1
 end
 
-function TrainFormingTask:complete()
+---@param tick
+function TrainFormingTask:complete(tick)
     self.main_locomotive = nil
     self.state = defines.state.completed
+    self.completed_at = assert(tick, "tick is empty")
 end
 
 ---@type uint progress in percent
@@ -183,6 +188,7 @@ function TrainFormingTask.from_table(data)
     object.required_forming_ticks = data.required_forming_ticks
     object.forming_end_at = data.forming_end_at
     object.deploying_cursor = data.deploying_cursor
+    object.completed_at = data.completed_at
 
     return object
 end

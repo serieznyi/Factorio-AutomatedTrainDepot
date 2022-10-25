@@ -310,7 +310,10 @@ function public.find_forming_tasks_ready_for_deploy(context)
         match_not_deleted(),
         match_context(context),
         match_type_form(),
-        match_state(TrainFormingTask.defines.state.formed, TrainFormingTask.defines.state.deploy)
+        match_state(
+            TrainFormingTask.defines.state.formed,
+            TrainFormingTask.defines.state.deploy
+        )
     )
 
     return hydrate(filtered)

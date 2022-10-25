@@ -39,6 +39,8 @@ local TrainDisbandTask = {
     ---@type uint ticks left to forming train
     disband_end_at = nil,
     ---@type uint
+    completed_at = nil,
+    ---@type uint
     train_id = nil,
     ---@type uint
     train_template_id = nil,
@@ -57,6 +59,7 @@ function TrainDisbandTask:to_table()
         forming_end_at = self.disband_end_at,
         train_id = self.train_id,
         train_template_id = self.train_template_id,
+        completed_at = self.completed_at,
     }
 end
 
@@ -168,6 +171,7 @@ function TrainDisbandTask.from_table(data)
     object.disband_end_at = data.disband_end_at
     object.train_id = data.train_id
     object.train_template_id = data.train_template_id
+    object.completed_at = data.completed_at
 
     return object
 end

@@ -52,6 +52,33 @@ end
 ---@param task scripts.lib.domain.entity.task.TrainFormingTask
 ---@param tick uint
 function deploy.try_deploy_train(context, task, tick)
+    if task:is_state_formed() and not deploy.is_deploy_slot_free(context) then
+        return
+    end
+
+    deploy.deploy_train(context, task, tick)
+end
+
+---@param task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
+---@param tick uint
+function deploy.try_remove_completed_task(task, tick)
+    if not task:is_state_completed() then
+        return
+    end
+
+    local completed_since = tick - task.completed_at
+
+    if completed_since > atd.defines.time_in_ticks.seconds_2 then
+        task:delete()
+
+        persistence_storage.trains_tasks.add(task)
+    end
+end
+
+---@param context scripts.lib.domain.Context
+---@param task scripts.lib.domain.entity.task.TrainFormingTask
+---@param tick uint
+function deploy.deploy_train(context, task, tick)
     if task:is_state_formed() then
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
         task:start_deploy(train_template)
@@ -122,10 +149,7 @@ function deploy.try_deploy_train(context, task, tick)
     elseif task:is_state_deploy() and result_train_length == target_train_length then
         private.register_train_for_template(main_locomotive.train, train_template)
 
-        if not deploy.output_station_free(depot_station_output) then
-            task:complete()
-            task:delete()
-        end
+        task:complete(tick)
     end
 
     persistence_storage.trains_tasks.add(task)
@@ -133,10 +157,13 @@ function deploy.try_deploy_train(context, task, tick)
     private.raise_task_changed_event(task)
 end
 
----@param depot_station_output LuaEntity
+---@param context scripts.lib.domain.Context
 ---@return bool
-function deploy.output_station_free(depot_station_output)
-    return depot_station_output.connected_rail.trains_in_block > 0
+function deploy.is_deploy_slot_free(context)
+    ---@type LuaEntity
+    local depot_station_output = remote.call("atd", "depot_get_output_station", context)
+
+    return depot_station_output.connected_rail.trains_in_block == 0
 end
 
 ---@param data NthTickEventData
@@ -152,26 +179,6 @@ function deploy.deploy_trains(data)
 end
 
 ---@param context scripts.lib.domain.Context
-function deploy.is_deploy_slot_empty(context)
-    return persistence_storage.trains_tasks.count_deploying_tasks(context) == 0
-end
-
----@param context scripts.lib.domain.Context
----@param task scripts.lib.domain.entity.task.TrainFormingTask
----@param tick uint
-function deploy.deploy_task(context, task, tick)
-    if not task:is_state_deploy() and not task:is_state_formed() then
-        return
-    end
-
-    if task:is_state_formed() and not deploy.is_deploy_slot_empty(context) then
-        return
-    end
-
-    deploy.try_deploy_train(context, task, tick)
-end
-
----@param context scripts.lib.domain.Context
 ---@param data NthTickEventData
 function deploy.deploy_trains_for_context(context, data)
     if not persistence_storage.is_depot_exists_at(context) then
@@ -184,7 +191,7 @@ function deploy.deploy_trains_for_context(context, data)
 
     ---@param task scripts.lib.domain.entity.task.TrainFormingTask
     for _, task in pairs(tasks) do
-        deploy.deploy_task(context, task, tick)
+        deploy.try_deploy_train(context, task, tick)
     end
 end
 
@@ -329,6 +336,8 @@ function private.train_manipulations(data)
         elseif task.type == TrainDisbandTask.type then
             private.process_disbanding_task(task, tick)
         end
+
+        deploy.try_remove_completed_task(task, data.tick)
     end
 
     if persistence_storage.trains_tasks.total_count_forming_tasks() == 0 then
