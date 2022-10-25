@@ -195,11 +195,6 @@ end
 ---@param train_task scripts.lib.domain.entity.task.TrainFormingTask|scripts.lib.domain.entity.task.TrainDisbandTask
 function private.raise_task_changed_event(train_task)
     -- todo duplicity
-    logger.debug(
-            "Changed train task (`1`) `{2}` for template `{3}`",
-            { train_task.type, train_task.id, train_task.train_template_id },
-            "depot"
-    )
 
     ---@type LuaForce
     local force = game.forces[train_task.force_name]
@@ -316,6 +311,7 @@ function private.process_forming_task(task, tick)
     private.raise_task_changed_event(task)
 
     if task:is_state_formed() then
+        -- todo raise event
         script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, deploy.deploy_trains)
     end
 

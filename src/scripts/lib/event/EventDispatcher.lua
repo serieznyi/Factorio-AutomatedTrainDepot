@@ -4,6 +4,8 @@ local EventDispatcher = {
     handlers = {},
 }
 
+EventDispatcher.LOGGING_ENABLED = false
+
 ---@param match function
 ---@param handler function
 ---@param source_name string
@@ -53,18 +55,22 @@ end
 function EventDispatcher.dispatch(event)
     local processed = false
 
-    logger.debug("Taken event `{1}`", { event:full_name() }, "EventDispatcher")
+    if EventDispatcher.LOGGING_ENABLED then
+        logger.debug("Taken event `{1}`", { event:full_name() }, "EventDispatcher")
+    end
 
     for _, source_handlers in pairs(EventDispatcher.handlers) do
         for _, h in ipairs(source_handlers) do
             if h.match(event) and h.handler(event) then
                 processed = true
 
-                logger.debug(
-                        "Handled event {1} for {2}",
-                        { tostring(event), (h.handler_source and h.handler_source or '?') },
-                        "EventDispatcher"
-                )
+                if EventDispatcher.LOGGING_ENABLED then
+                    logger.debug(
+                            "Handled event {1} for {2}",
+                            { tostring(event), (h.handler_source and h.handler_source or '?') },
+                            "EventDispatcher"
+                    )
+                end
             end
         end
     end
