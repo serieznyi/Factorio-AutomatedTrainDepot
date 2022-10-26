@@ -20,6 +20,7 @@ function atd_table.objects_merge(arrays)
     return result
 end
 
+-- todo maybe wrong working. rewrite or remove
 function atd_table.array_values(array)
     local values = {}
 
