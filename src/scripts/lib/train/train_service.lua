@@ -1,5 +1,6 @@
 local flib_train = require("__flib__.train")
 
+local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local logger = require("scripts.lib.logger")
 local Train = require("scripts.lib.domain.entity.Train")
 local persistence_storage = require("scripts.persistence.persistence_storage")
@@ -8,9 +9,11 @@ local TrainService = {}
 
 function TrainService.init()
     TrainService.register_trains()
+    TrainService._register_event_handlers()
 end
 
 function TrainService.load()
+    TrainService._register_event_handlers()
 end
 
 ---@param train_id uint
@@ -26,16 +29,6 @@ function TrainService.delete_train(train_id)
     persistence_storage.add_train(train)
 
     logger.debug("Train {1} mark as deleted", {train_id}, "depot.delete_train")
-end
-
----@param lua_train LuaTrain
----@param old_train_id_1 uint
----@param old_train_id_2 uint
-function TrainService.register_train(lua_train, old_train_id_1, old_train_id_2)
-    TrainService._register_train(lua_train, old_train_id_1, old_train_id_2)
-
-    -- balance trains if controlled train was changed (removed, damaged, ...)
-    script.raise_event(atd.defines.events.on_core_train_changed, {})
 end
 
 function TrainService.register_trains()
@@ -134,6 +127,29 @@ function TrainService._get_trains()
     end
 
     return trains
+end
+
+---@param event scripts.lib.event.Event
+function TrainService._handle_register_train(event)
+    local lua_event = event.original_event
+
+    TrainService._register_train(lua_event.train, lua_event.old_train_id_1, lua_event.old_train_id_2)
+
+    -- balance trains if controlled train was changed (removed, damaged, ...)
+    script.raise_event(atd.defines.events.on_core_train_changed, {})
+end
+
+function TrainService._register_event_handlers()
+    local handlers = {
+        {
+            match = EventDispatcher.match_event(defines.events.on_train_created),
+            handler = function(e) return TrainService._handle_register_train(e) end,
+        },
+    }
+
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, "train_service")
+    end
 end
 
 return TrainService

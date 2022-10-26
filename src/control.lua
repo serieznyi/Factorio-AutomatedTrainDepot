@@ -122,10 +122,9 @@ end)
 -- -- -- REGISTER ENTITY EVENTS
 ---------------------------------------------------------------------------
 
-flib_event.register(defines.events.on_train_created, events_control.train_create)
-
 flib_event.register({
-    defines.events.on_train_changed_state
+    defines.events.on_train_changed_state,
+    defines.events.on_train_created,
 }, events_control.handle_events)
 
 flib_event.register(

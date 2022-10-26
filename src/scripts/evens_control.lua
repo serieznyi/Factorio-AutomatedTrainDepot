@@ -101,9 +101,4 @@ function events_control.on_gui_closed(event)
     gui_manager.on_gui_closed(Event.new(event))
 end
 
------@param event EventData
-function events_control.train_create(event)
-    train_service.register_train(event.train, event.old_train_id_1, event.old_train_id_2)
-end
-
 return events_control
