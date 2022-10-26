@@ -1,11 +1,8 @@
 local defines = {}
 
 local TICKS_PER_SECOND = 60
-local TIME_1_SECOND = 60
-local TIME_2_SECOND = 120
-local TIME_5_SECOND = 300
+local TIME_1_SECOND = TICKS_PER_SECOND
 local TIME_1_MINUTE = 3600
-local TIME_5_MINUTE = 18000
 
 defines.color = {
     orange = {r = 1, g = 0.45, b = 0, a = 0.75},
@@ -21,7 +18,7 @@ defines.time_in_ticks = {
 
 defines.on_nth_tick = {
     persistence_storage_gc = TIME_1_MINUTE,
-    trains_manipulations = 10,
+    trains_manipulations = TIME_1_SECOND, -- 1/5 of game second
     trains_deploy = 5,
 }
 
