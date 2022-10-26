@@ -82,10 +82,12 @@ end
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param tick uint
 function TrainsBuilder._deploy_train(context, task, tick)
+    local task_changed = false
+
     if task:is_state_formed() then
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
         task:state_deploy(train_template)
-        persistence_storage.trains_tasks.add(task)
+        task_changed = true
 
         logger.debug("Try deploy train for template {1}", {task.train_template_id}, "depot")
     end
@@ -147,17 +149,24 @@ function TrainsBuilder._deploy_train(context, task, tick)
             carrier.train.manual_mode = false
 
             task:deploy_cursor_next()
+
+            task_changed = true
         end
 
     elseif task:is_state_deploy() and result_train_length == target_train_length then
         TrainsBuilder._register_train_for_template(main_locomotive.train, train_template)
 
         task:complete(tick)
+
+        task_changed = true
     end
 
-    persistence_storage.trains_tasks.add(task)
+    if task_changed then
+        persistence_storage.trains_tasks.add(task)
 
-    TrainsBuilder._raise_task_changed_event(task)
+        TrainsBuilder._raise_task_changed_event(task)
+    end
+
 end
 
 ---@param train_task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
