@@ -226,6 +226,11 @@ function structure.get(config)
                                     }
                                 }
                             },
+                            {
+                                type = "textfield",
+                                ref = { "trains_quantity" },
+                                visible = false,
+                            },
                             -- TRAIN SCHEDULE
                             {
                                 type = "label",

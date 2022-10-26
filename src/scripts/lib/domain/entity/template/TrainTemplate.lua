@@ -28,9 +28,9 @@ local TrainTemplate = {
     ---@type scripts.lib.domain.entity.template.RollingStock[]
     train = nil,
     ---@type bool
-    enabled = nil,
+    enabled = false,
     ---@type uint
-    trains_quantity = nil,
+    trains_quantity = 0,
     ---@type string
     clean_station = nil,
     ---@type TrainSchedule
@@ -145,8 +145,9 @@ function TrainTemplate.from_table(data)
     return object
 end
 
----@return scripts.lib.domain.entity.template.TrainTemplate
+---@param id uint
 ---@param context scripts.lib.domain.Context
+---@return scripts.lib.domain.entity.template.TrainTemplate
 function TrainTemplate.from_context(id, context)
     return TrainTemplate.new(id, context.surface_name, context.force_name)
 end

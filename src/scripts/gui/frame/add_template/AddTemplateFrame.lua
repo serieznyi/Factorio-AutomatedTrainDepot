@@ -12,6 +12,7 @@ local TrainScheduleSelector = require("scripts.gui.component.train_schedule_sele
 local TrainBuilder = require("scripts.gui.component.train_builder.TrainBuilder")
 local validator = require("scripts.gui.validator")
 local depot = require("scripts.lib.depot")
+local train_template_service = require("scripts.lib.train_template_service")
 
 local function validation_check_empty_fuel(field_name, form)
     local use_any_fuel = form["use_any_fuel"]
@@ -85,6 +86,8 @@ local AddTemplateFrame = {
         train_fuel_chooser = nil,
         ---@type LuaGuiElement
         use_any_fuel_checkbox = nil,
+        ---@type LuaGuiElement
+        trains_quantity = nil,
     },
     components = {
         ---@type gui.component.TrainStationSelector
@@ -155,10 +158,8 @@ function AddTemplateFrame:read_form()
     train_template.icon = self.refs.icon_input.elem_value
     train_template.train_color = { 255, 255, 255}
     train_template.train =  self.components.train_builder:read_form(self.player)
-    train_template.enabled = false
     train_template.clean_station = self.components.clean_train_station_dropdown:read_form()
     train_template.destination_schedule = self.components.destination_train_schedule_dropdown:read_form()
-    train_template.trains_quantity = 0
     train_template.use_any_fuel = self.refs.use_any_fuel_checkbox.state
     train_template.fuel = self.refs.train_fuel_chooser.elem_value
 
@@ -196,16 +197,19 @@ end
 
 ---@param event scripts.lib.event.Event
 function AddTemplateFrame:_handle_save_form(event)
-    local form_data = self:read_form()
+    local train_template_form = self:read_form()
     local validation_errors = self:_validate_form()
+    local player_index = event.player_index
 
     if #validation_errors == 0 then
-        local train_template = persistence_storage.add_train_template(form_data)
+        local window_tags = flib_gui.get_tags(self.refs.window)
+        local train_template_id = window_tags.train_template_id
 
-        script.raise_event(atd.defines.events.on_core_train_template_changed, {
-            player_index = event.player_index,
-            train_template_id = train_template.id
-        })
+        if train_template_id ~= nil then
+            train_template_service.update_train_template(window_tags.train_template_id, train_template_form, player_index)
+        else
+            train_template_service.create_train_template(train_template_form, player_index)
+        end
 
         script.raise_event(atd.defines.events.on_gui_close_add_template_frame_click, {
             player_index = event.player_index,

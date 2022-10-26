@@ -63,9 +63,6 @@ defines.events = {
     on_gui_background_dimmer_click = script.generate_event_name(),
 }
 
-defines.train_template = {
-}
-
 defines.train = {
     state = {
         execute_schedule        = "execute_schedule",

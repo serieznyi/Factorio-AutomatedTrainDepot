@@ -11,6 +11,49 @@ function TrainTemplateService.load()
 end
 
 ---@param train_template_id uint
+---@param train_template_dto scripts.lib.domain.entity.template.TrainTemplate
+---@param player_index uint
+function TrainTemplateService.update_train_template(train_template_id, train_template_dto, player_index)
+    assert(train_template_id, "train_template_id is nil")
+    assert(train_template_dto, "train_template_form is nil")
+    assert(player_index, "player_index is nil")
+
+    local train_template = persistence_storage.find_train_template_by_id(train_template_id)
+
+    assert(train_template, "train_template not found")
+
+    train_template.name = train_template_dto.name
+    train_template.icon = train_template_dto.icon
+    train_template.train_color = train_template_dto.train_color
+    train_template.train = train_template_dto.train
+    train_template.clean_station = train_template_dto.clean_station
+    train_template.destination_schedule = train_template_dto.destination_schedule
+    train_template.use_any_fuel = train_template_dto.use_any_fuel
+    train_template.fuel = train_template_dto.fuel
+
+    persistence_storage.add_train_template(train_template)
+
+    script.raise_event(atd.defines.events.on_core_train_template_changed, {
+        player_index = player_index,
+        train_template_id = train_template.id
+    })
+end
+
+---@param train_template_dto scripts.lib.domain.entity.template.TrainTemplate
+---@param player_index uint
+function TrainTemplateService.create_train_template(train_template_dto, player_index)
+    assert(train_template_dto, "train_template_form is nil")
+    assert(player_index, "player_index is nil")
+
+    persistence_storage.add_train_template(train_template_dto)
+
+    script.raise_event(atd.defines.events.on_core_train_template_changed, {
+        player_index = player_index,
+        train_template_id = train_template_dto.id
+    })
+end
+
+---@param train_template_id uint
 ---@return uint
 function TrainTemplateService.planned_quantity_form_tasks(train_template_id)
     local train_template = persistence_storage.find_train_template_by_id(train_template_id)
