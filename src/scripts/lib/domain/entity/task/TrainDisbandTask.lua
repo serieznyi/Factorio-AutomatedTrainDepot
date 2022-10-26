@@ -1,4 +1,5 @@
 local util_table = require("scripts.util.table")
+local flib_table = require("__flib__.table")
 
 ---@class train_disband_task_defines
 ---@field type string
