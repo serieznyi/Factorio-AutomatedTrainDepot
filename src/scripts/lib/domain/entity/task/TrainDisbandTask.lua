@@ -47,6 +47,8 @@ local TrainDisbandTask = {
     train_id = nil,
     ---@type uint
     train_template_id = nil,
+    ---@type uint
+    take_apart_cursor = nil,
 }
 
 ---@return table
@@ -63,6 +65,7 @@ function TrainDisbandTask:to_table()
         train_id = self.train_id,
         train_template_id = self.train_template_id,
         completed_at = self.completed_at,
+        take_apart_cursor = self.take_apart_cursor,
     }
 end
 
@@ -85,9 +88,13 @@ function TrainDisbandTask:state_wait_train()
     self.state = defines.state.wait_train
 end
 
-function TrainDisbandTask:state_take_apart()
+---@param carriers_amount uint
+function TrainDisbandTask:state_take_apart(carriers_amount)
     assert(self.state == defines.state.wait_train, "wrong state")
+    assert(carriers_amount, "carriers_amount is nil")
+    assert(carriers_amount >= 1, "carriers_amount is wrong")
 
+    self.take_apart_cursor = carriers_amount
     self.state = defines.state.take_apart
 end
 
@@ -114,6 +121,13 @@ function TrainDisbandTask:state_disband(tick, multiplier, train_template)
     self.required_disband_ticks = train_template:get_disband_time() * 60 * multiplier
 
     self.disband_end_at = tick + self.required_disband_ticks
+end
+
+function TrainDisbandTask:take_apart_cursor_next()
+    assert(self:is_state_take_apart(), "wrong state")
+    assert(self.take_apart_cursor > 0, "train already take aparted")
+
+    self.take_apart_cursor = self.take_apart_cursor - 1
 end
 
 ---@return {current: uint, total: uint}
