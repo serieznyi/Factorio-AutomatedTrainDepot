@@ -207,7 +207,7 @@ function private.build(context, entity)
     table.insert(dependent_entities, depot_signals_output)
 
     -- Input station, rails and signal
-    x, y = atd.defines.rotate_relative_position[entity.direction](6, 0)
+    x, y = atd.defines.rotate_relative_position[entity.direction](6, -6)
     local depot_station_input = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building_train_stop_input.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
