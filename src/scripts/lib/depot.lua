@@ -157,11 +157,6 @@ function Depot._process_form_task(task, tick)
 
     Depot._raise_task_changed_event(task)
 
-    if task:is_state_formed() then
-        -- todo raise event
-        script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, train_constructor.construct)
-    end
-
     return true
 end
 
