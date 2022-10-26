@@ -416,6 +416,14 @@ function public.get_depot_output_signal(context)
     return depot.output_signal
 end
 
+---@param context scripts.lib.domain.Context
+---@return LuaEntity
+function public.depot_building_exists(context)
+    local depot = storage.get_depot(context)
+
+    return depot ~= nil
+end
+
 ---@param entity LuaEntity
 ---@return void
 function public.destroy(entity)

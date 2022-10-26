@@ -24,6 +24,7 @@ remote.add_interface('atd', {
     depot_get_output_station = depot_builder.get_depot_output_station,
     depot_get_input_station = depot_builder.get_depot_input_station,
     depot_get_output_signal = depot_builder.get_depot_output_signal,
+    depot_building_exists = depot_builder.depot_building_exists,
 })
 
 ---------------------------------------------------------------------------
@@ -121,12 +122,11 @@ end)
 -- -- -- REGISTER ENTITY EVENTS
 ---------------------------------------------------------------------------
 
-flib_event.register(
-        {
-            defines.events.on_train_created
-        },
-        events_control.train_create
-)
+flib_event.register(defines.events.on_train_created, events_control.train_create)
+
+flib_event.register({
+    defines.events.on_train_changed_state
+}, events_control.handle_events)
 
 flib_event.register(
         {

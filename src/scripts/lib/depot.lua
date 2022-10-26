@@ -29,6 +29,11 @@ function Depot.is_valid_schedule(schedule)
     return is_path_readable
 end
 
+---@param context scripts.lib.domain.Context
+function Depot.is_depot_building_exists(context)
+    return remote.call("atd", "depot_building_exists", context)
+end
+
 ---@param task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
 function Depot._try_remove_completed_task(task, tick)
@@ -165,8 +170,6 @@ function Depot._pass_train_to_depot(task)
 
     local new_train_schedule = util_table.deep_copy(lua_train.schedule)
 
-    logger.debug(depot_input_station.backer_name)
-
     table.insert(new_train_schedule.records, {
         --rail = depot_input_station.connected_rail,
         station = depot_input_station.backer_name,
@@ -279,11 +282,39 @@ function Depot._handle_trains_constructor_check_activity(e)
     Depot._trains_constructor_check_activity()
 end
 
+---@param e scripts.lib.event.Event
+function Depot._handle_trains_deconstruct_check_activity(e)
+    local context = Context.from_train(e.original_event.train)
+
+    if not Depot.is_depot_building_exists(context) then
+        return false
+    end
+
+    Depot._trains_deconstruct_check_activity(context)
+
+    return true
+end
+
 function Depot._trains_constructor_check_activity()
     if persistence_storage.trains_tasks.count_form_tasks_ready_for_deploy() == 0 then
         script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, nil)
     else
         script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, train_constructor.construct)
+    end
+end
+
+---@param context scripts.lib.domain.Context
+function Depot._trains_deconstruct_check_activity(context)
+    ---@type LuaEntity
+    local depot_input_station = remote.call("atd", "depot_get_input_station", context)
+
+    local stopped_train = depot_input_station.get_stopped_train()
+
+    if stopped_train ~= nil then
+
+        --train.manual_mode = false
+
+        logger.debug(stopped_train)
     end
 end
 
@@ -314,6 +345,10 @@ function Depot._register_event_handlers()
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
             handler = function(e) return Depot._handle_train_manipulations_check_activity(e) end,
+        },
+        {
+            match = EventDispatcher.match_event(defines.events.on_train_changed_state),
+            handler = function(e) return Depot._handle_trains_deconstruct_check_activity(e) end,
         },
     }
 
