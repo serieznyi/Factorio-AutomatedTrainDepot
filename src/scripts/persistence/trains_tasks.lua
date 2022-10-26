@@ -105,10 +105,10 @@ local function hydrate_task(task_data)
     assert(nil, "unknown task type")
 end
 
----@param row table
+---@param rows_arg table
 ---@return scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormTask|nil
-local function hydrate(row)
-    return util_table.map(row, hydrate_task)
+local function hydrate(rows_arg)
+    return util_table.map(rows_arg, hydrate_task)
 end
 
 ---------------------------------------------------------------------------
