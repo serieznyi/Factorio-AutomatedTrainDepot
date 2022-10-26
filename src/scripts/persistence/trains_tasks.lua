@@ -88,7 +88,7 @@ local function rows(...)
         filtered = util_table.filter(filtered, v, true)
     end
 
-    return util_table.array_values(filtered)
+    return util_table.filter(filtered, function() return true end, true)
 end
 
 ---@param task_data table
