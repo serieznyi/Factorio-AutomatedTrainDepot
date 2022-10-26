@@ -99,6 +99,29 @@ function TrainTemplateService.disable_train_template(train_template_id)
 end
 
 ---@param train_template_id uint
+---@param player_index uint
+---@return void
+function TrainTemplateService.delete_train_template(train_template_id, player_index)
+    assert(train_template_id, "train_template_id is nil")
+    assert(player_index, "player_index is nil")
+
+    local train_template = persistence_storage.find_train_template_by_id(train_template_id)
+
+    if TrainTemplateService._has_active_tasks(train_template) then
+        game.get_player(player_index).print("Cant delete template with active tasks")
+        -- todo block button instead log message
+        return
+    end
+
+    -- todo make trains from template is uncontrolled
+    -- todo remove train template
+
+    persistence_storage.delete_train_template(train_template_id)
+
+    TrainTemplateService._raise_train_template_deleted_event(train_template)
+end
+
+---@param train_template_id uint
 ---@param count int
 ---@return void
 function TrainTemplateService.change_trains_quantity(train_template_id, count)
@@ -114,12 +137,6 @@ end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 function TrainTemplateService._raise_train_template_changed_event(train_template)
-    logger.debug(
-            "Changed train template (`1`)",
-            { train_template.id },
-            "depot"
-    )
-
     ---@type LuaForce
     local force = game.forces[train_template.force_name]
 
@@ -130,6 +147,38 @@ function TrainTemplateService._raise_train_template_changed_event(train_template
         )
     end
 
+end
+
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+function TrainTemplateService._raise_train_template_deleted_event(train_template)
+    ---@type LuaForce
+    local force = game.forces[train_template.force_name]
+
+    for _, player in ipairs(force.players) do
+        script.raise_event(
+                atd.defines.events.on_core_train_template_deleted,
+                { player_index = player.index, train_template_id = train_template.id }
+        )
+    end
+
+end
+
+---@param train_template_id uint
+---@return bool
+function TrainTemplateService.can_delete(train_template_id)
+    assert(train_template_id, "train_template_id is nil")
+
+    local train_template = persistence_storage.find_train_template_by_id(train_template_id)
+
+    return not TrainTemplateService._has_active_tasks(train_template)
+end
+
+
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+function TrainTemplateService._has_active_tasks(train_template)
+    local context = Context.from_model(train_template)
+
+    return persistence_storage.trains_tasks.count_active_tasks(context, train_template.id) > 0
 end
 
 return TrainTemplateService

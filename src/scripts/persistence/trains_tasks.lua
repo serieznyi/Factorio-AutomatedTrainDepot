@@ -255,6 +255,24 @@ function public.count_active_disband_tasks(context, train_template_id)
     return #filtered
 end
 
+---@param context scripts.lib.domain.Context
+---@param train_template_id uint
+---@return uint
+function public.count_active_tasks(context, train_template_id)
+    assert(context, "context is nil")
+
+    local filtered = rows(
+        match_not_deleted(),
+        match_context(context),
+        match_train_template_id(train_template_id),
+        match_not(
+            match_state(TrainDisbandTask.defines.state.completed)
+        )
+    )
+
+    return #filtered
+end
+
 function public.total_count_tasks()
     local filtered = rows(
         match_not_deleted()

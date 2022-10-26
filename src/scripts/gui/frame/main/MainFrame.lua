@@ -10,6 +10,7 @@ local TrainsMap = require("scripts.gui.component.trains_map.TrainsMap")
 local ExtendedListBox = require("scripts.gui.component.extended_list_box.ExtendedListBox")
 local util_image = require("scripts.util.image")
 local persistence_storage = require("scripts.persistence.persistence_storage")
+local train_template_service = require("scripts.lib.train_template_service")
 
 --- @module gui.frame.MainFrame
 local MainFrame = {
@@ -211,13 +212,13 @@ end
 function MainFrame:_handle_delete_train_template(event)
     local train_template_id = self.components.trains_templates_list:get_selected_id()
 
-    persistence_storage.delete_train_template(train_template_id)
+    if train_template_service.delete_train_template(train_template_id, event.player_index) then
+        self.components.trains_templates_view:destroy()
 
-    self.components.trains_templates_view:destroy()
+        self.components.trains_templates_list:remove_element(train_template_id)
 
-    self.components.trains_templates_list:remove_element(train_template_id)
-
-    self:update()
+        self:update()
+    end
 
     return true
 end
