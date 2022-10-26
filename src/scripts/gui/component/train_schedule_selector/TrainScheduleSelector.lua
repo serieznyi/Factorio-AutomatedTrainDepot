@@ -1,6 +1,6 @@
-local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
+local util_table = require("scripts.util.table")
 local logger = require("scripts.lib.logger")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local validator = require("scripts.gui.validator")
@@ -106,7 +106,7 @@ end
 function TrainScheduleSelector:_initialize(container)
     self.schedules = self:_get_schedules()
 
-    local dropdown_values = flib_table.map(self.schedules, function(v) return v.name end)
+    local dropdown_values = util_table.map(self.schedules, function(v) return v.name end)
 
     self.refs = flib_gui.build(container, { self:_structure(dropdown_values) })
 
@@ -159,7 +159,7 @@ end
 ---@param schedule TrainSchedule
 function TrainScheduleSelector:_prepare_schedule(schedule)
     ---@type TrainSchedule
-    schedule = flib_table.deep_copy(schedule)
+    schedule = util_table.deep_copy(schedule)
     schedule.current = 1
     local schedule_name = self:_make_schedule_name(schedule)
 
@@ -197,7 +197,7 @@ function TrainScheduleSelector:_get_schedules()
     end
 
     -- create new array with sequential keys
-    return flib_table.filter(schedules, function() return true end, true)
+    return util_table.filter(schedules, function() return true end, true)
 end
 
 ---@param e scripts.lib.event.Event

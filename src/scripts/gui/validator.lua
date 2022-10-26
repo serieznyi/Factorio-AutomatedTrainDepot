@@ -1,4 +1,4 @@
-local flib_table = require("__flib__.table")
+local util_table = require("scripts.util.table")
 
 local validator = {}
 
@@ -58,7 +58,7 @@ end
 ---@return table
 function validator.validate(rules, data_arg)
     local validation_errors = {}
-    local data = flib_table.deep_copy(data_arg)
+    local data = util_table.deep_copy(data_arg)
 
     for _, rule in ipairs(rules) do
         if rule.match(rule.field, data[rule.field]) then

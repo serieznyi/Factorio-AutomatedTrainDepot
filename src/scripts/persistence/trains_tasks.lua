@@ -1,5 +1,3 @@
-local flib_table = require("__flib__.table")
-
 local util_table = require("scripts.util.table")
 local logger = require("scripts.lib.logger")
 local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
@@ -87,7 +85,7 @@ local function rows(...)
     local filtered = global.trains_tasks
 
     for _, v in ipairs{...} do
-        filtered = flib_table.filter(filtered, v, true)
+        filtered = util_table.filter(filtered, v, true)
     end
 
     return util_table.array_values(filtered)
@@ -110,7 +108,7 @@ end
 ---@param row table
 ---@return scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormTask|nil
 local function hydrate(row)
-    return flib_table.map(row, hydrate_task)
+    return util_table.map(row, hydrate_task)
 end
 
 ---------------------------------------------------------------------------

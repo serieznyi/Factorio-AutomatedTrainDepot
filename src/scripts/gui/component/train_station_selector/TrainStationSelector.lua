@@ -1,4 +1,3 @@
-local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
 local logger = require("scripts.lib.logger")
@@ -160,10 +159,10 @@ function TrainStationSelector:_exclude_depot_train_stations(train_stations)
     }
 
     local function is_not_depot_train_station(station)
-        return not flib_table.find(depot_train_stations_prototype_names, station.prototype.name)
+        return not util_table.find(depot_train_stations_prototype_names, station.prototype.name)
     end
 
-    return flib_table.filter(train_stations, is_not_depot_train_station, true)
+    return util_table.filter(train_stations, is_not_depot_train_station, true)
 end
 
 function TrainStationSelector:_get_train_stations()
@@ -172,7 +171,7 @@ function TrainStationSelector:_get_train_stations()
     train_stations = self:_exclude_depot_train_stations(train_stations)
 
     ---@param station LuaEntity
-    local train_stations_names = flib_table.map(train_stations, function(station)
+    local train_stations_names = util_table.map(train_stations, function(station)
         return station.backer_name
     end)
 

@@ -1,5 +1,4 @@
-local flib_table = require("__flib__.table")
-
+local util_table = require("scripts.util.table")
 local Context = require("scripts.lib.domain.Context")
 local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
@@ -17,7 +16,7 @@ function TrainsBalancer.balance_trains_quantity()
 end
 
 function TrainsBalancer._find_contexts_with_depot()
-    return flib_table.filter(
+    return util_table.filter(
             persistence_storage.find_contexts_from_train_templates(),
             function(c)
                 return persistence_storage.is_depot_exists_at(c)

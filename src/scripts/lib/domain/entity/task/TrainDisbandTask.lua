@@ -1,5 +1,4 @@
 local util_table = require("scripts.util.table")
-local flib_table = require("__flib__.table")
 
 ---@class train_disband_task_defines
 ---@field type string
@@ -124,7 +123,7 @@ function TrainDisbandTask:progress()
         table.insert(states, k)
     end
 
-    return {current = flib_table.find(states, self.state), total = #states}
+    return {current = util_table.find(states, self.state), total = #states}
 end
 
 ---@param tick uint

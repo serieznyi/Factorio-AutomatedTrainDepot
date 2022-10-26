@@ -1,5 +1,4 @@
 local util_table = require("scripts.util.table")
-local flib_table = require("__flib__.table")
 
 ---@class train_form_task_defines
 ---@field type string
@@ -138,7 +137,7 @@ function TrainFormTask:progress()
         table.insert(states, k)
     end
 
-    return {current = flib_table.find(states, self.state), total = #states}
+    return {current = util_table.find(states, self.state), total = #states}
 end
 
 ---@param entity LuaEntity

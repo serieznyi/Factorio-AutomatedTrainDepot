@@ -1,6 +1,6 @@
-local flib_table = require("__flib__.table")
 local flib_direction = require("__flib__.direction")
 
+local util_table = require("scripts.util.table")
 local Context = require("scripts.lib.domain.Context")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local logger = require("scripts.lib.logger")
@@ -198,7 +198,7 @@ end
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@param train LuaTrain
 function TrainsBuilder._add_train_schedule(train, train_template)
-    train.schedule = flib_table.deep_copy(train_template.destination_schedule)
+    train.schedule = util_table.deep_copy(train_template.destination_schedule)
     train.manual_mode = false
 end
 

@@ -1,6 +1,6 @@
 local flib_gui = require("__flib__.gui")
-local flib_table = require("__flib__.table")
 
+local util_table = require("scripts.util.table")
 local logger = require("scripts.lib.logger")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local Context = require("scripts.lib.domain.Context")
@@ -288,7 +288,7 @@ function MainFrame:_get_trains_templates_values()
     local trains_templates = persistence_storage.find_train_templates_by_context(context)
 
     ---@param t scripts.lib.domain.entity.template.TrainTemplate
-    return flib_table.map(
+    return util_table.map(
             trains_templates,
             function(t)
                 local icon = util_image.image_for_item(t.icon)

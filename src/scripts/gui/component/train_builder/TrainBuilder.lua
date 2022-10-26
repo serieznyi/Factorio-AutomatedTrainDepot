@@ -1,5 +1,4 @@
 local flib_gui = require("__flib__.gui")
-local flib_table = require("__flib__.table")
 
 local logger = require("scripts.lib.logger")
 local RollingStock = require("scripts.lib.domain.entity.template.RollingStock")
@@ -187,7 +186,7 @@ end
 ---@param part gui.component.TrainBuilder.Part
 function TrainBuilder:_remove_part(part)
     part:destroy()
-    local index = flib_table.find(self.parts, part)
+    local index = util_table.find(self.parts, part)
 
     table.remove(self.parts, index)
 end

@@ -1,6 +1,6 @@
-local flib_table = require("__flib__.table")
 local flib_gui = require("__flib__.gui")
 
+local util_table = require("scripts.util.table")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local validator = require("scripts.gui.validator")
 local Sequence = require("scripts.lib.Sequence")
@@ -89,7 +89,7 @@ end
 ---@param id uint
 function ExtendedListBox:remove_element(id)
     ---@param v gui.component.ExtendedListBoxValue
-    local cleaned_data = flib_table.filter(self.values, function(v)
+    local cleaned_data = util_table.filter(self.values, function(v)
         return v.id ~= id
     end, true)
 

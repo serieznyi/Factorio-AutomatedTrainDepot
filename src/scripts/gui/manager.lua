@@ -1,6 +1,6 @@
 local flib_gui = require("__flib__.gui")
-local flib_table = require("__flib__.table")
 
+local util_table = require("scripts.util.table")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local MainFrame = require("scripts.gui.frame.main.MainFrame")
 local AddTemplateFrame = require("scripts.gui.frame.add_template.AddTemplateFrame")
@@ -53,7 +53,7 @@ function event_handlers.handle_close_frame_by_event(event)
     assert(event_window, 'window not found')
 
     ---@param v gui.frame.Frame
-    local filtered = flib_table.filter(frame_stack.all(), function(v)
+    local filtered = util_table.filter(frame_stack.all(), function(v)
         return v:window() == event_window
     end, true)
 

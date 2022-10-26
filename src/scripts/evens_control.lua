@@ -1,5 +1,4 @@
-local flib_table = require("__flib__.table")
-
+local util_table = require("scripts.util.table")
 local depot_builder = require("scripts.lib.depot_builder")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
@@ -68,7 +67,7 @@ function events_control.entity_dismantled(event)
     if entity.name == atd.defines.prototypes.entity.depot_building.name then
         depot_builder.destroy(entity)
     elseif is_rolling_stock(entity) then
-        local left_carriages = flib_table.filter(entity.train.carriages, function(e)
+        local left_carriages = util_table.filter(entity.train.carriages, function(e)
             return e.unit_number ~= entity.unit_number
         end, true)
 

@@ -1,5 +1,3 @@
-local flib_table = require("__flib__.table")
-
 local RollingStock = require("scripts.lib.domain.entity.template.RollingStock")
 local util_hash = require("scripts.util.hash")
 local util_table = require("scripts.util.table")
@@ -73,7 +71,7 @@ function TrainTemplate:to_table()
         icon = self.icon,
         train_color = self.train_color,
         ---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
-        train = flib_table.map(self.train or {}, function(rolling_stock)
+        train = util_table.map(self.train or {}, function(rolling_stock)
             return rolling_stock:to_table()
         end),
         enabled = self.enabled,
@@ -138,7 +136,7 @@ function TrainTemplate.from_table(data)
     util_table.fill_assoc(object, data)
 
     ---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
-    object.train = flib_table.map(data.train or {}, function(rolling_stock)
+    object.train = util_table.map(data.train or {}, function(rolling_stock)
         return RollingStock.from_table(rolling_stock)
     end)
 

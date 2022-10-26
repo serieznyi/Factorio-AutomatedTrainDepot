@@ -50,4 +50,36 @@ function atd_table.fill_assoc(target, source)
     end
 end
 
+--- @param tbl table
+--- @param filter function Takes in `value`, `key`, and `tbl` as parameters.
+--- @param array_insert? boolean If true, the result will be constructed as an array of values that matched the filter. Key references will be lost.
+--- @return table
+--- @see __flib__.table.filter
+function atd_table.filter(tbl, filter, array_insert)
+    return flib_table.filter(tbl, filter, array_insert)
+end
+
+--- @param tbl table
+--- @param mapper function Takes in `value`, `key`, and `tbl` as parameters.
+--- @return table
+--- @see __flib__.table.map
+function atd_table.map(tbl, mapper)
+    return flib_table.map(tbl, mapper)
+end
+
+--- @param tbl table The table to make a copy of.
+--- @return table
+---@see __flib__.table.deep_copy
+function atd_table.deep_copy(tbl)
+    return flib_table.deep_copy(tbl)
+end
+
+--- @param tbl table The table to search.
+--- @param value any The value to match. Must have an `eq` metamethod set, otherwise will error.
+--- @return any? key The first key corresponding to `value`, if any.
+---@see __flib__.table.find
+function atd_table.find(tbl, value)
+    return flib_table.find(tbl, value)
+end
+
 return atd_table
