@@ -8,12 +8,11 @@ local logger = require("scripts.lib.logger")
 
 local TrainsBalancer = {}
 
----@param data NthTickEventData
-function TrainsBalancer.balance_trains_quantity(data)
+function TrainsBalancer.balance_trains_quantity()
     local contexts_with_depot = TrainsBalancer._find_contexts_with_depot()
 
     for _, c in ipairs(contexts_with_depot) do
-        TrainsBalancer._balance_trains_count_for_context(c, data)
+        TrainsBalancer._balance_trains_count_for_context(c)
     end
 end
 
@@ -39,8 +38,7 @@ function TrainsBalancer._calculate_trains_diff(train_template)
 end
 
 ---@param context scripts.lib.domain.Context
----@param _ NthTickEventData
-function TrainsBalancer._balance_trains_count_for_context(context, _)
+function TrainsBalancer._balance_trains_count_for_context(context)
     local train_templates = persistence_storage.find_enabled_train_templates(context)
 
     -- todo balance templates randomly

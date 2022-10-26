@@ -181,8 +181,8 @@ function Depot._train_manipulations(data)
     end
 end
 
-function Depot._handle_trains_balancer_check_activity(e)
-    Depot._trains_balancer_check_activity()
+function Depot._handle_trains_balancer_run(e)
+    trains_balancer.balance_trains_quantity()
 end
 
 function Depot._handle_train_manipulations_check_activity(e)
@@ -191,14 +191,6 @@ end
 
 function Depot._handle_trains_constructor_check_activity(e)
     Depot._trains_constructor_check_activity()
-end
-
-function Depot._trains_balancer_check_activity()
-    if persistence_storage.count_active_trains_templates() == 0 then
-        script.on_nth_tick(atd.defines.on_nth_tick.balance_trains_count, nil)
-    else
-        script.on_nth_tick(atd.defines.on_nth_tick.balance_trains_count, trains_balancer.balance_trains_quantity)
-    end
 end
 
 function Depot._trains_constructor_check_activity()
@@ -223,11 +215,11 @@ function Depot._register_event_handlers()
     local handlers = {
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
-            handler = function(e) return Depot._handle_trains_balancer_check_activity(e) end,
+            handler = function(e) return Depot._handle_trains_balancer_run(e) end,
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_changed),
-            handler = function(e) return Depot._handle_trains_balancer_check_activity(e) end,
+            handler = function(e) return Depot._handle_trains_balancer_run(e) end,
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
