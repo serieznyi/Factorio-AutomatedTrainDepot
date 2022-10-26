@@ -279,6 +279,16 @@ function public.total_count_tasks()
     return #filtered
 end
 
+---@param context scripts.lib.domain.Context
+function public.count_tasks(context)
+    local filtered = rows(
+        match_not_deleted(),
+            match_context(context)
+    )
+
+    return #filtered
+end
+
 function public.total_count_form_tasks()
     return #rows(match_not_deleted(), match_type_form())
 end

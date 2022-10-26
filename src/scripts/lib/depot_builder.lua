@@ -310,10 +310,8 @@ end
 ---@return bool true
 function private.can_destroy(entity)
     local context = Context.from_entity(entity)
-    -- todo check me
-    local has_tasks = persistence_storage.trains_tasks.has_tasks(context)
 
-    return not has_tasks
+    return persistence_storage.trains_tasks.count_tasks(context) == 0
 end
 
 ---@param entity LuaEntity
