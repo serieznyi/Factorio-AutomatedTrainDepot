@@ -302,6 +302,19 @@ function public.find_all_tasks()
     return hydrate(filtered)
 end
 
+---@param train_id uint
+---@return scripts.lib.domain.entity.task.TrainDisbandTask|nil
+function public.find_disbanding_task_by_train(train_id)
+    local filtered = rows(
+        match_not_deleted(),
+        function(v) return v.train_id == train_id end
+    )
+
+    local models = hydrate(filtered)
+
+    return #models == 0 and nil or models[1]
+end
+
 ---@param context scripts.lib.domain.Context
 ---@param train_template_id uint
 ---@return scripts.lib.domain.entity.task.TrainFormTask[]|scripts.lib.domain.entity.task.TrainDisbandTask[]
