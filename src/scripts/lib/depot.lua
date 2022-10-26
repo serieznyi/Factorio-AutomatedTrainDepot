@@ -3,9 +3,10 @@ local Context = require("scripts.lib.domain.Context")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local trains_balancer = require("scripts.lib.train.trains_balancer")
 local train_constructor = require("scripts.lib.train.train_constructor")
-local logger = require("scripts.lib.logger")
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
 local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
+
+---@alias TrainStat {train: LuaTrain, has_cargo: bool, drive_to_last_station: bool}[]
 
 local Depot = {}
 
@@ -80,14 +81,36 @@ end
 
 ---@param train scripts.lib.domain.entity.Train
 ---@return bool
-function Depot._is_train_has_path_to_depot(train)
-    return true -- todo add logic
+function Depot._is_train_has_cargo(train)
+    return false -- todo add logic
 end
 
 ---@param train scripts.lib.domain.entity.Train
 ---@return bool
-function Depot._is_train_has_cargo(train)
-    return false -- todo add logic
+function Depot._is_train_drive_to_last_station(train)
+    local schedule = train.lua_train.schedule
+
+    if schedule == nil then
+        return false
+    end
+
+    return #schedule.records == schedule.current
+end
+
+---@param stat TrainStat
+---@return uint
+function Depot._build_train_disband_priority(stat)
+    local priority = 1
+
+    if stat.drive_to_last_station then
+        priority = priority + 1
+    end
+
+    if not stat.has_cargo then
+        priority = priority + 1
+    end
+
+    return priority
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
@@ -95,17 +118,30 @@ function Depot._try_bind_train_with_disband_task(task)
     local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
     local context = Context.from_model(train_template)
     local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
+    ---@type {train: LuaTrain, has_cargo: bool, drive_to_last_station: bool, trains_stat: uint}[]
+    local trains_stat = {}
 
+    -- collect trains stat
     for _, train in ipairs(trains) do
-        local has_path_to_depot = Depot._is_train_has_path_to_depot(train)
-        local market_to_disband = Depot._is_train_marked_to_disband(train)
-        local has_cargo = Depot._is_train_has_cargo(train)
+        if not Depot._is_train_marked_to_disband(train) then
+            local train_stat = {}
 
-        if not market_to_disband and has_path_to_depot and not has_cargo then
-            task:bind_with_train(train.id)
+            train_stat.train = train
+            train_stat.has_cargo = Depot._is_train_has_cargo(train)
+            train_stat.drive_to_last_station = Depot._is_train_drive_to_last_station(train)
+            train_stat.priority = Depot._build_train_disband_priority(train_stat)
 
-            break
+            table.insert(trains_stat, train_stat)
         end
+    end
+
+    table.sort(trains_stat, function (left, right)
+        return left.priority > right.priority
+    end)
+
+    if #trains_stat ~= 0 then
+        local train = trains_stat[1]
+        task:bind_with_train(train.train)
     end
 
     return task.train_id ~= nil
