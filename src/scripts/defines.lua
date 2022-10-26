@@ -29,6 +29,7 @@ mod_defines.time_in_ticks = {
     seconds_1 = TICKS_PER_SECOND * 1,
     seconds_2 = TICKS_PER_SECOND * 2,
     seconds_5 = TICKS_PER_SECOND * 5,
+    seconds_30 = TICKS_PER_SECOND * 30,
 }
 
 mod_defines.on_nth_tick = {

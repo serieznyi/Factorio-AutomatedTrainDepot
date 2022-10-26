@@ -5,6 +5,8 @@ local trains_balancer = require("scripts.lib.train.trains_balancer")
 local train_constructor = require("scripts.lib.train.train_constructor")
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
 local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
+local logger = require("scripts.lib.logger")
+local util_table = require("scripts.util.table")
 
 ---@alias TrainStat {train: LuaTrain, has_cargo: bool, drive_to_last_station: bool}[]
 
@@ -141,43 +143,83 @@ function Depot._try_bind_train_with_disband_task(task)
 
     if #trains_stat ~= 0 then
         local train = trains_stat[1]
-        task:bind_with_train(train.train)
+        task:bind_with_train(train.train.id)
     end
 
     return task.train_id ~= nil
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
+function Depot._pass_train_to_depot(task)
+    local train = persistence_storage.find_train(task.train_id)
+    local context = Context.from_model(task)
+
+    assert(train, "train is nil")
+
+    local lua_train = train.lua_train
+
+    -- todo add path to clean station ?
+
+    ---@type LuaEntity
+    local depot_input_station = remote.call("atd", "depot_get_input_station", context)
+
+    local new_train_schedule = util_table.deep_copy(lua_train.schedule)
+
+    logger.debug(depot_input_station.backer_name)
+
+    table.insert(new_train_schedule.records, {
+        --rail = depot_input_station.connected_rail,
+        station = depot_input_station.backer_name,
+        wait_conditions = {
+            {
+                type = "time",
+                ticks = atd.defines.time_in_ticks.seconds_30,
+                compare_type = "and",
+            }
+        }
+    })
+
+    lua_train.schedule = new_train_schedule
+end
+
+---@param task scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
 function Depot._process_disbanding_task(task, tick)
-    -- Disband uncontrolled train
-    if task:is_state_created() and task.train_id ~= nil then
-        task:state_wait_train()
-    end
+    if task:is_state_created() then
+        if task.train_id ~= nil then -- Disband uncontrolled train
+            Depot._pass_train_to_depot(task)
 
-    -- Disband controlled train
-    if task:is_state_created() and task.train_id == nil then
-        task:state_try_choose_train()
+            task:state_wait_train()
+        elseif task.train_id == nil then -- Disband controlled train
+            task:state_try_choose_train()
+        end
     end
 
     if task:is_state_try_choose_train() then
         if Depot._try_bind_train_with_disband_task(task) then
+            Depot._pass_train_to_depot(task)
+
             task:state_wait_train()
         end
     end
 
     if task:is_state_wait_train() then
-        -- todo add logic for drive train to depot
+        -- todo check what train in destination
+    end
+
+    if task:is_state_take_apart() then
+        -- todo deconstruct train (real)
     end
 
     if task:is_state_disband() then
-        -- todo add logic for disband train
+        -- todo imitate train deconstruction
 
         if false then
             task:state_completed()
         end
     end
 
+    -- todo add and raise only on real task change
     persistence_storage.trains_tasks.add(task)
 
     Depot._raise_task_changed_event(task)

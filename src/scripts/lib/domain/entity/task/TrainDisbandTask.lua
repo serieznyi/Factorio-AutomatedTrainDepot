@@ -147,6 +147,11 @@ function TrainDisbandTask:is_state_wait_train()
 end
 
 ---@return bool
+function TrainDisbandTask:is_state_take_apart()
+    return self.state == defines.state.take_apart
+end
+
+---@return bool
 function TrainDisbandTask:is_state_disband()
     return self.state == defines.state.disband
 end
