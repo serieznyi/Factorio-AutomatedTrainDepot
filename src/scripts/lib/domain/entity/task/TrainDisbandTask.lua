@@ -168,6 +168,11 @@ function TrainDisbandTask:bind_with_template(train_template_id)
     self.train_template_id = assert(train_template_id, "train_template is nil")
 end
 
+---@param train_id uint
+function TrainDisbandTask:bind_with_train(train_id)
+    self.train_id = assert(train_id, "train_id is nil")
+end
+
 ---@param data table|scripts.lib.domain.entity.task.TrainDisbandTask
 ---@return scripts.lib.domain.entity.task.TrainDisbandTask
 function TrainDisbandTask.from_table(data)

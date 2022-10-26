@@ -64,21 +64,38 @@ function Depot._get_depot_multiplier()
     return 1.0 -- todo depended from technologies
 end
 
----@param train_template scripts.lib.domain.entity.template.TrainTemplate
----@return scripts.lib.domain.entity.Train
-function Depot._try_choose_train_for_disband(train_template)
-    local context = Context.from_model(train_template)
-    local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
+---@param train scripts.lib.domain.entity.Train
+function Depot._is_train_marked_to_disband(train)
+    local context = Context.from_model(train)
+    local tasks = persistence_storage.trains_tasks.find_disbanding_tasks(context, train.train_template_id)
 
-    -- todo add more logic for getting train (empty train, train in depot, ...)
-    return #trains > 0 and trains[1] or nil
+    for _, task in ipairs(tasks) do
+        if task.train_id == train.id then
+            return true
+        end
+    end
+
+    return false
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
 function Depot._try_bind_train_with_disband_task(task)
-    -- todo add search train logic
+    local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
+    local context = Context.from_model(train_template)
+    local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
 
-    return false
+    for _, train in ipairs(trains) do
+        -- todo can drive to depot
+        -- todo is empty
+
+        if not Depot._is_train_marked_to_disband(train) then
+            task:bind_with_train(train.id)
+
+            break
+        end
+    end
+
+    return nil
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
