@@ -1,4 +1,5 @@
 local util_table = require("scripts.util.table")
+local flib_table = require("__flib__.table")
 
 ---@class train_form_task_defines
 ---@field type string
@@ -130,16 +131,14 @@ function TrainFormTask:complete(tick)
 end
 
 ---@type uint progress in percent
----@return uint
+---@return {current: uint, total: uint}
 function TrainFormTask:progress()
-    if self.state == defines.state.created then
-        return 0
+    local states = {}
+    for k, _ in pairs(defines.state) do
+        table.insert(states, k)
     end
 
-    local left_ticks = self.form_end_at - game.tick
-    local diff = self.required_form_ticks - left_ticks
-
-    return (diff * 100) / self.required_form_ticks
+    return {current = flib_table.find(states, self.state), total = #states}
 end
 
 ---@param entity LuaEntity

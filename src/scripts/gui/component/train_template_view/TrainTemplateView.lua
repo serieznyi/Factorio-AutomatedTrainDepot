@@ -322,16 +322,40 @@ function TrainTemplateView:_build_task_block(task)
                         type = "label",
                         caption = {"train-template-view-component.atd-state", state_text},
                     },
-                    {
-                        type = "progressbar",
-                        value = task:progress() * 0.01,
-                        style_mods = {
-                            horizontally_stretchable = true,
-                        },
-                    }
+                    TrainTemplateView._draw_progress(task)
                 }
             },
         },
+    }
+end
+
+---@param task scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormTask
+---@return table
+function TrainTemplateView._draw_progress(task)
+    local progress_completed = {type = "progressbar", value = 1, style_mods = {horizontally_stretchable = true}}
+    local progress_not_completed = {type = "progressbar", value = 0, style_mods = {horizontally_stretchable = true}}
+    local progress_wait = {type = "progressbar", value = 1, style_mods = {horizontally_stretchable = true, color = {1.0, 1.0, 0}}}
+    local sections = {}
+    local task_progress = task:progress()
+
+    for i = 1, task_progress.total, 1
+    do
+        if i < task_progress.current then
+            table.insert(sections, progress_completed)
+        elseif i == task_progress.current then
+            table.insert(sections, progress_wait)
+        else
+            table.insert(sections, progress_not_completed)
+        end
+    end
+
+    return {
+        type = "flow",
+        direction = "horizontal",
+        style_mods = {
+            horizontally_stretchable = true,
+        },
+        children = sections
     }
 end
 

@@ -116,16 +116,14 @@ function TrainDisbandTask:state_disband(tick, multiplier, train_template)
     self.disband_end_at = tick + self.required_disband_ticks
 end
 
----@type uint progress in percent
+---@return {current: uint, total: uint}
 function TrainDisbandTask:progress()
-    if self.state ~= defines.state.disbanding then
-        return 0
+    local states = {}
+    for k, _ in pairs(defines.state) do
+        table.insert(states, k)
     end
 
-    local left_ticks = self.disband_end_at - game.tick
-    local diff = self.required_disband_ticks - left_ticks
-
-    return (diff * 100) / self.required_disband_ticks
+    return {current = flib_table.find(states, self.state), total = #states}
 end
 
 ---@param tick uint
