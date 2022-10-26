@@ -48,6 +48,18 @@ function Context.from_player(player)
     )
 end
 
+---@param lua_train LuaTrain
+---@return scripts.lib.domain.Context
+function Context.from_train(lua_train)
+    local front_locomotive = lua_train.locomotives.front_movers[1]
+    local back_locomotive = lua_train.locomotives.back_movers[1]
+    local wagon = lua_train.cargo_wagons[1]
+
+    local entity = front_locomotive or back_locomotive or wagon
+
+    return Context.from_entity(entity)
+end
+
 ---@type LuaForce
 function Context:force()
     return game.forces[self.force_name]
