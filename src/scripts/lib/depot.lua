@@ -78,6 +78,18 @@ function Depot._is_train_marked_to_disband(train)
     return false
 end
 
+---@param train scripts.lib.domain.entity.Train
+---@return bool
+function Depot._is_train_has_path_to_depot(train)
+    return true -- todo add logic
+end
+
+---@param train scripts.lib.domain.entity.Train
+---@return bool
+function Depot._is_train_has_cargo(train)
+    return false -- todo add logic
+end
+
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
 function Depot._try_bind_train_with_disband_task(task)
     local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
@@ -85,17 +97,18 @@ function Depot._try_bind_train_with_disband_task(task)
     local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
 
     for _, train in ipairs(trains) do
-        -- todo can drive to depot
-        -- todo is empty
+        local has_path_to_depot = Depot._is_train_has_path_to_depot(train)
+        local market_to_disband = Depot._is_train_marked_to_disband(train)
+        local has_cargo = Depot._is_train_has_cargo(train)
 
-        if not Depot._is_train_marked_to_disband(train) then
+        if not market_to_disband and has_path_to_depot and not has_cargo then
             task:bind_with_train(train.id)
 
             break
         end
     end
 
-    return nil
+    return task.train_id ~= nil
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
