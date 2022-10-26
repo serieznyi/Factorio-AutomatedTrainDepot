@@ -124,7 +124,7 @@ function structure.get(config)
                                                         {
                                                             type = "sprite-button",
                                                             style = "tool_button_red",
-                                                            tooltip = {"main-frame.atd-delete-template"},
+                                                            tooltip = {"main-frame.atd-delete-train-template"},
                                                             ref = {"delete_button"},
                                                             sprite = "atd_sprite_trash",
                                                             enabled = false,
