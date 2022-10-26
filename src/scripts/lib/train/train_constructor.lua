@@ -5,21 +5,6 @@ local Context = require("scripts.lib.domain.Context")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local logger = require("scripts.lib.logger")
 
-local rotate_relative_position = {
-    [defines.direction.north] = function(x, y)
-        return x, y
-    end,
-    [defines.direction.east] = function(x, y)
-        return y * -1, x
-    end,
-    [defines.direction.south] = function(x, y)
-        return x * -1, y * -1
-    end,
-    [defines.direction.west] = function(x, y)
-        return y, x * -1
-    end,
-}
-
 local TrainsBuilder = {}
 
 ---@param data NthTickEventData
@@ -102,7 +87,7 @@ function TrainsBuilder._deploy_train(context, task, tick)
     local train_template = task.train_template
     local force = game.forces[task.force_name]
     local surface = game.surfaces[task.surface_name]
-    local x_train, y_train = rotate_relative_position[depot_station_output.direction](-2, 3)
+    local x_train, y_train = atd.defines.rotate_relative_position[depot_station_output.direction](-2, 3)
     local train_position = {
         x = depot_station_output.position.x + x_train,
         y = depot_station_output.position.y + y_train,

@@ -6,21 +6,6 @@ local persistence_storage = require("scripts.persistence.persistence_storage")
 
 local FORCE_DEFAULT = "player"
 
-local rotate_relative_position = { --todo move to atd.direction module
-    [defines.direction.north] = function(x, y)
-        return x, y
-    end,
-    [defines.direction.east] = function(x, y)
-        return y * -1, x
-    end,
-    [defines.direction.south] = function(x, y)
-        return x * -1, y * -1
-    end,
-    [defines.direction.west] = function(x, y)
-        return y, x * -1
-    end,
-}
-
 local private = {}
 local public = {}
 local storage = {}
@@ -103,7 +88,7 @@ end
 ---@param direction defines.direction
 function private.build_rail_signal(signal_entity, rail_entity, direction)
     local force = rail_entity.force
-    local x, y = rotate_relative_position[direction](1.5, 0)
+    local x, y = atd.defines.rotate_relative_position[direction](1.5, 0)
     local rail_signal = rail_entity.surface.create_entity({
         name = signal_entity,
         position = { rail_entity.position.x + x, rail_entity.position.y + y },
@@ -136,7 +121,7 @@ function private.build_straight_rails(surface, force, start_position, direction,
         })
         table.insert(rails, rail)
 
-        x, y = rotate_relative_position[direction](0, 2)
+        x, y = atd.defines.rotate_relative_position[direction](0, 2)
         start_position = { x = rail.position.x + x, y = rail.position.y + y }
     end
 
@@ -201,7 +186,7 @@ function private.build(context, entity)
 
     -- Input and output for logistic signals
 
-    x, y = rotate_relative_position[entity.direction](0.5, 2.5)
+    x, y = atd.defines.rotate_relative_position[entity.direction](0.5, 2.5)
     local depot_signals_input = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building_input.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
@@ -211,7 +196,7 @@ function private.build(context, entity)
     private.shadow_entity(depot_signals_input)
     table.insert(dependent_entities, depot_signals_input)
 
-    x, y = rotate_relative_position[entity.direction](-0.5, 2.5)
+    x, y = atd.defines.rotate_relative_position[entity.direction](-0.5, 2.5)
     local depot_signals_output = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building_output.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
@@ -222,7 +207,7 @@ function private.build(context, entity)
     table.insert(dependent_entities, depot_signals_output)
 
     -- Input station, rails and signal
-    x, y = rotate_relative_position[entity.direction](6, 0)
+    x, y = atd.defines.rotate_relative_position[entity.direction](6, 0)
     local depot_station_input = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building_train_stop_input.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
@@ -233,7 +218,7 @@ function private.build(context, entity)
     private.shadow_entity(depot_station_input)
     table.insert(dependent_entities, depot_station_input)
 
-    x, y = rotate_relative_position[entity.direction](4, -6)
+    x, y = atd.defines.rotate_relative_position[entity.direction](4, -6)
     local input_rails = private.build_straight_rails(
             surface,
             force,
@@ -252,7 +237,7 @@ function private.build(context, entity)
     table.insert(dependent_entities, input_rail_signal)
 
     -- Output station, rails and signal
-    x, y = rotate_relative_position[entity.direction](-6, 0)
+    x, y = atd.defines.rotate_relative_position[entity.direction](-6, 0)
     local depot_station_output = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building_train_stop_output.name,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
@@ -263,7 +248,7 @@ function private.build(context, entity)
     private.shadow_entity(depot_station_output)
     table.insert(dependent_entities, depot_station_output)
 
-    x, y = rotate_relative_position[entity.direction](-4, -6)
+    x, y = atd.defines.rotate_relative_position[entity.direction](-4, -6)
 
     local output_rails = private.build_straight_rails(
             surface,
