@@ -5,17 +5,17 @@ local Context = require("scripts.lib.domain.Context")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local logger = require("scripts.lib.logger")
 
-local TrainsBuilder = {}
+local TrainsConstructor = {}
 
 ---@param data NthTickEventData
-function TrainsBuilder.construct(data)
+function TrainsConstructor.construct(data)
     ---@param context scripts.lib.domain.Context
-    for _, context in ipairs(TrainsBuilder._get_contexts_from_tasks()) do
-        TrainsBuilder._deploy_trains_for_context(context, data)
+    for _, context in ipairs(TrainsConstructor._get_contexts_from_tasks()) do
+        TrainsConstructor._deploy_trains_for_context(context, data)
     end
 end
 
-function TrainsBuilder._get_contexts_from_tasks()
+function TrainsConstructor._get_contexts_from_tasks()
     local contexts = {}
     local tasks = persistence_storage.trains_tasks.find_all_tasks()
 
@@ -28,7 +28,7 @@ end
 
 ---@param context scripts.lib.domain.Context
 ---@param data NthTickEventData
-function TrainsBuilder._deploy_trains_for_context(context, data)
+function TrainsConstructor._deploy_trains_for_context(context, data)
     if not persistence_storage.is_depot_exists_at(context) then
         -- todo remove formed tasks if depot was destroyed and reset all finished tasks
         return
@@ -39,24 +39,24 @@ function TrainsBuilder._deploy_trains_for_context(context, data)
 
     ---@param task scripts.lib.domain.entity.task.TrainFormTask
     for _, task in pairs(tasks) do
-        TrainsBuilder._try_deploy_train(context, task, tick)
+        TrainsConstructor._try_deploy_train(context, task, tick)
     end
 end
 
 ---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param tick uint
-function TrainsBuilder._try_deploy_train(context, task, tick)
-    if task:is_state_formed() and not TrainsBuilder._is_deploy_slot_free(context) then
+function TrainsConstructor._try_deploy_train(context, task, tick)
+    if task:is_state_formed() and not TrainsConstructor._is_deploy_slot_free(context) then
         return
     end
 
-    TrainsBuilder._deploy_train(context, task, tick)
+    TrainsConstructor._deploy_train(context, task, tick)
 end
 
 ---@param context scripts.lib.domain.Context
 ---@return bool
-function TrainsBuilder._is_deploy_slot_free(context)
+function TrainsConstructor._is_deploy_slot_free(context)
     ---@type LuaEntity
     local depot_station_output = remote.call("atd", "depot_get_output_station", context)
 
@@ -66,7 +66,7 @@ end
 ---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param tick uint
-function TrainsBuilder._deploy_train(context, task, tick)
+function TrainsConstructor._deploy_train(context, task, tick)
     local task_changed = false
 
     if task:is_state_formed() then
@@ -123,7 +123,7 @@ function TrainsBuilder._deploy_train(context, task, tick)
                 if task.deploy_cursor == 1 then
                     task:set_main_locomotive(carrier)
 
-                    TrainsBuilder._add_train_schedule(task.main_locomotive.train, train_template)
+                    TrainsConstructor._add_train_schedule(task.main_locomotive.train, train_template)
                 end
 
                 -- todo fill by fuel from template
@@ -139,7 +139,7 @@ function TrainsBuilder._deploy_train(context, task, tick)
         end
 
     elseif task:is_state_deploy() and result_train_length == target_train_length then
-        TrainsBuilder._register_train_for_template(main_locomotive.train, train_template)
+        TrainsConstructor._register_train_for_template(main_locomotive.train, train_template)
 
         task:state_completed(tick)
 
@@ -149,13 +149,13 @@ function TrainsBuilder._deploy_train(context, task, tick)
     if task_changed then
         persistence_storage.trains_tasks.add(task)
 
-        TrainsBuilder._raise_task_changed_event(task)
+        TrainsConstructor._raise_task_changed_event(task)
     end
 
 end
 
 ---@param train_task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
-function TrainsBuilder._raise_task_changed_event(train_task)
+function TrainsConstructor._raise_task_changed_event(train_task)
     -- todo duplicity
 
     ---@type LuaForce
@@ -172,7 +172,7 @@ end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@param lua_train LuaTrain
-function TrainsBuilder._register_train_for_template(lua_train, train_template)
+function TrainsConstructor._register_train_for_template(lua_train, train_template)
     local train = persistence_storage.find_train(lua_train.id)
 
     train:set_train_template(train_template)
@@ -182,9 +182,9 @@ end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@param train LuaTrain
-function TrainsBuilder._add_train_schedule(train, train_template)
+function TrainsConstructor._add_train_schedule(train, train_template)
     train.schedule = util_table.deep_copy(train_template.destination_schedule)
     train.manual_mode = false
 end
 
-return TrainsBuilder
+return TrainsConstructor
