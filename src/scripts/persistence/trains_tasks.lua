@@ -370,8 +370,8 @@ function public._train_task_changed_raise(train_task)
 
     for _, player in ipairs(force.players) do
         script.raise_event(
-                atd.defines.events.on_core_train_task_changed,
-                { train_task_id = train_task.id, player_index = player.index }
+            atd.defines.events.on_core_train_task_changed,
+            { train_task_id = train_task.id, player_index = player.index, tick = game.tick }
         )
     end
 end

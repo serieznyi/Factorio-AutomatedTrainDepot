@@ -299,7 +299,11 @@ function Depot._train_manipulations(data)
     end
 end
 
-function Depot._train_manipulations_check_activity()
+function Depot._handle_trains_balancer_run(e)
+    trains_balancer.balance_trains_quantity()
+end
+
+function Depot._handle_train_manipulations_check_activity(e)
     local count_tasks = persistence_storage.trains_tasks.total_count_tasks()
 
     if count_tasks == 0 then
@@ -307,14 +311,6 @@ function Depot._train_manipulations_check_activity()
     else
         script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, Depot._train_manipulations)
     end
-end
-
-function Depot._handle_trains_balancer_run(e)
-    trains_balancer.balance_trains_quantity()
-end
-
-function Depot._handle_train_manipulations_check_activity(e)
-    Depot._train_manipulations_check_activity()
 end
 
 function Depot._register_event_handlers()
@@ -329,7 +325,7 @@ function Depot._register_event_handlers()
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
-            handler = function(e) return Depot._handle_train_manipulations_check_activity(e) end,
+            handler = Depot._handle_train_manipulations_check_activity,
         },
     }
 
