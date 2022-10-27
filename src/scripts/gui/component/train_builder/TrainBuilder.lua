@@ -1,5 +1,6 @@
 local flib_gui = require("__flib__.gui")
 
+local util_table = require("scripts.util.table")
 local logger = require("scripts.lib.logger")
 local RollingStock = require("scripts.lib.domain.entity.template.RollingStock")
 local Part = require("scripts.gui.component.train_builder.Part")
