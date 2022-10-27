@@ -16,11 +16,6 @@ function TrainsConstructor.load()
     TrainsConstructor._register_event_handlers()
 end
 
----@param event EventData
-function TrainsConstructor._handle_trains_constructor_check_activity(event)
-    TrainsConstructor._trains_constructor_check_activity()
-end
-
 ---@param data NthTickEventData
 function TrainsConstructor._construct(data)
     ---@param context scripts.lib.domain.Context
@@ -28,7 +23,6 @@ function TrainsConstructor._construct(data)
         TrainsConstructor._deploy_trains_for_context(context, data)
     end
 end
-
 
 function TrainsConstructor._get_contexts_from_tasks()
     local contexts = {}
@@ -202,6 +196,19 @@ function TrainsConstructor._add_train_schedule(train, train_template)
     train.manual_mode = false
 end
 
+function TrainsConstructor._trains_constructor_check_activity()
+    if persistence_storage.trains_tasks.count_form_tasks_ready_for_deploy() == 0 then
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, nil)
+    else
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, TrainsConstructor._construct)
+    end
+end
+
+---@param event EventData
+function TrainsConstructor._handle_trains_constructor_check_activity(event)
+    TrainsConstructor._trains_constructor_check_activity()
+end
+
 function TrainsConstructor._register_event_handlers()
     local handlers = {
         {
@@ -212,14 +219,6 @@ function TrainsConstructor._register_event_handlers()
 
     for _, h in ipairs(handlers) do
         EventDispatcher.register_handler(h.match, h.handler, "TrainsConstructor")
-    end
-end
-
-function TrainsConstructor._trains_constructor_check_activity()
-    if persistence_storage.trains_tasks.count_form_tasks_ready_for_deploy() == 0 then
-        script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, nil)
-    else
-        script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, TrainsConstructor._construct)
     end
 end
 

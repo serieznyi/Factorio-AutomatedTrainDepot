@@ -13,19 +13,6 @@ function TrainsDeconstructor.load()
     TrainsDeconstructor._register_event_handlers()
 end
 
----@param e scripts.lib.event.Event
-function TrainsDeconstructor._handle_trains_deconstruct_check_activity(e)
-    local context = Context.from_train(e.original_event.train)
-
-    if not TrainsDeconstructor._is_depot_building_exists(context) then
-        return false
-    end
-
-    TrainsDeconstructor._trains_deconstruct_check_activity(context)
-
-    return true
-end
-
 ---@param context scripts.lib.domain.Context
 function TrainsDeconstructor._trains_deconstruct_check_activity(context)
     ---@type LuaEntity
@@ -70,16 +57,6 @@ function TrainsDeconstructor._is_depot_building_exists(context)
     return remote.call("atd", "depot_building_exists", context)
 end
 
----@param e scripts.lib.event.Event
-function TrainsDeconstructor._handle_train_created(e)
-    local lua_event = e.original_event
-
-    local new_train = lua_event.train
-    local old_train_id_1 = lua_event.old_train_id_1
-
-    TrainsDeconstructor._try_re_register_train_in_disband_task(new_train, old_train_id_1)
-end
-
 ---@param new_train LuaTrain
 ---@param old_train_id_1 uint|nil
 function TrainsDeconstructor._try_re_register_train_in_disband_task(new_train, old_train_id_1)
@@ -99,6 +76,29 @@ function TrainsDeconstructor._try_re_register_train_in_disband_task(new_train, o
 
         TrainsDeconstructor._raise_task_changed_event(task)
     end
+end
+
+---@param e scripts.lib.event.Event
+function TrainsDeconstructor._handle_train_created(e)
+    local lua_event = e.original_event
+
+    local new_train = lua_event.train
+    local old_train_id_1 = lua_event.old_train_id_1
+
+    TrainsDeconstructor._try_re_register_train_in_disband_task(new_train, old_train_id_1)
+end
+
+---@param e scripts.lib.event.Event
+function TrainsDeconstructor._handle_trains_deconstruct_check_activity(e)
+    local context = Context.from_train(e.original_event.train)
+
+    if not TrainsDeconstructor._is_depot_building_exists(context) then
+        return false
+    end
+
+    TrainsDeconstructor._trains_deconstruct_check_activity(context)
+
+    return true
 end
 
 function TrainsDeconstructor._register_event_handlers()
