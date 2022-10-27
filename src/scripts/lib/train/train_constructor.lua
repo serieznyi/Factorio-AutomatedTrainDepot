@@ -1,5 +1,6 @@
 local flib_direction = require("__flib__.direction")
 
+local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local util_table = require("scripts.util.table")
 local Context = require("scripts.lib.domain.Context")
 local persistence_storage = require("scripts.persistence.persistence_storage")
@@ -7,13 +8,27 @@ local logger = require("scripts.lib.logger")
 
 local TrainsConstructor = {}
 
+function TrainsConstructor.init()
+    TrainsConstructor._register_event_handlers()
+end
+
+function TrainsConstructor.load()
+    TrainsConstructor._register_event_handlers()
+end
+
+---@param event EventData
+function TrainsConstructor._handle_trains_constructor_check_activity(event)
+    TrainsConstructor._trains_constructor_check_activity()
+end
+
 ---@param data NthTickEventData
-function TrainsConstructor.construct(data)
+function TrainsConstructor._construct(data)
     ---@param context scripts.lib.domain.Context
     for _, context in ipairs(TrainsConstructor._get_contexts_from_tasks()) do
         TrainsConstructor._deploy_trains_for_context(context, data)
     end
 end
+
 
 function TrainsConstructor._get_contexts_from_tasks()
     local contexts = {}
@@ -185,6 +200,27 @@ end
 function TrainsConstructor._add_train_schedule(train, train_template)
     train.schedule = util_table.deep_copy(train_template.destination_schedule)
     train.manual_mode = false
+end
+
+function TrainsConstructor._register_event_handlers()
+    local handlers = {
+        {
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
+            handler = function(e) return TrainsConstructor._handle_trains_constructor_check_activity(e) end,
+        },
+    }
+
+    for _, h in ipairs(handlers) do
+        EventDispatcher.register_handler(h.match, h.handler, "TrainsConstructor")
+    end
+end
+
+function TrainsConstructor._trains_constructor_check_activity()
+    if persistence_storage.trains_tasks.count_form_tasks_ready_for_deploy() == 0 then
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, nil)
+    else
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, TrainsConstructor._construct)
+    end
 end
 
 return TrainsConstructor

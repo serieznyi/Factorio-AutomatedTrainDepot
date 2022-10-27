@@ -14,10 +14,14 @@ local Depot = {}
 
 function Depot.init()
     Depot._register_event_handlers()
+
+    train_constructor.init()
 end
 
 function Depot.load()
     Depot._register_event_handlers()
+
+    train_constructor.load()
 end
 
 ---@param schedule TrainSchedule
@@ -328,10 +332,6 @@ function Depot._handle_train_manipulations_check_activity(e)
     Depot._train_manipulations_check_activity()
 end
 
-function Depot._handle_trains_constructor_check_activity(e)
-    Depot._trains_constructor_check_activity()
-end
-
 ---@param e scripts.lib.event.Event
 function Depot._handle_trains_deconstruct_check_activity(e)
     local context = Context.from_train(e.original_event.train)
@@ -343,14 +343,6 @@ function Depot._handle_trains_deconstruct_check_activity(e)
     Depot._trains_deconstruct_check_activity(context)
 
     return true
-end
-
-function Depot._trains_constructor_check_activity()
-    if persistence_storage.trains_tasks.count_form_tasks_ready_for_deploy() == 0 then
-        script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, nil)
-    else
-        script.on_nth_tick(atd.defines.on_nth_tick.trains_deploy, train_constructor.construct)
-    end
 end
 
 ---@param new_train LuaTrain
@@ -427,10 +419,6 @@ function Depot._register_event_handlers()
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_changed),
             handler = function(e) return Depot._handle_trains_balancer_run(e) end,
-        },
-        {
-            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
-            handler = function(e) return Depot._handle_trains_constructor_check_activity(e) end,
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
