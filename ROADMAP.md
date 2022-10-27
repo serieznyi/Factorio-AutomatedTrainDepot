@@ -11,7 +11,7 @@
    - Add button to send uncontrolled train to deconstruction
  - Show controlled trains on map
    - Add button to send train to deconstruction (automatically decrease train quantity in template)
-
+- Fix very big train building, Window to wide
 # next
 
 - [Train Builder] Copy train part on Ctrl + Click
