@@ -34,7 +34,7 @@ mod_defines.time_in_ticks = {
 
 mod_defines.on_nth_tick = {
     persistence_storage_gc = TIME_1_MINUTE,
-    trains_manipulations = TIME_1_SECOND, -- 1/5 of game second
+    trains_manipulations = TIME_1_SECOND,
     trains_deploy = 5,
 }
 
