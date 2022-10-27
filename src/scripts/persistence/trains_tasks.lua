@@ -135,8 +135,9 @@ end
 
 ---@param train_task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
 ---@return scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
-function public.add(train_task)
+function public.add(train_task, raise_event_arg)
     assert(train_task, "train-task is nil")
+    local raise_event = raise_event_arg ~= nil and raise_event_arg or true
 
     if train_task.id == nil then
         train_task.id = train_task_sequence:next()
@@ -145,6 +146,10 @@ function public.add(train_task)
     local data = train_task:to_table()
 
     global.trains_tasks[train_task.id] = garbage_collector.with_updated_at(data)
+
+    if raise_event then
+        public._train_task_changed_raise(train_task)
+    end
 
     return train_task
 end
@@ -356,6 +361,19 @@ end
 ---@param context scripts.lib.domain.Context
 function public.has_tasks(context)
     return #rows(match_context(context))
+end
+
+---@param train_task scripts.lib.domain.entity.task.TrainDisbandTask|scripts.lib.domain.entity.task.TrainFormTask
+function public._train_task_changed_raise(train_task)
+    ---@type LuaForce
+    local force = game.forces[train_task.force_name]
+
+    for _, player in ipairs(force.players) do
+        script.raise_event(
+                atd.defines.events.on_core_train_task_changed,
+                { train_task_id = train_task.id, player_index = player.index }
+        )
+    end
 end
 
 return public

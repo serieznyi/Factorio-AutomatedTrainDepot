@@ -32,24 +32,7 @@ function TrainsDeconstructor._trains_deconstruct_check_activity(context)
     if task:is_state_wait_train() then
         task:state_take_apart(util_table.map(stopped_train.carriages, function(v) return v.unit_number end))
         persistence_storage.trains_tasks.add(task)
-        -- todo move raise in repo ?
-        TrainsDeconstructor._raise_task_changed_event(task)
     end
-end
-
--- todo duplicity
----@param train_task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
-function TrainsDeconstructor._raise_task_changed_event(train_task)
-    ---@type LuaForce
-    local force = game.forces[train_task.force_name]
-
-    for _, player in ipairs(force.players) do
-        script.raise_event(
-                atd.defines.events.on_core_train_task_changed,
-                { train_task_id = train_task.id, player_index = player.index }
-        )
-    end
-
 end
 
 ---@param context scripts.lib.domain.Context
@@ -73,8 +56,6 @@ function TrainsDeconstructor._try_re_register_train_in_disband_task(new_train, o
     if task.train_id == old_train_id_1 then
         task:bind_with_train(new_train.id)
         persistence_storage.trains_tasks.add(task)
-
-        TrainsDeconstructor._raise_task_changed_event(task)
     end
 end
 

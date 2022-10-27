@@ -157,24 +157,6 @@ function TrainsConstructor._deploy_train(context, task, tick)
 
     if task_changed then
         persistence_storage.trains_tasks.add(task)
-
-        TrainsConstructor._raise_task_changed_event(task)
-    end
-
-end
-
----@param train_task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
-function TrainsConstructor._raise_task_changed_event(train_task)
-    -- todo duplicity
-
-    ---@type LuaForce
-    local force = game.forces[train_task.force_name]
-
-    for _, player in ipairs(force.players) do
-        script.raise_event(
-            atd.defines.events.on_core_train_task_changed,
-            { train_task_id = train_task.id, player_index = player.index }
-        )
     end
 
 end

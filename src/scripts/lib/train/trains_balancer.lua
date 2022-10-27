@@ -100,8 +100,6 @@ function TrainsBalancer._try_add_disband_train_task(train_template)
 
     persistence_storage.trains_tasks.add(task)
 
-    TrainsBalancer._raise_task_changed_event(task)
-
     logger.debug(
             "Add new disband task `{1}` for template `{2}`",
             { task.id, train_template.name},
@@ -139,8 +137,6 @@ function TrainsBalancer._try_add_form_train_task(train_template)
     local form_task = TrainFormTask.from_train_template(train_template)
 
     persistence_storage.trains_tasks.add(form_task)
-
-    TrainsBalancer._raise_task_changed_event(form_task)
 
     return true
 end
@@ -192,27 +188,6 @@ function TrainsBalancer._cancel_task(task)
     task:delete()
 
     persistence_storage.trains_tasks.add(task)
-
-    TrainsBalancer._raise_task_changed_event(task)
-end
-
----@param task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
-function TrainsBalancer._raise_task_changed_event(task)
-    ---@type LuaForce
-    local force = game.forces[task.force_name]
-
-    logger.debug(
-            "Changed train task (`1`) `{2}` for template `{3}`",
-            { task.type, task.id, task.train_template_id },
-            "train_balancer"
-    )
-
-    for _, player in ipairs(force.players) do
-        script.raise_event(
-                atd.defines.events.on_core_train_task_changed,
-                { train_task_id = task.id, player_index = player.index }
-        )
-    end
 end
 
 return TrainsBalancer

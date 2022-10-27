@@ -48,25 +48,7 @@ function Depot._try_remove_completed_task(task, tick)
         task:delete()
 
         persistence_storage.trains_tasks.add(task)
-
-        Depot._raise_task_changed_event(task)
     end
-end
-
----@param train_task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
-function Depot._raise_task_changed_event(train_task)
-    -- todo duplicity
-
-    ---@type LuaForce
-    local force = game.forces[train_task.force_name]
-
-    for _, player in ipairs(force.players) do
-        script.raise_event(
-            atd.defines.events.on_core_train_task_changed,
-            { train_task_id = train_task.id, player_index = player.index }
-        )
-    end
-
 end
 
 function Depot._get_depot_multiplier()
@@ -255,7 +237,7 @@ function Depot._process_disbanding_task(task, tick)
                         for _, carriage in ipairs(lua_train.carriages) do
                             if carriage.unit_number == id then
                                 task:take_apart_cursor_next()
-                                persistence_storage.trains_tasks.add(task)
+                                persistence_storage.trains_tasks.add(task, false)
                                 carriage.destroy()
                                 break
                             end
@@ -273,8 +255,6 @@ function Depot._process_disbanding_task(task, tick)
 
     if changed then
         persistence_storage.trains_tasks.add(task)
-
-        Depot._raise_task_changed_event(task)
     end
 
 end
@@ -299,8 +279,6 @@ function Depot._process_form_task(task, tick)
     end
 
     persistence_storage.trains_tasks.add(task)
-
-    Depot._raise_task_changed_event(task)
 
     return true
 end
