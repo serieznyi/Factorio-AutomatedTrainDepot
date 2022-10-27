@@ -209,15 +209,18 @@ function Depot._process_disbanding_task(task, tick)
             changed = true
         end
     elseif task:is_state_take_apart() then
+        local train = persistence_storage.find_train(task.train_id)
+
         if #task.carriages_ids == 0 then
             local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
             local multiplier = Depot._get_depot_multiplier()
 
+            train:delete()
+            persistence_storage.add_train(train)
+
             task:state_disband(tick, multiplier, train_template);
             changed = true
         else
-            local train = persistence_storage.find_train(task.train_id)
-
             if train ~= nil then
                 local lua_train = train.lua_train
 
