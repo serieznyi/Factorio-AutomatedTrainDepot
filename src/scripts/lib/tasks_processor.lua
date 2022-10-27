@@ -317,11 +317,11 @@ function TasksProcessor._register_event_handlers()
     local handlers = {
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
-            handler = function(e) return TasksProcessor._handle_trains_balancer_run(e) end,
+            handler = TasksProcessor._handle_trains_balancer_run,
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_changed),
-            handler = function(e) return TasksProcessor._handle_trains_balancer_run(e) end,
+            handler = TasksProcessor._handle_trains_balancer_run,
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),

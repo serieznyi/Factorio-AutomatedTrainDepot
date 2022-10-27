@@ -195,7 +195,7 @@ function TrainsConstructor._register_event_handlers()
     local handlers = {
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
-            handler = function(e) return TrainsConstructor._handle_trains_constructor_check_activity(e) end,
+            handler = TrainsConstructor._handle_trains_constructor_check_activity,
         },
     }
 

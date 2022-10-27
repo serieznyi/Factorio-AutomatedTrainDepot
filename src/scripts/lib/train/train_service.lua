@@ -143,7 +143,7 @@ function TrainService._register_event_handlers()
     local handlers = {
         {
             match = EventDispatcher.match_event(defines.events.on_train_created),
-            handler = function(e) return TrainService._handle_register_train(e) end,
+            handler = TrainService._handle_register_train,
         },
     }
 
