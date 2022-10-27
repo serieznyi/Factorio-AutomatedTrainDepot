@@ -39,15 +39,17 @@ end)
 --- Log variable from global table in log file
 ---@param command CustomCommandData
 commands.add_command("atd-global-log", nil, function(command)
+    ---@type LuaPlayer
     local player = game.get_player(command.player_index)
 
     if command.parameter == nil or global[command.parameter] == nil then
+        player.print("Key `" .. command.parameter .. "` not found", {1.0, 1.0, 0})
         return
     end
 
     local data = global[command.parameter]
 
-    logger.debug(util_table.to_string(data))
+    logger.debug(util_table.to_string(data), {}, command.parameter)
 
     player.print("Global data from `" .. command.parameter .. "` writed in log file")
 end)
