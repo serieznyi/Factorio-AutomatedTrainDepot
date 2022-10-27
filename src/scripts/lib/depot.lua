@@ -3,9 +3,9 @@ local Context = require("scripts.lib.domain.Context")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local trains_balancer = require("scripts.lib.train.trains_balancer")
 local train_constructor = require("scripts.lib.train.train_constructor")
+local train_deconstructor = require("scripts.lib.train.train_deconstructor")
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
 local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
-local logger = require("scripts.lib.logger")
 local util_table = require("scripts.util.table")
 
 ---@alias TrainStat {train: LuaTrain, has_cargo: bool, drive_to_last_station: bool}[]
@@ -16,12 +16,14 @@ function Depot.init()
     Depot._register_event_handlers()
 
     train_constructor.init()
+    train_deconstructor.init()
 end
 
 function Depot.load()
     Depot._register_event_handlers()
 
     train_constructor.load()
+    train_deconstructor.load()
 end
 
 ---@param schedule TrainSchedule
@@ -31,11 +33,6 @@ function Depot.is_valid_schedule(schedule)
     -- todo add realisation
 
     return is_path_readable
-end
-
----@param context scripts.lib.domain.Context
-function Depot.is_depot_building_exists(context)
-    return remote.call("atd", "depot_building_exists", context)
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
@@ -332,74 +329,6 @@ function Depot._handle_train_manipulations_check_activity(e)
     Depot._train_manipulations_check_activity()
 end
 
----@param e scripts.lib.event.Event
-function Depot._handle_trains_deconstruct_check_activity(e)
-    local context = Context.from_train(e.original_event.train)
-
-    if not Depot.is_depot_building_exists(context) then
-        return false
-    end
-
-    Depot._trains_deconstruct_check_activity(context)
-
-    return true
-end
-
----@param new_train LuaTrain
----@param old_train_id_1 uint|nil
-function Depot._try_re_register_train_in_disband_task(new_train, old_train_id_1)
-    if old_train_id_1 == nil then
-        return
-    end
-
-    local task = persistence_storage.trains_tasks.find_disbanding_task_by_train(old_train_id_1)
-
-    if task == nil then
-        return
-    end
-
-    if task.train_id == old_train_id_1 then
-        task:bind_with_train(new_train.id)
-        persistence_storage.trains_tasks.add(task)
-
-        Depot._raise_task_changed_event(task)
-    end
-end
-
----@param e scripts.lib.event.Event
-function Depot._handle_train_created(e)
-    local lua_event = e.original_event
-
-    local new_train = lua_event.train
-    local old_train_id_1 = lua_event.old_train_id_1
-
-    Depot._try_re_register_train_in_disband_task(new_train, old_train_id_1)
-end
-
----@param context scripts.lib.domain.Context
-function Depot._trains_deconstruct_check_activity(context)
-    ---@type LuaEntity
-    local depot_input_station = remote.call("atd", "depot_get_input_station", context)
-
-    ---@type LuaTrain
-    local stopped_train = depot_input_station.get_stopped_train()
-
-    if stopped_train == nil then
-        return
-    end
-
-    local task = persistence_storage.trains_tasks.find_disbanding_task_by_train(stopped_train.id)
-
-    assert(task, "unknown train on depot stop")
-
-    if task:is_state_wait_train() then
-        task:state_take_apart(util_table.map(stopped_train.carriages, function(v) return v.unit_number end))
-        persistence_storage.trains_tasks.add(task)
-        -- todo move raise in repo ?
-        Depot._raise_task_changed_event(task)
-    end
-end
-
 function Depot._train_manipulations_check_activity()
     local count_tasks = persistence_storage.trains_tasks.total_count_tasks()
 
@@ -423,14 +352,6 @@ function Depot._register_event_handlers()
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
             handler = function(e) return Depot._handle_train_manipulations_check_activity(e) end,
-        },
-        {
-            match = EventDispatcher.match_event(defines.events.on_train_changed_state),
-            handler = function(e) return Depot._handle_trains_deconstruct_check_activity(e) end,
-        },
-        {
-            match = EventDispatcher.match_event(defines.events.on_train_created),
-            handler = function(e) return Depot._handle_train_created(e) end,
         },
     }
 
