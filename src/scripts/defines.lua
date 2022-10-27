@@ -61,6 +61,7 @@ mod_defines.events = {
     on_gui_train_template_enabled = script.generate_event_name(),
     on_gui_train_template_disabled = script.generate_event_name(),
     on_gui_trains_quantity_changed = script.generate_event_name(),
+    on_gui_open_train_map_click = script.generate_event_name(),
     -- settings frame
     on_gui_settings_frame_changed = script.generate_event_name(),
     on_gui_settings_frame_close_click = script.generate_event_name(),

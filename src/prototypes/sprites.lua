@@ -33,6 +33,14 @@ data:extend({
     },
     {
         type = "sprite",
+        name = "atd_sprite_place_marker",
+        filename = "__AutomatedTrainDepot__/graphics/icons/place-marker.png",
+        size = 64,
+        icon_mipmaps = 4,
+        flags = {"gui-icon"}
+    },
+    {
+        type = "sprite",
         name = "atd_sprite_add",
         filename = "__AutomatedTrainDepot__/graphics/icons/plus.png",
         size = 64,

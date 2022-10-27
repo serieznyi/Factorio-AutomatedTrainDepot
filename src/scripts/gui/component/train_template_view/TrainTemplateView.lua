@@ -9,6 +9,7 @@ local Context = require("scripts.lib.domain.Context")
 local structure = require("scripts.gui.component.train_template_view.structure")
 local Sequence = require("scripts.lib.Sequence")
 local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
+local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
 
 local component_id_sequence = Sequence()
 
@@ -115,6 +116,10 @@ function TrainTemplateView:_register_event_handlers()
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
             handler = function(e) return self:_handle_refresh_component(e) end,
         },
+        {
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_open_train_map_click),
+            handler = function(e) return self:_handle_show_train_map(e) end,
+        },
     }
 
     for _, h in ipairs(handlers) do
@@ -134,6 +139,18 @@ function TrainTemplateView:_handle_disable_train_template(e)
     train_template_service.disable_train_template(self.train_template_id)
 
     self:_refresh_component()
+
+    return true
+end
+
+---@param event scripts.lib.event.Event
+function TrainTemplateView:_handle_show_train_map(event)
+    local train_id = event.action_data.train_id
+    local player = game.get_player(event.player_index)
+    local train = persistence_storage.find_train(train_id)
+
+    player.print(train_id)
+    player.opened = train:get_main_locomotive()
 
     return true
 end
@@ -319,8 +336,28 @@ function TrainTemplateView:_build_task_block(task)
                 },
                 children = {
                     {
-                        type = "label",
-                        caption = {"train-template-view-component.atd-state", state_text},
+                        type = "flow",
+                        direction = "horizontal",
+                        {
+                            type = "label",
+                            caption = {"train-template-view-component.atd-state", state_text},
+                        },
+                        {
+                            type = "empty-widget",
+                            style = "flib_horizontal_pusher",
+                            ignored_by_interaction = true
+                        },
+                        {
+                            type = "sprite-button",
+                            name = "atd_sprite_place_marker",
+                            style = "frame_action_button",
+                            tooltip = {"train-template-view-component.atd-show-train-on-map"},
+                            sprite = "atd_sprite_place_marker",
+                            visible = task.type == TrainDisbandTask.type and task:is_state_wait_train(),
+                            actions = {
+                                on_click = { event = atd.defines.events.on_gui_open_train_map_click, train_id = task.train_id }
+                            }
+                        },
                     },
                     TrainTemplateView._draw_progress(task)
                 }
