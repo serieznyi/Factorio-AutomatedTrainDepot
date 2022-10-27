@@ -220,6 +220,8 @@ function Part:_update()
     local has_direction = type ~= RollingStock.TYPE.CARGO
 
     self.refs.delete_button.visible = true
+    self.refs.carrier_direction_left_button.visible = false
+    self.refs.carrier_direction_right_button.visible = false
 
     if has_direction then
         self.refs.carrier_direction_left_button.visible = (current_carrier_direction == atd.defines.train.direction.in_direction)
