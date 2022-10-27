@@ -48,7 +48,9 @@ local TrainDisbandTask = {
     ---@type uint
     train_template_id = nil,
     ---@type uint
-    take_apart_cursor = nil,
+    take_apart_cursor = 0,
+    ---@type uint[]
+    carriages_ids = nil,
 }
 
 ---@return table
@@ -66,6 +68,7 @@ function TrainDisbandTask:to_table()
         train_template_id = self.train_template_id,
         completed_at = self.completed_at,
         take_apart_cursor = self.take_apart_cursor,
+        carriages_ids = self.carriages_ids,
     }
 end
 
@@ -88,20 +91,22 @@ function TrainDisbandTask:state_wait_train()
     self.state = defines.state.wait_train
 end
 
----@param carriers_amount uint
-function TrainDisbandTask:state_take_apart(carriers_amount)
+---@param carriages_ids uint[]
+function TrainDisbandTask:state_take_apart(carriages_ids)
     assert(self.state == defines.state.wait_train, "wrong state")
-    assert(carriers_amount, "carriers_amount is nil")
-    assert(carriers_amount >= 1, "carriers_amount is wrong")
+    assert(carriages_ids, "carriages_ids is nil")
+    assert(type(carriages_ids) == "table", "carriages_ids is not table")
 
-    self.take_apart_cursor = carriers_amount
     self.state = defines.state.take_apart
+    self.carriages_ids = carriages_ids
 end
 
-function TrainDisbandTask:state_completed()
+---@param completed_at uint
+function TrainDisbandTask:state_completed(completed_at)
     assert(self.state == defines.state.disband, "wrong state")
 
     self.state = defines.state.completed
+    self.completed_at = assert(completed_at, "tick is empty")
 end
 
 ---@param tick uint
@@ -114,20 +119,16 @@ function TrainDisbandTask:state_disband(tick, multiplier, train_template)
     assert(multiplier, "multiplier is nil")
     assert(train_template, "train_template is nil")
 
-    assert(self.state == defines.state.wait_train, "wrong state")
-
-    self.state = defines.state.disbanding
-
+    self.state = defines.state.disband
     self.required_disband_ticks = train_template:get_disband_time() * 60 * multiplier
-
     self.disband_end_at = tick + self.required_disband_ticks
 end
 
 function TrainDisbandTask:take_apart_cursor_next()
     assert(self:is_state_take_apart(), "wrong state")
-    assert(self.take_apart_cursor > 0, "train already take aparted")
 
-    self.take_apart_cursor = self.take_apart_cursor - 1
+    self.take_apart_cursor = self.take_apart_cursor + 1
+    table.remove(self.carriages_ids, 1)
 end
 
 ---@return {current: uint, total: uint}

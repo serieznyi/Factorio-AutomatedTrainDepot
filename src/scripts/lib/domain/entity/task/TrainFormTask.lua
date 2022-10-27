@@ -121,7 +121,7 @@ function TrainFormTask:deploy_cursor_next()
 end
 
 ---@param tick
-function TrainFormTask:complete(tick)
+function TrainFormTask:state_completed(tick)
     assert(self.state == defines.state.deploy, "wrong state")
 
     self.main_locomotive = nil

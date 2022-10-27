@@ -141,7 +141,7 @@ function TrainsBuilder._deploy_train(context, task, tick)
     elseif task:is_state_deploy() and result_train_length == target_train_length then
         TrainsBuilder._register_train_for_template(main_locomotive.train, train_template)
 
-        task:complete(tick)
+        task:state_completed(tick)
 
         task_changed = true
     end

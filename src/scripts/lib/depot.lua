@@ -188,6 +188,8 @@ end
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
 function Depot._process_disbanding_task(task, tick)
+    local changed = false
+
     if task:is_state_created() then
         if task.train_id ~= nil then -- Disband uncontrolled train
             Depot._pass_train_to_depot(task)
@@ -196,36 +198,81 @@ function Depot._process_disbanding_task(task, tick)
         elseif task.train_id == nil then -- Disband controlled train
             task:state_try_choose_train()
         end
-    end
 
-    if task:is_state_try_choose_train() then
+        changed = true
+    elseif task:is_state_try_choose_train() then
         if Depot._try_bind_train_with_disband_task(task) then
             Depot._pass_train_to_depot(task)
 
             task:state_wait_train()
+
+            changed = true
+        end
+    elseif task:is_state_take_apart() then
+        if #task.carriages_ids == 0 then
+            local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
+            local multiplier = Depot._get_depot_multiplier()
+
+            task:state_disband(tick, multiplier, train_template);
+            changed = true
+        else
+            local train = persistence_storage.find_train(task.train_id)
+
+            if train ~= nil then
+                local lua_train = train.lua_train
+
+                if lua_train.valid then
+                    local carriages_quantity = #lua_train.carriages
+
+                    --if task.take_apart_cursor == 2 then
+                        --local context = Context.from_model(task)
+                        --local surface = game.surfaces[context.surface_name]
+                        --local carriage_id = task.carriages_ids[1]
+                        --local depot_locomotive_entity_data = {
+                        --    name = "locomotive",
+                        --    position = train_position,
+                        --    direction = carrier_direction,
+                        --    force = game.forces[context.force_name],
+                        --};
+                        --if surface.can_place_entity(depot_locomotive_entity_data) then
+                        --    ---@type LuaEntity
+                        --    local depot_train = surface.create_entity(depot_locomotive_entity_data)
+                        --    depot_train.get_inventory(defines.inventory.fuel).insert({name = "coal", count = 50})
+                        --
+                        --    task.take_apart_cursor = 0
+                        --    table.insert(task.carriages_ids, 1, depot_train.unit_number)
+                        --    persistence_storage.trains_tasks.add(task)
+                        --    -- todo drive to depot station
+                        --    break
+                        --end
+                    --else
+                        local id = task.carriages_ids[1]
+
+                        for _, carriage in ipairs(lua_train.carriages) do
+                            if carriage.unit_number == id then
+                                task:take_apart_cursor_next()
+                                persistence_storage.trains_tasks.add(task)
+                                carriage.destroy()
+                                break
+                            end
+                        end
+                    --end
+                end
+            end
+        end
+    elseif task:is_state_disband() then
+        if task:is_disband_time_left(tick) then
+            task:state_completed(tick)
+            changed = true
         end
     end
 
-    if task:is_state_wait_train() then
-        -- todo check what train in destination
+    if changed then
+        persistence_storage.trains_tasks.add(task)
+
+        Depot._raise_task_changed_event(task)
     end
 
-    if task:is_state_take_apart() then
-        -- todo deconstruct train (real)
-    end
-
-    if task:is_state_disband() then
-        -- todo imitate train deconstruction
-
-        if false then
-            task:state_completed()
-        end
-    end
-
-    -- todo add and raise only on real task change
-    persistence_storage.trains_tasks.add(task)
-
-    Depot._raise_task_changed_event(task)
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
@@ -303,18 +350,58 @@ function Depot._trains_constructor_check_activity()
     end
 end
 
+---@param new_train LuaTrain
+---@param old_train_id_1 uint|nil
+function Depot._try_re_register_train_in_disband_task(new_train, old_train_id_1)
+    if old_train_id_1 == nil then
+        return
+    end
+
+    local task = persistence_storage.trains_tasks.find_disbanding_task_by_train(old_train_id_1)
+
+    if task == nil then
+        return
+    end
+
+    if task.train_id == old_train_id_1 then
+        task:bind_with_train(new_train.id)
+        persistence_storage.trains_tasks.add(task)
+
+        Depot._raise_task_changed_event(task)
+    end
+end
+
+---@param e scripts.lib.event.Event
+function Depot._handle_train_created(e)
+    local lua_event = e.original_event
+
+    local new_train = lua_event.train
+    local old_train_id_1 = lua_event.old_train_id_1
+
+    Depot._try_re_register_train_in_disband_task(new_train, old_train_id_1)
+end
+
 ---@param context scripts.lib.domain.Context
 function Depot._trains_deconstruct_check_activity(context)
     ---@type LuaEntity
     local depot_input_station = remote.call("atd", "depot_get_input_station", context)
 
+    ---@type LuaTrain
     local stopped_train = depot_input_station.get_stopped_train()
 
-    if stopped_train ~= nil then
+    if stopped_train == nil then
+        return
+    end
 
-        --train.manual_mode = false
+    local task = persistence_storage.trains_tasks.find_disbanding_task_by_train(stopped_train.id)
 
-        logger.debug(stopped_train)
+    assert(task, "unknown train on depot stop")
+
+    if task:is_state_wait_train() then
+        task:state_take_apart(util_table.map(stopped_train.carriages, function(v) return v.unit_number end))
+        persistence_storage.trains_tasks.add(task)
+        -- todo move raise in repo ?
+        Depot._raise_task_changed_event(task)
     end
 end
 
@@ -349,6 +436,10 @@ function Depot._register_event_handlers()
         {
             match = EventDispatcher.match_event(defines.events.on_train_changed_state),
             handler = function(e) return Depot._handle_trains_deconstruct_check_activity(e) end,
+        },
+        {
+            match = EventDispatcher.match_event(defines.events.on_train_created),
+            handler = function(e) return Depot._handle_train_created(e) end,
         },
     }
 
