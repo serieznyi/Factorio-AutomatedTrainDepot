@@ -10,24 +10,24 @@ local util_table = require("scripts.util.table")
 
 ---@alias TrainStat {train: LuaTrain, has_cargo: bool, drive_to_last_station: bool}[]
 
-local Depot = {}
+local TasksProcessor = {}
 
-function Depot.init()
-    Depot._register_event_handlers()
+function TasksProcessor.init()
+    TasksProcessor._register_event_handlers()
 
     train_constructor.init()
     train_deconstructor.init()
 end
 
-function Depot.load()
-    Depot._register_event_handlers()
+function TasksProcessor.load()
+    TasksProcessor._register_event_handlers()
 
     train_constructor.load()
     train_deconstructor.load()
 end
 
 ---@param schedule TrainSchedule
-function Depot.is_valid_schedule(schedule)
+function TasksProcessor.is_valid_schedule(schedule)
     local is_path_readable = false
 
     -- todo add realisation
@@ -37,7 +37,7 @@ end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
-function Depot._try_remove_completed_task(task, tick)
+function TasksProcessor._try_remove_completed_task(task, tick)
     if not task:is_state_completed() then
         return
     end
@@ -51,12 +51,12 @@ function Depot._try_remove_completed_task(task, tick)
     end
 end
 
-function Depot._get_depot_multiplier()
+function TasksProcessor._get_depot_multiplier()
     return 1.0 -- todo depended from technologies
 end
 
 ---@param train scripts.lib.domain.entity.Train
-function Depot._is_train_marked_to_disband(train)
+function TasksProcessor._is_train_marked_to_disband(train)
     local context = Context.from_model(train)
     local tasks = persistence_storage.trains_tasks.find_disbanding_tasks(context, train.train_template_id)
 
@@ -71,13 +71,13 @@ end
 
 ---@param train scripts.lib.domain.entity.Train
 ---@return bool
-function Depot._is_train_has_cargo(train)
+function TasksProcessor._is_train_has_cargo(train)
     return false -- todo add logic
 end
 
 ---@param train scripts.lib.domain.entity.Train
 ---@return bool
-function Depot._is_train_drive_to_last_station(train)
+function TasksProcessor._is_train_drive_to_last_station(train)
     local schedule = train.lua_train.schedule
 
     if schedule == nil then
@@ -89,7 +89,7 @@ end
 
 ---@param stat TrainStat
 ---@return uint
-function Depot._build_train_disband_priority(stat)
+function TasksProcessor._build_train_disband_priority(stat)
     local priority = 1
 
     if stat.drive_to_last_station then
@@ -104,7 +104,7 @@ function Depot._build_train_disband_priority(stat)
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
-function Depot._try_bind_train_with_disband_task(task)
+function TasksProcessor._try_bind_train_with_disband_task(task)
     local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
     local context = Context.from_model(train_template)
     local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
@@ -113,13 +113,13 @@ function Depot._try_bind_train_with_disband_task(task)
 
     -- collect trains stat
     for _, train in ipairs(trains) do
-        if not Depot._is_train_marked_to_disband(train) then
+        if not TasksProcessor._is_train_marked_to_disband(train) then
             local train_stat = {}
 
             train_stat.train = train
-            train_stat.has_cargo = Depot._is_train_has_cargo(train)
-            train_stat.drive_to_last_station = Depot._is_train_drive_to_last_station(train)
-            train_stat.priority = Depot._build_train_disband_priority(train_stat)
+            train_stat.has_cargo = TasksProcessor._is_train_has_cargo(train)
+            train_stat.drive_to_last_station = TasksProcessor._is_train_drive_to_last_station(train)
+            train_stat.priority = TasksProcessor._build_train_disband_priority(train_stat)
 
             table.insert(trains_stat, train_stat)
         end
@@ -138,7 +138,7 @@ function Depot._try_bind_train_with_disband_task(task)
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
-function Depot._pass_train_to_depot(task)
+function TasksProcessor._pass_train_to_depot(task)
     local train = persistence_storage.find_train(task.train_id)
     local context = Context.from_model(task)
 
@@ -170,12 +170,12 @@ end
 
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
-function Depot._process_disbanding_task(task, tick)
+function TasksProcessor._process_disbanding_task(task, tick)
     local changed = false
 
     if task:is_state_created() then
         if task.train_id ~= nil then -- Disband uncontrolled train
-            Depot._pass_train_to_depot(task)
+            TasksProcessor._pass_train_to_depot(task)
 
             task:state_wait_train()
         elseif task.train_id == nil then -- Disband controlled train
@@ -184,8 +184,8 @@ function Depot._process_disbanding_task(task, tick)
 
         changed = true
     elseif task:is_state_try_choose_train() then
-        if Depot._try_bind_train_with_disband_task(task) then
-            Depot._pass_train_to_depot(task)
+        if TasksProcessor._try_bind_train_with_disband_task(task) then
+            TasksProcessor._pass_train_to_depot(task)
 
             task:state_wait_train()
 
@@ -196,7 +196,7 @@ function Depot._process_disbanding_task(task, tick)
 
         if #task.carriages_ids == 0 then
             local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
-            local multiplier = Depot._get_depot_multiplier()
+            local multiplier = TasksProcessor._get_depot_multiplier()
 
             train:delete()
             persistence_storage.add_train(train)
@@ -261,8 +261,8 @@ end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param tick uint
-function Depot._process_form_task(task, tick)
-    local multiplier = Depot._get_depot_multiplier()
+function TasksProcessor._process_form_task(task, tick)
+    local multiplier = TasksProcessor._get_depot_multiplier()
 
     if not task:is_state_created() and not task:is_state_form() then
         return false
@@ -284,48 +284,48 @@ function Depot._process_form_task(task, tick)
 end
 
 ---@param data NthTickEventData
-function Depot._train_manipulations(data)
+function TasksProcessor._train_manipulations(data)
     local tick = data.tick
     local tasks = persistence_storage.trains_tasks.find_all_tasks()
 
     for _, task in pairs(tasks) do
         if task.type == TrainFormTask.type then
-            Depot._process_form_task(task, tick)
+            TasksProcessor._process_form_task(task, tick)
         elseif task.type == TrainDisbandTask.type then
-            Depot._process_disbanding_task(task, tick)
+            TasksProcessor._process_disbanding_task(task, tick)
         end
 
-        Depot._try_remove_completed_task(task, data.tick)
+        TasksProcessor._try_remove_completed_task(task, data.tick)
     end
 end
 
-function Depot._handle_trains_balancer_run(e)
+function TasksProcessor._handle_trains_balancer_run(e)
     trains_balancer.balance_trains_quantity()
 end
 
-function Depot._handle_train_manipulations_check_activity(e)
+function TasksProcessor._handle_train_manipulations_check_activity(e)
     local count_tasks = persistence_storage.trains_tasks.total_count_tasks()
 
     if count_tasks == 0 then
         script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, nil)
     else
-        script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, Depot._train_manipulations)
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, TasksProcessor._train_manipulations)
     end
 end
 
-function Depot._register_event_handlers()
+function TasksProcessor._register_event_handlers()
     local handlers = {
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
-            handler = function(e) return Depot._handle_trains_balancer_run(e) end,
+            handler = function(e) return TasksProcessor._handle_trains_balancer_run(e) end,
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_changed),
-            handler = function(e) return Depot._handle_trains_balancer_run(e) end,
+            handler = function(e) return TasksProcessor._handle_trains_balancer_run(e) end,
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
-            handler = Depot._handle_train_manipulations_check_activity,
+            handler = TasksProcessor._handle_train_manipulations_check_activity,
         },
     }
 
@@ -334,4 +334,4 @@ function Depot._register_event_handlers()
     end
 end
 
-return Depot
+return TasksProcessor

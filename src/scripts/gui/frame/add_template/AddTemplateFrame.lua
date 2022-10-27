@@ -11,7 +11,7 @@ local TrainStationSelector = require("scripts.gui.component.train_station_select
 local TrainScheduleSelector = require("scripts.gui.component.train_schedule_selector.TrainScheduleSelector")
 local TrainBuilder = require("scripts.gui.component.train_builder.TrainBuilder")
 local validator = require("scripts.gui.validator")
-local depot = require("scripts.lib.depot")
+local tasks_processor = require("scripts.lib.tasks_processor")
 local train_template_service = require("scripts.lib.train_template_service")
 
 local function validation_check_empty_fuel(field_name, form)
@@ -32,7 +32,7 @@ local function validation_check_destination_schedule_reachability(field_name, fo
         return
     end
 
-    if depot.is_valid_schedule(schedule) then
+    if tasks_processor.is_valid_schedule(schedule) then
         return
     end
 
