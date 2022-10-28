@@ -1,5 +1,6 @@
 # 0.1.1
 
+ - [?] Not save lua train in train model
  - Test construction train with nuclear fuel
  - Not show schedules with TEMP point in train builder
  - Remove possibility to send any train manually to ATD (remove stops from map)

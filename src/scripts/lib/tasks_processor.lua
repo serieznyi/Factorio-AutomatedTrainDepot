@@ -18,6 +18,8 @@ function TasksProcessor.init()
 
     train_constructor.init()
     train_deconstructor.init()
+
+    script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, TasksProcessor._train_manipulations)
 end
 
 function TasksProcessor.load()
@@ -25,6 +27,8 @@ function TasksProcessor.load()
 
     train_constructor.load()
     train_deconstructor.load()
+
+    script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, TasksProcessor._train_manipulations)
 end
 
 ---@param schedule TrainSchedule
@@ -238,15 +242,9 @@ function TasksProcessor._process_disbanding_task(task, tick)
         local train = persistence_storage.find_train(task.train_id)
         local train_valid = train ~= nil and train.lua_train.valid
 
-        if not train_valid then
-            return
-        end
+        -- todo train deconstruction to slow
 
-        if train.lua_train.riding_state.acceleration ~= defines.riding.acceleration.nothing then
-            return
-        end
-
-        if task.take_apart_cursor == 0 and train.lua_train.manual_mode == true then
+        if train_valid and task.take_apart_cursor == 0 and train.lua_train.manual_mode == true then
 
             train.lua_train.manual_mode = false
         elseif #task.carriages_ids == 0 then
@@ -255,9 +253,9 @@ function TasksProcessor._process_disbanding_task(task, tick)
 
             task:state_disband(tick, multiplier, train_template);
             changed = true
-        elseif task.take_apart_cursor == 2 then
+        elseif train_valid and task.take_apart_cursor == 2 then
             TasksProcessor._add_depot_train(train.lua_train, task)
-        else
+        elseif train_valid and train.lua_train.riding_state.acceleration == defines.riding.acceleration.nothing then
             local id = task.carriages_ids[1]
 
             for _, carriage in ipairs(train.lua_train.carriages) do
@@ -308,9 +306,8 @@ function TasksProcessor._process_form_task(task, tick)
     return true
 end
 
----@param data NthTickEventData
-function TasksProcessor._train_manipulations(data)
-    local tick = data.tick
+---@param tick uint
+function TasksProcessor._train_manipulations(tick)
     local tasks = persistence_storage.trains_tasks.find_all_tasks()
 
     for _, task in pairs(tasks) do
@@ -320,12 +317,17 @@ function TasksProcessor._train_manipulations(data)
             TasksProcessor._process_disbanding_task(task, tick)
         end
 
-        TasksProcessor._try_remove_completed_task(task, data.tick)
+        TasksProcessor._try_remove_completed_task(task, tick)
     end
 end
 
 function TasksProcessor._handle_trains_balancer_run(e)
     trains_balancer.balance_trains_quantity()
+end
+
+---@param data NthTickEventData
+function TasksProcessor._ndt_handle_train_manipulations(data)
+    TasksProcessor._train_manipulations(data.tick)
 end
 
 function TasksProcessor._handle_train_manipulations_check_activity(e)
@@ -334,7 +336,7 @@ function TasksProcessor._handle_train_manipulations_check_activity(e)
     if count_tasks == 0 then
         script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, nil)
     else
-        script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, TasksProcessor._train_manipulations)
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_manipulations, TasksProcessor._ndt_handle_train_manipulations)
     end
 end
 
