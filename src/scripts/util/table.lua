@@ -51,6 +51,18 @@ function atd_table.fill_assoc(target, source)
     end
 end
 
+---@param table_arg table
+---@return table reversed table
+function atd_table.reverse(table_arg)
+    local reversed = {}
+
+    for i=#table_arg, 1, -1 do
+        table.insert(reversed, table_arg[i])
+    end
+
+    return reversed
+end
+
 --- @param tbl table
 --- @param filter function Takes in `value`, `key`, and `tbl` as parameters.
 --- @param array_insert? boolean If true, the result will be constructed as an array of values that matched the filter. Key references will be lost.
