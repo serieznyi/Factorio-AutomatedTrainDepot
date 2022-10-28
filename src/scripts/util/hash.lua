@@ -54,6 +54,10 @@ function hash.hash_value(value)
         hash_code = 1
     elseif value_type == "table" then
         hash_code = hash.hash_code(value)
+    elseif value_type == "userdata" then
+        hash_code = 2
+    else
+        assert(nil, "unknown value_type: " .. value_type)
     end
 
     return hash_code
