@@ -137,7 +137,7 @@ function TrainsConstructor._deploy_train(context, task, tick)
 
                 -- todo fill by fuel from template
                 local inventory = carrier.get_inventory(defines.inventory.fuel)
-                inventory.insert({name = "coal", count = 50})
+                inventory.insert({name = "nuclear-fuel", count = 1})
             end
 
             carrier.train.manual_mode = false

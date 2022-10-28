@@ -1,5 +1,7 @@
 # 0.1.1
 
+ - Test construction train with nuclear fuel
+ - Not show schedules with TEMP point in train builder
  - Remove possibility to send any train manually to ATD (remove stops from map)
    - [?] Send trains to deconstruction using temporal waypoint? 
    - [?] Set correct name for input stop ?
@@ -12,6 +14,7 @@
  - Show controlled trains on map
    - Add button to send train to deconstruction (automatically decrease train quantity in template)
 - Fix very big train building, Window to wide
+
 # next
 
 - [Train Builder] Copy train part on Ctrl + Click

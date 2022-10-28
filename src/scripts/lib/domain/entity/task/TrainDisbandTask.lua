@@ -1,4 +1,5 @@
 local util_table = require("scripts.util.table")
+local logger = require("scripts.lib.logger")
 
 ---@class train_disband_task_defines
 ---@field type string
@@ -50,7 +51,7 @@ local TrainDisbandTask = {
     ---@type uint
     take_apart_cursor = 0,
     ---@type uint[]
-    carriages_ids = nil,
+    carriages_ids = {},
 }
 
 ---@return table
@@ -91,14 +92,29 @@ function TrainDisbandTask:state_wait_train()
     self.state = defines.state.wait_train
 end
 
----@param carriages_ids uint[]
-function TrainDisbandTask:state_take_apart(carriages_ids)
+---@param train LuaTrain
+---@param front_locomotive_id uint
+function TrainDisbandTask:state_take_apart(train, front_locomotive_id)
     assert(self.state == defines.state.wait_train, "wrong state")
-    assert(carriages_ids, "carriages_ids is nil")
-    assert(type(carriages_ids) == "table", "carriages_ids is not table")
+    assert(train, "train is nil")
+    assert(front_locomotive_id, "front_locomotive_id is nil")
 
     self.state = defines.state.take_apart
-    self.carriages_ids = carriages_ids
+    self:_update_carriages_ids(train, front_locomotive_id)
+end
+
+---@param train LuaTrain
+---@param front_locomotive_id uint
+function TrainDisbandTask:_update_carriages_ids(train, front_locomotive_id)
+    assert("train", "train is nil")
+
+    local carriages_ids = util_table.map(train.carriages, function(v) return v.unit_number end)
+
+    if carriages_ids[1] == front_locomotive_id then
+        self.carriages_ids = carriages_ids
+    else
+        self.carriages_ids = util_table.reverse(carriages_ids)
+    end
 end
 
 ---@param completed_at uint
@@ -186,9 +202,10 @@ function TrainDisbandTask:bind_with_template(train_template_id)
     self.train_template_id = assert(train_template_id, "train_template is nil")
 end
 
----@param train_id uint
-function TrainDisbandTask:bind_with_train(train_id)
-    self.train_id = assert(train_id, "train_id is nil")
+---@param train LuaTrain
+function TrainDisbandTask:bind_with_train(train)
+    assert(train, "train is nil")
+    self.train_id = train.id
 end
 
 ---@param data table|scripts.lib.domain.entity.task.TrainDisbandTask

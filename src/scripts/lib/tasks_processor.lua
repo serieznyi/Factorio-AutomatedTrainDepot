@@ -7,6 +7,7 @@ local train_deconstructor = require("scripts.lib.train.disband.train_deconstruct
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
 local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
 local util_table = require("scripts.util.table")
+local logger = require("scripts.lib.logger")
 
 ---@alias TrainStat {train: LuaTrain, has_cargo: bool, drive_to_last_station: bool}[]
 
@@ -130,8 +131,8 @@ function TasksProcessor._try_bind_train_with_disband_task(task)
     end)
 
     if #trains_stat ~= 0 then
-        local train = trains_stat[1]
-        task:bind_with_train(train.train.id)
+        local train_stat = trains_stat[1]
+        task:bind_with_train(train_stat.train.lua_train)
     end
 
     return task.train_id ~= nil
@@ -168,6 +169,48 @@ function TasksProcessor._pass_train_to_depot(task)
     lua_train.schedule = new_train_schedule
 end
 
+---@param first_carriage LuaTrain
+---@param task scripts.lib.domain.entity.task.TrainDisbandTask
+function TasksProcessor._add_depot_train(first_carriage, task)
+    local context = Context.from_model(task)
+    ---@type LuaEntity
+    local depot_input_station = remote.call("atd", "depot_get_input_station", context)
+    local surface = game.surfaces[context.surface_name]
+    local carriage_id = task.carriages_ids[1]
+    ---@type LuaEntity
+    local first_carrier
+
+    for _, carriage in ipairs(first_carriage.carriages) do
+        if carriage.unit_number == carriage_id then
+            first_carrier = carriage
+        end
+    end
+
+    assert(first_carrier)
+
+    local first_carrier_position = first_carrier.position
+    local direction = depot_input_station.direction
+    local depot_locomotive_entity_data = {
+        name = "locomotive",
+        position = {
+            first_carrier_position.x + atd.defines.rotate_relative_position[direction](0, -7),
+            first_carrier_position.y
+        },
+        direction = direction,
+        force = game.forces[context.force_name],
+    };
+
+    if surface.can_place_entity(depot_locomotive_entity_data) then
+        task.take_apart_cursor = 0 -- reset cursor
+        persistence_storage.trains_tasks.add(task, false)
+
+        ---@type LuaEntity
+        local depot_train = surface.create_entity(depot_locomotive_entity_data)
+        -- todo use any fuel with max fuel value. move in func
+        depot_train.get_inventory(defines.inventory.fuel).insert({name = "nuclear-fuel", count = 1})
+    end
+end
+
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
 function TasksProcessor._process_disbanding_task(task, tick)
@@ -193,56 +236,38 @@ function TasksProcessor._process_disbanding_task(task, tick)
         end
     elseif task:is_state_take_apart() then
         local train = persistence_storage.find_train(task.train_id)
+        local train_valid = train ~= nil and train.lua_train.valid
 
-        if #task.carriages_ids == 0 then
+        if not train_valid then
+            return
+        end
+
+        if train.lua_train.riding_state.acceleration ~= defines.riding.acceleration.nothing then
+            return
+        end
+
+        if task.take_apart_cursor == 0 and train.lua_train.manual_mode == true then
+
+            train.lua_train.manual_mode = false
+        elseif #task.carriages_ids == 0 then
             local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
             local multiplier = TasksProcessor._get_depot_multiplier()
 
-            train:delete()
-            persistence_storage.add_train(train)
-
             task:state_disband(tick, multiplier, train_template);
             changed = true
+        elseif task.take_apart_cursor == 2 then
+            TasksProcessor._add_depot_train(train.lua_train, task)
         else
-            if train ~= nil then
-                local lua_train = train.lua_train
+            local id = task.carriages_ids[1]
 
-                if lua_train.valid then
-                    local carriages_quantity = #lua_train.carriages
+            for _, carriage in ipairs(train.lua_train.carriages) do
+                if carriage.unit_number == id then
+                    task:take_apart_cursor_next()
 
-                    --if task.take_apart_cursor == 2 then
-                        --local context = Context.from_model(task)
-                        --local surface = game.surfaces[context.surface_name]
-                        --local carriage_id = task.carriages_ids[1]
-                        --local depot_locomotive_entity_data = {
-                        --    name = "locomotive",
-                        --    position = train_position,
-                        --    direction = carrier_direction,
-                        --    force = game.forces[context.force_name],
-                        --};
-                        --if surface.can_place_entity(depot_locomotive_entity_data) then
-                        --    ---@type LuaEntity
-                        --    local depot_train = surface.create_entity(depot_locomotive_entity_data)
-                        --    depot_train.get_inventory(defines.inventory.fuel).insert({name = "coal", count = 50})
-                        --
-                        --    task.take_apart_cursor = 0
-                        --    table.insert(task.carriages_ids, 1, depot_train.unit_number)
-                        --    persistence_storage.trains_tasks.add(task)
-                        --    -- todo drive to depot station
-                        --    break
-                        --end
-                    --else
-                        local id = task.carriages_ids[1]
-
-                        for _, carriage in ipairs(lua_train.carriages) do
-                            if carriage.unit_number == id then
-                                task:take_apart_cursor_next()
-                                persistence_storage.trains_tasks.add(task, false)
-                                carriage.destroy()
-                                break
-                            end
-                        end
-                    --end
+                    -- save task in place and not raise event because train_id will updated in task later
+                    persistence_storage.trains_tasks.add(task, false)
+                    carriage.destroy()
+                    break
                 end
             end
         end
