@@ -27,7 +27,7 @@ function TrainService.try_delete_train(deleted_entity)
         return
     end
 
-    local train = persistence_storage.find_train(deleted_entity.unit_number)
+    local train = persistence_storage.find_train(deleted_entity.train.id)
 
     if train == nil then
         return
@@ -37,11 +37,11 @@ function TrainService.try_delete_train(deleted_entity)
 
     persistence_storage.add_train(train)
 
-    logger.debug("Train {1} mark as deleted", {deleted_entity.train.id}, "depot.delete_train")
+    logger.debug("Train {1} mark as deleted", {deleted_entity.train.id}, "TrainService.try_delete_train")
 end
 
 function TrainService.register_trains()
-    logger.info("Try register all exists trains", {}, "depot.register_trains")
+    logger.info("Try register all exists trains", {}, "TrainService.register_trains")
 
     ---@param train LuaTrain
     for _, train in ipairs(TrainService._get_trains()) do
@@ -59,7 +59,7 @@ function TrainService._register_train(lua_train, old_train_id_1, old_train_id_2)
     local merge_exists_train = old_train_id_1 ~= nil and old_train_id_2 ~= nil
 
     if not train_has_locomotive then
-        logger.debug("Ignore train without locomotive: Train id {1}", {lua_train.id}, "depot.register_train")
+        logger.debug("Ignore train without locomotive: Train id {1}", {lua_train.id}, "TrainService._register_train")
         return
     end
 
@@ -67,27 +67,27 @@ function TrainService._register_train(lua_train, old_train_id_1, old_train_id_2)
         ---@type scripts.lib.domain.entity.Train
         local train = Train.from_lua_train(lua_train)
 
-        logger.debug("Try register new train {1}", {train.id}, "depot.register_train")
+        logger.debug("Try register new train {1}", {train.id}, "TrainService._register_train")
 
         return persistence_storage.add_train(train)
     elseif change_exists_train then
         -- todo mark as unregistered ?
         -- todo use train_structure_hash ?
-        local old_train_entity = persistence_storage.find_train(old_train_id_1)
+        local old_train = persistence_storage.find_train(old_train_id_1)
 
-        local new_train_entity = old_train_entity:copy(lua_train)
+        local new_train = old_train:copy(lua_train)
 
-        old_train_entity:delete()
-        persistence_storage.add_train(old_train_entity)
-        logger.debug("Train {1} mark as deleted", {old_train_id_1}, "depot.register_train")
+        old_train:delete()
+        persistence_storage.add_train(old_train)
+        logger.debug("Train {1} mark as deleted", {old_train_id_1}, "TrainService._register_train")
 
         logger.debug(
                 "Try register new train {1} extended from {2}",
-                {new_train_entity.id, old_train_id_1},
-                "depot.register_train"
+                { new_train.id, old_train_id_1},
+                "TrainService._register_train"
         )
 
-        return persistence_storage.add_train(new_train_entity)
+        return persistence_storage.add_train(new_train)
     elseif merge_exists_train then
         -- todo mark as unregistered ?
         -- todo use train_structure_hash ?
@@ -97,7 +97,7 @@ function TrainService._register_train(lua_train, old_train_id_1, old_train_id_2)
         if newest_train ~= nil then
             newest_train:delete()
             persistence_storage.add_train(newest_train)
-            logger.debug("Train {1} mark as deleted", {newest_train_id}, "depot.register_train")
+            logger.debug("Train {1} mark as deleted", {newest_train_id}, "TrainService._register_train")
         end
 
         local oldest_train_id = math.min(old_train_id_1, old_train_id_2);
@@ -110,7 +110,7 @@ function TrainService._register_train(lua_train, old_train_id_1, old_train_id_2)
 
             oldest_train:delete()
             persistence_storage.add_train(oldest_train)
-            logger.debug("Train {1} mark as deleted", {oldest_train_id}, "depot.register_train")
+            logger.debug("Train {1} mark as deleted", {oldest_train_id}, "TrainService._register_train")
         else
             new_train_entity = Train.from_lua_train(lua_train)
         end
@@ -118,7 +118,7 @@ function TrainService._register_train(lua_train, old_train_id_1, old_train_id_2)
         logger.debug(
                 "Try register new train {1} as merge trains {2} and {3}",
                 {new_train_entity.id, old_train_id_1, old_train_id_2},
-                "depot.register_train"
+                "TrainService._register_train"
         )
 
         return persistence_storage.add_train(new_train_entity)

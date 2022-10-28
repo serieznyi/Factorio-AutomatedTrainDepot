@@ -264,7 +264,7 @@ function TasksProcessor._process_disbanding_task(task, tick)
 
                     -- save task in place and not raise event because train_id will updated in task later
                     persistence_storage.trains_tasks.add(task, false)
-                    carriage.destroy()
+                    carriage.destroy{raise_destroy = true}
                     break
                 end
             end
