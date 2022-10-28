@@ -112,7 +112,7 @@ end
 function TasksProcessor._try_bind_train_with_disband_task(task)
     local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
     local context = Context.from_model(train_template)
-    local trains = persistence_storage.find_controlled_trains_for_template(context, train_template.id)
+    local trains = persistence_storage.find_controlled_trains(context, train_template.id)
     ---@type {train: LuaTrain, has_cargo: bool, drive_to_last_station: bool, trains_stat: uint}[]
     local trains_stat = {}
 

@@ -206,7 +206,7 @@ end
 ---@param context scripts.lib.domain.Context
 ---@param train_template_id uint
 ---@return scripts.lib.domain.entity.Train[]
-function public.find_controlled_trains_for_template(context, train_template_id)
+function public.find_controlled_trains(context, train_template_id)
     return private.find_trains(context, true, train_template_id)
 end
 

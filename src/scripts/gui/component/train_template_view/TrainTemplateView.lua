@@ -255,7 +255,7 @@ end
 function TrainTemplateView:_refresh_info_block()
     local context = Context.from_player(self.player)
     local train_template = persistence_storage.find_train_template_by_id(self.train_template_id)
-    local real_trains_quantity = #persistence_storage.find_controlled_trains_for_template(context, self.train_template_id)
+    local real_trains_quantity = #persistence_storage.find_controlled_trains(context, self.train_template_id)
     local potential_trains_quantity = train_template.trains_quantity
 
     self.refs.tasks_info_block.clear()
