@@ -292,9 +292,20 @@ function MainFrame:_get_trains_templates_values()
             trains_templates,
             function(t)
                 local icon = util_image.image_for_item(t.icon)
+                local has_tasks = persistence_storage.trains_tasks.count_tasks(context, t.id) > 0
+                local sprite
+
+                if t.enabled and has_tasks then
+                    sprite = "utility/status_working"
+                elseif t.enabled and not has_tasks then
+                    sprite = "utility/status_yellow"
+                elseif not t.enabled then
+                    sprite = "utility/status_not_working"
+                end
 
                 return {
                     caption = icon .. " " .. t.name,
+                    sprite = sprite,
                     id = t.id,
                     tooltip = { "main-frame.atd-train-template-list-button-tooltip", t.name},
                 }
@@ -310,6 +321,10 @@ function MainFrame:_register_event_handlers()
         },
         {
             match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
+            handler = function(e) return self:_handle_update(e) end,
+        },
+        {
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
             handler = function(e) return self:_handle_update(e) end,
         },
         {

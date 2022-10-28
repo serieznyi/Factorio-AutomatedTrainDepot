@@ -285,10 +285,12 @@ function public.total_count_tasks()
 end
 
 ---@param context scripts.lib.domain.Context
-function public.count_tasks(context)
+---@param train_template_id uint|nil
+function public.count_tasks(context, train_template_id)
     local filtered = rows(
         match_not_deleted(),
-            match_context(context)
+        match_context(context),
+        match_train_template_id(train_template_id)
     )
 
     return #filtered

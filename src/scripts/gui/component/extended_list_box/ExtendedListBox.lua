@@ -150,7 +150,8 @@ function ExtendedListBox:refresh(new_values)
         end
 
         flib_gui.add(container, {
-            type = "button",
+            type = "sprite-button",
+            sprite = value.sprite,
             caption = value.caption,
             style = selected and "atd_button_list_box_item_active" or "atd_button_list_box_item",
             tooltip = value.tooltip,
@@ -173,7 +174,7 @@ function ExtendedListBox:_register_event_handlers()
     local handlers = {
         {
             match = EventDispatcher.match_event(atd.defines.events.on_gui_extended_list_box_item_selected),
-            handler = function(e) return self:__handle_click(e) end
+            handler = function(e) return self:_handle_click(e) end
         },
     }
 
@@ -183,7 +184,7 @@ function ExtendedListBox:_register_event_handlers()
 end
 
 ---@param event scripts.lib.event.Event
-function ExtendedListBox:__handle_click(event)
+function ExtendedListBox:_handle_click(event)
     if self.refs == nil then
         return
     end
