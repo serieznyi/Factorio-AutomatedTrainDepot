@@ -150,7 +150,12 @@ function TrainScheduleSelector:_make_schedule_name(schedule)
 
     ---@param r TrainScheduleRecord
     for _, r in ipairs(schedule.records) do
-        name = name == nil and r.station or name .. " - " .. r.station
+        if r.station ~= nil then
+            name = name == nil and r.station or name .. " - " .. r.station
+        elseif r.temporary ~= nil then
+            local temp = "<Temporal>"
+            name = name == nil and temp or name .. " - " .. temp
+        end
     end
 
     return name
