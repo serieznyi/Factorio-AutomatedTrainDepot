@@ -1,5 +1,6 @@
 local flib_train = require("__flib__.train")
 
+local util_table = require("scripts.util.table")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local logger = require("scripts.lib.logger")
 local Train = require("scripts.lib.domain.entity.Train")
@@ -16,9 +17,17 @@ function TrainService.load()
     TrainService._register_event_handlers()
 end
 
----@param train_id uint
-function TrainService.delete_train(train_id)
-    local train = persistence_storage.find_train(train_id)
+---@param deleted_entity LuaEntity
+function TrainService.try_delete_train(deleted_entity)
+    local left_carriages = util_table.filter(deleted_entity.train.carriages, function(carrier)
+        return carrier.unit_number ~= deleted_entity.unit_number
+    end, true)
+
+    if #left_carriages > 0 then
+        return
+    end
+
+    local train = persistence_storage.find_train(deleted_entity.unit_number)
 
     if train == nil then
         return
@@ -28,7 +37,7 @@ function TrainService.delete_train(train_id)
 
     persistence_storage.add_train(train)
 
-    logger.debug("Train {1} mark as deleted", {train_id}, "depot.delete_train")
+    logger.debug("Train {1} mark as deleted", {deleted_entity.train.id}, "depot.delete_train")
 end
 
 function TrainService.register_trains()

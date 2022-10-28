@@ -1,15 +1,10 @@
-local util_table = require("scripts.util.table")
+local util_entity = require("scripts.util.entity")
 local depot_builder = require("scripts.lib.depot_builder")
 local gui_manager = require("scripts.gui.manager")
 local console = require("scripts.console")
 local Event = require("scripts.lib.event.Event")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local train_service = require("scripts.lib.train.train_service")
-
----@param entity LuaEntity
-local function is_rolling_stock(entity)
-    return entity.type == "locomotive" or entity.type == "cargo-wagon"
-end
 
 local events_control = {}
 
@@ -58,6 +53,7 @@ end
 
 ---@param event EventData
 function events_control.entity_dismantled(event)
+    ---@type LuaEntity
     local entity = event.entity
 
     if not entity or not entity.valid then
@@ -66,14 +62,8 @@ function events_control.entity_dismantled(event)
 
     if entity.name == atd.defines.prototypes.entity.depot_building.name then
         depot_builder.destroy(entity)
-    elseif is_rolling_stock(entity) then
-        local left_carriages = util_table.filter(entity.train.carriages, function(e)
-            return e.unit_number ~= entity.unit_number
-        end, true)
-
-        if #left_carriages == 0 then
-            train_service.delete_train(entity.train.id)
-        end
+    elseif util_entity.is_rolling_stock(entity) then
+        train_service.try_delete_train(entity)
     end
 end
 
