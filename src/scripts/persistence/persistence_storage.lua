@@ -68,7 +68,19 @@ function private._raise_train_template_changed_event(train_template)
             { player_index = player.index, train_template_id = train_template.id }
         )
     end
+end
 
+---@param train scripts.lib.domain.entity.Train
+function private._raise_train_changed_event(train)
+    ---@type LuaForce
+    local force = game.forces[train.force_name]
+
+    for _, player in ipairs(force.players) do
+        script.raise_event(
+            atd.defines.events.on_core_train_changed,
+            { player_index = player.index, train_id = train.id }
+        )
+    end
 end
 
 ---------------------------------------------------------------------------
@@ -207,7 +219,7 @@ function public.add_train(train)
 
     global.trains[train.id] = garbage_collector.with_updated_at(data)
 
-    script.raise_event(atd.defines.events.on_core_train_changed, {})
+    private._raise_train_changed_event(train)
 
     return train
 end
