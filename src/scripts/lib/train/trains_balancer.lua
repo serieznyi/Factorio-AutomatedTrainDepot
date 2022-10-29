@@ -61,12 +61,6 @@ function TrainsBalancer._order_train_templates_by_priority(context, train_templa
         priority = priority + math.abs(future_tasks_count)
 
         table.insert(templates_with_priority, { priority = priority, template = t})
-
-        logger.debug({
-            priority = priority,
-            template_id = t.id,
-            count_tasks = persistence_storage.trains_tasks.count_tasks_for_template(t.id),
-        })
     end
 
     table.sort(templates_with_priority, function (left, right)
