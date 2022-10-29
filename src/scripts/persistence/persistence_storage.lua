@@ -57,6 +57,20 @@ function private.find_trains(context, controlled, train_template_id)
     return util_table.map(trains, Train.from_table)
 end
 
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+function private._raise_train_template_changed_event(train_template)
+    ---@type LuaForce
+    local force = game.forces[train_template.force_name]
+
+    for _, player in ipairs(force.players) do
+        script.raise_event(
+            atd.defines.events.on_core_train_template_changed,
+            { player_index = player.index, train_template_id = train_template.id }
+        )
+    end
+
+end
+
 ---------------------------------------------------------------------------
 -- -- -- PUBLIC
 ---------------------------------------------------------------------------
@@ -149,8 +163,11 @@ function public.find_enabled_train_templates(context)
 end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+---@param raise_event_arg bool|nil
 ---@return void
-function public.add_train_template(train_template)
+function public.add_train_template(train_template, raise_event_arg)
+    local raise_event = raise_event_arg ~= nil and raise_event_arg or true
+
     if train_template.id == nil then
         train_template.id = train_template_sequence:next()
     end
@@ -158,6 +175,10 @@ function public.add_train_template(train_template)
     local data = train_template:to_table()
 
     global.trains_templates[train_template.id] = garbage_collector.with_updated_at(data)
+
+    if raise_event then
+        private._raise_train_template_changed_event(train_template)
+    end
 
     return train_template
 end
