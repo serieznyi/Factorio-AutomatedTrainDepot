@@ -43,15 +43,25 @@ function private.match_train_template_id(v, train_template_id)
     return v.train_template_id == train_template_id
 end
 
+---@param v scripts.lib.domain.entity.Train
+---@param controlled bool
+function private.match_controlled(v, controlled)
+    if controlled then
+        return v.train_template_id ~= nil
+    else
+        return v.train_template_id == nil
+    end
+end
+
 ---@param controlled bool
 ---@param context scripts.lib.domain.Context
 function private.find_trains(context, controlled, train_template_id)
     ---@param v scripts.lib.domain.entity.Train
     local trains = util_table.filter(global.trains, function(v)
         return v.deleted == false and
-                v.controlled_train == controlled and
                 private.match_context(v, context) and
-                private.match_train_template_id(v, train_template_id)
+                private.match_train_template_id(v, train_template_id) and
+                private.match_controlled(v, controlled)
     end, true)
 
     return util_table.map(trains, Train.from_table)

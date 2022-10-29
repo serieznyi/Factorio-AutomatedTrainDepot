@@ -33,7 +33,6 @@ local Train = {
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 function Train:set_train_template(train_template)
     self.train_template_id = train_template.id
-    self.controlled_train = true
 end
 
 ---@return LuaEntity|nil
@@ -72,7 +71,6 @@ function Train:to_table()
         lua_train = self.lua_train,
         surface_name = self.surface_name,
         force_name = self.force_name,
-        controlled_train = self.controlled_train,
         deleted = self.deleted,
         train_template_id = self.train_template_id,
         state = self.state,
@@ -85,7 +83,6 @@ function Train:copy(new_lua_train)
     local copy = Train.from_lua_train(new_lua_train)
 
     copy.state = self.state
-    copy.controlled_train = self.controlled_train
     copy.train_template_id = self.train_template_id
 
     return copy
