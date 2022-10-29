@@ -207,6 +207,8 @@ function public.add_train(train)
 
     global.trains[train.id] = garbage_collector.with_updated_at(data)
 
+    script.raise_event(atd.defines.events.on_core_train_changed, {})
+
     return train
 end
 

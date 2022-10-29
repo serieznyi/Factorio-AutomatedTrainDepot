@@ -143,9 +143,6 @@ function TrainService._handle_register_train(event)
     local lua_event = event.original_event
 
     TrainService._register_train(lua_event.train, lua_event.old_train_id_1, lua_event.old_train_id_2)
-
-    -- balance trains if controlled train was changed (removed, damaged, ...)
-    script.raise_event(atd.defines.events.on_core_train_changed, {})
 end
 
 function TrainService._register_event_handlers()
