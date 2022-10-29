@@ -343,21 +343,20 @@ end
 function TasksProcessor._register_event_handlers()
     local handlers = {
         {
-            match = EventDispatcher.match_event(atd.defines.events.on_core_train_template_changed),
+            match = EventDispatcher.match_events(
+                atd.defines.events.on_core_train_template_changed,
+                atd.defines.events.on_core_train_changed
+            ),
             handler = TasksProcessor._handle_trains_balancer_run,
         },
         {
-            match = EventDispatcher.match_event(atd.defines.events.on_core_train_changed),
-            handler = TasksProcessor._handle_trains_balancer_run,
-        },
-        {
-            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
+            match = EventDispatcher.match_events(atd.defines.events.on_core_train_task_changed),
             handler = TasksProcessor._handle_train_manipulations_check_activity,
         },
     }
 
     for _, h in ipairs(handlers) do
-        EventDispatcher.register_handler(h.match, h.handler, "depot")
+        EventDispatcher.register_handler(h.match, h.handler, "TasksProcessor")
     end
 end
 

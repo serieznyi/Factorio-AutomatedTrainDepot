@@ -40,17 +40,28 @@ function EventDispatcher.unregister_handlers_by_source(source_name)
     end
 end
 
-function EventDispatcher.match_all()
-    return function()
-        return true
-    end
-end
-
 ---@param event_id uint
+---@deprecated
 function EventDispatcher.match_event(event_id)
     ---@param e scripts.lib.event.Event
     return function(e)
         return e.id == event_id
+    end
+end
+
+---@return function
+function EventDispatcher.match_events(...)
+    local args = {...}
+
+    ---@param e scripts.lib.event.Event
+    return function(e)
+        for _, event_id in ipairs(args) do
+            if e.id == event_id then
+                return true
+            end
+        end
+
+        return false
     end
 end
 
