@@ -292,7 +292,7 @@ function MainFrame:_get_trains_templates_values()
             trains_templates,
             function(t)
                 local icon = util_image.image_for_item(t.icon)
-                local has_tasks = persistence_storage.trains_tasks.count_tasks(context, t.id) > 0
+                local has_tasks = persistence_storage.trains_tasks.count_tasks_for_template(t.id) > 0
                 local sprite
 
                 if t.enabled and has_tasks then

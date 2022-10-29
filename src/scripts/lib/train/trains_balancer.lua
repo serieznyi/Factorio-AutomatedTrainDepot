@@ -15,6 +15,13 @@ function TrainsBalancer.balance_trains_quantity()
     end
 end
 
+function TrainsBalancer.is_trains_quantity_synchronized()
+    local ordered_trains_quantity = persistence_storage.total_count_ordered_trains()
+    local controlled_trains_quantity = persistence_storage.total_count_controlled_trains()
+
+    return ordered_trains_quantity == controlled_trains_quantity
+end
+
 function TrainsBalancer._find_contexts_with_depot()
     return util_table.filter(
             persistence_storage.find_contexts_from_train_templates(),
@@ -37,13 +44,46 @@ function TrainsBalancer._calculate_trains_diff(train_template)
 end
 
 ---@param context scripts.lib.domain.Context
+---@param train_templates scripts.lib.domain.entity.template.TrainTemplate[]
+function TrainsBalancer._order_train_templates_by_priority(context, train_templates)
+    ---@type {priority: uint, template: scripts.lib.domain.entity.template.TrainTemplate}[]
+    local templates_with_priority = {}
+
+    for _, t in ipairs(train_templates) do
+        local priority = 1
+
+        if persistence_storage.trains_tasks.count_tasks_for_template(t.id) == 0 then
+            priority = priority + 1
+        end
+
+        local future_tasks_count = TrainsBalancer._calculate_trains_diff(t)
+
+        priority = priority + math.abs(future_tasks_count)
+
+        table.insert(templates_with_priority, { priority = priority, template = t})
+
+        logger.debug({
+            priority = priority,
+            template_id = t.id,
+            count_tasks = persistence_storage.trains_tasks.count_tasks_for_template(t.id),
+        })
+    end
+
+    table.sort(templates_with_priority, function (left, right)
+        return left.priority > right.priority
+    end)
+
+    return util_table.map(templates_with_priority, function(v) return v.template end)
+end
+
+---@param context scripts.lib.domain.Context
 function TrainsBalancer._balance_trains_count_for_context(context)
     local train_templates = persistence_storage.find_enabled_train_templates(context)
 
-    -- todo balance templates randomly
+    local prioritized_train_templates = TrainsBalancer._order_train_templates_by_priority(context, train_templates)
 
     ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
-    for _, train_template in pairs(train_templates) do
+    for _, train_template in pairs(prioritized_train_templates) do
         local trains_quantity_diff = TrainsBalancer._calculate_trains_diff(train_template)
 
         if trains_quantity_diff > 0 then

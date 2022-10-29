@@ -1,8 +1,6 @@
 local mod_defines = {}
 
 local TICKS_PER_SECOND = 60
-local TIME_1_SECOND = TICKS_PER_SECOND
-local TIME_1_MINUTE = 3600
 
 mod_defines.color = {
     orange = {r = 1, g = 0.45, b = 0, a = 0.75},
@@ -33,9 +31,10 @@ mod_defines.time_in_ticks = {
 }
 
 mod_defines.on_nth_tick = {
-    persistence_storage_gc = TIME_1_MINUTE,
-    trains_manipulations = TIME_1_SECOND,
-    trains_deploy = 5,
+    persistence_storage_gc = 3600, -- 1 game minute
+    trains_manipulations = 60, -- 1 game second
+    trains_balancer = 61, -- 1 game second + 1 game tick
+    trains_deploy = 5, -- 1/6 game second
 }
 
 mod_defines.events = {

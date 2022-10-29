@@ -321,8 +321,16 @@ function TasksProcessor._train_manipulations(tick)
     end
 end
 
-function TasksProcessor._handle_trains_balancer_run(e)
+function TasksProcessor._ndt_handle_trains_balancer(e)
     trains_balancer.balance_trains_quantity()
+end
+
+function TasksProcessor._handle_trains_balancer(e)
+    if trains_balancer.is_trains_quantity_synchronized() then
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_balancer, nil)
+    else
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_balancer, TasksProcessor._ndt_handle_trains_balancer)
+    end
 end
 
 ---@param data NthTickEventData
@@ -347,7 +355,7 @@ function TasksProcessor._register_event_handlers()
                 atd.defines.events.on_core_train_template_changed,
                 atd.defines.events.on_core_train_changed
             ),
-            handler = TasksProcessor._handle_trains_balancer_run,
+            handler = TasksProcessor._handle_trains_balancer,
         },
         {
             match = EventDispatcher.match_events(atd.defines.events.on_core_train_task_changed),

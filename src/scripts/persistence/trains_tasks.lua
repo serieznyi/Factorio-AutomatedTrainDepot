@@ -44,10 +44,10 @@ local function match_not_deleted()
     end
 end
 
----@param v table
 ---@param train_template_id uint
 ---@return bool
 local function match_train_template_id(train_template_id)
+    ---@param v scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainFormTask
     return function(v)
         if train_template_id == nil then
             return true
@@ -57,7 +57,6 @@ local function match_train_template_id(train_template_id)
     end
 end
 
----@param state string
 ---@return function
 local function match_state(...)
     local args = {...}
@@ -290,6 +289,16 @@ function public.count_tasks(context, train_template_id)
     local filtered = rows(
         match_not_deleted(),
         match_context(context),
+        match_train_template_id(train_template_id)
+    )
+
+    return #filtered
+end
+
+---@param train_template_id uint|nil
+function public.count_tasks_for_template(train_template_id)
+    local filtered = rows(
+        match_not_deleted(),
         match_train_template_id(train_template_id)
     )
 

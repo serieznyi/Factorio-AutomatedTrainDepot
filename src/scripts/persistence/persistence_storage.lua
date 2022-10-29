@@ -108,7 +108,9 @@ function public.init()
     end)
 
     -- All user created templates
+    ---@type scripts.lib.domain.entity.template.TrainTemplate
     global.trains_templates = {}
+    ---@type scripts.lib.domain.entity.Train
     global.trains = {}
     global.depot_settings = {}
     global.depot_on_surfaces = {}
@@ -218,6 +220,28 @@ function public.count_active_trains_templates()
     end, true)
 
     return #train_templates
+end
+
+---@return uint
+function public.total_count_ordered_trains()
+    local quantity = 0
+
+    ---@param t scripts.lib.domain.entity.template.TrainTemplate
+    for _, t in ipairs(global.trains_templates) do
+        quantity = quantity + t.trains_quantity
+    end
+
+    return quantity
+end
+
+---@return uint
+function public.total_count_controlled_trains()
+    ---@param v scripts.lib.domain.entity.Train
+    local controlled_trains = util_table.filter(global.trains, function(v)
+        return v.deleted == false and v.train_template_id ~= nil
+    end, true)
+
+    return #controlled_trains
 end
 
 -- -- -- TRAIN
