@@ -173,48 +173,6 @@ function TasksProcessor._pass_train_to_depot(task)
     lua_train.schedule = new_train_schedule
 end
 
----@param first_carriage LuaTrain
----@param task scripts.lib.domain.entity.task.TrainDisbandTask
-function TasksProcessor._add_depot_train(first_carriage, task)
-    local context = Context.from_model(task)
-    ---@type LuaEntity
-    local depot_input_station = remote.call("atd", "depot_get_input_station", context)
-    local surface = game.surfaces[context.surface_name]
-    local carriage_id = task.carriages_ids[1]
-    ---@type LuaEntity
-    local first_carrier
-
-    for _, carriage in ipairs(first_carriage.carriages) do
-        if carriage.unit_number == carriage_id then
-            first_carrier = carriage
-        end
-    end
-
-    assert(first_carrier)
-
-    local first_carrier_position = first_carrier.position
-    local direction = depot_input_station.direction
-    local depot_locomotive_entity_data = {
-        name = "locomotive",
-        position = {
-            first_carrier_position.x + atd.defines.rotate_relative_position[direction](0, -7),
-            first_carrier_position.y
-        },
-        direction = direction,
-        force = game.forces[context.force_name],
-    };
-
-    if surface.can_place_entity(depot_locomotive_entity_data) then
-        task.take_apart_cursor = 0 -- reset cursor
-        persistence_storage.trains_tasks.add(task, false)
-
-        ---@type LuaEntity
-        local depot_train = surface.create_entity(depot_locomotive_entity_data)
-        -- todo use any fuel with max fuel value. move in func
-        depot_train.get_inventory(defines.inventory.fuel).insert({name = "nuclear-fuel", count = 1})
-    end
-end
-
 ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
 ---@param tick uint
 function TasksProcessor._process_disbanding_task(task, tick)
@@ -238,37 +196,12 @@ function TasksProcessor._process_disbanding_task(task, tick)
 
             changed = true
         end
-    elseif task:is_state_take_apart() then
-        local train = persistence_storage.find_train(task.train_id)
-        local train_valid = train ~= nil and train.lua_train.valid
+    elseif task:is_state_take_apart() and #task.carriages_ids == 0 then
+        local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
+        local multiplier = TasksProcessor._get_depot_multiplier()
 
-        -- todo train deconstruction to slow
-
-        if train_valid and task.take_apart_cursor == 0 and train.lua_train.manual_mode == true then
-
-            train.lua_train.manual_mode = false
-        elseif #task.carriages_ids == 0 then
-            local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
-            local multiplier = TasksProcessor._get_depot_multiplier()
-
-            task:state_disband(tick, multiplier, train_template);
-            changed = true
-        elseif train_valid and task.take_apart_cursor == 2 then
-            TasksProcessor._add_depot_train(train.lua_train, task)
-        elseif train_valid and train.lua_train.riding_state.acceleration == defines.riding.acceleration.nothing then
-            local id = task.carriages_ids[1]
-
-            for _, carriage in ipairs(train.lua_train.carriages) do
-                if carriage.unit_number == id then
-                    task:take_apart_cursor_next()
-
-                    -- save task in place and not raise event because train_id will updated in task later
-                    persistence_storage.trains_tasks.add(task, false)
-                    carriage.destroy{raise_destroy = true}
-                    break
-                end
-            end
-        end
+        task:state_disband(tick, multiplier, train_template);
+        changed = true
     elseif task:is_state_disband() then
         if task:is_disband_time_left(tick) then
             task:state_completed(tick)
@@ -279,7 +212,6 @@ function TasksProcessor._process_disbanding_task(task, tick)
     if changed then
         persistence_storage.trains_tasks.add(task)
     end
-
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask

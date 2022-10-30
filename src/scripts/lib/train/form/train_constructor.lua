@@ -24,6 +24,7 @@ function TrainsConstructor._construct(data)
     end
 end
 
+-- todo duplicity
 function TrainsConstructor._get_contexts_from_tasks()
     local contexts = {}
     local tasks = persistence_storage.trains_tasks.find_all_tasks()

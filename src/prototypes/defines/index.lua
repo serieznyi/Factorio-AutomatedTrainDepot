@@ -27,6 +27,9 @@ return {
         depot_driver = {
             name = "atd-depot-driver",
         },
+        depot_locomotive = {
+            name = "atd-depot-locomotive",
+        },
     },
     item = {
         depot_building = {

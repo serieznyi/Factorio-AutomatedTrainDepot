@@ -3,12 +3,13 @@ local logger = require("scripts.lib.logger")
 
 ---@class train_disband_task_defines
 ---@field type string
----@field state train_form_task_defines_state
+---@field state train_disband_task_defines_state
 
 ---@class train_disband_task_defines_state
 ---@field created string
 ---@field try_choose_train string
 ---@field wait_train string
+---@field take_apart string
 ---@field disband string
 ---@field completed string
 
@@ -180,6 +181,13 @@ end
 ---@return bool
 function TrainDisbandTask:is_state_take_apart()
     return self.state == defines.state.take_apart
+end
+
+---@return bool
+function TrainDisbandTask:is_take_apart_completed()
+    assert(self:is_state_take_apart(), "wrong state")
+
+    return #self.carriages_ids == 0
 end
 
 ---@return bool

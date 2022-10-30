@@ -359,6 +359,20 @@ function public.find_form_tasks_ready_for_deploy(context)
     return hydrate(filtered)
 end
 
+---@param context scripts.lib.domain.Context|nil
+function public.find_disband_tasks_ready_for_take_apart(context)
+    local filtered = rows(
+        match_not_deleted(),
+        match_context(context),
+        match_type_disband(),
+        match_state(
+            TrainDisbandTask.defines.state.take_apart
+        )
+    )
+
+    return hydrate(filtered)
+end
+
 function public.count_form_tasks_ready_for_deploy()
     local filtered = rows(
         match_not_deleted(),

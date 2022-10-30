@@ -35,6 +35,7 @@ mod_defines.on_nth_tick = {
     trains_manipulations = 60, -- 1 game second
     trains_balancer = 61, -- 1 game second + 1 game tick
     trains_deploy = 5, -- 1/6 game second
+    trains_deconstruct = 6, -- 1/6 game second + 1 game tick
 }
 
 mod_defines.events = {

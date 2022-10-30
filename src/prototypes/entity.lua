@@ -107,4 +107,9 @@ prototype.name = prototype_defines.entity.depot_driver.name
 prototype.collision_mask = { "ghost-layer"}
 table.insert(prototypes, prototype)
 
+------------- PROTOTYPE
+prototype = table.deepcopy(data.raw["locomotive"]["locomotive"])
+prototype.name = prototype_defines.entity.depot_locomotive.name
+table.insert(prototypes, prototype)
+
 data:extend(prototypes)

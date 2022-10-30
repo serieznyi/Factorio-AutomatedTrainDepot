@@ -15,7 +15,7 @@ function TrainsDeconstructor.load()
 end
 
 ---@param context scripts.lib.domain.Context
-function TrainsDeconstructor._trains_deconstruct_check_activity(context)
+function TrainsDeconstructor._start_train_take_apart(context)
     ---@type LuaEntity
     local depot_input_station = remote.call("atd", "depot_get_input_station", context)
 
@@ -47,6 +47,8 @@ function TrainsDeconstructor._trains_deconstruct_check_activity(context)
 
         task:state_take_apart(stopped_train, front_locomotive_id)
         persistence_storage.trains_tasks.add(task)
+
+        return true
     end
 end
 
@@ -94,6 +96,214 @@ function TrainsDeconstructor._try_re_register_train_in_disband_task(new_train, o
     end
 end
 
+-- todo duplicity
+function TrainsDeconstructor._get_contexts_from_tasks()
+    local contexts = {}
+    local tasks = persistence_storage.trains_tasks.find_all_tasks()
+
+    for _, task in pairs(tasks) do
+        table.insert(contexts, Context.from_model(task))
+    end
+
+    return contexts
+end
+
+---@param context scripts.lib.domain.Context
+---@param task scripts.lib.domain.entity.task.TrainDisbandTask
+---@param tick uint
+function TrainsDeconstructor._try_deconstruct_train(context, task, tick)
+    if not task:is_state_take_apart() then
+        return
+    end
+
+    --logger.debug(task)
+
+    local train = persistence_storage.find_train(task.train_id)
+    local train_valid = train ~= nil and train.lua_train.valid
+
+    if not train_valid then
+        return
+    end
+
+    if task.take_apart_cursor == 2 then
+        TrainsDeconstructor._add_depot_locomotive(train.lua_train, task)
+        return
+    end
+
+    local id = task.carriages_ids[1]
+
+    for _, carriage in ipairs(train.lua_train.carriages) do
+        if carriage.unit_number == id then
+            local depot_locomotive = carriage.name == atd.defines.prototypes.entity.depot_locomotive.name
+
+            if depot_locomotive then
+                ---@type LuaEntity
+                local depot_input_station = remote.call("atd", "depot_get_input_station", context)
+                TrainsDeconstructor._ride_train(carriage)
+
+                local prev_stop_rail = depot_input_station.connected_rail.get_connected_rail{
+                    rail_direction = defines.rail_direction.back,
+                    rail_connection_direction = defines.rail_connection_direction.straight
+                }
+
+                local diff = {
+                    x = prev_stop_rail.position.x - carriage.position.x,
+                    y = prev_stop_rail.position.y - carriage.position.y,
+                }
+
+
+
+                logger.debug({
+                    carriage_position = carriage.position.x .. ":" .. carriage.position.y,
+                    dest_position = prev_stop_rail.position.x .. ":" .. prev_stop_rail.position.y,
+                    diff = diff.x .. ":" .. diff.y,
+                    in_place = diff.x <= 0.5 and diff.x >= 0 and diff.y <= 0.5 and diff.y >= 0,
+                })
+
+                local res = diff.x <= 0.5 and diff.x >= 0 and diff.y <= 0.5 and diff.y >= 0
+
+                if not res then
+                    return
+                end
+            end
+
+            task:take_apart_cursor_next()
+
+            -- save task in place and not raise event because train_id will updated in task later
+            persistence_storage.trains_tasks.add(task, false)
+
+            if depot_locomotive then
+                carriage.get_driver().destroy()
+            end
+
+            carriage.destroy{raise_destroy = true}
+            break
+        end
+    end
+end
+
+-- todo first_carriage used not correct
+---@param first_carriage LuaTrain
+---@param task scripts.lib.domain.entity.task.TrainDisbandTask
+function TrainsDeconstructor._add_depot_locomotive(first_carriage, task)
+    local context = Context.from_model(task)
+    ---@type LuaEntity
+    local depot_input_station = remote.call("atd", "depot_get_input_station", context)
+    local surface = game.surfaces[context.surface_name]
+    local carriage_id = task.carriages_ids[1]
+    ---@type LuaEntity
+    local first_carrier
+
+    for _, carriage in ipairs(first_carriage.carriages) do
+        if carriage.unit_number == carriage_id then
+            first_carrier = carriage
+        end
+    end
+
+    assert(first_carrier)
+
+    if first_carrier.name == atd.defines.prototypes.entity.depot_locomotive then
+        return
+    end
+
+    local first_carrier_position = first_carrier.position
+    local direction = depot_input_station.direction
+    local depot_locomotive_entity_data = {
+        name = atd.defines.prototypes.entity.depot_locomotive.name,
+        position = {
+            first_carrier_position.x + atd.defines.rotate_relative_position[direction](0, -7),
+            first_carrier_position.y
+        },
+        direction = direction,
+        force = game.forces[context.force_name],
+    };
+
+    if surface.can_place_entity(depot_locomotive_entity_data) then
+        task.take_apart_cursor = 0 -- reset cursor
+        persistence_storage.trains_tasks.add(task, false)
+
+        ---@type LuaEntity
+        local depot_locomotive = surface.create_entity(depot_locomotive_entity_data)
+        -- todo use any fuel with max fuel value. move in func
+        depot_locomotive.get_inventory(defines.inventory.fuel).insert({ name = "rocket-fuel", count = 10})
+
+        TrainsDeconstructor._add_depot_driver(depot_locomotive)
+
+        depot_locomotive.train.schedule = nil
+    end
+end
+
+---@param depot_locomotive LuaEntity
+function TrainsDeconstructor._ride_train(depot_locomotive, direction)
+    ---@type LuaTrain
+    local train = depot_locomotive.train
+    local speed = math.abs(train.speed)
+    local train_driver = depot_locomotive.get_driver()
+    local min_speed = 0.1
+
+    -- control train speed
+    if speed < min_speed then
+        train_driver.riding_state = {
+            --acceleration = defines.riding.acceleration.accelerating, -- todo use correct direction
+            acceleration = defines.riding.acceleration.reversing, -- todo use correct direction
+            direction = defines.riding.direction.straight,
+        }
+    elseif speed >= min_speed then -- and speed <= max_speed then
+        train_driver.riding_state = {
+            acceleration = defines.riding.acceleration.nothing,
+            direction = defines.riding.direction.straight,
+        }
+    end
+end
+
+---@param locomotive LuaEntity
+function TrainsDeconstructor._add_depot_driver(locomotive)
+    local train_driver = locomotive.surface.create_entity({
+        name = atd.defines.prototypes.entity.depot_driver.name,
+        position = locomotive.position,
+        force = locomotive.force,
+    })
+
+    locomotive.set_driver(train_driver)
+end
+
+---@param context scripts.lib.domain.Context
+---@param tick uint
+function TrainsDeconstructor._deconstruct_trains_for_context(context, tick)
+    if not persistence_storage.is_depot_exists_at(context) then
+        -- todo remove formed tasks if depot was destroyed and reset all finished tasks
+        return
+    end
+
+    local tasks = persistence_storage.trains_tasks.find_disband_tasks_ready_for_take_apart(context)
+
+    ---@param task scripts.lib.domain.entity.task.TrainDisbandTask
+    for _, task in pairs(tasks) do
+        TrainsDeconstructor._try_deconstruct_train(context, task, tick)
+    end
+end
+
+---@param data NthTickEventData
+function TrainsDeconstructor._deconstruct(data)
+    ---@param context scripts.lib.domain.Context
+    for _, context in ipairs(TrainsDeconstructor._get_contexts_from_tasks()) do
+        TrainsDeconstructor._deconstruct_trains_for_context(context, data.tick)
+    end
+end
+
+function TrainsDeconstructor._trains_deconstructor_check_activity()
+    if persistence_storage.trains_tasks.find_disband_tasks_ready_for_take_apart() == 0 then
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_deconstruct, nil)
+    else
+        script.on_nth_tick(atd.defines.on_nth_tick.trains_deconstruct, TrainsDeconstructor._deconstruct)
+    end
+end
+
+---@param event EventData
+function TrainsDeconstructor._handle_trains_deconstructor_check_activity(event)
+    TrainsDeconstructor._trains_deconstructor_check_activity()
+end
+
 ---@param e scripts.lib.event.Event
 function TrainsDeconstructor._handle_train_created(e)
     local lua_event = e.original_event
@@ -106,14 +316,16 @@ function TrainsDeconstructor._handle_train_created(e)
 end
 
 ---@param e scripts.lib.event.Event
-function TrainsDeconstructor._handle_trains_deconstruct_check_activity(e)
+function TrainsDeconstructor._handle_start_train_take_apart(e)
     local context = Context.from_train(e.original_event.train)
 
     if not TrainsDeconstructor._is_depot_building_exists(context) then
         return false
     end
 
-    TrainsDeconstructor._trains_deconstruct_check_activity(context)
+    if TrainsDeconstructor._start_train_take_apart(context) then
+        TrainsDeconstructor._trains_deconstructor_check_activity()
+    end
 
     return true
 end
@@ -122,11 +334,15 @@ function TrainsDeconstructor._register_event_handlers()
     local handlers = {
         {
             match = EventDispatcher.match_event(defines.events.on_train_changed_state),
-            handler = TrainsDeconstructor._handle_trains_deconstruct_check_activity,
+            handler = TrainsDeconstructor._handle_start_train_take_apart,
         },
         {
             match = EventDispatcher.match_event(defines.events.on_train_created),
             handler = TrainsDeconstructor._handle_train_created,
+        },
+        {
+            match = EventDispatcher.match_event(atd.defines.events.on_core_train_task_changed),
+            handler = TrainsDeconstructor._handle_trains_deconstructor_check_activity,
         },
     }
 
