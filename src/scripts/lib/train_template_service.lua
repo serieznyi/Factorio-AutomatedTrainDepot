@@ -115,6 +115,8 @@ function TrainTemplateService.delete_train_template(train_template_id, player_in
     persistence_storage.delete_train_template(train_template_id)
 
     TrainTemplateService._raise_train_template_deleted_event(train_template)
+
+    return true
 end
 
 ---@param train_template_id uint
