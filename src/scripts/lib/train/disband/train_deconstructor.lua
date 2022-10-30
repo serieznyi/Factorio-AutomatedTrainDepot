@@ -150,15 +150,6 @@ function TrainsDeconstructor._try_deconstruct_train(context, task, tick)
                 }
                 local distance = misc.get_distance(prev_stop_rail.position, carriage.position)
 
-                logger.debug({
-                    carriage = carriage.position.x .. ":" .. carriage.position.y,
-                    carriage_finish = prev_stop_rail.position.x .. ":" .. prev_stop_rail.position.y,
-                    diff = diff.x .. ":" .. diff.y,
-                    in_place = diff.x <= 0.5 and diff.x >= 0 and diff.y <= 0.5 and diff.y >= 0,
-                    distance = distance,
-                    distance_squared = misc.get_distance_squared(prev_stop_rail.position, carriage.position),
-                })
-
                 TrainsDeconstructor._ride_train_to(carriage, prev_stop_rail.position)
 
                 local in_place = distance <= 0.5 and distance >= 0
