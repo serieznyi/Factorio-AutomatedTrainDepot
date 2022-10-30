@@ -151,7 +151,7 @@ function public.find_contexts_from_train_templates()
     local contexts = {}
 
     ---@param t scripts.lib.domain.entity.template.TrainTemplate
-    for _, t in ipairs(global.trains_templates) do
+    for _, t in pairs(global.trains_templates) do
         table.insert(contexts, Context.new(t.surface_name, t.force_name))
     end
 
@@ -227,7 +227,7 @@ function public.total_count_ordered_trains()
     local quantity = 0
 
     ---@param t scripts.lib.domain.entity.template.TrainTemplate
-    for _, t in ipairs(global.trains_templates) do
+    for _, t in pairs(global.trains_templates) do
         quantity = quantity + t.trains_quantity
     end
 
