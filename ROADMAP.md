@@ -1,5 +1,6 @@
 # 0.1.1
 
+ - show task left time in seconds (flib.misc.ticks_to_timestring)
  - add raise event with force name instead player ?
  - add `atd` prefix for all mod events
  - [?] Not save lua train in train model

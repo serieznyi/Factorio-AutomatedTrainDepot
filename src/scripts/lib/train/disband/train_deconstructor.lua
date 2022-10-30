@@ -3,6 +3,7 @@ local util_table = require("scripts.util.table")
 local Context = require("scripts.lib.domain.Context")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local logger = require("scripts.lib.logger")
+local misc = require("__flib__.misc")
 
 local TrainsDeconstructor = {}
 
@@ -139,30 +140,30 @@ function TrainsDeconstructor._try_deconstruct_train(context, task, tick)
             if depot_locomotive then
                 ---@type LuaEntity
                 local depot_input_station = remote.call("atd", "depot_get_input_station", context)
-                TrainsDeconstructor._ride_train(carriage)
-
                 local prev_stop_rail = depot_input_station.connected_rail.get_connected_rail{
                     rail_direction = defines.rail_direction.back,
                     rail_connection_direction = defines.rail_connection_direction.straight
                 }
-
                 local diff = {
                     x = prev_stop_rail.position.x - carriage.position.x,
                     y = prev_stop_rail.position.y - carriage.position.y,
                 }
-
-
+                local distance = misc.get_distance(prev_stop_rail.position, carriage.position)
 
                 logger.debug({
-                    carriage_position = carriage.position.x .. ":" .. carriage.position.y,
-                    dest_position = prev_stop_rail.position.x .. ":" .. prev_stop_rail.position.y,
+                    carriage = carriage.position.x .. ":" .. carriage.position.y,
+                    carriage_finish = prev_stop_rail.position.x .. ":" .. prev_stop_rail.position.y,
                     diff = diff.x .. ":" .. diff.y,
                     in_place = diff.x <= 0.5 and diff.x >= 0 and diff.y <= 0.5 and diff.y >= 0,
+                    distance = distance,
+                    distance_squared = misc.get_distance_squared(prev_stop_rail.position, carriage.position),
                 })
 
-                local res = diff.x <= 0.5 and diff.x >= 0 and diff.y <= 0.5 and diff.y >= 0
+                TrainsDeconstructor._ride_train_to(carriage, prev_stop_rail.position)
 
-                if not res then
+                local in_place = distance <= 0.5 and distance >= 0
+
+                if not in_place then
                     return
                 end
             end
@@ -234,21 +235,26 @@ function TrainsDeconstructor._add_depot_locomotive(first_carriage, task)
 end
 
 ---@param depot_locomotive LuaEntity
-function TrainsDeconstructor._ride_train(depot_locomotive, direction)
+function TrainsDeconstructor._ride_train_to(depot_locomotive, destination)
     ---@type LuaTrain
     local train = depot_locomotive.train
     local speed = math.abs(train.speed)
     local train_driver = depot_locomotive.get_driver()
-    local min_speed = 0.1
+    local min_speed = 0.05
+    --local diff = {
+    --    x = destination.position.x - depot_locomotive.position.x,
+    --    y = destination.position.y - depot_locomotive.position.y,
+    --}
+    --local res = diff.x <= 0.5 and diff.x >= 0 and diff.y <= 0.5 and diff.y >= 0
 
     -- control train speed
-    if speed < min_speed then
+    if speed < min_speed then -- and (diff.x > 0.5 or diff.y > 0.5) then
         train_driver.riding_state = {
             --acceleration = defines.riding.acceleration.accelerating, -- todo use correct direction
             acceleration = defines.riding.acceleration.reversing, -- todo use correct direction
             direction = defines.riding.direction.straight,
         }
-    elseif speed >= min_speed then -- and speed <= max_speed then
+    elseif speed >= min_speed then -- or (diff.x < 0.5 or diff.y < 0.5) then -- and speed <= max_speed then
         train_driver.riding_state = {
             acceleration = defines.riding.acceleration.nothing,
             direction = defines.riding.direction.straight,
