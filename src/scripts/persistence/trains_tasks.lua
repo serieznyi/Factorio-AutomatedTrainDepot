@@ -250,7 +250,10 @@ function public.count_active_disband_tasks(context, train_template_id)
         match_type_disband(),
         match_train_template_id(train_template_id),
         match_not(
-            match_state(TrainDisbandTask.defines.state.completed)
+            match_state(
+                    TrainDisbandTask.defines.state.disband,
+                    TrainDisbandTask.defines.state.completed
+            )
         )
     )
 

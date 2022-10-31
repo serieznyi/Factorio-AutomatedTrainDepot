@@ -8,6 +8,7 @@ local EventDispatcher = {
 EventDispatcher.LOGGING_ENABLED = false
 EventDispatcher.LOGGING_SUPPRESS_EVENT_NAMES = {
     defines.events.on_train_changed_state,
+    defines.events.on_gui_location_changed,
 }
 
 ---@param match function
