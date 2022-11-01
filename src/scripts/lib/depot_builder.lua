@@ -267,6 +267,18 @@ function private.build(context, entity)
     )
     table.insert(dependent_entities, output_rail_signal)
 
+    -- Add storage
+
+    x, y = atd.defines.rotate_relative_position[entity.direction](6, 0)
+    local depot_storage = surface.create_entity({
+        name = atd.defines.prototypes.entity.depot_storage.name,
+        position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
+        direction = flib_direction.opposite(depot_station_input.direction),
+        force = force,
+    })
+
+    table.insert(dependent_entities, depot_storage)
+
     storage.save_depot(context, {
         depot_entity = entity,
         output_station = depot_station_output,

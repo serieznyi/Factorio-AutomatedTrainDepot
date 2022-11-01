@@ -30,6 +30,9 @@ return {
         depot_locomotive = {
             name = "atd-depot-locomotive",
         },
+        depot_storage = {
+            name = "atd-depot-storage",
+        },
     },
     item = {
         depot_building = {

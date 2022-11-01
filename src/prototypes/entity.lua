@@ -44,7 +44,7 @@ prototype.tile_width = 2
 prototype.tile_height = 2
 prototype.name = prototype_defines.entity.depot_building.name
 prototype.selectable_in_game = true
-prototype.selection_priority = 200
+prototype.selection_priority = 51
 prototype.selection_box = { left_top = { x = -7, y = -9}, right_bottom = { x = 7, y = 9}}
 prototype.collision_box = selection_box_to_collision_box(prototype.selection_box)
 prototype.minable = { mining_time = 1, result = prototype_defines.item.depot_building.name }
@@ -110,6 +110,15 @@ table.insert(prototypes, prototype)
 ------------- PROTOTYPE
 prototype = table.deepcopy(data.raw["locomotive"]["locomotive"])
 prototype.name = prototype_defines.entity.depot_locomotive.name
+table.insert(prototypes, prototype)
+
+------------- PROTOTYPE
+prototype = table.deepcopy(data.raw["container"]["steel-chest"])
+prototype.name = prototype_defines.entity.depot_storage.name
+prototype.inventory_size = 96
+prototype.selection_box = {{-3.0, -0.5}, {3.0, 0.5}}
+prototype.collision_box = {{-3.0, -0.5}, {3.0, 0.5}}
+prototype.selection_priority = 52
 table.insert(prototypes, prototype)
 
 data:extend(prototypes)
