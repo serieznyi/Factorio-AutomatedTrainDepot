@@ -8,6 +8,10 @@ mod_defines.color = {
     white = { r = 1, g = 1, b = 1, a = 1},
 }
 
+mod_defines.alert_type = {
+    depot_storage_full = "depot_storage_full",
+}
+
 mod_defines.rotate_relative_position = {
     [defines.direction.north] = function(x, y)
         return x, y

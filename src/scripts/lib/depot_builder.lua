@@ -284,6 +284,7 @@ function private.build(context, entity)
         output_station = depot_station_output,
         input_station = depot_station_input,
         output_signal = output_rail_signal,
+        depot_storage = depot_storage,
         dependent_entities = dependent_entities
     })
 
@@ -426,6 +427,18 @@ function public.get_depot_output_signal(context)
     end
 
     return depot.output_signal
+end
+
+---@param context scripts.lib.domain.Context
+---@return LuaEntity
+function public.get_depot_storage(context)
+    local depot = storage.get_depot(context)
+
+    if depot == nil then
+        return
+    end
+
+    return depot.depot_storage
 end
 
 ---@param context scripts.lib.domain.Context

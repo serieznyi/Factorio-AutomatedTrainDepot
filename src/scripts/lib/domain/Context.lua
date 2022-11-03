@@ -54,7 +54,7 @@ function Context.from_train(lua_train)
     return Context.from_entity(lua_train.carriages[1])
 end
 
----@type LuaForce
+---@return LuaForce
 function Context:force()
     return game.forces[self.force_name]
 end

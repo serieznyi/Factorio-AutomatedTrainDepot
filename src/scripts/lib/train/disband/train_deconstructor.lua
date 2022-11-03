@@ -1,9 +1,13 @@
+local flib_misc = require("__flib__.misc")
+
+local depot_storage_service = require("scripts.lib.depot_storage_service")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local util_table = require("scripts.util.table")
 local Context = require("scripts.lib.domain.Context")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local logger = require("scripts.lib.logger")
-local misc = require("__flib__.misc")
+local notifier = require("scripts.lib.notifier")
+local alert_service = require("scripts.lib.alert_service")
 
 local TrainsDeconstructor = {}
 
@@ -117,13 +121,21 @@ function TrainsDeconstructor._try_deconstruct_train(context, task, tick)
         return
     end
 
-    --logger.debug(task)
-
     local train = persistence_storage.find_train(task.train_id)
     local train_valid = train ~= nil and train.lua_train.valid
 
     if not train_valid then
         return
+    end
+
+    if not depot_storage_service.can_store_train(context, train.lua_train) then
+        -- todo do not repeat every tick
+        notifier.error(context:force(), {"depot-notifications.atd-no-free-space-in-depot-storage"})
+        alert_service.add(context, atd.defines.alert_type.depot_storage_full)
+        train.lua_train.manual_mode = true
+        return
+    else
+        alert_service.remove(context, atd.defines.alert_type.depot_storage_full)
     end
 
     if task.take_apart_cursor == 2 then
@@ -144,11 +156,7 @@ function TrainsDeconstructor._try_deconstruct_train(context, task, tick)
                     rail_direction = defines.rail_direction.back,
                     rail_connection_direction = defines.rail_connection_direction.straight
                 }
-                local diff = {
-                    x = prev_stop_rail.position.x - carriage.position.x,
-                    y = prev_stop_rail.position.y - carriage.position.y,
-                }
-                local distance = misc.get_distance(prev_stop_rail.position, carriage.position)
+                local distance = flib_misc.get_distance(prev_stop_rail.position, carriage.position)
 
                 TrainsDeconstructor._ride_train_to(carriage, prev_stop_rail.position)
 
@@ -168,10 +176,23 @@ function TrainsDeconstructor._try_deconstruct_train(context, task, tick)
                 carriage.get_driver().destroy()
             end
 
-            carriage.destroy{raise_destroy = true}
+            TrainsDeconstructor._destroy_carriage(carriage)
             break
         end
     end
+end
+
+---@param carriage LuaEntity
+function TrainsDeconstructor._destroy_carriage(carriage)
+    if carriage.name ~= atd.defines.prototypes.entity.depot_locomotive.name then
+        if carriage.prototype.name == "locomotive" then
+            local context = Context.from_entity(carriage)
+
+            depot_storage_service.put_item(context, {name=carriage.name})
+        end
+    end
+
+    carriage.destroy{raise_destroy = true}
 end
 
 -- todo first_carriage used not correct
@@ -217,7 +238,7 @@ function TrainsDeconstructor._add_depot_locomotive(first_carriage, task)
         ---@type LuaEntity
         local depot_locomotive = surface.create_entity(depot_locomotive_entity_data)
         -- todo use any fuel with max fuel value. move in func
-        depot_locomotive.get_inventory(defines.inventory.fuel).insert({ name = "rocket-fuel", count = 10})
+        depot_locomotive.get_inventory(defines.inventory.fuel).insert({ name = "rocket-fuel", count = 1})
 
         TrainsDeconstructor._add_depot_driver(depot_locomotive)
 
@@ -232,20 +253,15 @@ function TrainsDeconstructor._ride_train_to(depot_locomotive, destination)
     local speed = math.abs(train.speed)
     local train_driver = depot_locomotive.get_driver()
     local min_speed = 0.05
-    --local diff = {
-    --    x = destination.position.x - depot_locomotive.position.x,
-    --    y = destination.position.y - depot_locomotive.position.y,
-    --}
-    --local res = diff.x <= 0.5 and diff.x >= 0 and diff.y <= 0.5 and diff.y >= 0
 
     -- control train speed
-    if speed < min_speed then -- and (diff.x > 0.5 or diff.y > 0.5) then
+    if speed < min_speed then
         train_driver.riding_state = {
             --acceleration = defines.riding.acceleration.accelerating, -- todo use correct direction
             acceleration = defines.riding.acceleration.reversing, -- todo use correct direction
             direction = defines.riding.direction.straight,
         }
-    elseif speed >= min_speed then -- or (diff.x < 0.5 or diff.y < 0.5) then -- and speed <= max_speed then
+    elseif speed >= min_speed then
         train_driver.riding_state = {
             acceleration = defines.riding.acceleration.nothing,
             direction = defines.riding.direction.straight,
