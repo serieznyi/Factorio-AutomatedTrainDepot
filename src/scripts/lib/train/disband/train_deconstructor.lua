@@ -185,11 +185,7 @@ end
 ---@param carriage LuaEntity
 function TrainsDeconstructor._destroy_carriage(carriage)
     if carriage.name ~= atd.defines.prototypes.entity.depot_locomotive.name then
-        if carriage.prototype.name == "locomotive" then
-            local context = Context.from_entity(carriage)
-
-            depot_storage_service.put_item(context, {name=carriage.name})
-        end
+        depot_storage_service.put_carriage(Context.from_entity(carriage), carriage)
     end
 
     carriage.destroy{raise_destroy = true}
