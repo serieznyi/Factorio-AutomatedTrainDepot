@@ -47,7 +47,7 @@ function TrainsDeconstructor._start_train_take_apart(context)
         end
 
         local front_locomotive_id = carrier_on_stop[1].unit_number
-        local train_items = depot_storage_service.convert_train_to_items_stacks(stopped_train)
+        local train_items = depot_storage_service.convert_train_to_items(stopped_train)
 
         task:state_take_apart(stopped_train, front_locomotive_id, train_items)
         persistence_storage.trains_tasks.add(task)

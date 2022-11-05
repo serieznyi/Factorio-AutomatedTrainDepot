@@ -130,13 +130,20 @@ function TrainTemplate:clone()
     return copy
 end
 
----@return SimpleItemStack[]
+---@return table<string, uint>
 function TrainTemplate:get_train_items()
     local train_items = {}
 
     ---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
     for _, rolling_stock in pairs(self.train) do
-        table.insert(train_items, rolling_stock:to_stack_item())
+        local items = rolling_stock:to_items()
+        for item_name, item_quantity in pairs(items) do
+            if train_items[item_name] == nil then
+                train_items[item_name] = 0
+            end
+
+            train_items[item_name] = train_items[item_name] + item_quantity
+        end
     end
 
     return train_items

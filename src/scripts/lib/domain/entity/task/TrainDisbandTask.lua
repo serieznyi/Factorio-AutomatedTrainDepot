@@ -53,7 +53,7 @@ local TrainDisbandTask = {
     take_apart_cursor = 0,
     ---@type uint[]
     carriages_ids = {},
-    ---@type SimpleItemStack[]
+    ---@type table<string, uint>
     train_items = {},
 }
 
@@ -98,7 +98,7 @@ end
 
 ---@param train LuaTrain
 ---@param front_locomotive_id uint
----@param train_items SimpleItemStack[]
+---@param train_items table<string, uint>
 function TrainDisbandTask:state_take_apart(train, front_locomotive_id, train_items)
     assert(self.state == defines.state.wait_train, "wrong state")
     assert(train, "train is nil")

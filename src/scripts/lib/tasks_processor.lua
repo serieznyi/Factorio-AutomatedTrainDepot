@@ -206,7 +206,7 @@ function TasksProcessor._process_disbanding_task(task, tick)
         changed = true
     elseif task:is_state_disband() then
         local context = Context.from_model(task)
-        local can_store_train_in_storage = depot_storage_service.can_store(context, task.train_items)
+        local can_store_train_in_storage = depot_storage_service.can_insert(context, task.train_items)
 
         if not can_store_train_in_storage then
             alert_service.add(context, atd.defines.alert_type.depot_storage_full)
@@ -215,7 +215,7 @@ function TasksProcessor._process_disbanding_task(task, tick)
         end
 
         if task:is_disband_time_left(tick) and can_store_train_in_storage then
-            depot_storage_service.put_items(context, task.train_items)
+            depot_storage_service.insert_items(context, task.train_items)
             task:state_completed(tick)
             changed = true
         end

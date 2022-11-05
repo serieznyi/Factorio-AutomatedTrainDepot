@@ -4,32 +4,23 @@ local VirtualInventory = require("scripts.lib.VirtualInventory")
 local DepotStorageService = {}
 
 ---@param context scripts.lib.domain.Context
----@param train LuaEntity
+---@param items table<string, uint>
 ---@return bool
-function DepotStorageService.can_store_train(context, train)
-    local items_stacks = DepotStorageService.convert_train_to_items_stacks(train)
-
-    return DepotStorageService.can_store(context, items_stacks)
-end
-
----@param context scripts.lib.domain.Context
----@param items_stacks SimpleItemStack[]
----@return bool
-function DepotStorageService.can_store(context, items_stacks)
+function DepotStorageService.can_insert(context, items)
     local storage_entity = DepotStorageService._get_storage_entity(context)
     ---@type LuaInventory
     local inventory = storage_entity.get_inventory(defines.inventory.chest)
     local inventory_size = storage_entity.prototype.get_inventory_size(defines.inventory.chest)
     local virtual_inventory = VirtualInventory.new(inventory_size)
 
-    for item_name, quantity in pairs(inventory.get_contents()) do
-        if not virtual_inventory:try_insert({name=item_name, count=quantity}) then
+    for name, quantity in pairs(inventory.get_contents()) do
+        if not virtual_inventory:try_insert({ name= name, count=quantity }) then
             error("Undefined error")
         end
     end
 
-    for _, stack in ipairs(items_stacks) do
-        if not virtual_inventory:try_insert(stack) then
+    for name, quantity in pairs(items) do
+        if not virtual_inventory:try_insert({ name= name, count=quantity }) then
             return false
         end
     end
@@ -38,8 +29,8 @@ function DepotStorageService.can_store(context, items_stacks)
 end
 
 ---@param context scripts.lib.domain.Context
----@param items SimpleItemStack[]
-function DepotStorageService.put_items(context, items)
+---@param items table<string, uint>
+function DepotStorageService.insert_items(context, items)
     assert(context, "context is nil")
     assert(items, "items is nil")
 
@@ -47,7 +38,8 @@ function DepotStorageService.put_items(context, items)
     ---@type LuaInventory
     local inventory = storage.get_inventory(defines.inventory.chest)
 
-    for _, stack in ipairs(items) do
+    for name, quantity in pairs(items) do
+        local stack = { name=name, count=quantity }
         if not inventory.can_insert(stack) then
             -- todo not use error ?
             error("Can't place item in depot inventory because no free space")
@@ -58,17 +50,16 @@ function DepotStorageService.put_items(context, items)
 end
 
 ---@param context scripts.lib.domain.Context
----@param stacks SimpleItemStack[]
-function DepotStorageService.can_take(context, stacks)
+---@param items table<string, uint>
+function DepotStorageService.can_take(context, items)
     assert(context, "context is nil")
-    assert(stacks, "items is nil")
+    assert(items, "items is nil")
 
     local storage = DepotStorageService._get_storage_entity(context)
     ---@type LuaInventory
     local inventory = storage.get_inventory(defines.inventory.chest)
-    local contents = DepotStorageService._stacks_to_contents(stacks)
 
-    for name, quantity in pairs(contents) do
+    for name, quantity in pairs(items) do
         if inventory.get_item_count(name) < quantity then
             return false
         end
@@ -78,24 +69,23 @@ function DepotStorageService.can_take(context, stacks)
 end
 
 ---@param context scripts.lib.domain.Context
----@param stacks SimpleItemStack[]
-function DepotStorageService.take(context, stacks)
+---@param items table<string, uint>
+function DepotStorageService.take(context, items)
     assert(context, "context is nil")
-    assert(stacks, "items is nil")
+    assert(items, "items is nil")
 
     local storage = DepotStorageService._get_storage_entity(context)
     ---@type LuaInventory
     local inventory = storage.get_inventory(defines.inventory.chest)
-    local contents = DepotStorageService._stacks_to_contents(stacks)
 
-    for name, quantity in pairs(contents) do
+    for name, quantity in pairs(items) do
         inventory.remove({name = name, count = quantity})
     end
 end
 
 ---@param train LuaEntity
----@return SimpleItemStack[]
-function DepotStorageService.convert_train_to_items_stacks(train)
+---@return table<string, uint>
+function DepotStorageService.convert_train_to_items(train)
     local train_contents = {}
 
     ---@param carriage LuaEntity
@@ -104,7 +94,7 @@ function DepotStorageService.convert_train_to_items_stacks(train)
         DepotStorageService._merge_contents(train_contents, carriage_contents)
     end
 
-    return DepotStorageService._convert_contents_to_items_stacks(train_contents)
+    return train_contents
 end
 
 ---@param context scripts.lib.domain.Context
@@ -113,30 +103,6 @@ function DepotStorageService._get_storage_entity(context)
     local storage = remote.call("atd", "depot_get_storage", context)
 
     return assert(storage, 'storage is nil')
-end
-
----@param stacks SimpleItemStack[]
----@return table<string, uint>
-function DepotStorageService._stacks_to_contents(stacks)
-    local contents = {}
-
-    for _, stack in ipairs(stacks) do
-        if contents[stack.name] == nil then
-            contents[stack.name] = 0
-        end
-
-        contents[stack.name] = contents[stack.name] + stack.count
-    end
-
-    return contents
-end
-
----@param carriage LuaEntity
----@return SimpleItemStack[]
-function DepotStorageService._convert_carriage_to_items_stacks(carriage)
-    local carriage_contents = DepotStorageService._get_carriage_as_contents(carriage)
-
-    return DepotStorageService._convert_contents_to_items_stacks(carriage_contents)
 end
 
 ---@param carriage LuaEntity
@@ -164,18 +130,6 @@ function DepotStorageService._get_carriage_as_contents(carriage)
     contents[carriage.prototype.type] = contents[carriage.prototype.type] + 1
 
     return contents
-end
-
----@param contents table
----@return table
-function DepotStorageService._convert_contents_to_items_stacks(contents)
-    local stacks = {}
-
-    for name, count in pairs(contents) do
-        table.insert(stacks, {name = name, count = count})
-    end
-
-    return stacks
 end
 
 ---@param target_table table

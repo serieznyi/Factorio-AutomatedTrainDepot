@@ -31,9 +31,9 @@ function RollingStock:is_locomotive()
     return self.type == RollingStock.TYPE.LOCOMOTIVE
 end
 
----@type SimpleItemStack
-function RollingStock:to_stack_item()
-    return {name = self.prototype_name, count = 1}
+---@return table<string, uint>
+function RollingStock:to_items()
+    return {[self.prototype_name] = 1}
 end
 
 ---@type bool

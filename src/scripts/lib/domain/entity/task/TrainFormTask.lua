@@ -50,7 +50,7 @@ local TrainFormTask = {
     main_locomotive = nil,
     ---@type uint
     completed_at = nil,
-    ---@type SimpleItemStack[]
+    ---@type table<string, uint>
     train_items = {},
 }
 
@@ -99,7 +99,7 @@ end
 ---@param tick uint
 ---@param multiplier double
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
----@param train_items SimpleItemStack
+---@param train_items table<string, uint>
 ---@return table
 function TrainFormTask:state_form(tick, multiplier, train_template, train_items)
     assert(tick, "tick is nil")
