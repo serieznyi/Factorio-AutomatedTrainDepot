@@ -53,6 +53,8 @@ local TrainDisbandTask = {
     take_apart_cursor = 0,
     ---@type uint[]
     carriages_ids = {},
+    ---@type SimpleItemStack[]
+    train_items = {},
 }
 
 ---@return table
@@ -71,6 +73,7 @@ function TrainDisbandTask:to_table()
         completed_at = self.completed_at,
         take_apart_cursor = self.take_apart_cursor,
         carriages_ids = self.carriages_ids,
+        train_items = self.train_items,
     }
 end
 
@@ -95,13 +98,16 @@ end
 
 ---@param train LuaTrain
 ---@param front_locomotive_id uint
-function TrainDisbandTask:state_take_apart(train, front_locomotive_id)
+---@param train_items SimpleItemStack[]
+function TrainDisbandTask:state_take_apart(train, front_locomotive_id, train_items)
     assert(self.state == defines.state.wait_train, "wrong state")
     assert(train, "train is nil")
+    assert(train_items, "train_items is nil")
     assert(front_locomotive_id, "front_locomotive_id is nil")
 
     self.state = defines.state.take_apart
     self:_update_carriages_ids(train, front_locomotive_id)
+    self.train_items = train_items
 end
 
 ---@param train LuaTrain

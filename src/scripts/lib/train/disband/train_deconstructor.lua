@@ -6,8 +6,6 @@ local util_table = require("scripts.util.table")
 local Context = require("scripts.lib.domain.Context")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local logger = require("scripts.lib.logger")
-local notifier = require("scripts.lib.notifier")
-local alert_service = require("scripts.lib.alert_service")
 
 local TrainsDeconstructor = {}
 
@@ -49,8 +47,9 @@ function TrainsDeconstructor._start_train_take_apart(context)
         end
 
         local front_locomotive_id = carrier_on_stop[1].unit_number
+        local train_items = depot_storage_service.convert_train_to_items_stacks(stopped_train)
 
-        task:state_take_apart(stopped_train, front_locomotive_id)
+        task:state_take_apart(stopped_train, front_locomotive_id, train_items)
         persistence_storage.trains_tasks.add(task)
 
         return true
@@ -128,16 +127,6 @@ function TrainsDeconstructor._try_deconstruct_train(context, task, tick)
         return
     end
 
-    if not depot_storage_service.can_store_train(context, train.lua_train) then
-        -- todo do not repeat every tick
-        notifier.error(context:force(), {"depot-notifications.atd-no-free-space-in-depot-storage"})
-        alert_service.add(context, atd.defines.alert_type.depot_storage_full)
-        train.lua_train.manual_mode = true
-        return
-    else
-        alert_service.remove(context, atd.defines.alert_type.depot_storage_full)
-    end
-
     if task.take_apart_cursor == 2 then
         TrainsDeconstructor._add_depot_locomotive(train.lua_train, task)
         return
@@ -176,19 +165,10 @@ function TrainsDeconstructor._try_deconstruct_train(context, task, tick)
                 carriage.get_driver().destroy()
             end
 
-            TrainsDeconstructor._destroy_carriage(carriage)
+            carriage.destroy{raise_destroy = true}
             break
         end
     end
-end
-
----@param carriage LuaEntity
-function TrainsDeconstructor._destroy_carriage(carriage)
-    if carriage.name ~= atd.defines.prototypes.entity.depot_locomotive.name then
-        depot_storage_service.put_carriage(Context.from_entity(carriage), carriage)
-    end
-
-    carriage.destroy{raise_destroy = true}
 end
 
 -- todo first_carriage used not correct

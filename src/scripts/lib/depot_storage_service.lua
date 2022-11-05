@@ -1,8 +1,5 @@
 local logger = require("scripts.lib.logger")
-local persistence_storage = require("scripts.persistence.persistence_storage")
-local Context = require("scripts.lib.domain.Context")
 local VirtualInventory = require("scripts.lib.VirtualInventory")
-local notifier = require("scripts.lib.notifier")
 
 local DepotStorageService = {}
 
@@ -10,7 +7,15 @@ local DepotStorageService = {}
 ---@param train LuaEntity
 ---@return bool
 function DepotStorageService.can_store_train(context, train)
-    local items_stacks = DepotStorageService._convert_train_to_items_stacks(train)
+    local items_stacks = DepotStorageService.convert_train_to_items_stacks(train)
+
+    return DepotStorageService.can_store(context, items_stacks)
+end
+
+---@param context scripts.lib.domain.Context
+---@param items_stacks SimpleItemStack[]
+---@return bool
+function DepotStorageService.can_store(context, items_stacks)
     local storage_entity = DepotStorageService._get_storage_entity(context)
     ---@type LuaInventory
     local inventory = storage_entity.get_inventory(defines.inventory.chest)
@@ -33,20 +38,16 @@ function DepotStorageService.can_store_train(context, train)
 end
 
 ---@param context scripts.lib.domain.Context
----@param carriage LuaEntity
-function DepotStorageService.put_carriage(context, carriage)
-    assert(carriage.train ~= nil, "arg is not carriage")
-
-    if DepotStorageService._is_ignored_carriage(carriage) then
-        return
-    end
+---@param items SimpleItemStack[]
+function DepotStorageService.put_items(context, items)
+    assert(context, "context is nil")
+    assert(items, "items is nil")
 
     local storage = DepotStorageService._get_storage_entity(context)
     ---@type LuaInventory
     local inventory = storage.get_inventory(defines.inventory.chest)
-    local carriage_stacks = DepotStorageService._convert_carriage_to_items_stacks(carriage)
 
-    for _, stack in ipairs(carriage_stacks) do
+    for _, stack in ipairs(items) do
         if not inventory.can_insert(stack) then
             -- todo not use error ?
             error("Can't place item in depot inventory because no free space")
@@ -56,36 +57,26 @@ function DepotStorageService.put_carriage(context, carriage)
     end
 end
 
+---@param train LuaEntity
+---@return SimpleItemStack[]
+function DepotStorageService.convert_train_to_items_stacks(train)
+    local train_contents = {}
+
+    ---@param carriage LuaEntity
+    for _, carriage in ipairs(train.carriages) do
+        local carriage_contents = DepotStorageService._get_carriage_as_contents(carriage)
+        DepotStorageService._merge_contents(train_contents, carriage_contents)
+    end
+
+    return DepotStorageService._convert_contents_to_items_stacks(train_contents)
+end
+
 ---@param context scripts.lib.domain.Context
 ---@return LuaEntity
 function DepotStorageService._get_storage_entity(context)
     local storage = remote.call("atd", "depot_get_storage", context)
 
     return assert(storage, 'storage is nil')
-end
-
----@param train LuaEntity
----@return SimpleItemStack[]
-function DepotStorageService._convert_train_to_items_stacks(train)
-    local train_contents = {}
-
-    ---@param carriage LuaEntity
-    for _, carriage in ipairs(train.carriages) do
-        if train_contents[carriage.name] == nil then
-            train_contents[carriage.name] = 1
-        else
-            train_contents[carriage.name] = train_contents[carriage.name] + train_contents[carriage.name]
-        end
-
-        local carriage_contents = DepotStorageService._get_carriage_as_contents(carriage)
-        DepotStorageService._merge_contents(train_contents, carriage_contents)
-
-        if DepotStorageService._is_ignored_carriage(carriage) then
-            train_contents[carriage.name] = nil
-        end
-    end
-
-    return DepotStorageService._convert_contents_to_items_stacks(train_contents)
 end
 
 ---@param carriage LuaEntity
@@ -145,12 +136,6 @@ function DepotStorageService._merge_contents(target_table, source_table)
             target_table[item_name] = target_table[item_name] + quantity
         end
     end
-end
-
----@param carriage LuaEntity
----@return bool
-function DepotStorageService._is_ignored_carriage(carriage)
-    return carriage.name == atd.defines.prototypes.entity.depot_locomotive.name
 end
 
 return DepotStorageService
