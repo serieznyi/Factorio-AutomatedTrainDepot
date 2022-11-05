@@ -7,7 +7,6 @@ local train_deconstructor = require("scripts.lib.train.disband.train_deconstruct
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
 local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
 local util_table = require("scripts.util.table")
-local notifier = require("scripts.lib.notifier")
 local depot_storage_service = require("scripts.lib.depot_storage_service")
 local alert_service = require("scripts.lib.alert_service")
 local logger = require("scripts.lib.logger")
@@ -210,8 +209,6 @@ function TasksProcessor._process_disbanding_task(task, tick)
         local can_store_train_in_storage = depot_storage_service.can_store(context, task.train_items)
 
         if not can_store_train_in_storage then
-            -- todo do not repeat every tick
-            notifier.error(context:force(), {"depot-notifications.atd-no-free-space-in-depot-storage"})
             alert_service.add(context, atd.defines.alert_type.depot_storage_full)
         else
             alert_service.remove(context, atd.defines.alert_type.depot_storage_full)
