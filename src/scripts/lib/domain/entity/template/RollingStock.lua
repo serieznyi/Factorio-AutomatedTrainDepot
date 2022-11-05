@@ -12,8 +12,9 @@ local RollingStock = {
 
 RollingStock.TYPE = {
     LOCOMOTIVE = "locomotive",
-    CARGO = "cargo",
-    ARTILLERY = "artillery",
+    CARGO_WAGON = "cargo-wagon",
+    ARTILLERY_WAGON = "artillery-wagon",
+    FLUID_WAGON = "fluid-wagon",
 }
 
 ---@return table
@@ -30,9 +31,14 @@ function RollingStock:is_locomotive()
     return self.type == RollingStock.TYPE.LOCOMOTIVE
 end
 
+---@type SimpleItemStack
+function RollingStock:to_stack_item()
+    return {name = self.prototype_name, count = 1}
+end
+
 ---@type bool
 function RollingStock:has_direction()
-    return self.type == RollingStock.TYPE.LOCOMOTIVE or self.type == RollingStock.TYPE.ARTILLERY
+    return self.type == RollingStock.TYPE.LOCOMOTIVE or self.type == RollingStock.TYPE.ARTILLERY_WAGON
 end
 
 ---@return uint train part form time in seconds (without multiplier)
@@ -45,7 +51,7 @@ end
 
 ---@param data table
 function RollingStock.from_table(data)
-    local object = RollingStock.new(data.type)
+    local object = RollingStock.new(data.type, data.prototype_name)
 
     util_table.fill_assoc(object, data)
 
@@ -58,8 +64,8 @@ function RollingStock.new(type, prototype_name)
     local self = {}
     setmetatable(self, { __index = RollingStock })
 
-    self.type = type
-    self.prototype_name = prototype_name
+    self.type = assert(type, "type is nil")
+    self.prototype_name = assert(prototype_name, "prototype_name is nil")
 
     return self
 end

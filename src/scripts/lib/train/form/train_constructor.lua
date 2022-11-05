@@ -4,6 +4,8 @@ local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local util_table = require("scripts.util.table")
 local Context = require("scripts.lib.domain.Context")
 local persistence_storage = require("scripts.persistence.persistence_storage")
+local depot_storage_service = require("scripts.lib.depot_storage_service")
+local alert_service = require("scripts.lib.alert_service")
 local logger = require("scripts.lib.logger")
 
 local TrainsConstructor = {}
@@ -81,6 +83,16 @@ function TrainsConstructor._deploy_train(context, task, tick)
 
     if task:is_state_formed() then
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
+        local can_take_train_items_from_storage = depot_storage_service.can_take(context, task.train_items)
+
+        if not can_take_train_items_from_storage then
+            alert_service.add(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
+            return
+        else
+            alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
+        end
+
+        depot_storage_service.take(context, task.train_items)
         task:state_deploy(train_template)
         task_changed = true
 

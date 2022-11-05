@@ -237,8 +237,9 @@ function TasksProcessor._process_form_task(task, tick)
 
     if task:is_state_created() then
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
+        local train_items = train_template:get_train_items()
 
-        task:state_form(tick, multiplier, train_template)
+        task:state_form(tick, multiplier, train_template, train_items)
     end
 
     if task:is_form_time_left(tick) then

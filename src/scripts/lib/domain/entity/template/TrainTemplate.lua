@@ -1,6 +1,7 @@
 local RollingStock = require("scripts.lib.domain.entity.template.RollingStock")
 local util_hash = require("scripts.util.hash")
 local util_table = require("scripts.util.table")
+local RollingStock = require("scripts.lib.domain.entity.template.RollingStock")
 
 ---@param lua_train LuaTrain
 ---@return int
@@ -127,6 +128,18 @@ function TrainTemplate:clone()
     copy.fuel = self.fuel
 
     return copy
+end
+
+---@return SimpleItemStack[]
+function TrainTemplate:get_train_items()
+    local train_items = {}
+
+    ---@param rolling_stock scripts.lib.domain.entity.template.RollingStock
+    for _, rolling_stock in pairs(self.train) do
+        table.insert(train_items, rolling_stock:to_stack_item())
+    end
+
+    return train_items
 end
 
 ---@param data table

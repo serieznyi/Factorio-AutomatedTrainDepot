@@ -25,6 +25,7 @@ remote.add_interface('atd', {
     depot_get_input_station = depot_builder.get_depot_input_station,
     depot_get_output_signal = depot_builder.get_depot_output_signal,
     depot_get_storage = depot_builder.get_depot_storage,
+    depot_get_depot = depot_builder.get_depot,
     depot_building_exists = depot_builder.depot_building_exists,
 })
 

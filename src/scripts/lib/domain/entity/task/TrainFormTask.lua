@@ -50,6 +50,8 @@ local TrainFormTask = {
     main_locomotive = nil,
     ---@type uint
     completed_at = nil,
+    ---@type SimpleItemStack[]
+    train_items = {},
 }
 
 ---@return table
@@ -68,6 +70,7 @@ function TrainFormTask:to_table()
         deploy_cursor = self.deploy_cursor,
         main_locomotive = self.main_locomotive,
         completed_at = self.completed_at,
+        train_items = self.train_items,
     }
 end
 
@@ -96,14 +99,18 @@ end
 ---@param tick uint
 ---@param multiplier double
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+---@param train_items SimpleItemStack
 ---@return table
-function TrainFormTask:state_form(tick, multiplier, train_template)
+function TrainFormTask:state_form(tick, multiplier, train_template, train_items)
     assert(tick, "tick is nil")
+    assert(multiplier, "multiplier is nil")
+    assert(train_template, "multiplier is nil")
     assert(self.state == defines.state.created, "wrong state")
 
     self.state = defines.state.form
     self.required_form_ticks = train_template:get_form_time() * 60 * multiplier
     self.form_end_at = tick + self.required_form_ticks
+    self.train_items = assert(train_items, "train_items is nil")
 end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate

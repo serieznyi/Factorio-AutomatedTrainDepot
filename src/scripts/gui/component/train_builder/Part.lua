@@ -119,9 +119,7 @@ function Part:read_form()
     local tags = flib_gui.get_tags(self.refs.carrier_direction_right_button)
     local direction = tags.current_direction
 
-    if type == RollingStock.TYPE.ARTILLERY then
-        rolling_stock.direction = direction
-    elseif type == RollingStock.TYPE.LOCOMOTIVE then
+    if rolling_stock:has_direction() then
         rolling_stock.direction = direction
     end
 
@@ -216,8 +214,9 @@ function Part:_update()
         return
     end
 
-    local type = self:_get_train_part_type_from_item_name(self.refs.part_chooser.elem_value)
-    local has_direction = type ~= RollingStock.TYPE.CARGO
+    local prototype_name = self.refs.part_chooser.elem_value
+    local type = self:_get_train_part_type_from_item_name(prototype_name)
+    local has_direction = RollingStock.new(type, prototype_name):has_direction()
 
     self.refs.delete_button.visible = true
     self.refs.carrier_direction_left_button.visible = false
@@ -238,9 +237,9 @@ function Part:_get_train_part_type_from_item_name(value)
 
     local map = {
         ["locomotive"] = RollingStock.TYPE.LOCOMOTIVE,
-        ["artillery-wagon"] = RollingStock.TYPE.ARTILLERY,
-        ["cargo-wagon"] = RollingStock.TYPE.CARGO,
-        ["fluid-wagon"] = RollingStock.TYPE.CARGO,
+        ["artillery-wagon"] = RollingStock.TYPE.ARTILLERY_WAGON,
+        ["cargo-wagon"] = RollingStock.TYPE.CARGO_WAGON,
+        ["fluid-wagon"] = RollingStock.TYPE.CARGO_WAGON,
     }
 
     return map[prototype.type]

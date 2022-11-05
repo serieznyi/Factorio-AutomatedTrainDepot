@@ -10,6 +10,8 @@ mod_defines.color = {
 
 mod_defines.alert_type = {
     depot_storage_full = "depot_storage_full",
+    depot_storage_not_contains_required_items = "depot_storage_not_contains_required_items",
+    depot_storage_not_contains_required_fuel = "depot_storage_not_contains_required_fuel",
 }
 
 mod_defines.rotate_relative_position = {

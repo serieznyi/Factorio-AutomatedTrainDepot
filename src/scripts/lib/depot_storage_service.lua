@@ -57,6 +57,42 @@ function DepotStorageService.put_items(context, items)
     end
 end
 
+---@param context scripts.lib.domain.Context
+---@param stacks SimpleItemStack[]
+function DepotStorageService.can_take(context, stacks)
+    assert(context, "context is nil")
+    assert(stacks, "items is nil")
+
+    local storage = DepotStorageService._get_storage_entity(context)
+    ---@type LuaInventory
+    local inventory = storage.get_inventory(defines.inventory.chest)
+    local contents = DepotStorageService._stacks_to_contents(stacks)
+
+    for name, quantity in pairs(contents) do
+        if inventory.get_item_count(name) < quantity then
+            return false
+        end
+    end
+
+    return true
+end
+
+---@param context scripts.lib.domain.Context
+---@param stacks SimpleItemStack[]
+function DepotStorageService.take(context, stacks)
+    assert(context, "context is nil")
+    assert(stacks, "items is nil")
+
+    local storage = DepotStorageService._get_storage_entity(context)
+    ---@type LuaInventory
+    local inventory = storage.get_inventory(defines.inventory.chest)
+    local contents = DepotStorageService._stacks_to_contents(stacks)
+
+    for name, quantity in pairs(contents) do
+        inventory.remove({name = name, count = quantity})
+    end
+end
+
 ---@param train LuaEntity
 ---@return SimpleItemStack[]
 function DepotStorageService.convert_train_to_items_stacks(train)
@@ -77,6 +113,22 @@ function DepotStorageService._get_storage_entity(context)
     local storage = remote.call("atd", "depot_get_storage", context)
 
     return assert(storage, 'storage is nil')
+end
+
+---@param stacks SimpleItemStack[]
+---@return table<string, uint>
+function DepotStorageService._stacks_to_contents(stacks)
+    local contents = {}
+
+    for _, stack in ipairs(stacks) do
+        if contents[stack.name] == nil then
+            contents[stack.name] = 0
+        end
+
+        contents[stack.name] = contents[stack.name] + stack.count
+    end
+
+    return contents
 end
 
 ---@param carriage LuaEntity

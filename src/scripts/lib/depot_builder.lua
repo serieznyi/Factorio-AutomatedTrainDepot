@@ -443,6 +443,18 @@ end
 
 ---@param context scripts.lib.domain.Context
 ---@return LuaEntity
+function public.get_depot(context)
+    local depot = storage.get_depot(context)
+
+    if depot == nil then
+        return
+    end
+
+    return depot.depot_entity
+end
+
+---@param context scripts.lib.domain.Context
+---@return LuaEntity
 function public.depot_building_exists(context)
     local depot = storage.get_depot(context)
 
