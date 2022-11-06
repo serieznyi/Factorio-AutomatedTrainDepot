@@ -141,6 +141,7 @@ prototype.inventory_size = 96
 prototype.selection_box = {{-3.0, -0.5}, {3.0, 0.5}}
 prototype.collision_box = {{-3.0, -0.5}, {3.0, 0.5}}
 prototype.selection_priority = 52
+prototype.enable_inventory_bar = false
 table.insert(prototypes, prototype)
 
 data:extend(prototypes)
