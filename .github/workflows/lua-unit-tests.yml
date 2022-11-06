@@ -11,3 +11,5 @@ jobs:
         run: sudo apt install lua5.2
       - name: Install luarock
         run: sudo apt install luarocks
+      - name: Install busted
+        run: sudo luarocks install busted
