@@ -15,6 +15,7 @@ function structure.get(train_part_id)
                 elem_type = "entity",
                 elem_filters = {
                     {filter="rolling-stock"},
+                    {filter = "hidden", invert = true, mode = "and"}
                 },
                 actions = {
                     on_elem_changed = { event = atd.defines.events.on_gui_choose_train_part },
