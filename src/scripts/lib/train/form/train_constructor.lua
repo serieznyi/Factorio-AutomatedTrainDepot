@@ -75,6 +75,70 @@ function TrainsConstructor._is_deploy_slot_free(context)
     return depot_station_output.connected_rail.trains_in_block == 0
 end
 
+---@param template scripts.lib.domain.entity.template.TrainTemplate
+---@return uint
+function TrainsConstructor._calculate_train_template_fuel_stacks_count(template)
+    local quantity = 0
+
+    for _, stock in ipairs(template.train) do
+        if stock:is_locomotive() then
+            quantity = quantity + game.item_prototypes[stock.prototype_name].stack_size
+        end
+    end
+
+    return quantity
+end
+
+---@param template scripts.lib.domain.entity.template.TrainTemplate
+---@return string|nil
+function TrainsConstructor._get_any_fuel_type_from_depot_storage(template)
+    local context = Context.from_model(template)
+    local storage_entity = depot_storage_service.get_storage_entity(context)
+    ---@type LuaInventory
+    local inventory = storage_entity.get_inventory(defines.inventory.chest)
+    local all_storage_fuels = {}
+
+    for item, _ in pairs(inventory.get_contents()) do
+        local item_prototype = game.item_prototypes[item]
+
+        local fuel_category = item_prototype.fuel_category
+        if fuel_category == "chemical" then
+            table.insert(all_storage_fuels, {name = item_prototype.name, value = item_prototype.fuel_value})
+        end
+    end
+
+    table.sort(all_storage_fuels, function (left, right)
+        return left.value > right.value
+    end)
+
+    if #all_storage_fuels == 0 then
+        return nil
+    end
+
+    return all_storage_fuels[1].name
+end
+
+---@param template scripts.lib.domain.entity.template.TrainTemplate
+---@return table<string, uint>
+function TrainsConstructor._prepare_fuels_request_for_template_train(template)
+    local fuel_type
+
+    if template.fuel ~= nil then
+        fuel_type = template.fuel
+    else
+        fuel_type = TrainsConstructor._get_any_fuel_type_from_depot_storage(template)
+
+        if not fuel_type then
+            return nil
+        end
+    end
+
+    local fuel_stack_size = game.item_prototypes[fuel_type].stack_size
+    local locomotives_stacks_count = TrainsConstructor._calculate_train_template_fuel_stacks_count(template)
+
+    return {[fuel_type] = fuel_stack_size * locomotives_stacks_count}
+end
+
 ---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param tick uint
@@ -84,12 +148,21 @@ function TrainsConstructor._deploy_train(context, task, tick)
     if task:is_state_formed() then
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
         local can_take_train_items_from_storage = depot_storage_service.can_take(context, task.train_items)
+        local train_fuel_items_for_request = TrainsConstructor._prepare_fuels_request_for_template_train(train_template)
+        local can_take_train_fuel_from_storage = train_fuel_items_for_request ~= nil and depot_storage_service.can_take(context, train_fuel_items_for_request) or false
 
         if not can_take_train_items_from_storage then
             alert_service.add(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
             return
         else
             alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
+        end
+
+        if not can_take_train_fuel_from_storage then
+            alert_service.add(context, atd.defines.alert_type.depot_storage_not_contains_required_fuel)
+            return
+        else
+            alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_fuel)
         end
 
         depot_storage_service.take(context, task.train_items)
@@ -148,8 +221,13 @@ function TrainsConstructor._deploy_train(context, task, tick)
                     TrainsConstructor._add_train_schedule(task.main_locomotive.train, train_template)
                 end
 
-                -- todo fill by fuel from template
+                ---@type LuaInventory
                 local inventory = carrier.get_inventory(defines.inventory.fuel)
+                --local fuel_type = TrainsConstructor._get_train_for_template(train_template)
+                --local fuel_item_stack_size = game.item_prototypes[template.fuel].stack_size
+                --
+                --inventory.insert({name = fuel_type, count = inventory.count_empty_stacks() * fuel_item_stack_size})
+
                 inventory.insert({name = "nuclear-fuel", count = 1})
             end
 
