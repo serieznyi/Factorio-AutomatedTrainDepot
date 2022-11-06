@@ -66,8 +66,7 @@ function structure.get(config)
                                         ref = {"train_fuel_chooser"},
                                         elem_type = "item",
                                         elem_filters = {
-                                            { filter="fuel" },
-                                            { filter="burnt-result", mode = "and", invert = true },
+                                            { filter="fuel-category", ["fuel-category"] = "chemical" }
                                         },
                                         actions = {
                                             on_elem_changed = { event = atd.defines.events.on_gui_settings_frame_changed }
