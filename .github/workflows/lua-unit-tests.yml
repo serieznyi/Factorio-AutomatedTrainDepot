@@ -8,6 +8,6 @@ jobs:
       - name: Checkout project sources
         uses: actions/checkout@v3
       - name: Install lua
-        run: sudo apt install lua5.2.1
+        run: sudo apt install lua5.2
       - name: Install luarock
         run: sudo apt install luarocks
