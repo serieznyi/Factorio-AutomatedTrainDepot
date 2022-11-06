@@ -104,17 +104,39 @@ table.insert(prototypes, prototype)
 ------------- PROTOTYPE
 prototype = table.deepcopy(data.raw["character"]["character"])
 prototype.name = prototype_defines.entity.depot_driver.name
-prototype.collision_mask = { "ghost-layer"}
+configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
 prototype = table.deepcopy(data.raw["locomotive"]["locomotive"])
 prototype.name = prototype_defines.entity.depot_locomotive.name
+prototype.selectable_in_game = false
+prototype.minable = nil
+prototype.selection_priority = 1
+prototype.collision_mask = nil
+prototype.flags = {
+    "hidden",
+    "hide-alt-info",
+    "not-selectable-in-game",
+    "not-in-kill-statistics",
+    "not-deconstructable",
+    "not-blueprintable",
+}
 table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
 prototype = table.deepcopy(data.raw["container"]["steel-chest"])
 prototype.name = prototype_defines.entity.depot_storage.name
+prototype.minable = nil
+prototype.collision_mask = nil
+prototype.flags = {
+    "hidden",
+    "hide-alt-info",
+    "not-selectable-in-game",
+    "not-in-kill-statistics",
+    "not-deconstructable",
+    "not-blueprintable",
+}
 prototype.inventory_size = 96
 prototype.selection_box = {{-3.0, -0.5}, {3.0, 0.5}}
 prototype.collision_box = {{-3.0, -0.5}, {3.0, 0.5}}
