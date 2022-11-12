@@ -12,6 +12,6 @@ jobs:
       - name: Install luarock
         run: sudo apt install luarocks
       - name: Install busted
-        run: sudo luarocks install busted
+        run: sudo luarocks install --deps-mode=all busted
       - name: Run tests
         run: busted -o TAP
