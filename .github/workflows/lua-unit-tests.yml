@@ -8,6 +8,6 @@ jobs:
       - name: Checkout project sources
         uses: actions/checkout@v3
       - name: Run Busted
-        uses: lunarmodules/busted@v0
+        uses: lunarmodules/busted
         with:
           args: -o TAP
