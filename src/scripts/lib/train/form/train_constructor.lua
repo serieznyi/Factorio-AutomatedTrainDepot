@@ -81,8 +81,10 @@ function TrainsConstructor._calculate_train_template_fuel_stacks_count(template)
     local quantity = 0
 
     for _, stock in ipairs(template.train) do
+        local entity_prototype = game.item_prototypes[stock.prototype_name].place_result
+
         if stock:is_locomotive() then
-            quantity = quantity + game.item_prototypes[stock.prototype_name].stack_size
+            quantity = quantity + entity_prototype.burner_prototype.fuel_inventory_size
         end
     end
 
@@ -149,6 +151,7 @@ function TrainsConstructor._deploy_train(context, task, tick)
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
         local can_take_train_items_from_storage = depot_storage_service.can_take(context, task.train_items)
         local train_fuel_items_for_request = TrainsConstructor._prepare_fuels_request_for_template_train(train_template)
+        logger.debug(train_fuel_items_for_request)
         local can_take_train_fuel_from_storage = train_fuel_items_for_request ~= nil and depot_storage_service.can_take(context, train_fuel_items_for_request) or false
 
         if not can_take_train_items_from_storage then
@@ -165,7 +168,11 @@ function TrainsConstructor._deploy_train(context, task, tick)
             alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_fuel)
         end
 
+        -- Take train items
         depot_storage_service.take(context, task.train_items)
+        -- Take fuel
+        depot_storage_service.take(context, train_fuel_items_for_request)
+
         task:state_deploy(train_template)
         task_changed = true
 
