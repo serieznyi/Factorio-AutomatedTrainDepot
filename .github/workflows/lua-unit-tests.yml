@@ -10,4 +10,9 @@ jobs:
       - name: Run Busted
         uses: lunarmodules/busted@v2
         with:
-          args: -o TAP
+          args: -o TAP > junit-report.xml
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
+        if: always() # always run even if the previous step fails
+        with:
+          report_paths: '**/junit-report.xml'
