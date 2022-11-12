@@ -1,5 +1,7 @@
 # 0.1.1
 
+ - Show depot storage items icons in ALT mode 
+ - Move depot inventory in player inventory on deconstruct
  - TEST. Order 3 try, mark for disband all 3 train. Depot sometimes create unnecessary train
  - show task left time in seconds (flib.misc.ticks_to_timestring)
  - add raise event with force name instead player ?
