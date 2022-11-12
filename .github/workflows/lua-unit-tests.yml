@@ -7,11 +7,7 @@ jobs:
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v3
-      - name: Install lua
-        run: sudo apt install lua5.2
-      - name: Install luarock
-        run: sudo apt install luarocks
-      - name: Install busted
-        run: sudo luarocks install --deps-mode=all busted
-      - name: Run tests
-        run: busted -o TAP
+      - name: Run Busted
+        uses: lunarmodules/busted@v0
+        with:
+          args: -o TAP
