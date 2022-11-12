@@ -10,7 +10,7 @@ jobs:
       - name: Run Busted
         uses: lunarmodules/busted@v2
         with:
-          args: -o TAP > junit-report.xml
+          args: -o junit > junit-report.xml
       - name: asd1
         run: cat ./junit-report.xml
       - name: Publish Test Report
