@@ -1,5 +1,3 @@
-local logger = require("scripts.lib.logger")
-
 --- @module scripts.lib.VirtualInventory
 local VirtualInventory = {
     ---@type uint
@@ -39,10 +37,6 @@ function VirtualInventory:try_insert(item)
     end
 
     return false
-end
-
-function VirtualInventory:reset()
-    self.stacks = {}
 end
 
 ---@param size uint
