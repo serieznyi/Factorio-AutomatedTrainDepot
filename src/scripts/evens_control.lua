@@ -101,7 +101,7 @@ function events_control._depot_building_dismantle(entity, event)
 
     if event_id == defines.events.on_entity_died or event_id == defines.events.script_raised_destroy then
         depot_builder.destroy(entity)
-    elseif event_id == defines.events.on_robot_mined_entity then
+    elseif event_id == defines.events.on_robot_mined_entity or event_id == defines.events.on_player_mined_entity then
         depot_builder.try_mine(entity, original_event.buffer, original_event.player_index, original_event.robot)
     end
 end
