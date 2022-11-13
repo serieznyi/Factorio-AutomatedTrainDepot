@@ -154,8 +154,8 @@ end
 ---@return table
 function TrainStationSelector:_exclude_depot_train_stations(train_stations)
     local depot_train_stations_prototype_names = {
-        atd.defines.prototypes.entity.depot_building_train_stop_input,
-        atd.defines.prototypes.entity.depot_building_train_stop_output,
+        atd.defines.prototypes.entity.depot_building.parts.train_stop_input,
+        atd.defines.prototypes.entity.depot_building.parts.train_stop_output,
     }
 
     local function is_not_depot_train_station(station)

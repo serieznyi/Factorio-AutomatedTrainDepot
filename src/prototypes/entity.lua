@@ -42,7 +42,7 @@ local prototypes = {}
 local prototype = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 prototype.tile_width = 2
 prototype.tile_height = 2
-prototype.name = prototype_defines.entity.depot_building
+prototype.name = prototype_defines.entity.depot_building.name
 prototype.selectable_in_game = true
 prototype.selection_priority = 51
 prototype.selection_box = { left_top = { x = -7, y = -9}, right_bottom = { x = 7, y = 9}}
@@ -59,7 +59,7 @@ table.insert(prototypes, prototype)
 ------------- PROTOTYPE
 
 prototype = table.deepcopy(data.raw["lamp"]["small-lamp"])
-prototype.name = prototype_defines.entity.depot_building_input.name
+prototype.name = prototype_defines.entity.depot_building.parts.logistic_input
 configure_depot_part_prototype(prototype)
 prototype.tile_width = 1
 prototype.tile_height = 1
@@ -68,20 +68,20 @@ table.insert(prototypes, prototype)
 ------------- PROTOTYPE
 
 prototype = table.deepcopy(data.raw["rail-signal"]["rail-signal"])
-prototype.name = prototype_defines.entity.depot_building_rail_signal.name
+prototype.name = prototype_defines.entity.depot_building.parts.rail_signal
 configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
 
 prototype = table.deepcopy(data.raw["rail-chain-signal"]["rail-chain-signal"])
-prototype.name = prototype_defines.entity.depot_building_rail_chain_signal.name
+prototype.name = prototype_defines.entity.depot_building.parts.rail_chain_signal
 configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
 prototype = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
-prototype.name = prototype_defines.entity.depot_building_output.name
+prototype.name = prototype_defines.entity.depot_building.parts.logistic_output
 configure_depot_part_prototype(prototype)
 prototype.tile_width = 1
 prototype.tile_height = 1
@@ -90,14 +90,14 @@ table.insert(prototypes, prototype)
 ------------- PROTOTYPE
 
 prototype = table.deepcopy(data.raw["train-stop"]["train-stop"])
-prototype.name = prototype_defines.entity.depot_building_train_stop_input.name
+prototype.name = prototype_defines.entity.depot_building.parts.train_stop_input
 configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
 
 prototype = table.deepcopy(data.raw["train-stop"]["train-stop"])
-prototype.name = prototype_defines.entity.depot_building_train_stop_output.name
+prototype.name = prototype_defines.entity.depot_building.parts.train_stop_output
 configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
@@ -109,7 +109,7 @@ table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
 prototype = table.deepcopy(data.raw["straight-rail"]["straight-rail"])
-prototype.name = prototype_defines.entity.straight_rail.name
+prototype.name = prototype_defines.entity.depot_building.parts.straight_rail
 configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
@@ -132,7 +132,7 @@ table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
 prototype = table.deepcopy(data.raw["container"]["steel-chest"])
-prototype.name = prototype_defines.entity.depot_storage.name
+prototype.name = prototype_defines.entity.depot_building.parts.storage
 prototype.minable = nil
 prototype.collision_mask = nil
 prototype.flags = {

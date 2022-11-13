@@ -142,8 +142,8 @@ flib_event.register(
         },
         events_control.entity_build,
         {
-            { filter="name", name= atd.defines.prototypes.entity.depot_building },
-            { filter="ghost_name", name= atd.defines.prototypes.entity.depot_building },
+            { filter="name", name= atd.defines.prototypes.entity.depot_building.name },
+            { filter="ghost_name", name= atd.defines.prototypes.entity.depot_building.name },
         }
 )
 
@@ -161,7 +161,7 @@ flib_event.register(
         },
         events_control.entity_dismantled,
         {
-            { filter="name", name=atd.defines.prototypes.entity.depot_building },
+            { filter="name", name=atd.defines.prototypes.entity.depot_building.name },
             { filter="rolling-stock" },
         }
 )

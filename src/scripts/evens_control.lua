@@ -30,9 +30,9 @@ function events_control.entity_build(event)
         return
     end
 
-    if entity.name == "entity-ghost" and entity.ghost_name == atd.defines.prototypes.entity.depot_building then
+    if entity.name == "entity-ghost" and entity.ghost_name == atd.defines.prototypes.entity.depot_building.name then
         depot_builder.build_ghost(entity)
-    elseif entity.name == atd.defines.prototypes.entity.depot_building then
+    elseif entity.name == atd.defines.prototypes.entity.depot_building.name then
         local player = event.player_index ~= nil and game.get_player(event.player_index) or nil
 
         depot_builder.build(entity, player)
@@ -47,7 +47,7 @@ function events_control.entity_rotated(event)
         return
     end
 
-    if entity.name == atd.defines.prototypes.entity.depot_building then
+    if entity.name == atd.defines.prototypes.entity.depot_building.name then
         depot_builder.revert_rotation(entity, event.previous_direction)
     end
 end
@@ -61,7 +61,7 @@ function events_control.entity_dismantled(event)
         return
     end
 
-    if entity.name == atd.defines.prototypes.entity.depot_building then
+    if entity.name == atd.defines.prototypes.entity.depot_building.name then
         events_control._depot_building_dismantle(entity, Event.new(event))
     elseif util_entity.is_rolling_stock(entity) then
         train_service.try_delete_train(entity)
@@ -82,7 +82,7 @@ function events_control.open_main_frame(event)
     ---@type LuaEntity
     local entity = event.entity
 
-    if entity.name == atd.defines.prototypes.entity.depot_building then
+    if entity.name == atd.defines.prototypes.entity.depot_building.name then
         gui_manager.open_main_frame(Event.new(event))
     end
 end

@@ -9,7 +9,7 @@ local atd_building_item = {
     stack_size = 1,
     --icon_mipmaps = 4, todo use mipmaps
     --order = "g-e-d" todo how it work?
-    place_result = prototype_defines.entity.depot_building,
+    place_result = prototype_defines.entity.depot_building.name,
     flags = {"primary-place-result"},
     default_request_amount = 1,
 }

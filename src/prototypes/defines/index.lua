@@ -1,16 +1,20 @@
 return {
     entity = {
-        depot_building = "atd-building-entity",
-        depot_building_input = "atd-building-input-entity",
-        depot_building_rail_signal = "atd-building-rail-signal-entity",
-        depot_building_rail_chain_signal = "atd-building-rail-chain-signal-entity",
-        depot_building_output = "atd-building-output-entity",
-        depot_building_train_stop_input = "atd-building-train-stop-input-entity",
-        depot_building_train_stop_output = "atd-building-train-stop-output-entity",
+        depot_building = {
+            name = "atd-building-entity",
+            parts = {
+                logistic_input = "atd-building-input-entity",
+                logistic_output = "atd-building-output-entity",
+                rail_signal = "atd-building-rail-signal-entity",
+                rail_chain_signal = "atd-building-rail-chain-signal-entity",
+                train_stop_input = "atd-building-train-stop-input-entity",
+                train_stop_output = "atd-building-train-stop-output-entity",
+                straight_rail = "atd-straight_rail",
+                storage = "atd-depot-storage",
+            }
+        },
         depot_driver = "atd-depot-driver",
-        straight_rail = "atd-straight_rail",
         depot_locomotive = "atd-depot-locomotive",
-        depot_storage = "atd-depot-storage",
     },
     item = {
         depot_building = "atd-building-item",
