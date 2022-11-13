@@ -330,10 +330,20 @@ end
 
 ---@param entity LuaEntity
 ---@return bool true
-function private.can_destroy(entity)
+function private.has_depot_active_tasks(entity)
     local context = Context.from_entity(entity)
 
     return persistence_storage.trains_tasks.count_tasks(context) == 0
+end
+
+---@param depot_building_entity LuaEntity
+---@param player_index uint|nil
+---@param robot LuaEntity|nil
+---@return bool true
+function private.has_place_in_inventory(depot_building_entity, player_index, robot)
+    -- todo
+
+    return false
 end
 
 ---@param entity LuaEntity
@@ -473,15 +483,7 @@ function public.depot_building_exists(context)
     return depot ~= nil
 end
 
----@param entity LuaEntity
----@return void
 function public.destroy(entity)
-    if not private.can_destroy(entity) then
-        private.restore_main_entity(entity)
-
-        return
-    end
-
     local context = Context.from_entity(entity)
 
     local depot = storage.get_depot(context)
@@ -503,6 +505,23 @@ function public.destroy(entity)
     })
 
     logger.debug('Depot on surface {1} for {2} was destroy', {context.surface_name, context.force_name})
+end
+
+---@param entity LuaEntity
+---@param buffer_inventory LuaInventory
+---@param player_index uint|nil
+---@param robot LuaEntity|nil
+function public.try_mine(entity, buffer_inventory, player_index, robot)
+    if not private.has_depot_active_tasks(entity) or not private.have_place_in_inventory(entity, player_index, robot) then
+        buffer_inventory.clear()
+        private.restore_main_entity(entity)
+
+        return
+    end
+
+    -- todo grab storage items
+
+    private.destroy(entity)
 end
 
 return public

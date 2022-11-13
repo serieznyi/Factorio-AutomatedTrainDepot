@@ -5,6 +5,7 @@ local console = require("scripts.console")
 local Event = require("scripts.lib.event.Event")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local train_service = require("scripts.lib.train.train_service")
+local logger = require("scripts.lib.logger")
 
 local events_control = {}
 
@@ -61,7 +62,7 @@ function events_control.entity_dismantled(event)
     end
 
     if entity.name == atd.defines.prototypes.entity.depot_building.name then
-        depot_builder.destroy(entity)
+        events_control._depot_building_dismantle(entity, Event.new(event))
     elseif util_entity.is_rolling_stock(entity) then
         train_service.try_delete_train(entity)
     end
@@ -89,6 +90,20 @@ end
 ---@param event EventData
 function events_control.on_gui_closed(event)
     gui_manager.on_gui_closed(Event.new(event))
+end
+
+---@param entity LuaEntity
+---@param event scripts.lib.event.Event
+---@return void
+function events_control._depot_building_dismantle(entity, event)
+    local original_event = event.original_event
+    local event_id = original_event.name
+
+    if event_id == defines.events.on_entity_died or event_id == defines.events.script_raised_destroy then
+        depot_builder.destroy(entity)
+    elseif event_id == defines.events.on_robot_mined_entity then
+        depot_builder.try_mine(entity, original_event.buffer, original_event.player_index, original_event.robot)
+    end
 end
 
 return events_control
