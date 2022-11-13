@@ -117,7 +117,7 @@ function DepotStorageService._get_carriage_as_contents(carriage)
     elseif carriage.type == "cargo-wagon" then
         contents = carriage.get_inventory(defines.inventory.cargo_wagon).get_contents()
     elseif carriage.type == "fluid-wagon" then
-        -- todo place fluid in barrels
+        -- todo place fluid in barrels (add setting in depot building: destroy fluid or place in barrels)
     else
         error("Unknown entity: " .. carriage.type)
     end

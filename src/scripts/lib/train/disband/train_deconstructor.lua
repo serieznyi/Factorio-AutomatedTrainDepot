@@ -141,13 +141,14 @@ function TrainsDeconstructor._try_deconstruct_train(context, task, tick)
             if depot_locomotive then
                 ---@type LuaEntity
                 local depot_input_station = remote.call("atd", "depot_get_input_station", context)
+                ---@type LuaEntity
                 local prev_stop_rail = depot_input_station.connected_rail.get_connected_rail{
                     rail_direction = defines.rail_direction.back,
                     rail_connection_direction = defines.rail_connection_direction.straight
                 }
                 local distance = flib_misc.get_distance(prev_stop_rail.position, carriage.position)
 
-                TrainsDeconstructor._ride_train_to(carriage, prev_stop_rail.position)
+                TrainsDeconstructor._ride_locomotive(carriage)
 
                 local in_place = distance <= 0.5 and distance >= 0
 
@@ -223,18 +224,25 @@ function TrainsDeconstructor._add_depot_locomotive(first_carriage, task)
 end
 
 ---@param depot_locomotive LuaEntity
-function TrainsDeconstructor._ride_train_to(depot_locomotive, destination)
+function TrainsDeconstructor._is_front_locomotive(depot_locomotive)
+    local front_locomotives = depot_locomotive.train.locomotives["front_movers"]
+
+    return #front_locomotives > 0 and front_locomotives[1].unit_number == depot_locomotive.unit_number
+end
+
+---@param depot_locomotive LuaEntity
+function TrainsDeconstructor._ride_locomotive(depot_locomotive)
     ---@type LuaTrain
     local train = depot_locomotive.train
     local speed = math.abs(train.speed)
     local train_driver = depot_locomotive.get_driver()
     local min_speed = 0.05
+    local depot_locomotive_in_front = TrainsDeconstructor._is_front_locomotive(depot_locomotive)
 
     -- control train speed
     if speed < min_speed then
         train_driver.riding_state = {
-            --acceleration = defines.riding.acceleration.accelerating, -- todo use correct direction
-            acceleration = defines.riding.acceleration.reversing, -- todo use correct direction
+            acceleration = depot_locomotive_in_front and defines.riding.acceleration.accelerating or defines.riding.acceleration.reversing,
             direction = defines.riding.direction.straight,
         }
     elseif speed >= min_speed then
