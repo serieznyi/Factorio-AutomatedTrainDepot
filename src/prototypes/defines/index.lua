@@ -27,6 +27,9 @@ return {
         depot_driver = {
             name = "atd-depot-driver",
         },
+        straight_rail = {
+            name = "atd-straight_rail",
+        },
         depot_locomotive = {
             name = "atd-depot-locomotive",
         },

@@ -122,7 +122,7 @@ function private.build_straight_rails(surface, force, start_position, direction,
 
     for _ = 1, rails_count do
         rail = surface.create_entity({
-            name = "straight-rail",
+            name = atd.defines.prototypes.entity.straight_rail.name,
             position = start_position,
             direction = direction,
             force = force,

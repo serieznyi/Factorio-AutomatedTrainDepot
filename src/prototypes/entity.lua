@@ -108,6 +108,12 @@ configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
+prototype = table.deepcopy(data.raw["straight-rail"]["straight-rail"])
+prototype.name = prototype_defines.entity.straight_rail.name
+configure_depot_part_prototype(prototype)
+table.insert(prototypes, prototype)
+
+------------- PROTOTYPE
 prototype = table.deepcopy(data.raw["locomotive"]["locomotive"])
 prototype.name = prototype_defines.entity.depot_locomotive.name
 prototype.selectable_in_game = false
