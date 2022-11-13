@@ -9,7 +9,7 @@ local automated_train_depot = {
     effects = {
         {
             type = "unlock-recipe",
-            recipe = prototype_defines.recipe.depot_building.name,
+            recipe = prototype_defines.recipe.depot_building,
         }
     },
     prerequisites = { -- todo need balance

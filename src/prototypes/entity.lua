@@ -103,7 +103,7 @@ table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
 prototype = table.deepcopy(data.raw["character"]["character"])
-prototype.name = prototype_defines.entity.depot_driver.name
+prototype.name = prototype_defines.entity.depot_driver
 configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
@@ -115,7 +115,7 @@ table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
 prototype = table.deepcopy(data.raw["locomotive"]["locomotive"])
-prototype.name = prototype_defines.entity.depot_locomotive.name
+prototype.name = prototype_defines.entity.depot_locomotive
 prototype.selectable_in_game = false
 prototype.minable = nil
 prototype.selection_priority = 1
