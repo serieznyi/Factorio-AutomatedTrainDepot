@@ -1,5 +1,6 @@
 # 0.1.1
 
+ - Check depot destriy by weapon/artillery/bitters
  - Show depot storage items icons in ALT mode 
  - Move depot inventory in player inventory on deconstruct
  - TEST. Order 3 try, mark for disband all 3 train. Depot sometimes create unnecessary train

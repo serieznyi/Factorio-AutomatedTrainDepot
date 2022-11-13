@@ -31,6 +31,14 @@ function storage.save_depot(context, depot)
 end
 
 ---@param context scripts.lib.domain.Context
+---@param depot_building LuaEntity
+function storage.add_depot_building(context, depot_building)
+    assert(global.depot[context.surface_name], 'depot not exists')
+
+    global.depot[context.surface_name][context.force_name].depot_entity = depot_building
+end
+
+---@param context scripts.lib.domain.Context
 ---@return table
 function storage.get_depot(context)
     if global.depot[context.surface_name] == nil then
@@ -330,13 +338,17 @@ end
 
 ---@param entity LuaEntity
 function private.restore_main_entity(entity)
-    entity.surface.create_entity({
+    local depot_building = entity.surface.create_entity({
         name = entity.name,
         position = entity.position,
         direction = entity.direction,
         force = entity.force,
         raise_built = false,
     })
+
+    local context = Context.from_entity(depot_building)
+
+    storage.add_depot_building(context, depot_building)
 
     private.flying_message(entity, { "flying-text.atd-cant-remove-depot-with-active-tasks"})
 
