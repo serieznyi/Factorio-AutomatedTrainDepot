@@ -7,9 +7,9 @@ local AlertService = {
         [atd.defines.alert_type.depot_storage_not_contains_required_fuel] = { "depot-notifications.atd-depot-storage-not-contains-required-fuel"},
     },
     icons = {
-        [atd.defines.alert_type.depot_storage_full] = { type = "item", name = atd.defines.prototypes.item.depot_building.name }, -- todo change icon
-        [atd.defines.alert_type.depot_storage_not_contains_required_items] = { type = "item", name = atd.defines.prototypes.item.depot_building.name }, -- todo change icon
-        [atd.defines.alert_type.depot_storage_not_contains_required_fuel] = { type = "item", name = atd.defines.prototypes.item.depot_building.name }, -- todo change icon
+        [atd.defines.alert_type.depot_storage_full] = { type = "item", name = atd.defines.prototypes.item.depot_building }, -- todo change icon
+        [atd.defines.alert_type.depot_storage_not_contains_required_items] = { type = "item", name = atd.defines.prototypes.item.depot_building }, -- todo change icon
+        [atd.defines.alert_type.depot_storage_not_contains_required_fuel] = { type = "item", name = atd.defines.prototypes.item.depot_building }, -- todo change icon
     }
 }
 

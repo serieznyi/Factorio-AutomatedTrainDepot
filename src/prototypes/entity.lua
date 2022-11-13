@@ -42,12 +42,12 @@ local prototypes = {}
 local prototype = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 prototype.tile_width = 2
 prototype.tile_height = 2
-prototype.name = prototype_defines.entity.depot_building.name
+prototype.name = prototype_defines.entity.depot_building
 prototype.selectable_in_game = true
 prototype.selection_priority = 51
 prototype.selection_box = { left_top = { x = -7, y = -9}, right_bottom = { x = 7, y = 9}}
 prototype.collision_box = selection_box_to_collision_box(prototype.selection_box)
-prototype.minable = { mining_time = 1, result = prototype_defines.item.depot_building.name }
+prototype.minable = { mining_time = 1, result = prototype_defines.item.depot_building }
 prototype.create_ghost_on_death = true -- todo not work
 --entity.icon = nil todo check
 --entity.icon_size = nil todo check

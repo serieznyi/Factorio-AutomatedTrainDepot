@@ -136,7 +136,7 @@ function TrainsDeconstructor._try_deconstruct_train(context, task, tick)
 
     for _, carriage in ipairs(train.lua_train.carriages) do
         if carriage.unit_number == id then
-            local depot_locomotive = carriage.name == atd.defines.prototypes.entity.depot_locomotive.name
+            local depot_locomotive = carriage.name == atd.defines.prototypes.entity.depot_locomotive
 
             if depot_locomotive then
                 ---@type LuaEntity
@@ -199,7 +199,7 @@ function TrainsDeconstructor._add_depot_locomotive(first_carriage, task)
     local first_carrier_position = first_carrier.position
     local direction = depot_input_station.direction
     local depot_locomotive_entity_data = {
-        name = atd.defines.prototypes.entity.depot_locomotive.name,
+        name = atd.defines.prototypes.entity.depot_locomotive,
         position = {
             first_carrier_position.x + atd.defines.rotate_relative_position[direction](0, -7),
             first_carrier_position.y
@@ -256,7 +256,7 @@ end
 ---@param locomotive LuaEntity
 function TrainsDeconstructor._add_depot_driver(locomotive)
     local train_driver = locomotive.surface.create_entity({
-        name = atd.defines.prototypes.entity.depot_driver.name,
+        name = atd.defines.prototypes.entity.depot_driver,
         position = locomotive.position,
         force = locomotive.force,
     })

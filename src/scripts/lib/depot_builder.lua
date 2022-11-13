@@ -122,7 +122,7 @@ function private.build_straight_rails(surface, force, start_position, direction,
 
     for _ = 1, rails_count do
         rail = surface.create_entity({
-            name = atd.defines.prototypes.entity.straight_rail.name,
+            name = atd.defines.prototypes.entity.straight_rail,
             position = start_position,
             direction = direction,
             force = force,
@@ -196,7 +196,7 @@ function private.build(context, entity)
 
     x, y = atd.defines.rotate_relative_position[entity.direction](0.5, 2.5)
     local depot_signals_input = surface.create_entity({
-        name = atd.defines.prototypes.entity.depot_building_input.name,
+        name = atd.defines.prototypes.entity.depot_building_input,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = entity.direction,
         force = force,
@@ -206,7 +206,7 @@ function private.build(context, entity)
 
     x, y = atd.defines.rotate_relative_position[entity.direction](-0.5, 2.5)
     local depot_signals_output = surface.create_entity({
-        name = atd.defines.prototypes.entity.depot_building_output.name,
+        name = atd.defines.prototypes.entity.depot_building_output,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = entity.direction,
         force = force,
@@ -217,7 +217,7 @@ function private.build(context, entity)
     -- Input station, rails and signal
     x, y = atd.defines.rotate_relative_position[entity.direction](6, -6)
     local depot_station_input = surface.create_entity({
-        name = atd.defines.prototypes.entity.depot_building_train_stop_input.name,
+        name = atd.defines.prototypes.entity.depot_building_train_stop_input,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = entity.direction,
         force = force,
@@ -238,7 +238,7 @@ function private.build(context, entity)
     local last_input_rail = input_rails[#input_rails]
 
     local input_rail_signal = private.build_rail_signal(
-            atd.defines.prototypes.entity.depot_building_rail_signal.name,
+            atd.defines.prototypes.entity.depot_building_rail_signal,
             last_input_rail,
             depot_station_input.direction
     )
@@ -247,7 +247,7 @@ function private.build(context, entity)
     -- Output station, rails and signal
     x, y = atd.defines.rotate_relative_position[entity.direction](-6, 0)
     local depot_station_output = surface.create_entity({
-        name = atd.defines.prototypes.entity.depot_building_train_stop_output.name,
+        name = atd.defines.prototypes.entity.depot_building_train_stop_output,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = flib_direction.opposite(entity.direction),
         force = force,
@@ -269,7 +269,7 @@ function private.build(context, entity)
     local last_output_rail = output_rails[#output_rails]
 
     local output_rail_signal = private.build_rail_signal(
-            atd.defines.prototypes.entity.depot_building_rail_chain_signal.name,
+            atd.defines.prototypes.entity.depot_building_rail_chain_signal,
             last_output_rail,
             depot_station_output.direction
     )
@@ -279,7 +279,7 @@ function private.build(context, entity)
 
     x, y = atd.defines.rotate_relative_position[entity.direction](6, 0)
     local depot_storage = surface.create_entity({
-        name = atd.defines.prototypes.entity.depot_storage.name,
+        name = atd.defines.prototypes.entity.depot_storage,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = flib_direction.opposite(depot_station_input.direction),
         force = force,
@@ -302,7 +302,7 @@ end
 ---@param player LuaPlayer
 function private.return_depot_in_inventory(player)
     local inventory = player.get_main_inventory()
-    inventory.insert({ name= atd.defines.prototypes.item.depot_building.name, count=1})
+    inventory.insert({ name= atd.defines.prototypes.item.depot_building, count=1})
 end
 
 ---@param entity LuaEntity

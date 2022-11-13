@@ -4,7 +4,7 @@ local train_depot = {
     type = "recipe",
     category = "advanced-crafting",
     subgroup = "train-transport",
-    name = prototype_defines.recipe.depot_building.name,
+    name = prototype_defines.recipe.depot_building,
     enabled = false,
     ingredients = { -- todo balance it
         {"concrete", 1000},
@@ -15,7 +15,7 @@ local train_depot = {
         {"filter-inserter", 50},
         {"gate", 6},
     },
-    result = prototype_defines.item.depot_building.name,
+    result = prototype_defines.item.depot_building,
     result_count = 1,
 }
 

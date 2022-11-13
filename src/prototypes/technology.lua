@@ -2,7 +2,7 @@ local prototype_defines = require("defines.index")
 
 local automated_train_depot = {
     type = "technology",
-    name = prototype_defines.technology.automated_train_depot.name,
+    name = prototype_defines.technology.automated_train_depot,
     icon = "__AutomatedTrainDepot__/graphics/technology/automated-train-depot.png",
     icon_size = 256,
     --icon_mipmaps = 4, todo use mipmaps
