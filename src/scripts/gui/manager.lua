@@ -6,6 +6,7 @@ local MainFrame = require("scripts.gui.frame.main.MainFrame")
 local AddTemplateFrame = require("scripts.gui.frame.add_template.AddTemplateFrame")
 local SettingsFrame = require("scripts.gui.frame.settings.SettingsFrame")
 local frame_stack = require("scripts.gui.frame_stack")
+local Context = require("scripts.lib.domain.Context")
 
 local manager = {}
 local event_handlers = {}
@@ -86,6 +87,18 @@ function event_handlers.handle_settings_frame_open(event)
 end
 
 ---@param event scripts.lib.event.Event
+function event_handlers.handle_storage_frame_open(event)
+    ---@type LuaPlayer
+    local player = game.get_player(event.player_index)
+    local context = Context.from_player(player)
+    local depot_storage = remote.call("atd", "depot_get_storage", context)
+
+    manager.push_native_mode(context)
+
+    player.opened = depot_storage
+end
+
+---@param event scripts.lib.event.Event
 function event_handlers.handle_background_dimmer_click(event)
     local owner_name = event.action_data.owner_name
 
@@ -146,6 +159,10 @@ function manager.register_events()
             handler = event_handlers.handle_settings_frame_open,
         },
         {
+            match = EventDispatcher.match_event(atd.defines.events.on_gui_open_storage_click),
+            handler = event_handlers.handle_storage_frame_open,
+        },
+        {
             match = EventDispatcher.match_event(atd.defines.events.on_gui_background_dimmer_click),
             handler = event_handlers.handle_background_dimmer_click,
         },
@@ -180,6 +197,20 @@ function manager.on_gui_closed(event)
     if closed_window == last_frame_window then
         manager.close_frame(last_frame)
     end
+end
+
+---@param context scripts.lib.domain.Context
+function manager.push_native_mode(context)
+    atd.global.open_native[tostring(context)] = true
+end
+
+---@param context scripts.lib.domain.Context
+function manager.pop_native_mode(context)
+    local result = atd.global.open_native[tostring(context)] ~= nil
+
+    atd.global.open_native[tostring(context)] = nil
+
+    return result
 end
 
 return manager

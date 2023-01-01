@@ -44,6 +44,16 @@ function structure.get(config)
                     },
                     {
                         type = "sprite-button",
+                        name = "frame_storage_button",
+                        style = "frame_action_button",
+                        tooltip = {"main-frame.atd-open-storage"},
+                        sprite = "atd_sprite_container",
+                        actions = {
+                            on_click = { event = atd.defines.events.on_gui_open_storage_click }
+                        }
+                    },
+                    {
+                        type = "sprite-button",
                         name = "frame_close_button",
                         style = "frame_action_button",
                         sprite = "utility/close_white",

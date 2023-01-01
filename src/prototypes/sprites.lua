@@ -25,6 +25,14 @@ data:extend({
     },
     {
         type = "sprite",
+        name = "atd_sprite_container",
+        filename = "__AutomatedTrainDepot__/graphics/icons/container.png",
+        size = 64,
+        icon_mipmaps = 4,
+        flags = {"gui-icon"}
+    },
+    {
+        type = "sprite",
         name = "atd_sprite_arrow_right",
         filename = "__AutomatedTrainDepot__/graphics/icons/arrow-right.png",
         size = 64,

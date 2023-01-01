@@ -58,6 +58,7 @@ mod_defines.events = {
     -- main frame
     on_gui_close_main_frame_click = script.generate_event_name(),
     on_gui_open_settings_frame_click = script.generate_event_name(),
+    on_gui_open_storage_click = script.generate_event_name(),
     on_gui_open_adding_template_frame_click = script.generate_event_name(),
     on_gui_open_editing_template_frame_click = script.generate_event_name(),
     on_gui_delete_train_template_click = script.generate_event_name(),

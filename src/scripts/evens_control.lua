@@ -6,6 +6,7 @@ local Event = require("scripts.lib.event.Event")
 local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local train_service = require("scripts.lib.train.train_service")
 local logger = require("scripts.lib.logger")
+local Context = require("scripts.lib.domain.Context")
 
 local events_control = {}
 
@@ -61,7 +62,7 @@ function events_control.entity_dismantled(event)
         return
     end
 
-    if entity.name == atd.defines.prototypes.entity.depot_building.name then
+    if entity.name == atd.defines.prototypes.entity.depot_building.parts.storage then
         events_control._depot_building_dismantle(entity, Event.new(event))
     elseif util_entity.is_rolling_stock(entity) then
         train_service.try_delete_train(entity)
@@ -81,8 +82,10 @@ function events_control.open_main_frame(event)
 
     ---@type LuaEntity
     local entity = event.entity
+    local context = Context.from_entity(entity)
+    local open_native = gui_manager.pop_native_mode(context)
 
-    if entity.name == atd.defines.prototypes.entity.depot_building.name then
+    if entity.name == atd.defines.prototypes.entity.depot_building.parts.storage and not open_native then
         gui_manager.open_main_frame(Event.new(event))
     end
 end

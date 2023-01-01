@@ -8,6 +8,7 @@ atd.global = {
     frames = {},
     -- Stack of opened frames
     frames_stack = {},
+    open_native = {},
 }
 
 return atd

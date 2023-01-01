@@ -181,6 +181,20 @@ end
 
 ---@param entity LuaEntity
 ---@param context scripts.lib.domain.Context
+function private.replace_entity_on_storage(context, entity)
+    local storage_position = entity.position
+
+    entity.destroy{raise_destroy=false}
+
+    return context:surface().create_entity({
+        name = atd.defines.prototypes.entity.depot_building.parts.storage,
+        position = storage_position,
+        force = context:force(),
+    })
+end
+
+---@param entity LuaEntity
+---@param context scripts.lib.domain.Context
 function private.build(context, entity)
     local dependent_entities = {}
     ---@type LuaSurface
@@ -191,47 +205,49 @@ function private.build(context, entity)
     local guideline_coordinate = private.get_guideline(entity)
     local x, y
     local DEPOT_RAILS_COUNT = 8
+    local original_entity_direction = entity.direction
+    local real_depot_entity = private.replace_entity_on_storage(context, entity)
 
     -- Input and output for logistic signals
 
-    x, y = atd.defines.rotate_relative_position[entity.direction](0.5, 2.5)
+    x, y = atd.defines.rotate_relative_position[original_entity_direction](0.5, 2.5)
     local depot_signals_input = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building.parts.logistic_input,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
-        direction = entity.direction,
+        direction = original_entity_direction,
         force = force,
     })
     private.shadow_entity(depot_signals_input)
     table.insert(dependent_entities, depot_signals_input)
 
-    x, y = atd.defines.rotate_relative_position[entity.direction](-0.5, 2.5)
+    x, y = atd.defines.rotate_relative_position[original_entity_direction](-0.5, 2.5)
     local depot_signals_output = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building.parts.logistic_output,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
-        direction = entity.direction,
+        direction = original_entity_direction,
         force = force,
     })
     private.shadow_entity(depot_signals_output)
     table.insert(dependent_entities, depot_signals_output)
 
     -- Input station, rails and signal
-    x, y = atd.defines.rotate_relative_position[entity.direction](6, -6)
+    x, y = atd.defines.rotate_relative_position[original_entity_direction](6, -6)
     local depot_station_input = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building.parts.train_stop_input,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
-        direction = entity.direction,
+        direction = original_entity_direction,
         force = force,
     })
     depot_station_input.backer_name = "Depot input station",
     private.shadow_entity(depot_station_input)
     table.insert(dependent_entities, depot_station_input)
 
-    x, y = atd.defines.rotate_relative_position[entity.direction](4, -6)
+    x, y = atd.defines.rotate_relative_position[original_entity_direction](4, -6)
     local input_rails = private.build_straight_rails(
             surface,
             force,
             {x = guideline_coordinate.x + x, y = guideline_coordinate.y + y},
-            entity.direction,
+            original_entity_direction,
             DEPOT_RAILS_COUNT
     )
     for _,v in ipairs(input_rails) do table.insert(dependent_entities, v) end
@@ -245,24 +261,24 @@ function private.build(context, entity)
     table.insert(dependent_entities, input_rail_signal)
 
     -- Output station, rails and signal
-    x, y = atd.defines.rotate_relative_position[entity.direction](-6, 0)
+    x, y = atd.defines.rotate_relative_position[original_entity_direction](-6, 0)
     local depot_station_output = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building.parts.train_stop_output,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
-        direction = flib_direction.opposite(entity.direction),
+        direction = flib_direction.opposite(original_entity_direction),
         force = force,
     })
     depot_station_output.backer_name = "Depot output station",
     private.shadow_entity(depot_station_output)
     table.insert(dependent_entities, depot_station_output)
 
-    x, y = atd.defines.rotate_relative_position[entity.direction](-4, -6)
+    x, y = atd.defines.rotate_relative_position[original_entity_direction](-4, -6)
 
     local output_rails = private.build_straight_rails(
             surface,
             force,
             {x = guideline_coordinate.x + x, y = guideline_coordinate.y + y},
-            entity.direction,
+            original_entity_direction,
             DEPOT_RAILS_COUNT
     )
     for _,v in ipairs(output_rails) do table.insert(dependent_entities, v) end
@@ -275,24 +291,11 @@ function private.build(context, entity)
     )
     table.insert(dependent_entities, output_rail_signal)
 
-    -- Add storage
-
-    x, y = atd.defines.rotate_relative_position[entity.direction](6, 0)
-    local depot_storage = surface.create_entity({
-        name = atd.defines.prototypes.entity.depot_building.parts.storage,
-        position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
-        direction = flib_direction.opposite(depot_station_input.direction),
-        force = force,
-    })
-
-    table.insert(dependent_entities, depot_storage)
-
     storage.save_depot(context, {
-        depot_entity = entity,
+        depot_entity = real_depot_entity,
         output_station = depot_station_output,
         input_station = depot_station_input,
         output_signal = output_rail_signal,
-        depot_storage = depot_storage,
         dependent_entities = dependent_entities
     })
 
@@ -460,7 +463,7 @@ function public.get_depot_storage(context)
         return
     end
 
-    return depot.depot_storage
+    return depot.depot_entity
 end
 
 ---@param context scripts.lib.domain.Context

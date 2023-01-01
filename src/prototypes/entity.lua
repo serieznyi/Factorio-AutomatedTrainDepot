@@ -39,13 +39,15 @@ local prototypes = {}
 
 ------------- PROTOTYPE
 
+local depot_size = { x = 9, y = 9}
+
 local prototype = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 prototype.tile_width = 2
 prototype.tile_height = 2
 prototype.name = prototype_defines.entity.depot_building.name
 prototype.selectable_in_game = true
 prototype.selection_priority = 51
-prototype.selection_box = { left_top = { x = -7, y = -9}, right_bottom = { x = 7, y = 9}}
+prototype.selection_box = { left_top = { x = -1 * depot_size.x, y = -1 * depot_size.y}, right_bottom = { x = depot_size.x, y = depot_size.y }}
 prototype.collision_box = selection_box_to_collision_box(prototype.selection_box)
 prototype.minable = { mining_time = 1, result = prototype_defines.item.depot_building }
 prototype.create_ghost_on_death = true -- todo not work
@@ -131,23 +133,24 @@ prototype.flags = {
 table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
+
 prototype = table.deepcopy(data.raw["container"]["steel-chest"])
-prototype.name = prototype_defines.entity.depot_building.parts.storage
-prototype.minable = nil
-prototype.collision_mask = nil
-prototype.flags = {
-    "hidden",
-    "hide-alt-info",
-    "not-selectable-in-game",
-    "not-in-kill-statistics",
-    "not-deconstructable",
-    "not-blueprintable",
-}
-prototype.inventory_size = 96
-prototype.selection_box = {{-3.0, -0.5}, {3.0, 0.5}}
-prototype.collision_box = {{-3.0, -0.5}, {3.0, 0.5}}
-prototype.selection_priority = 52
 prototype.enable_inventory_bar = false
+prototype.inventory_size = 192
+prototype.tile_width = 2
+prototype.tile_height = 2
+prototype.name = prototype_defines.entity.depot_building.parts.storage
+prototype.selectable_in_game = true
+prototype.selection_priority = 51
+prototype.selection_box = { left_top = { x = -1 * depot_size.y, y = -1 * depot_size.x}, right_bottom = { x = depot_size.y, y = depot_size.x}}
+prototype.collision_box = selection_box_to_collision_box(prototype.selection_box)
+prototype.minable = { mining_time = 1, result = prototype_defines.item.depot_building }
+prototype.create_ghost_on_death = true -- todo not work
+--entity.icon = nil todo check
+--entity.icon_size = nil todo check
+--entity.icons = nil todo check
+--entity.icon_mipmaps = nil todo check
+
 table.insert(prototypes, prototype)
 
 data:extend(prototypes)
