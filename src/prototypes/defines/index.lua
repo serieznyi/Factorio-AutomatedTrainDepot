@@ -3,8 +3,6 @@ return {
         depot_building = {
             name = "atd-building-entity",
             parts = {
-                logistic_input = "atd-building-input-entity",
-                logistic_output = "atd-building-output-entity",
                 rail_signal = "atd-building-rail-signal-entity",
                 rail_chain_signal = "atd-building-rail-chain-signal-entity",
                 train_stop_input = "atd-building-train-stop-input-entity",

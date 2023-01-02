@@ -208,28 +208,6 @@ function private.build(context, entity)
     local original_entity_direction = entity.direction
     local real_depot_entity = private.replace_entity_on_storage(context, entity)
 
-    -- Input and output for logistic signals
-
-    x, y = atd.defines.rotate_relative_position[original_entity_direction](0.5, 2.5)
-    local depot_signals_input = surface.create_entity({
-        name = atd.defines.prototypes.entity.depot_building.parts.logistic_input,
-        position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
-        direction = original_entity_direction,
-        force = force,
-    })
-    private.shadow_entity(depot_signals_input)
-    table.insert(dependent_entities, depot_signals_input)
-
-    x, y = atd.defines.rotate_relative_position[original_entity_direction](-0.5, 2.5)
-    local depot_signals_output = surface.create_entity({
-        name = atd.defines.prototypes.entity.depot_building.parts.logistic_output,
-        position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
-        direction = original_entity_direction,
-        force = force,
-    })
-    private.shadow_entity(depot_signals_output)
-    table.insert(dependent_entities, depot_signals_output)
-
     -- Input station, rails and signal
     x, y = atd.defines.rotate_relative_position[original_entity_direction](6, -6)
     local depot_station_input = surface.create_entity({
