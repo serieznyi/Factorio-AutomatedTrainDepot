@@ -1,10 +1,8 @@
-# 0.1.1
+# 1.0.0-beta.0
 
- - Check depot destriy by weapon/artillery/bitters
- - Show depot storage items icons in ALT mode 
+ - Check depot destroy by weapon/artillery/bitters
  - Move depot inventory in player inventory on deconstruct
  - TEST. Order 3 try, mark for disband all 3 train. Depot sometimes create unnecessary train
- - show task left time in seconds (flib.misc.ticks_to_timestring)
  - add raise event with force name instead player ?
  - add `atd` prefix for all mod events
  - [?] Not save lua train in train model
@@ -21,7 +19,8 @@
    - Add button to send uncontrolled train to deconstruction
  - Show controlled trains on map
    - Add button to send train to deconstruction (automatically decrease train quantity in template)
-- Fix very big train building, Window to wide
+ - Fix very big train building, Window to wide
+ - Construct train only if exists items
 
 # next
 
