@@ -2,13 +2,15 @@ return {
     entity = {
         depot_building = {
             name = "atd-building-entity",
+            guideline = "atd-building-entity-fake",
             parts = {
                 rail_signal = "atd-building-rail-signal-entity",
                 rail_chain_signal = "atd-building-rail-chain-signal-entity",
                 train_stop_input = "atd-building-train-stop-input-entity",
                 train_stop_output = "atd-building-train-stop-output-entity",
                 straight_rail = "atd-straight_rail",
-                storage = "atd-depot-storage",
+                storage_provider = "atd-depot-storage-provider",
+                storage_requester = "atd-depot-storage-requester",
             }
         },
         depot_driver = "atd-depot-driver",

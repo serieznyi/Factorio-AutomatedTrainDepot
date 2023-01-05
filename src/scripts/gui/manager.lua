@@ -93,8 +93,6 @@ function event_handlers.handle_storage_frame_open(event)
     local context = Context.from_player(player)
     local depot_storage = remote.call("atd", "depot_get_storage", context)
 
-    manager.push_native_mode(context)
-
     player.opened = depot_storage
 end
 
@@ -197,20 +195,6 @@ function manager.on_gui_closed(event)
     if closed_window == last_frame_window then
         manager.close_frame(last_frame)
     end
-end
-
----@param context scripts.lib.domain.Context
-function manager.push_native_mode(context)
-    atd.global.open_native[tostring(context)] = true
-end
-
----@param context scripts.lib.domain.Context
-function manager.pop_native_mode(context)
-    local result = atd.global.open_native[tostring(context)] ~= nil
-
-    atd.global.open_native[tostring(context)] = nil
-
-    return result
 end
 
 return manager

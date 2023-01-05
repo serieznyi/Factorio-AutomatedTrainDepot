@@ -3,6 +3,7 @@ local flib_direction = require('__flib__.direction')
 local logger = require("scripts.lib.logger")
 local Context = require('scripts.lib.domain.Context')
 local persistence_storage = require("scripts.persistence.persistence_storage")
+local util_table = require("scripts.util.table")
 
 local FORCE_DEFAULT = "player"
 
@@ -181,14 +182,14 @@ end
 
 ---@param entity LuaEntity
 ---@param context scripts.lib.domain.Context
-function private.replace_entity_on_storage(context, entity)
-    local storage_position = entity.position
+function private.replace_entity_on_depot(context, entity)
+    local depot_position = entity.position
 
     entity.destroy{raise_destroy=false}
 
     return context:surface().create_entity({
-        name = atd.defines.prototypes.entity.depot_building.parts.storage,
-        position = storage_position,
+        name = atd.defines.prototypes.entity.depot_building.name,
+        position = depot_position,
         force = context:force(),
     })
 end
@@ -206,7 +207,33 @@ function private.build(context, entity)
     local x, y
     local DEPOT_RAILS_COUNT = 8
     local original_entity_direction = entity.direction
-    local real_depot_entity = private.replace_entity_on_storage(context, entity)
+    local real_depot_entity = private.replace_entity_on_depot(context, entity)
+
+    -- Storage - Requester
+
+    x, y = atd.defines.rotate_relative_position[original_entity_direction](7.5, 2.5)
+    local depot_storage_requester = surface.create_entity({
+        name = atd.defines.prototypes.entity.depot_building.parts.storage_requester,
+        position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
+        force = force,
+    })
+    depot_storage_requester.minable = false
+    depot_storage_requester.destructible = false
+
+    table.insert(dependent_entities, depot_storage_requester)
+
+    -- Storage - Provider
+
+    x, y = atd.defines.rotate_relative_position[original_entity_direction](7.5, -2.5)
+    local depot_storage_provider = surface.create_entity({
+        name = atd.defines.prototypes.entity.depot_building.parts.storage_provider,
+        position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
+        force = force,
+    })
+    depot_storage_provider.minable = false
+    depot_storage_provider.destructible = false
+
+    table.insert(dependent_entities, depot_storage_provider)
 
     -- Input station, rails and signal
     x, y = atd.defines.rotate_relative_position[original_entity_direction](6, -6)
@@ -274,7 +301,8 @@ function private.build(context, entity)
         output_station = depot_station_output,
         input_station = depot_station_input,
         output_signal = output_rail_signal,
-        dependent_entities = dependent_entities
+        depot_storage = depot_storage_requester,
+        dependent_entities = dependent_entities,
     })
 
     logger.debug('Depot on surface {1} for force {2} was build', {context.surface_name, context.force_name})
@@ -441,7 +469,7 @@ function public.get_depot_storage(context)
         return
     end
 
-    return depot.depot_entity
+    return depot.depot_storage
 end
 
 ---@param context scripts.lib.domain.Context
