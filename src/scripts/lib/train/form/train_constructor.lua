@@ -92,6 +92,37 @@ function TrainsConstructor._calculate_train_template_fuel_stacks_count(template)
 end
 
 ---@param template scripts.lib.domain.entity.template.TrainTemplate
+---@return uint
+function TrainsConstructor._calculate_locomotives_count(template)
+    local quantity = 0
+
+    for _, stock in ipairs(template.train) do
+        if stock:is_locomotive() then
+            quantity = quantity + 1
+        end
+    end
+
+    return quantity
+end
+
+---@param template scripts.lib.domain.entity.template.TrainTemplate
+---@return {fuel: string, quantity: uint}[]
+function TrainsConstructor._get_potential_fuel(template)
+    local supported_fuel = {
+        {type = "nuclear-fuel", quantity = 1}
+    }
+
+    ---@type
+    for _, stock in ipairs(template.train) do
+        if stock:is_locomotive() then
+            local prototype = game.item_prototypes[stock.prototype_name]
+        end
+    end
+
+    return supported_fuel
+end
+
+---@param template scripts.lib.domain.entity.template.TrainTemplate
 ---@return string|nil
 function TrainsConstructor._get_any_fuel_type_from_depot_storage(template)
     local context = Context.from_model(template)
@@ -113,6 +144,9 @@ function TrainsConstructor._get_any_fuel_type_from_depot_storage(template)
         return left.value > right.value
     end)
 
+    -- todo return only fuel which is enough
+    -- todo return only fuel which can used in every train locomotive
+
     if #all_storage_fuels == 0 then
         return nil
     end
@@ -120,9 +154,10 @@ function TrainsConstructor._get_any_fuel_type_from_depot_storage(template)
     return all_storage_fuels[1].name
 end
 
+--- Calculate required fuels quantity for train (one fuel stack per locomotive)
 ---@param template scripts.lib.domain.entity.template.TrainTemplate
 ---@return table<string, uint>
-function TrainsConstructor._prepare_fuels_request_for_template_train(template)
+function TrainsConstructor._get_train_fuel_for_reserve(template)
     local fuel_type
 
     if template.fuel ~= nil then
@@ -136,9 +171,44 @@ function TrainsConstructor._prepare_fuels_request_for_template_train(template)
     end
 
     local fuel_stack_size = game.item_prototypes[fuel_type].stack_size
-    local locomotives_stacks_count = TrainsConstructor._calculate_train_template_fuel_stacks_count(template)
+    local locomotives_stacks_count = TrainsConstructor._calculate_locomotives_count(template)
 
     return {[fuel_type] = fuel_stack_size * locomotives_stacks_count}
+end
+
+---@param context scripts.lib.domain.Context
+---@param task scripts.lib.domain.entity.task.TrainFormTask
+---@return bool
+function TrainsConstructor._try_reserve_train_items(context, task)
+    if not depot_storage_service.can_take(context, task.train_items) then
+        alert_service.add(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
+        return false
+    end
+
+    alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
+
+    depot_storage_service.take(context, task.train_items)
+
+    return true
+end
+
+---@param context scripts.lib.domain.Context
+---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+---@return bool
+function TrainsConstructor._try_reserve_train_fuel(context, train_template)
+    local train_fuel = TrainsConstructor._get_train_fuel_for_reserve(train_template)
+    local allow_reserve_train_fuel = train_fuel ~= nil and depot_storage_service.can_take(context, train_fuel) or false
+
+    if not allow_reserve_train_fuel then
+        alert_service.add(context, atd.defines.alert_type.depot_storage_not_contains_required_fuel)
+        return false
+    end
+
+    alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_fuel)
+
+    depot_storage_service.take(context, train_fuel)
+
+    return true
 end
 
 ---@param context scripts.lib.domain.Context
@@ -149,29 +219,14 @@ function TrainsConstructor._deploy_train(context, task, tick)
 
     if task:is_state_formed() then
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
-        local can_take_train_items_from_storage = depot_storage_service.can_take(context, task.train_items)
-        local train_fuel_items_for_request = TrainsConstructor._prepare_fuels_request_for_template_train(train_template)
-        logger.debug(train_fuel_items_for_request)
-        local can_take_train_fuel_from_storage = train_fuel_items_for_request ~= nil and depot_storage_service.can_take(context, train_fuel_items_for_request) or false
 
-        if not can_take_train_items_from_storage then
-            alert_service.add(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
+        if not TrainsConstructor._try_reserve_train_items(context, task) then
             return
-        else
-            alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
         end
 
-        if not can_take_train_fuel_from_storage then
-            alert_service.add(context, atd.defines.alert_type.depot_storage_not_contains_required_fuel)
+        if not TrainsConstructor._try_reserve_train_fuel(context, train_template) then
             return
-        else
-            alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_fuel)
         end
-
-        -- Take train items
-        depot_storage_service.take(context, task.train_items)
-        -- Take fuel
-        depot_storage_service.take(context, train_fuel_items_for_request)
 
         task:state_deploy(train_template)
         task_changed = true

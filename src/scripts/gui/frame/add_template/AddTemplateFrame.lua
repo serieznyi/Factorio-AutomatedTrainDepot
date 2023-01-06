@@ -44,6 +44,8 @@ local function validation_rules()
         validator.check( "name", validator.match_by_name({"name"}), validator.check_empty),
         validator.check( "icon", validator.match_by_name({"icon"}), validator.check_empty),
         validator.check( "fuel", validator.match_by_name({"fuel"}), validation_check_empty_fuel),
+        -- todo validate what all trains can use same fuel
+        -- todo validate what selected fuel van ce used with all selected locomotives
         validator.check( "destination_schedule", validator.match_by_name({"destination_schedule"}), validator.check_empty),
         validator.check( "destination_schedule", validator.match_by_name({"destination_schedule"}), validation_check_destination_schedule_reachability),
     }
