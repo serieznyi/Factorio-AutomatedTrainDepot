@@ -46,6 +46,8 @@ local TrainFormTask = {
     form_end_at = nil,
     ---@type uint
     deploy_cursor = 1,
+    ---@type string Fuel type used in train
+    fuel = nil,
     ---@type LuaEntity
     main_locomotive = nil,
     ---@type uint
@@ -71,6 +73,7 @@ function TrainFormTask:to_table()
         main_locomotive = self.main_locomotive,
         completed_at = self.completed_at,
         train_items = self.train_items,
+        fuel = self.fuel,
     }
 end
 
@@ -100,8 +103,9 @@ end
 ---@param multiplier double
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@param train_items table<string, uint>
+---@param fuel_type string
 ---@return table
-function TrainFormTask:state_form(tick, multiplier, train_template, train_items)
+function TrainFormTask:state_form(tick, multiplier, train_template, train_items, fuel_type)
     assert(tick, "tick is nil")
     assert(multiplier, "multiplier is nil")
     assert(train_template, "multiplier is nil")
@@ -111,6 +115,7 @@ function TrainFormTask:state_form(tick, multiplier, train_template, train_items)
     self.required_form_ticks = train_template:get_form_time() * 60 * multiplier
     self.form_end_at = tick + self.required_form_ticks
     self.train_items = assert(train_items, "train_items is nil")
+    self.fuel = assert(fuel_type, "train_items is nil")
 end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate

@@ -10,22 +10,23 @@ local TrainItemsReserveService = {}
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@return bool
 function TrainItemsReserveService.can_reserve_items(task)
-    local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
     local context = Context.from_model(task)
     local check_train_items_reserve = TrainItemsReserveService.try_reserve_train_items(context, task, true)
-    local check_train_fuel_reserve = TrainItemsReserveService.try_reserve_train_fuel(context, train_template, true)
+    local check_train_fuel_reserve = TrainItemsReserveService.try_reserve_train_fuel(context, task, true)
 
     return check_train_items_reserve and check_train_fuel_reserve
 end
 
----@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param check_only bool
----@return bool
-function TrainItemsReserveService.try_reserve_train_items(context, task, check_only)
+---@return table<string, uint>|bool reserved items. False if cant reserve
+function TrainItemsReserveService.try_reserve_train_items(task, check_only)
     check_only = check_only or false
+    local context = Context.from_model(task)
+    local template = persistence_storage.find_train_template_by_id(task.train_template_id)
+    local train_items = template:get_train_items()
 
-    if not depot_storage_service.can_take(context, task.train_items) then
+    if not depot_storage_service.can_take(context, train_items) then
         alert_service.add(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
         return false
     end
@@ -33,20 +34,20 @@ function TrainItemsReserveService.try_reserve_train_items(context, task, check_o
     alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
 
     if not check_only then
-        depot_storage_service.take(context, task.train_items)
+        depot_storage_service.take(context, train_items)
     end
 
-    return true
+    return task.train_items
 end
 
----@param context scripts.lib.domain.Context
----@param train_template scripts.lib.domain.entity.template.TrainTemplate
+---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param check_only bool
----@return bool
-function TrainItemsReserveService.try_reserve_train_fuel(context, train_template, check_only)
+---@return table<string, uint>|bool reserved fuel. False if cant reserve
+function TrainItemsReserveService.try_reserve_train_fuel(task, check_only)
     check_only = check_only or false
+    local context = Context.from_model(task)
 
-    local train_fuel = TrainItemsReserveService._get_train_fuel_for_reserve(train_template)
+    local train_fuel = TrainItemsReserveService._get_train_fuel_for_reserve(task)
     local allow_reserve_train_fuel = train_fuel ~= nil and depot_storage_service.can_take(context, train_fuel) or false
 
     if not allow_reserve_train_fuel then
@@ -60,15 +61,17 @@ function TrainItemsReserveService.try_reserve_train_fuel(context, train_template
         depot_storage_service.take(context, train_fuel)
     end
 
-    return true
+    return train_fuel
 end
 
 --- Calculate required fuels quantity for train (one fuel stack per locomotive)
----@param template scripts.lib.domain.entity.template.TrainTemplate
+---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@return table<string, uint>
-function TrainItemsReserveService._get_train_fuel_for_reserve(template)
-    if template.fuel ~= nil then
-        local fuel_type = template.fuel
+function TrainItemsReserveService._get_train_fuel_for_reserve(task)
+    local template = persistence_storage.find_train_template_by_id(task.train_template_id)
+    local fuel_type = task.fuel or template.fuel
+
+    if fuel_type ~= nil then
         local fuel_stack_size = game.item_prototypes[fuel_type].stack_size
         local locomotives_count = TrainItemsReserveService._calculate_locomotives_count(template)
 
@@ -77,8 +80,6 @@ function TrainItemsReserveService._get_train_fuel_for_reserve(template)
 
     local context = Context.from_model(template)
     local potential_train_fuel = TrainItemsReserveService._get_potential_train_fuel(template)
-
-    logger.debug(potential_train_fuel, {}, "potential_train_fuel")
 
     for _, fuel_data in pairs(potential_train_fuel) do
         if depot_storage_service.can_take(context, {[fuel_data.fuel] = fuel_data.quantity}) then

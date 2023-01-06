@@ -237,14 +237,19 @@ function TasksProcessor._process_form_task(task, tick)
     end
 
     if task:is_state_created() then
+        local check_train_items_reserve = train_items_reserve_service.try_reserve_train_items(task, true)
+        local check_train_fuel_reserve = train_items_reserve_service.try_reserve_train_fuel(task, true)
+
+        if not check_train_items_reserve or not check_train_fuel_reserve then
+            return false
+        end
+
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
-        local train_items = train_template:get_train_items()
+        local train_items = train_items_reserve_service.try_reserve_train_items(task)
+        local fuel = train_items_reserve_service.try_reserve_train_fuel(task)
+        local fuel_type = util_table.array_keys(fuel)[1]
 
-        task:state_form(tick, multiplier, train_template, train_items)
-    end
-
-    if task:is_state_form() and not train_items_reserve_service.can_reserve_items(task) then
-        return false
+        task:state_form(tick, multiplier, train_template, train_items, fuel_type)
     end
 
     if task:is_form_time_left(tick) then

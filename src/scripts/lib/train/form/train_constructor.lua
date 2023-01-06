@@ -4,7 +4,6 @@ local EventDispatcher = require("scripts.lib.event.EventDispatcher")
 local util_table = require("scripts.util.table")
 local Context = require("scripts.lib.domain.Context")
 local persistence_storage = require("scripts.persistence.persistence_storage")
-local train_items_reserve_service = require("scripts.lib.train.form.train_items_reserve_service")
 local logger = require("scripts.lib.logger")
 
 local TrainsConstructor = {}
@@ -83,14 +82,6 @@ function TrainsConstructor._deploy_train(context, task, tick)
     if task:is_state_formed() then
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
 
-        if not train_items_reserve_service.try_reserve_train_items(context, task) then
-            return
-        end
-
-        if not train_items_reserve_service.try_reserve_train_fuel(context, train_template) then
-            return
-        end
-
         task:state_deploy(train_template)
         task_changed = true
 
@@ -148,12 +139,9 @@ function TrainsConstructor._deploy_train(context, task, tick)
 
                 ---@type LuaInventory
                 local inventory = carrier.get_inventory(defines.inventory.fuel)
-                --local fuel_type = TrainsConstructor._get_train_for_template(train_template)
-                --local fuel_item_stack_size = game.item_prototypes[template.fuel].stack_size
-                --
-                --inventory.insert({name = fuel_type, count = inventory.count_empty_stacks() * fuel_item_stack_size})
+                local fuel_item_stack_size = game.item_prototypes[task.fuel].stack_size
 
-                inventory.insert({name = "nuclear-fuel", count = 1})
+                inventory.insert({name = task.fuel, count = fuel_item_stack_size})
             end
 
             carrier.train.manual_mode = false
