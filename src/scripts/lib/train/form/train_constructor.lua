@@ -18,6 +18,16 @@ function TrainsConstructor.load()
     TrainsConstructor._register_event_handlers()
 end
 
+---@param task scripts.lib.domain.entity.task.TrainFormTask
+---@return bool
+function TrainsConstructor.can_reserve_items(task)
+    local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
+    local context = Context.from_model(task)
+
+    return TrainsConstructor._try_reserve_train_items(context, task, true) and
+           TrainsConstructor._try_reserve_train_fuel(context, train_template, true)
+end
+
 ---@param data NthTickEventData
 function TrainsConstructor._construct(data)
     ---@param context scripts.lib.domain.Context
@@ -73,22 +83,6 @@ function TrainsConstructor._is_deploy_slot_free(context)
     local depot_station_output = remote.call("atd", "depot_get_output_station", context)
 
     return depot_station_output.connected_rail.trains_in_block == 0
-end
-
----@param template scripts.lib.domain.entity.template.TrainTemplate
----@return uint
-function TrainsConstructor._calculate_train_template_fuel_stacks_count(template)
-    local quantity = 0
-
-    for _, stock in ipairs(template.train) do
-        local entity_prototype = game.item_prototypes[stock.prototype_name].place_result
-
-        if stock:is_locomotive() then
-            quantity = quantity + entity_prototype.burner_prototype.fuel_inventory_size
-        end
-    end
-
-    return quantity
 end
 
 ---@param template scripts.lib.domain.entity.template.TrainTemplate
@@ -159,6 +153,9 @@ end
 ---@return table<string, uint>
 function TrainsConstructor._get_train_fuel_for_reserve(template)
     local fuel_type
+    local allowed_train_fuel_in_storage = TrainsConstructor._get_potential_fuel(template)
+
+    logger.debug(allowed_train_fuel_in_storage, {}, "test1")
 
     if template.fuel ~= nil then
         fuel_type = template.fuel
@@ -171,15 +168,18 @@ function TrainsConstructor._get_train_fuel_for_reserve(template)
     end
 
     local fuel_stack_size = game.item_prototypes[fuel_type].stack_size
-    local locomotives_stacks_count = TrainsConstructor._calculate_locomotives_count(template)
+    local locomotives_count = TrainsConstructor._calculate_locomotives_count(template)
 
-    return {[fuel_type] = fuel_stack_size * locomotives_stacks_count}
+    return {[fuel_type] = fuel_stack_size * locomotives_count }
 end
 
 ---@param context scripts.lib.domain.Context
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
+---@param check_only bool
 ---@return bool
-function TrainsConstructor._try_reserve_train_items(context, task)
+function TrainsConstructor._try_reserve_train_items(context, task, check_only)
+    check_only = check_only or false
+
     if not depot_storage_service.can_take(context, task.train_items) then
         alert_service.add(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
         return false
@@ -187,15 +187,20 @@ function TrainsConstructor._try_reserve_train_items(context, task)
 
     alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
 
-    depot_storage_service.take(context, task.train_items)
+    if not check_only then
+        depot_storage_service.take(context, task.train_items)
+    end
 
     return true
 end
 
 ---@param context scripts.lib.domain.Context
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
+---@param check_only bool
 ---@return bool
-function TrainsConstructor._try_reserve_train_fuel(context, train_template)
+function TrainsConstructor._try_reserve_train_fuel(context, train_template, check_only)
+    check_only = check_only or false
+
     local train_fuel = TrainsConstructor._get_train_fuel_for_reserve(train_template)
     local allow_reserve_train_fuel = train_fuel ~= nil and depot_storage_service.can_take(context, train_fuel) or false
 
@@ -206,7 +211,9 @@ function TrainsConstructor._try_reserve_train_fuel(context, train_template)
 
     alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_fuel)
 
-    depot_storage_service.take(context, train_fuel)
+    if not check_only then
+        depot_storage_service.take(context, train_fuel)
+    end
 
     return true
 end

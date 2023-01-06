@@ -242,6 +242,10 @@ function TasksProcessor._process_form_task(task, tick)
         task:state_form(tick, multiplier, train_template, train_items)
     end
 
+    if task:is_state_form() and not train_constructor.can_reserve_items(task) then
+        return false
+    end
+
     if task:is_form_time_left(tick) then
         task:state_formed()
     end
