@@ -9,6 +9,7 @@ local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
 local util_table = require("scripts.util.table")
 local depot_storage_service = require("scripts.lib.depot_storage_service")
 local alert_service = require("scripts.lib.alert_service")
+local train_items_reserve_service = require("scripts.lib.train.form.train_items_reserve_service")
 local logger = require("scripts.lib.logger")
 
 ---@alias TrainStat {train: LuaTrain, has_cargo: bool, drive_to_last_station: bool}[]
@@ -242,7 +243,7 @@ function TasksProcessor._process_form_task(task, tick)
         task:state_form(tick, multiplier, train_template, train_items)
     end
 
-    if task:is_state_form() and not train_constructor.can_reserve_items(task) then
+    if task:is_state_form() and not train_items_reserve_service.can_reserve_items_for_task(task) then
         return false
     end
 
