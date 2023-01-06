@@ -243,7 +243,7 @@ function TasksProcessor._process_form_task(task, tick)
         task:state_form(tick, multiplier, train_template, train_items)
     end
 
-    if task:is_state_form() and not train_items_reserve_service.can_reserve_items_for_task(task) then
+    if task:is_state_form() and not train_items_reserve_service.can_reserve_items(task) then
         return false
     end
 

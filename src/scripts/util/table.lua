@@ -31,6 +31,16 @@ function atd_table.array_values(array)
     return values
 end
 
+function atd_table.array_keys(array)
+    local keys = {}
+
+    for k, _ in pairs(array) do
+        table.insert(keys, k)
+    end
+
+    return keys
+end
+
 ---@param array table every row must realize __tostring
 ---@return table
 function atd_table.array_unique(array)

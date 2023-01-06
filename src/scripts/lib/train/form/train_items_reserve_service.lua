@@ -3,17 +3,19 @@ local persistence_storage = require("scripts.persistence.persistence_storage")
 local depot_storage_service = require("scripts.lib.depot_storage_service")
 local alert_service = require("scripts.lib.alert_service")
 local logger = require("scripts.lib.logger")
+local util_table = require("scripts.util.table")
 
 local TrainItemsReserveService = {}
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@return bool
-function TrainItemsReserveService.can_reserve_items_for_task(task)
+function TrainItemsReserveService.can_reserve_items(task)
     local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
     local context = Context.from_model(task)
+    local check_train_items_reserve = TrainItemsReserveService.try_reserve_train_items(context, task, true)
+    local check_train_fuel_reserve = TrainItemsReserveService.try_reserve_train_fuel(context, train_template, true)
 
-    return TrainItemsReserveService.try_reserve_train_items(context, task, true) and
-            TrainItemsReserveService.try_reserve_train_fuel(context, train_template, true)
+    return check_train_items_reserve and check_train_fuel_reserve
 end
 
 ---@param context scripts.lib.domain.Context
@@ -65,74 +67,64 @@ end
 ---@param template scripts.lib.domain.entity.template.TrainTemplate
 ---@return table<string, uint>
 function TrainItemsReserveService._get_train_fuel_for_reserve(template)
-    local fuel_type
-    local allowed_train_fuel_in_storage = TrainItemsReserveService._get_potential_fuel(template)
-
-    logger.debug(allowed_train_fuel_in_storage, {}, "test1")
-
     if template.fuel ~= nil then
-        fuel_type = template.fuel
-    else
-        fuel_type = TrainItemsReserveService._get_any_fuel_type_from_depot_storage(template)
+        local fuel_type = template.fuel
+        local fuel_stack_size = game.item_prototypes[fuel_type].stack_size
+        local locomotives_count = TrainItemsReserveService._calculate_locomotives_count(template)
 
-        if not fuel_type then
-            return nil
+        return {[fuel_type] = fuel_stack_size * locomotives_count }
+    end
+
+    local context = Context.from_model(template)
+    local potential_train_fuel = TrainItemsReserveService._get_potential_train_fuel(template)
+
+    logger.debug(potential_train_fuel, {}, "potential_train_fuel")
+
+    for _, fuel_data in pairs(potential_train_fuel) do
+        if depot_storage_service.can_take(context, {[fuel_data.fuel] = fuel_data.quantity}) then
+            return {[fuel_data.fuel] = fuel_data.quantity}
         end
     end
 
-    local fuel_stack_size = game.item_prototypes[fuel_type].stack_size
-    local locomotives_count = TrainItemsReserveService._calculate_locomotives_count(template)
-
-    return {[fuel_type] = fuel_stack_size * locomotives_count }
+    return nil
 end
 
 ---@param template scripts.lib.domain.entity.template.TrainTemplate
 ---@return {fuel: string, quantity: uint}[]
-function TrainItemsReserveService._get_potential_fuel(template)
-    local supported_fuel = {
-        {type = "nuclear-fuel", quantity = 1}
-    }
+function TrainItemsReserveService._get_potential_train_fuel(template)
+    local locomotives_count = TrainItemsReserveService._calculate_locomotives_count(template)
+    local supported_fuels = {}
 
-    ---@type
     for _, stock in ipairs(template.train) do
         if stock:is_locomotive() then
-            local prototype = game.item_prototypes[stock.prototype_name]
+            local train_prototype = game.item_prototypes[stock.prototype_name].place_result
+
+            for category, _ in pairs(train_prototype.burner_prototype.fuel_categories) do
+                local prototypes = game.get_filtered_item_prototypes({
+                    {filter="fuel-category", ["fuel-category"] = category}
+                })
+
+                for name, prototype in pairs(prototypes) do
+                    supported_fuels[name] = {
+                        fuel = prototype.name,
+                        stack_size = prototype.stack_size,
+                        fuel_value = prototype.fuel_value,
+                        quantity = prototype.stack_size * locomotives_count
+                    }
+                end
+            end
+
+            supported_fuels = util_table.array_values(supported_fuels)
+
+            break
         end
     end
 
-    return supported_fuel
-end
-
----@param template scripts.lib.domain.entity.template.TrainTemplate
----@return string|nil
-function TrainItemsReserveService._get_any_fuel_type_from_depot_storage(template)
-    local context = Context.from_model(template)
-    local storage_entity = depot_storage_service.get_storage_entity(context)
-    ---@type LuaInventory
-    local inventory = storage_entity.get_inventory(defines.inventory.chest)
-    local all_storage_fuels = {}
-
-    for item, _ in pairs(inventory.get_contents()) do
-        local item_prototype = game.item_prototypes[item]
-
-        local fuel_category = item_prototype.fuel_category
-        if fuel_category == "chemical" then
-            table.insert(all_storage_fuels, {name = item_prototype.name, value = item_prototype.fuel_value})
-        end
-    end
-
-    table.sort(all_storage_fuels, function (left, right)
-        return left.value > right.value
+    table.sort(supported_fuels, function (left, right)
+        return left.fuel_value > right.fuel_value
     end)
 
-    -- todo return only fuel which is enough
-    -- todo return only fuel which can used in every train locomotive
-
-    if #all_storage_fuels == 0 then
-        return nil
-    end
-
-    return all_storage_fuels[1].name
+    return supported_fuels
 end
 
 ---@param template scripts.lib.domain.entity.template.TrainTemplate
