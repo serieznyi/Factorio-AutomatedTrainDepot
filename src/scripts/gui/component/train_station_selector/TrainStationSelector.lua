@@ -153,13 +153,8 @@ end
 ---@param train_stations table
 ---@return table
 function TrainStationSelector:_exclude_depot_train_stations(train_stations)
-    local depot_train_stations_prototype_names = {
-        atd.defines.prototypes.entity.depot_building.parts.train_stop_input,
-        atd.defines.prototypes.entity.depot_building.parts.train_stop_output,
-    }
-
     local function is_not_depot_train_station(station)
-        return not util_table.find(depot_train_stations_prototype_names, station.prototype.name)
+        return station.prototype.name ~= atd.defines.prototypes.entity.depot_building.parts.train_stop
     end
 
     return util_table.filter(train_stations, is_not_depot_train_station, true)

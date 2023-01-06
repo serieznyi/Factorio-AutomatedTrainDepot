@@ -205,13 +205,13 @@ function private.build(context, entity)
     ---@type MapPosition
     local guideline_coordinate = private.get_guideline(entity)
     local x, y
-    local DEPOT_RAILS_COUNT = 8
+    local DEPOT_RAILS_COUNT = 7
     local original_entity_direction = entity.direction
     local real_depot_entity = private.replace_entity_on_depot(context, entity)
 
     -- Storage - Requester
 
-    x, y = atd.defines.rotate_relative_position[original_entity_direction](7.5, 2.5)
+    x, y = atd.defines.rotate_relative_position[original_entity_direction](5.5, 2.5)
     local depot_storage_requester = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building.parts.storage_requester,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
@@ -224,7 +224,7 @@ function private.build(context, entity)
 
     -- Storage - Provider
 
-    x, y = atd.defines.rotate_relative_position[original_entity_direction](7.5, -2.5)
+    x, y = atd.defines.rotate_relative_position[original_entity_direction](5.5, -2.5)
     local depot_storage_provider = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building.parts.storage_provider,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
@@ -238,7 +238,7 @@ function private.build(context, entity)
     -- Input station, rails and signal
     x, y = atd.defines.rotate_relative_position[original_entity_direction](6, -6)
     local depot_station_input = surface.create_entity({
-        name = atd.defines.prototypes.entity.depot_building.parts.train_stop_input,
+        name = atd.defines.prototypes.entity.depot_building.parts.train_stop,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = original_entity_direction,
         force = force,
@@ -268,7 +268,7 @@ function private.build(context, entity)
     -- Output station, rails and signal
     x, y = atd.defines.rotate_relative_position[original_entity_direction](-6, 0)
     local depot_station_output = surface.create_entity({
-        name = atd.defines.prototypes.entity.depot_building.parts.train_stop_output,
+        name = atd.defines.prototypes.entity.depot_building.parts.train_stop,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
         direction = flib_direction.opposite(original_entity_direction),
         force = force,

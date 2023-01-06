@@ -21,6 +21,7 @@
    - Add button to send train to deconstruction (automatically decrease train quantity in template)
  - Fix very big train building, Window to wide
  - Construct train only if exists items
+ - Hide depot trains stations from train stations list
 
 # next
 

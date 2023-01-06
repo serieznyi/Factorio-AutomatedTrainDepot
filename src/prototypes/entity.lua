@@ -1,5 +1,29 @@
 local prototype_defines = require("defines.index")
 
+local empty_box = {{0, 0}, {0, 0}}
+local empty_sprite = {
+    filename = "__AutomatedTrainDepot__/graphics/entity/empty.png",
+    priority = "high",
+    width = 1,
+    height = 1,
+    scale = 0.5,
+    shift = { 0, 0 },
+}
+local empty_animation = {
+    north = {size = {1, 1}, filename = "__AutomatedTrainDepot__/graphics/entity/empty.png"},
+    east = {size = {1, 1}, filename = "__AutomatedTrainDepot__/graphics/entity/empty.png"},
+    south = {size = {1, 1}, filename = "__AutomatedTrainDepot__/graphics/entity/empty.png"},
+    west = {size = {1, 1}, filename = "__AutomatedTrainDepot__/graphics/entity/empty.png"},
+}
+local inner_entity_flags = {
+    "hidden",
+    "hide-alt-info",
+    "not-selectable-in-game",
+    "not-in-kill-statistics",
+    "not-deconstructable",
+    "not-blueprintable",
+}
+
 ---@param selection_box BoundingBox
 ---@return BoundingBox
 local function selection_box_to_collision_box(selection_box)
@@ -39,7 +63,7 @@ local prototypes = {}
 
 --------------- PROTOTYPE
 
-local depot_size = { x = 9, y = 9}
+local depot_size = { x = 7, y = 7}
 
 local prototype = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 prototype.tile_width = 2
@@ -58,43 +82,73 @@ prototype.create_ghost_on_death = true -- todo not work
 
 table.insert(prototypes, prototype)
 
-------------- PROTOTYPE
+------------- INNER ENTITY: RailSignal
 
 prototype = table.deepcopy(data.raw["rail-signal"]["rail-signal"])
 prototype.name = prototype_defines.entity.depot_building.parts.rail_signal
 configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
-------------- PROTOTYPE
+------------- INNER ENTITY: RailChainSignal
 
 prototype = table.deepcopy(data.raw["rail-chain-signal"]["rail-chain-signal"])
 prototype.name = prototype_defines.entity.depot_building.parts.rail_chain_signal
 configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
-------------- PROTOTYPE
+------------- INNER ENTITY: TrainStop
 
-prototype = table.deepcopy(data.raw["train-stop"]["train-stop"])
-prototype.name = prototype_defines.entity.depot_building.parts.train_stop_input
-configure_depot_part_prototype(prototype)
-table.insert(prototypes, prototype)
-
-------------- PROTOTYPE
-
-prototype = table.deepcopy(data.raw["train-stop"]["train-stop"])
-prototype.name = prototype_defines.entity.depot_building.parts.train_stop_output
-configure_depot_part_prototype(prototype)
-table.insert(prototypes, prototype)
+table.insert(prototypes, {
+    type = "train-stop",
+    name = prototype_defines.entity.depot_building.parts.train_stop,
+    animation_ticks_per_frame = 1,
+    flags = inner_entity_flags,
+})
 
 ------------- PROTOTYPE
+
 prototype = table.deepcopy(data.raw["character"]["character"])
 prototype.name = prototype_defines.entity.depot_driver
 configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
+local empty_rail_piece = {
+    metals = { sheet = empty_sprite },
+    backplates = { sheet = empty_sprite },
+    ties = { sheet = empty_sprite },
+    stone_path = { sheet = empty_sprite },
+}
 prototype = table.deepcopy(data.raw["straight-rail"]["straight-rail"])
 prototype.name = prototype_defines.entity.depot_building.parts.straight_rail
+prototype.pictures = {
+    straight_rail_horizontal = empty_rail_piece,
+    straight_rail_vertical = empty_rail_piece,
+    straight_rail_diagonal_left_top = empty_rail_piece,
+    straight_rail_diagonal_right_top = empty_rail_piece,
+    straight_rail_diagonal_right_bottom = empty_rail_piece,
+    straight_rail_diagonal_left_bottom = empty_rail_piece,
+    curved_rail_vertical_left_top = empty_rail_piece,
+    curved_rail_vertical_right_top = empty_rail_piece,
+    curved_rail_vertical_right_bottom = empty_rail_piece,
+    curved_rail_vertical_left_bottom = empty_rail_piece,
+    curved_rail_horizontal_left_top = empty_rail_piece,
+    curved_rail_horizontal_right_top = empty_rail_piece,
+    curved_rail_horizontal_right_bottom = empty_rail_piece,
+    curved_rail_horizontal_left_bottom = empty_rail_piece,
+    rail_endings = {
+        north = empty_sprite,
+        north_east = empty_sprite,
+        east = empty_sprite,
+        south_east = empty_sprite,
+        south = empty_sprite,
+        south_west = empty_sprite,
+        west = empty_sprite,
+        north_west = empty_sprite,
+        sheets = nil,
+        sheet = nil,
+    },
+}
 configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
