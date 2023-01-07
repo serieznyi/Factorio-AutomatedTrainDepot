@@ -18,8 +18,10 @@ end
 function TrainsBalancer.is_trains_quantity_synchronized()
     local ordered_trains_quantity = persistence_storage.total_count_ordered_trains()
     local controlled_trains_quantity = persistence_storage.total_count_controlled_trains()
+    local disband_tasks = persistence_storage.trains_tasks.count_active_disband_tasks()
+    local forming_tasks = persistence_storage.trains_tasks.count_active_form_tasks()
 
-    return ordered_trains_quantity == controlled_trains_quantity
+    return ordered_trains_quantity + forming_tasks - disband_tasks == controlled_trains_quantity
 end
 
 function TrainsBalancer._find_contexts_with_depot()

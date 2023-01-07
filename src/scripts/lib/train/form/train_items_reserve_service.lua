@@ -40,8 +40,6 @@ function TrainItemsReserveService._try_reserve_train_parts(task, check_only)
     local template = persistence_storage.find_train_template_by_id(task.train_template_id)
     local train_items = template:get_train_items()
 
-    logger.debug(context, {}, "TrainItemsReserveService._try_reserve_train_parts")
-
     if not depot_storage_service.can_take(atd.defines.storage_type.request, context, train_items) then
         alert_service.add(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
         return false

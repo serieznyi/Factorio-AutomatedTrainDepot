@@ -207,8 +207,6 @@ end
 ---@param train_template_id uint|nil
 ---@return uint
 function public.count_active_form_tasks(context, train_template_id)
-    assert(context, "context is nil")
-
     local filtered = rows(
         match_not_deleted(),
         match_context(context),
@@ -242,8 +240,6 @@ end
 ---@param train_template_id uint
 ---@return uint
 function public.count_active_disband_tasks(context, train_template_id)
-    assert(context, "context is nil")
-
     local filtered = rows(
         match_not_deleted(),
         match_context(context),
