@@ -249,9 +249,7 @@ prototype = {
     collision_box = selection_box_to_collision_box(selection_box),
     selection_box = selection_box,
     --fast_replaceable_group = "kr-greenhouse",
-    module_specification = {
-        module_slots = 3,
-    },
+    module_specification = nil,
     allowed_effects = { "consumption", "speed", "productivity", "pollution" },
     --animation = {
     --    layers = {
@@ -314,7 +312,7 @@ prototype = {
     --        },
     --    },
     --},
-    crafting_categories = { "chemistry" }, -- todo
+    crafting_categories = { "crafting" },
     scale_entity_info_icon = true,
     vehicle_impact_sound = sounds.generic_impact,
     --working_sound = bio_lab_working_sound,

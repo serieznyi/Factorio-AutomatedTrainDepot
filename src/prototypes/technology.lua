@@ -1,8 +1,18 @@
 local prototype_defines = require("defines.index")
 
+local base_technology_unit_count = 1000
+local max_additional_slots_count = 3
+
+local ingredients = {
+    {"logistic-science-pack", 1},
+    {"automation-science-pack", 1},
+    {"production-science-pack", 1},
+    {"utility-science-pack", 1},
+}
+
 local automated_train_depot = {
     type = "technology",
-    name = prototype_defines.technology.automated_train_depot,
+    name = "automated-train-depot-technology",
     icon = "__AutomatedTrainDepot__/graphics/technology/automated-train-depot.png",
     icon_size = 256,
     --icon_mipmaps = 4, todo use mipmaps
@@ -14,21 +24,54 @@ local automated_train_depot = {
     },
     prerequisites = { -- todo need balance
         "rail-signals",
-        "fast-inserter",
-        "gate",
         "concrete",
+        "logistic-system",
     },
     unit = {
-        count = 1000, -- todo need balance
-        ingredients =
-        {
-            {"logistic-science-pack", 1},
-            {"automation-science-pack", 1},
-            {"production-science-pack", 1},
-        },
-        time = 30 -- todo need balance
+        count = base_technology_unit_count,
+        ingredients = ingredients,
+        time = 30
     },
-    --order = "g-e-d" todo how it work?
 }
 
-data:extend({ automated_train_depot })
+local atd_new_disband_slot = {
+    type = "technology",
+    name = "automated-train-depot-new-disband-slot-technology-1",
+    icon = "__AutomatedTrainDepot__/graphics/technology/automated-train-depot.png",
+    icon_size = 256,
+    --icon_mipmaps = 4, todo use mipmaps
+    effects = {},
+    upgrade = true,
+    max_level = max_additional_slots_count,
+    prerequisites = { "automated-train-depot-technology" },
+    unit = {
+        count_formula = tostring(base_technology_unit_count) .. "+(L^2)*200",
+        ingredients = ingredients,
+        time = 30
+    },
+}
+
+local atd_new_forming_slot = {
+    type = "technology",
+    name = "automated-train-depot-new-forming-slot-technology-1",
+    icon = "__AutomatedTrainDepot__/graphics/technology/automated-train-depot.png",
+    icon_size = 256,
+    --icon_mipmaps = 4, todo use mipmaps
+    effects = {},
+    upgrade = true,
+    max_level = max_additional_slots_count,
+    prerequisites = { "automated-train-depot-technology" },
+    unit = {
+        count_formula = tostring(base_technology_unit_count) .. "+(L^2)*100",
+        --count = base_technology_unit_count, -- todo replace
+        ingredients = ingredients,
+        time = 30
+    },
+}
+
+
+data:extend({
+    automated_train_depot,
+    atd_new_disband_slot,
+    atd_new_forming_slot,
+})

@@ -12,11 +12,28 @@ local train_depot = {
         {"train-stop", 10},
         {"rail", 300},
         {"rail-signal", 20},
+        {"logistic-chest-requester", 1},
+        {"logistic-chest-active-provider", 1},
         {"filter-inserter", 50},
-        {"gate", 6},
     },
     result = prototype_defines.item.depot_building,
     result_count = 1,
 }
 
-data:extend({ train_depot })
+local depot_working_imitation_recipe = {
+    type = "recipe",
+    name = prototype_defines.recipe.depot_working_imitation,
+    enabled = true,
+    unlock_results = false,
+    hidden = true,
+    hide_from_stats = true,
+    hide_from_player_crafting = true,
+    ingredients = {},
+    result = "locomotive",
+    energy_required = 99999999,
+    module_specification = {
+        module_slots = 6
+    },
+}
+
+data:extend({ train_depot, depot_working_imitation_recipe })

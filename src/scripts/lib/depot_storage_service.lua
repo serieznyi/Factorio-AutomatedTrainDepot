@@ -68,7 +68,7 @@ function DepotStorageService.can_take(storage_type, context, items)
     assert(storage_type, "storage_type is nil")
     assert(items, "items is nil")
 
-    local storage = DepotStorageService._get_storage_entity(context)
+    local storage = DepotStorageService._get_storage_entity(storage_type, context)
     ---@type LuaInventory
     local inventory = storage.get_inventory(defines.inventory.chest)
 
@@ -115,6 +115,9 @@ end
 ---@param context scripts.lib.domain.Context
 ---@return LuaEntity
 function DepotStorageService._get_storage_entity(storage_type, context)
+    assert(context, "context is nil")
+    assert(storage_type, "storage_type is nil")
+
     local storage = remote.call("atd", "depot_get_storage", storage_type, context)
 
     return assert(storage, 'storage is nil')

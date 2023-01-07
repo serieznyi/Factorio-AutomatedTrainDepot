@@ -20,8 +20,6 @@ return {
     },
     recipe = {
         depot_building = "atd-building-recipe",
-    },
-    technology = {
-        automated_train_depot = "automated-train-depot-technology",
+        depot_working_imitation = "atd-working-imitation",
     },
 }

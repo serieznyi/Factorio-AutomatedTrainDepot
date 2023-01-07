@@ -194,7 +194,7 @@ end
 ---@return bool
 function TrainsBalancer._has_free_form_slot(context)
     local tasks_count = persistence_storage.trains_tasks.count_form_tasks(context)
-    local slots_count = TrainsBalancer._get_form_slots_total_count()
+    local slots_count = TrainsBalancer._get_form_slots_total_count(context)
 
     return slots_count > tasks_count
 end
@@ -203,17 +203,29 @@ end
 ---@return bool
 function TrainsBalancer._has_free_disband_slot(context)
     local tasks_count = persistence_storage.trains_tasks.count_disband_tasks(context)
-    local slots_count = TrainsBalancer._get_disband_slots_total_count()
+    local slots_count = TrainsBalancer._get_disband_slots_total_count(context)
 
     return slots_count > tasks_count
 end
 
-function TrainsBalancer._get_form_slots_total_count()
-    return 2 -- todo depend from technologies
+---@param context scripts.lib.domain.Context
+function TrainsBalancer._get_form_slots_total_count(context)
+    return TrainsBalancer._slots_count(context, "automated-train-depot-new-forming-slot-technology-1")
 end
 
-function TrainsBalancer._get_disband_slots_total_count()
-    return 2 -- todo depend from technologies
+---@param context scripts.lib.domain.Context
+function TrainsBalancer._get_disband_slots_total_count(context)
+    return TrainsBalancer._slots_count(context, "automated-train-depot-new-disband-slot-technology-1")
+end
+
+---@param context scripts.lib.domain.Context
+---@param technology_name string
+function TrainsBalancer._slots_count(context, technology_name)
+    local technology = context:force().technologies[technology_name]
+    local base_slots_count = 1
+    local additional_slots_count = technology.researched and technology.level or technology.level - 1
+
+    return base_slots_count + additional_slots_count
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask|scripts.lib.domain.entity.task.TrainDisbandTask
