@@ -45,7 +45,7 @@ local atd_new_disband_slot = {
     max_level = max_additional_slots_count,
     prerequisites = { "automated-train-depot-technology" },
     unit = {
-        count_formula = tostring(base_technology_unit_count) .. "+(L^2)*200",
+        count_formula = tostring(base_technology_unit_count) .. "+(L^2)*100",
         ingredients = ingredients,
         time = 30
     },

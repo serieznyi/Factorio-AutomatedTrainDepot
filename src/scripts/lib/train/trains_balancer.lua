@@ -2,6 +2,7 @@ local util_table = require("scripts.util.table")
 local Context = require("scripts.lib.domain.Context")
 local TrainFormTask = require("scripts.lib.domain.entity.task.TrainFormTask")
 local TrainDisbandTask = require("scripts.lib.domain.entity.task.TrainDisbandTask")
+local assembling_machine_service = require("scripts.lib.assembling_machine_service")
 local persistence_storage = require("scripts.persistence.persistence_storage")
 local logger = require("scripts.lib.logger")
 
@@ -87,6 +88,8 @@ function TrainsBalancer._balance_trains_count_for_context(context)
             TrainsBalancer._disband_train(train_template, trains_quantity_diff * -1)
         end
     end
+
+    assembling_machine_service.balance(context)
 end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate

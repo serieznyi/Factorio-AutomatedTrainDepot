@@ -1,6 +1,7 @@
 local prototype_defines = require("defines.index")
 
 local empty_box = {{0, 0}, {0, 0}}
+local empty_icon_path = "__AutomatedTrainDepot__/graphics/entity/empty.png"
 local empty_sprite = {
     filename = "__AutomatedTrainDepot__/graphics/entity/empty.png",
     priority = "high",
@@ -23,6 +24,40 @@ local inner_entity_flags = {
     "not-deconstructable",
     "not-blueprintable",
 }
+local empty_rail_piece = {
+    metals = { sheet = empty_sprite },
+    backplates = { sheet = empty_sprite },
+    ties = { sheet = empty_sprite },
+    stone_path = { sheet = empty_sprite },
+}
+local empty_rail_pictures = {
+    straight_rail_horizontal = empty_rail_piece,
+    straight_rail_vertical = empty_rail_piece,
+    straight_rail_diagonal_left_top = empty_rail_piece,
+    straight_rail_diagonal_right_top = empty_rail_piece,
+    straight_rail_diagonal_right_bottom = empty_rail_piece,
+    straight_rail_diagonal_left_bottom = empty_rail_piece,
+    curved_rail_vertical_left_top = empty_rail_piece,
+    curved_rail_vertical_right_top = empty_rail_piece,
+    curved_rail_vertical_right_bottom = empty_rail_piece,
+    curved_rail_vertical_left_bottom = empty_rail_piece,
+    curved_rail_horizontal_left_top = empty_rail_piece,
+    curved_rail_horizontal_right_top = empty_rail_piece,
+    curved_rail_horizontal_right_bottom = empty_rail_piece,
+    curved_rail_horizontal_left_bottom = empty_rail_piece,
+    rail_endings = {
+        north = empty_sprite,
+        north_east = empty_sprite,
+        east = empty_sprite,
+        south_east = empty_sprite,
+        south = empty_sprite,
+        south_west = empty_sprite,
+        west = empty_sprite,
+        north_west = empty_sprite,
+        sheets = nil,
+        sheet = nil,
+    },
+}
 
 ---@param selection_box BoundingBox
 ---@return BoundingBox
@@ -41,8 +76,6 @@ end
 
 ---@param prototype LuaEntityPrototype
 local function configure_depot_part_prototype(prototype)
-    local empty_box = {{0, 0}, {0, 0}}
-
     prototype.selectable_in_game = false
     prototype.minable = nil
     prototype.selection_priority = 1
@@ -113,42 +146,9 @@ configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
 ------------- PROTOTYPE
-local empty_rail_piece = {
-    metals = { sheet = empty_sprite },
-    backplates = { sheet = empty_sprite },
-    ties = { sheet = empty_sprite },
-    stone_path = { sheet = empty_sprite },
-}
 prototype = table.deepcopy(data.raw["straight-rail"]["straight-rail"])
 prototype.name = prototype_defines.entity.depot_building.parts.straight_rail
-prototype.pictures = {
-    straight_rail_horizontal = empty_rail_piece,
-    straight_rail_vertical = empty_rail_piece,
-    straight_rail_diagonal_left_top = empty_rail_piece,
-    straight_rail_diagonal_right_top = empty_rail_piece,
-    straight_rail_diagonal_right_bottom = empty_rail_piece,
-    straight_rail_diagonal_left_bottom = empty_rail_piece,
-    curved_rail_vertical_left_top = empty_rail_piece,
-    curved_rail_vertical_right_top = empty_rail_piece,
-    curved_rail_vertical_right_bottom = empty_rail_piece,
-    curved_rail_vertical_left_bottom = empty_rail_piece,
-    curved_rail_horizontal_left_top = empty_rail_piece,
-    curved_rail_horizontal_right_top = empty_rail_piece,
-    curved_rail_horizontal_right_bottom = empty_rail_piece,
-    curved_rail_horizontal_left_bottom = empty_rail_piece,
-    rail_endings = {
-        north = empty_sprite,
-        north_east = empty_sprite,
-        east = empty_sprite,
-        south_east = empty_sprite,
-        south = empty_sprite,
-        south_west = empty_sprite,
-        west = empty_sprite,
-        north_west = empty_sprite,
-        sheets = nil,
-        sheet = nil,
-    },
-}
+prototype.pictures = empty_rail_pictures
 configure_depot_part_prototype(prototype)
 table.insert(prototypes, prototype)
 
@@ -198,6 +198,24 @@ prototype.collision_box = { left_top = { x = -1.5, y = -1.5}, right_bottom = { x
 
 table.insert(prototypes, prototype)
 
+------------- PROTOTYPE
+prototype = {
+    type = "module",
+    icon = empty_icon_path,
+    icon_size = 1,
+    name = "atd-depot-module",
+    stack_size = 1,
+    flags = {"hidden"},
+    category = "productivity",
+    effect = {
+        consumption = {
+            bonus = 1.0
+        }
+    },
+    tier = 1,
+}
+
+table.insert(prototypes, prototype)
 ------------- PROTOTYPE
 
 local hit_effects = require("__base__/prototypes/entity/hit-effects")
@@ -249,7 +267,9 @@ prototype = {
     collision_box = selection_box_to_collision_box(selection_box),
     selection_box = selection_box,
     --fast_replaceable_group = "kr-greenhouse",
-    module_specification = nil,
+    module_specification = {
+        module_slots = 6
+    },
     allowed_effects = { "consumption", "speed", "productivity", "pollution" },
     --animation = {
     --    layers = {
@@ -323,7 +343,7 @@ prototype = {
         usage_priority = "secondary-input",
         emissions_per_minute = 10,
     },
-    energy_usage = "10MW",
+    energy_usage = "1MW",
     ingredient_count = 4,
 }
 
