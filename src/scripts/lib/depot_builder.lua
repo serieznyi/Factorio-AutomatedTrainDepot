@@ -302,6 +302,7 @@ function private.build(context, entity)
         input_station = depot_station_input,
         output_signal = output_rail_signal,
         depot_storage = depot_storage_requester,
+        depot_storage_provider = depot_storage_provider,
         dependent_entities = dependent_entities,
     })
 
@@ -460,13 +461,18 @@ function public.get_depot_output_signal(context)
     return depot.output_signal
 end
 
+---@param storage_type string
 ---@param context scripts.lib.domain.Context
 ---@return LuaEntity
-function public.get_depot_storage(context)
+function public.get_depot_storage(storage_type, context)
     local depot = storage.get_depot(context)
 
     if depot == nil then
         return
+    end
+
+    if storage_type == atd.defines.storage_type.provider then
+        return depot.depot_storage_provider
     end
 
     return depot.depot_storage

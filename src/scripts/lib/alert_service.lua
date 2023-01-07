@@ -31,11 +31,11 @@ end
 ---@param context scripts.lib.domain.Context
 ---@param alert_type mod.defines.alert_type
 function AlertService.remove(context, alert_type)
-    local depot_storage_entity = remote.call("atd", "depot_get_storage", context)
+    local depot_entity = remote.call("atd", "depot_get_depot", context)
 
     for _, player in ipairs(context:force().players) do
         player.remove_alert{
-            entity = depot_storage_entity,
+            entity = depot_entity,
             message = AlertService.messages[alert_type],
         }
     end

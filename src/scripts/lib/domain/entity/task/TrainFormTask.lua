@@ -73,7 +73,6 @@ function TrainFormTask:to_table()
         main_locomotive = self.main_locomotive,
         completed_at = self.completed_at,
         train_items = self.train_items,
-        fuel = self.fuel,
     }
 end
 
@@ -103,9 +102,8 @@ end
 ---@param multiplier double
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
 ---@param train_items table<string, uint>
----@param fuel_type string
 ---@return table
-function TrainFormTask:state_form(tick, multiplier, train_template, train_items, fuel_type)
+function TrainFormTask:state_form(tick, multiplier, train_template, train_items)
     assert(tick, "tick is nil")
     assert(multiplier, "multiplier is nil")
     assert(train_template, "multiplier is nil")
@@ -115,7 +113,6 @@ function TrainFormTask:state_form(tick, multiplier, train_template, train_items,
     self.required_form_ticks = train_template:get_form_time() * 60 * multiplier
     self.form_end_at = tick + self.required_form_ticks
     self.train_items = assert(train_items, "train_items is nil")
-    self.fuel = assert(fuel_type, "train_items is nil")
 end
 
 ---@param train_template scripts.lib.domain.entity.template.TrainTemplate
@@ -181,6 +178,26 @@ end
 ---@return bool
 function TrainFormTask:can_cancel()
     return self:is_state_created() or self:is_state_form()
+end
+
+---@return LuaItemStack|nil
+function TrainFormTask:get_fuel_item_stack()
+    local fuel_type
+
+    for item_name, _ in pairs(self.train_items) do
+        if game.item_prototypes[item_name].fuel_category ~= nil then
+            fuel_type = item_name
+            break
+        end
+    end
+
+    if fuel_type == nil then
+        return nil
+    end
+
+    local fuel_item_stack_size = game.item_prototypes[fuel_type].stack_size
+
+    return {name = fuel_type, count = fuel_item_stack_size}
 end
 
 ---@return bool

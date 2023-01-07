@@ -22,6 +22,9 @@
  - Fix very big train building, Window to wide
  - Construct train only if exists items
  - Hide depot trains stations from train stations list
+ - Test disbanding with cargo (fluid and solid)
+ - Add logistic containers settings (Set automatically, off)
+ - Add annotations for atd.defines
 
 # next
 

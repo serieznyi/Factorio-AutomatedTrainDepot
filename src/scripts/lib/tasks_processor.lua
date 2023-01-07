@@ -207,7 +207,11 @@ function TasksProcessor._process_disbanding_task(task, tick)
         changed = true
     elseif task:is_state_disband() then
         local context = Context.from_model(task)
-        local can_store_train_in_storage = depot_storage_service.can_insert(context, task.train_items)
+        local can_store_train_in_storage = depot_storage_service.can_insert(
+            atd.defines.storage_type.provider,
+            context,
+            task.train_items
+        )
 
         if not can_store_train_in_storage then
             alert_service.add(context, atd.defines.alert_type.depot_storage_full)
@@ -216,7 +220,7 @@ function TasksProcessor._process_disbanding_task(task, tick)
         end
 
         if task:is_disband_time_left(tick) and can_store_train_in_storage then
-            depot_storage_service.insert_items(context, task.train_items)
+            depot_storage_service.insert_items(atd.defines.storage_type.provider, context, task.train_items)
             task:state_completed(tick)
             changed = true
         end
@@ -237,19 +241,14 @@ function TasksProcessor._process_form_task(task, tick)
     end
 
     if task:is_state_created() then
-        local check_train_items_reserve = train_items_reserve_service.try_reserve_train_items(task, true)
-        local check_train_fuel_reserve = train_items_reserve_service.try_reserve_train_fuel(task, true)
-
-        if not check_train_items_reserve or not check_train_fuel_reserve then
+        if not train_items_reserve_service.try_reserve_train_items(task, true) then
             return false
         end
 
         local train_template = persistence_storage.find_train_template_by_id(task.train_template_id)
         local train_items = train_items_reserve_service.try_reserve_train_items(task)
-        local fuel = train_items_reserve_service.try_reserve_train_fuel(task)
-        local fuel_type = util_table.array_keys(fuel)[1]
 
-        task:state_form(tick, multiplier, train_template, train_items, fuel_type)
+        task:state_form(tick, multiplier, train_template, train_items)
     end
 
     if task:is_form_time_left(tick) then

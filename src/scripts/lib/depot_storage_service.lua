@@ -1,13 +1,24 @@
 local logger = require("scripts.lib.logger")
 local VirtualInventory = require("scripts.lib.VirtualInventory")
 
-local DepotStorageService = {}
+local DepotStorageService = {
+    defines = {
+        storage_type = {
+            requester = "requester",
+            provider = "provider",
+        }
+    }
+}
 
 ---@param context scripts.lib.domain.Context
 ---@param items table<string, uint>
 ---@return bool
-function DepotStorageService.can_insert(context, items)
-    local storage_entity = DepotStorageService.get_storage_entity(context)
+function DepotStorageService.can_insert(storage_type, context, items)
+    assert(context, "context is nil")
+    assert(storage_type, "storage_type is nil")
+    assert(items, "items is nil")
+
+    local storage_entity = DepotStorageService._get_storage_entity(storage_type, context)
     ---@type LuaInventory
     local inventory = storage_entity.get_inventory(defines.inventory.chest)
     local inventory_size = storage_entity.prototype.get_inventory_size(defines.inventory.chest)
@@ -30,11 +41,12 @@ end
 
 ---@param context scripts.lib.domain.Context
 ---@param items table<string, uint>
-function DepotStorageService.insert_items(context, items)
+function DepotStorageService.insert_items(storage_type, context, items)
     assert(context, "context is nil")
+    assert(storage_type, "storage_type is nil")
     assert(items, "items is nil")
 
-    local storage = DepotStorageService.get_storage_entity(context)
+    local storage = DepotStorageService._get_storage_entity(storage_type, context)
     ---@type LuaInventory
     local inventory = storage.get_inventory(defines.inventory.chest)
 
@@ -51,11 +63,12 @@ end
 
 ---@param context scripts.lib.domain.Context
 ---@param items table<string, uint>
-function DepotStorageService.can_take(context, items)
+function DepotStorageService.can_take(storage_type, context, items)
     assert(context, "context is nil")
+    assert(storage_type, "storage_type is nil")
     assert(items, "items is nil")
 
-    local storage = DepotStorageService.get_storage_entity(context)
+    local storage = DepotStorageService._get_storage_entity(context)
     ---@type LuaInventory
     local inventory = storage.get_inventory(defines.inventory.chest)
 
@@ -70,11 +83,12 @@ end
 
 ---@param context scripts.lib.domain.Context
 ---@param items table<string, uint>
-function DepotStorageService.take(context, items)
+function DepotStorageService.take(storage_type, context, items)
     assert(context, "context is nil")
     assert(items, "items is nil")
+    assert(storage_type, "storage_type is nil")
 
-    local storage = DepotStorageService.get_storage_entity(context)
+    local storage = DepotStorageService._get_storage_entity(storage_type, context)
     ---@type LuaInventory
     local inventory = storage.get_inventory(defines.inventory.chest)
 
@@ -97,10 +111,11 @@ function DepotStorageService.convert_train_to_items(train)
     return train_contents
 end
 
+---@param storage_type atd.defines.storage_type
 ---@param context scripts.lib.domain.Context
 ---@return LuaEntity
-function DepotStorageService.get_storage_entity(context)
-    local storage = remote.call("atd", "depot_get_storage", context)
+function DepotStorageService._get_storage_entity(storage_type, context)
+    local storage = remote.call("atd", "depot_get_storage", storage_type, context)
 
     return assert(storage, 'storage is nil')
 end

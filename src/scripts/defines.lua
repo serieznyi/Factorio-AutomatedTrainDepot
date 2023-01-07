@@ -8,6 +8,11 @@ mod_defines.color = {
     white = { r = 1, g = 1, b = 1, a = 1},
 }
 
+mod_defines.storage_type = {
+    request = "request",
+    provider = "provider",
+}
+
 mod_defines.alert_type = {
     depot_storage_full = "depot_storage_full",
     depot_storage_not_contains_required_items = "depot_storage_not_contains_required_items",

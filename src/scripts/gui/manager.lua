@@ -91,7 +91,7 @@ function event_handlers.handle_storage_frame_open(event)
     ---@type LuaPlayer
     local player = game.get_player(event.player_index)
     local context = Context.from_player(player)
-    local depot_storage = remote.call("atd", "depot_get_storage", context)
+    local depot_storage = remote.call("atd", "depot_get_storage", atd.defines.storage_type.request, context)
 
     player.opened = depot_storage
 end

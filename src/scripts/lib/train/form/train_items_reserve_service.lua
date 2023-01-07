@@ -8,25 +8,39 @@ local util_table = require("scripts.util.table")
 local TrainItemsReserveService = {}
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
----@return bool
-function TrainItemsReserveService.can_reserve_items(task)
-    local context = Context.from_model(task)
-    local check_train_items_reserve = TrainItemsReserveService.try_reserve_train_items(context, task, true)
-    local check_train_fuel_reserve = TrainItemsReserveService.try_reserve_train_fuel(context, task, true)
+---@param check_only bool
+---@return table<string, uint>|bool reserved items. False if cant reserve
+function TrainItemsReserveService.try_reserve_train_items(task, check_only)
+    local train_parts_reserve = TrainItemsReserveService._try_reserve_train_parts(task, check_only)
+    local train_fuel_reserve = TrainItemsReserveService._try_reserve_train_fuel(task, check_only)
 
-    return check_train_items_reserve and check_train_fuel_reserve
+    if not train_parts_reserve or not train_fuel_reserve then
+        return false
+    end
+
+    local items = {}
+
+    for item, quantity in pairs(train_parts_reserve) do
+        items[item] = quantity
+    end
+
+    for fuel, quantity in pairs(train_fuel_reserve) do
+        items[fuel] = quantity
+    end
+
+    return items
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param check_only bool
 ---@return table<string, uint>|bool reserved items. False if cant reserve
-function TrainItemsReserveService.try_reserve_train_items(task, check_only)
+function TrainItemsReserveService._try_reserve_train_parts(task, check_only)
     check_only = check_only or false
     local context = Context.from_model(task)
     local template = persistence_storage.find_train_template_by_id(task.train_template_id)
     local train_items = template:get_train_items()
 
-    if not depot_storage_service.can_take(context, train_items) then
+    if not depot_storage_service.can_take(atd.defines.storage_type.request, context, train_items) then
         alert_service.add(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
         return false
     end
@@ -34,21 +48,21 @@ function TrainItemsReserveService.try_reserve_train_items(task, check_only)
     alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_items)
 
     if not check_only then
-        depot_storage_service.take(context, train_items)
+        depot_storage_service.take(atd.defines.storage_type.request, context, train_items)
     end
 
-    return task.train_items
+    return train_items
 end
 
 ---@param task scripts.lib.domain.entity.task.TrainFormTask
 ---@param check_only bool
 ---@return table<string, uint>|bool reserved fuel. False if cant reserve
-function TrainItemsReserveService.try_reserve_train_fuel(task, check_only)
+function TrainItemsReserveService._try_reserve_train_fuel(task, check_only)
     check_only = check_only or false
     local context = Context.from_model(task)
 
     local train_fuel = TrainItemsReserveService._get_train_fuel_for_reserve(task)
-    local allow_reserve_train_fuel = train_fuel ~= nil and depot_storage_service.can_take(context, train_fuel) or false
+    local allow_reserve_train_fuel = train_fuel ~= nil and depot_storage_service.can_take(atd.defines.storage_type.request, context, train_fuel) or false
 
     if not allow_reserve_train_fuel then
         alert_service.add(context, atd.defines.alert_type.depot_storage_not_contains_required_fuel)
@@ -58,7 +72,7 @@ function TrainItemsReserveService.try_reserve_train_fuel(task, check_only)
     alert_service.remove(context, atd.defines.alert_type.depot_storage_not_contains_required_fuel)
 
     if not check_only then
-        depot_storage_service.take(context, train_fuel)
+        depot_storage_service.take(atd.defines.storage_type.request, context, train_fuel)
     end
 
     return train_fuel
@@ -82,7 +96,7 @@ function TrainItemsReserveService._get_train_fuel_for_reserve(task)
     local potential_train_fuel = TrainItemsReserveService._get_potential_train_fuel(template)
 
     for _, fuel_data in pairs(potential_train_fuel) do
-        if depot_storage_service.can_take(context, {[fuel_data.fuel] = fuel_data.quantity}) then
+        if depot_storage_service.can_take(atd.defines.storage_type.provider, context, {[fuel_data.fuel] = fuel_data.quantity}) then
             return {[fuel_data.fuel] = fuel_data.quantity}
         end
     end

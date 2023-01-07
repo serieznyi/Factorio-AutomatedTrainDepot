@@ -139,9 +139,8 @@ function TrainsConstructor._deploy_train(context, task, tick)
 
                 ---@type LuaInventory
                 local inventory = carrier.get_inventory(defines.inventory.fuel)
-                local fuel_item_stack_size = game.item_prototypes[task.fuel].stack_size
 
-                inventory.insert({name = task.fuel, count = fuel_item_stack_size})
+                inventory.insert(task:get_fuel_item_stack())
             end
 
             carrier.train.manual_mode = false

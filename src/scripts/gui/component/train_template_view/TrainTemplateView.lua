@@ -149,7 +149,6 @@ function TrainTemplateView:_handle_show_train_map(event)
     local player = game.get_player(event.player_index)
     local train = persistence_storage.find_train(train_id)
 
-    player.print(train_id)
     player.opened = train:get_main_locomotive()
 
     return true
