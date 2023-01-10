@@ -184,12 +184,14 @@ end
 ---@param context scripts.lib.domain.Context
 function private.replace_entity_on_depot(context, entity)
     local depot_position = entity.position
+    local depot_direction = entity.direction
 
     entity.destroy{raise_destroy=false}
 
     return context:surface().create_entity({
         name = atd.defines.prototypes.entity.depot_building.name,
         position = depot_position,
+        direction = depot_direction,
         force = context:force(),
     })
 end
