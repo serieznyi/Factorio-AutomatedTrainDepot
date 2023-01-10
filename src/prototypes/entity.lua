@@ -95,12 +95,47 @@ end
 local prototypes = {}
 
 --------------- PROTOTYPE
-
+local depot_image_w_h = 1000
 local depot_size = { x = 7, y = 7}
+local depot_scale = 0.86
+local image_resolution = {depot_image_w_h, depot_image_w_h}
+local sprites = {
+    north = {
+        filename = "__AutomatedTrainDepot__/graphics/entity/depot/depot-N.png",
+        size = image_resolution,
+        priority = "medium",
+        shift = { 0, 0 },
+        scale = depot_scale,
+    },
+    east = {
+        filename = "__AutomatedTrainDepot__/graphics/entity/depot/depot-E.png",
+        size = image_resolution,
+        priority = "medium",
+        shift = { 0, 0 },
+        scale = depot_scale,
+    },
+    south = {
+        filename = "__AutomatedTrainDepot__/graphics/entity/depot/depot-S.png",
+        size = image_resolution,
+        priority = "medium",
+        shift = { 0, 0 },
+        scale = depot_scale,
+    },
+    west = {
+        filename = "__AutomatedTrainDepot__/graphics/entity/depot/depot-W.png",
+        size = image_resolution,
+        priority = "medium",
+        shift = { 0, 0 },
+        scale = depot_scale,
+    },
+}
 
 local prototype = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 prototype.tile_width = 2
 prototype.tile_height = 2
+prototype.sprites = sprites
+prototype.sheets = nil
+prototype.sheet = nil
 prototype.name = prototype_defines.entity.depot_building.guideline
 prototype.selectable_in_game = true
 prototype.selection_priority = 51
@@ -238,32 +273,6 @@ prototype = {
     resistances = {
         { type = "impact", percent = 50 },
     },
-    --fluid_boxes = {
-    --    {
-    --        production_type = "input",
-    --        pipe_picture = kr_pipe_path,
-    --        pipe_covers = pipecoverspictures(),
-    --        base_area = 10,
-    --        height = 2,
-    --        base_level = -1,
-    --        pipe_connections = {
-    --            { type = "input-output", position = { 0, -4 } },
-    --            { type = "input-output", position = { 0, 4 } },
-    --        },
-    --    },
-    --    {
-    --        production_type = "input",
-    --        pipe_picture = kr_pipe_path,
-    --        pipe_covers = pipecoverspictures(),
-    --        base_area = 10,
-    --        base_level = -1,
-    --        pipe_connections = {
-    --            { type = "input-output", position = { 4, 0 } },
-    --            { type = "input-output", position = { -4, 0 } },
-    --        },
-    --    },
-    --    off_when_no_fluid_recipe = false,
-    --},
     collision_box = selection_box_to_collision_box(selection_box),
     selection_box = selection_box,
     --fast_replaceable_group = "kr-greenhouse",
@@ -271,67 +280,177 @@ prototype = {
         module_slots = 6
     },
     allowed_effects = { "consumption", "speed", "productivity", "pollution" },
-    --animation = {
-    --    layers = {
-    --        {
-    --            filename = kr_entities_path .. "bio-lab/bio-lab.png",
-    --            priority = "high",
-    --            width = 256,
-    --            height = 256,
-    --            frame_count = 1,
-    --            hr_version = {
-    --                filename = kr_entities_path .. "bio-lab/hr-bio-lab.png",
-    --                priority = "high",
-    --                width = 512,
-    --                height = 512,
-    --                frame_count = 1,
-    --                scale = 0.5,
-    --            },
-    --        },
-    --        {
-    --            filename = kr_entities_path .. "bio-lab/bio-lab-sh.png",
-    --            priority = "high",
-    --            width = 256,
-    --            height = 256,
-    --            shift = { 0.32, 0 },
-    --            frame_count = 1,
-    --            draw_as_shadow = true,
-    --            hr_version = {
-    --                filename = kr_entities_path .. "bio-lab/hr-bio-lab-sh.png",
-    --                priority = "high",
-    --                width = 512,
-    --                height = 512,
-    --                shift = { 0.32, 0 },
-    --                frame_count = 1,
-    --                draw_as_shadow = true,
-    --                scale = 0.5,
-    --            },
-    --        },
-    --    },
-    --},
-    --working_visualisations = {
-    --    {
-    --        animation = {
-    --            filename = kr_entities_path .. "bio-lab/bio-lab-working.png",
-    --            width = 193,
-    --            height = 171,
-    --            shift = { 0.05, -0.31 },
-    --            frame_count = 30,
-    --            line_length = 5,
-    --            animation_speed = 0.35,
-    --            hr_version = {
-    --                filename = kr_entities_path .. "bio-lab/hr-bio-lab-working.png",
-    --                width = 387,
-    --                height = 342,
-    --                shift = { 0.05, -0.31 },
-    --                frame_count = 30,
-    --                line_length = 5,
-    --                scale = 0.5,
-    --                animation_speed = 0.35,
-    --            },
-    --        },
-    --    },
-    --},
+    always_draw_idle_animation = true,
+    idle_animation = {
+        north = {
+            layers = {
+                {
+                    filename = "__AutomatedTrainDepot__/graphics/entity/depot/depot-N.png",
+                    priority = "high",
+                    width = depot_image_w_h,
+                    height = depot_image_w_h,
+                    frame_count = 1,
+                    scale = depot_scale,
+                    --hr_version = {
+                    --    filename = kr_entities_path .. "bio-lab/hr-bio-lab.png",
+                    --    priority = "high",
+                    --    width = 512,
+                    --    height = 512,
+                    --    frame_count = 1,
+                    --    scale = 0.5,
+                    --},
+                },
+                {
+                    filename = "__AutomatedTrainDepot__/graphics/entity/depot/depot-shadow.png",
+                    priority = "high",
+                    width = depot_image_w_h,
+                    height = depot_image_w_h,
+                    shift = { 0, 0 },
+                    frame_count = 1,
+                    draw_as_shadow = true,
+                    scale = depot_scale,
+                    --hr_version = {
+                    --    filename = kr_entities_path .. "bio-lab/hr-bio-lab-sh.png",
+                    --    priority = "high",
+                    --    width = depot_image_w_h,
+                    --    height = depot_image_w_h,
+                    --    shift = { 0, 0 },
+                    --    frame_count = 1,
+                    --    draw_as_shadow = true,
+                    --    scale = depot_scale,
+                    --},
+                },
+            },
+        },
+        east = {
+            layers = {
+                {
+                    filename = "__AutomatedTrainDepot__/graphics/entity/depot/depot-E.png",
+                    priority = "high",
+                    width = depot_image_w_h,
+                    height = depot_image_w_h,
+                    frame_count = 1,
+                    scale = depot_scale,
+                    --hr_version = {
+                    --    filename = kr_entities_path .. "bio-lab/hr-bio-lab.png",
+                    --    priority = "high",
+                    --    width = 512,
+                    --    height = 512,
+                    --    frame_count = 1,
+                    --    scale = 0.5,
+                    --},
+                },
+                {
+                    filename = "__AutomatedTrainDepot__/graphics/entity/depot/depot-shadow.png",
+                    priority = "high",
+                    width = depot_image_w_h,
+                    height = depot_image_w_h,
+                    shift = { 0, 0 },
+                    frame_count = 1,
+                    draw_as_shadow = true,
+                    scale = depot_scale,
+                    --hr_version = {
+                    --    filename = kr_entities_path .. "bio-lab/hr-bio-lab-sh.png",
+                    --    priority = "high",
+                    --    width = depot_image_w_h,
+                    --    height = depot_image_w_h,
+                    --    shift = { 0, 0 },
+                    --    frame_count = 1,
+                    --    draw_as_shadow = true,
+                    --    scale = depot_scale,
+                    --},
+                },
+            },
+        },
+        south = {
+            layers = {
+                {
+                    filename = "__AutomatedTrainDepot__/graphics/entity/depot/depot-S.png",
+                    priority = "high",
+                    width = depot_image_w_h,
+                    height = depot_image_w_h,
+                    frame_count = 1,
+                    scale = depot_scale,
+                    --hr_version = {
+                    --    filename = kr_entities_path .. "bio-lab/hr-bio-lab.png",
+                    --    priority = "high",
+                    --    width = 512,
+                    --    height = 512,
+                    --    frame_count = 1,
+                    --    scale = 0.5,
+                    --},
+                },
+                {
+                    filename = "__AutomatedTrainDepot__/graphics/entity/depot/depot-shadow.png",
+                    priority = "high",
+                    width = depot_image_w_h,
+                    height = depot_image_w_h,
+                    shift = { 0, 0 },
+                    frame_count = 1,
+                    draw_as_shadow = true,
+                    scale = depot_scale,
+                    --hr_version = {
+                    --    filename = kr_entities_path .. "bio-lab/hr-bio-lab-sh.png",
+                    --    priority = "high",
+                    --    width = depot_image_w_h,
+                    --    height = depot_image_w_h,
+                    --    shift = { 0, 0 },
+                    --    frame_count = 1,
+                    --    draw_as_shadow = true,
+                    --    scale = depot_scale,
+                    --},
+                },
+            },
+        },
+        west = {
+            layers = {
+                {
+                    filename = "__AutomatedTrainDepot__/graphics/entity/depot/depot-W.png",
+                    priority = "high",
+                    width = depot_image_w_h,
+                    height = depot_image_w_h,
+                    frame_count = 1,
+                    scale = depot_scale,
+                    --hr_version = {
+                    --    filename = kr_entities_path .. "bio-lab/hr-bio-lab.png",
+                    --    priority = "high",
+                    --    width = 512,
+                    --    height = 512,
+                    --    frame_count = 1,
+                    --    scale = 0.5,
+                    --},
+                },
+                {
+                    filename = "__AutomatedTrainDepot__/graphics/entity/depot/depot-shadow.png",
+                    priority = "high",
+                    width = depot_image_w_h,
+                    height = depot_image_w_h,
+                    shift = { 0, 0 },
+                    frame_count = 1,
+                    draw_as_shadow = true,
+                    scale = depot_scale,
+                    --hr_version = {
+                    --    filename = kr_entities_path .. "bio-lab/hr-bio-lab-sh.png",
+                    --    priority = "high",
+                    --    width = depot_image_w_h,
+                    --    height = depot_image_w_h,
+                    --    shift = { 0, 0 },
+                    --    frame_count = 1,
+                    --    draw_as_shadow = true,
+                    --    scale = depot_scale,
+                    --},
+                },
+            },
+        },
+    },
+    fluid_boxes = {
+        {
+            production_type = "input",
+            pipe_connections = {{ type="input", position = {0, depot_size.y * -1} }},
+            hide_connection_info = true,
+        },
+        off_when_no_fluid_recipe = false
+    },
     crafting_categories = { "crafting" },
     scale_entity_info_icon = true,
     vehicle_impact_sound = sounds.generic_impact,

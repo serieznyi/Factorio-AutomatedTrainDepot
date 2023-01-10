@@ -1,5 +1,5 @@
 # 1.0.0-beta.0
-
+ - !!! ROTATE DEPOT ONLY BEFORE BUILD
  - Check depot destroy by weapon/artillery/bitters
  - Move depot inventory in player inventory on deconstruct
  - TEST. Order 3 try, mark for disband all 3 train. Depot sometimes create unnecessary train

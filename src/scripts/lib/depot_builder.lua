@@ -213,7 +213,19 @@ function private.build(context, entity)
 
     -- Storage - Requester
 
-    x, y = atd.defines.rotate_relative_position[original_entity_direction](5.5, 2.5)
+    local request_storage_y_offset, provider_storage_y_offset
+    if original_entity_direction == defines.direction.north then
+        request_storage_y_offset = 0.5
+        provider_storage_y_offset = -4.5
+    elseif original_entity_direction == defines.direction.south then
+        request_storage_y_offset = -0.5
+        provider_storage_y_offset = 4.5
+    else
+        request_storage_y_offset = 2.5
+        provider_storage_y_offset = -2.5
+    end
+
+    x, y = atd.defines.rotate_relative_position[original_entity_direction](5.5, request_storage_y_offset)
     local depot_storage_requester = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building.parts.storage_requester,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
@@ -226,7 +238,7 @@ function private.build(context, entity)
 
     -- Storage - Provider
 
-    x, y = atd.defines.rotate_relative_position[original_entity_direction](5.5, -2.5)
+    x, y = atd.defines.rotate_relative_position[original_entity_direction](5.5, provider_storage_y_offset)
     local depot_storage_provider = surface.create_entity({
         name = atd.defines.prototypes.entity.depot_building.parts.storage_provider,
         position = {guideline_coordinate.x + x, guideline_coordinate.y + y},
