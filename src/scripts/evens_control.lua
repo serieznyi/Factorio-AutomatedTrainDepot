@@ -49,7 +49,7 @@ function events_control.entity_rotated(event)
     end
 
     if entity.name == atd.defines.prototypes.entity.depot_building.name then
-        depot_builder.revert_rotation(entity, event.previous_direction)
+        depot_builder.revert_rotation(entity)
     end
 end
 

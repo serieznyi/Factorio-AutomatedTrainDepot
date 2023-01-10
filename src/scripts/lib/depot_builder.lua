@@ -427,6 +427,11 @@ function public.build(entity, player)
     private.build(context, entity)
 end
 
+---@param entity LuaEntity
+function public.revert_rotation(entity)
+    entity.rotate{reverse=true}
+end
+
 ---@param context scripts.lib.domain.Context
 ---@return LuaEntity
 function public.get_depot_output_station(context)
